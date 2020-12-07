@@ -62,6 +62,8 @@ sequelize.authenticate()
 );
 
 db.Authentication = require("./Authentication.js")(sequelize, Sequelize);
+db.SchoolDetails = require("./SchoolDetails.js")(sequelize, Sequelize);
+db.BranchDetails = require("./BranchDetails.js")(sequelize, Sequelize);
 
 module.exports = db;
 

@@ -11,7 +11,7 @@ exports.signup = (req, res) => {
   if(!req.body.email || !req.body.password){
       res.status(200).send({ message: "empty inputs" });
   }
-  // Save User to Database
+  // Save to Database
   Authentication.create({
     RecoveryEmailId: req.body.email,
     password: bcrypt.hashSync(req.body.password, 8)
@@ -60,13 +60,11 @@ exports.signin = (req, res) => {
     });
 };
 
-
 exports.test = (req, res) => {
   let token = req.headers["x-access-token"];
   const decoded = jwt.verify(token, config.secret);
   res.send({ message: "token",data: decoded.id});
 };
-
 
 exports.resetPassword = async (req, res) => {
   let token = req.headers["x-access-token"];

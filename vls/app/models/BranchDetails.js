@@ -1,20 +1,9 @@
-'use strict';
-
-module.exports = {
-  up: async (queryInterface, Sequelize) => {
-    /**
-     * Add altering commands here.
-     *
-     * Example:
-     * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
-     */
-  await queryInterface.createTable('BranchDetails', {
-      BranchVlsId: {
-        allowNull: false,
-        autoIncrement: true,
-        primaryKey: true,
-        type: Sequelize.INTEGER
-      },
+module.exports = (sequelize, Sequelize) => {
+  const BranchDetails = sequelize.define("BranchDetails", {
+    BranchVlsId: {
+        type: Sequelize.INTEGER,
+        primaryKey: true
+    },
       SchoolId: {
         allowNull: false,
         type: Sequelize.INTEGER
@@ -94,25 +83,11 @@ module.exports = {
       },
       ERPSupport: {
         type: Sequelize.BOOLEAN
-      },
-      createdAt: {
-        allowNull: false,
-        type: Sequelize.DATE
-      },
-      updatedAt: {
-        allowNull: false,
-        type: Sequelize.DATE
       }
-    });
-  },
-
-  down: async (queryInterface, Sequelize) => {
-    /**
-     * Add reverting commands here.
-     *
-     * Example:
-     * await queryInterface.dropTable('users');
-     */
-     await queryInterface.dropTable('BranchDetails');
+  },{
+    tableName: 'BranchDetails'
   }
+  );
+
+  return BranchDetails;
 };

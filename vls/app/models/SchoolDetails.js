@@ -1,25 +1,17 @@
-'use strict';
-
-module.exports = {
-  up: async (queryInterface, Sequelize) => {
-    /**
-     * Add altering commands here.
-     *
-     * Example:
-     * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
-     */
-  await queryInterface.createTable('BranchDetails', {
-      BranchVlsId: {
+module.exports = (sequelize, Sequelize) => {
+  const SchoolDetails = sequelize.define("SchoolDetails", {
+    SchoolVlsId: {
+        type: Sequelize.INTEGER,
+        primaryKey: true
+    },
+      Name: {
         allowNull: false,
-        autoIncrement: true,
-        primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.STRING
       },
-      SchoolId: {
-        allowNull: false,
-        type: Sequelize.INTEGER
+      WebsiteURL: {
+        type: Sequelize.STRING
       },
-      BranchName: {
+      Description: {
         allowNull: false,
         type: Sequelize.STRING
       },
@@ -50,20 +42,8 @@ module.exports = {
       Ratings: {
         type: Sequelize.STRING
       },
-      AssessmentSystem: {
-        type: Sequelize.STRING
-      },
-      AssessmentScheme: {
-        type: Sequelize.STRING
-      },
-      AssessmentVlsId: {
-        type: Sequelize.STRING
-      },
-      NoOfWorkingDays: {
-        type: Sequelize.STRING
-      },
       FeedbackSupport: {
-        type: Sequelize.BOOLEAN
+        type: Sequelize.STRING
       },
       LearningLibrarySuport: {
         type: Sequelize.ENUM('SMS', 'Email', 'Both')
@@ -95,24 +75,16 @@ module.exports = {
       ERPSupport: {
         type: Sequelize.BOOLEAN
       },
-      createdAt: {
-        allowNull: false,
-        type: Sequelize.DATE
+      AuthenticationType: {
+        type: Sequelize.ENUM('OTP', 'thirdparty','captcha','checkbox')
       },
-      updatedAt: {
-        allowNull: false,
-        type: Sequelize.DATE
+      SchoolSecretTokenKey: {
+        type: Sequelize.STRING
       }
-    });
-  },
-
-  down: async (queryInterface, Sequelize) => {
-    /**
-     * Add reverting commands here.
-     *
-     * Example:
-     * await queryInterface.dropTable('users');
-     */
-     await queryInterface.dropTable('BranchDetails');
+  },{
+    tableName: 'SchoolDetails'
   }
+  );
+
+  return SchoolDetails;
 };

@@ -23,6 +23,7 @@ module.exports = {
         type: Sequelize.STRING
       },
       Description: {
+        allowNull: false,
         type: Sequelize.STRING
       },
       Address: {
@@ -30,6 +31,7 @@ module.exports = {
         type: Sequelize.STRING
       },
       Contact1: {
+        allowNull: false,
         type: Sequelize.STRING
       },
       Contact2: {
@@ -39,6 +41,7 @@ module.exports = {
         type: Sequelize.STRING
       },
       EmailId1: {
+        allowNull: false,
         type: Sequelize.STRING
       },
       EmailId2: {
@@ -57,31 +60,31 @@ module.exports = {
         type: Sequelize.ENUM('SMS', 'Email', 'Both')
       },
       videoLibrarySupport: {
-        type: Sequelize.STRING
+        type: Sequelize.BOOLEAN
       },
       AssignmentSupport: {
-        type: Sequelize.STRING
+        type: Sequelize.BOOLEAN
       },
       chatSupport: {
-        type: Sequelize.STRING
+        type: Sequelize.BOOLEAN
       },
       CommunityChatSupport: {
-        type: Sequelize.STRING
+        type: Sequelize.BOOLEAN
       },
       RewardsAndRecognitionSupport: {
-        type: Sequelize.STRING
+        type: Sequelize.BOOLEAN
       },
       NotificationSupport: {
-        type: Sequelize.STRING
+        type: Sequelize.BOOLEAN
       },
       AlertSupport: {
-        type: Sequelize.STRING
+        type: Sequelize.BOOLEAN
       },
       MailboxSupport: {
-        type: Sequelize.STRING
+        type: Sequelize.BOOLEAN
       },
       ERPSupport: {
-        type: Sequelize.STRING
+        type: Sequelize.BOOLEAN
       },
       AuthenticationType: {
         type: Sequelize.ENUM('OTP', 'thirdparty','captcha','checkbox')

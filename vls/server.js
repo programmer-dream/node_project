@@ -20,7 +20,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.get("/",function(req, res){
 	res.send('landing page');
 });
-//require("./app/routes/test.routes")(app);
+
+require("./app/routes/branch.routes")(app);
+require("./app/routes/school.routes")(app);
 require('./app/routes/auth.routes')(app);
 // set port, listen for requests
 const PORT = process.env.PORT || 3000;
