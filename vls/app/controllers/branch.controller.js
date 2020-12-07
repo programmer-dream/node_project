@@ -16,6 +16,15 @@ exports.branchCreate = (req, res) => {
 	  });
    }
 };
+exports.branchList = (req, res) => {
+  return BranchDetails.findAll()
+	  .then(list => {
+  	  res.send({ message: 'School was successfully created.',
+  	  data:list});
+  }).catch(err => {
+      res.status(500).send({ message: err.message });
+  });
+};
 exports.branchView = async(req, res) => {
   if(!req.params.id){
   	 res.send({ message: 'Branch was not found' });

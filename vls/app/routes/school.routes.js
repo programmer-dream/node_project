@@ -24,6 +24,7 @@ module.exports = function(app) {
   	],schoolController.schoolCreate);
 
   app.get("/api/schoolView/:id",schoolController.schoolView);
+  app.get("/api/schoolList/",schoolController.schoolList);
   app.put("/api/schoolUpdate/:id",schoolController.schoolUpdate);
   app.delete("/api/schoolDelete/:id",schoolController.schoolDelete);
   app.delete("/api/schoolBulkDelete/",schoolController.schoolBulkDelete);

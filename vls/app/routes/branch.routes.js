@@ -24,6 +24,7 @@ module.exports = function(app) {
   	],branchController.branchCreate);
 
   app.get("/api/branchView/:id",branchController.branchView);
+  app.get("/api/branchList",branchController.branchList);
   app.put("/api/branchUpdate/:id",branchController.branchUpdate);
   app.delete("/api/branchDelete/:id",branchController.branchDelete);
 };
