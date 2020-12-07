@@ -19,7 +19,7 @@ exports.branchCreate = (req, res) => {
 exports.branchList = (req, res) => {
   return BranchDetails.findAll()
 	  .then(list => {
-  	  res.send({ message: 'School was successfully created.',
+  	  res.send({ message: 'Branch listing.',
   	  data:list});
   }).catch(err => {
       res.status(500).send({ message: err.message });

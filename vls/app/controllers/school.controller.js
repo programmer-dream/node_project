@@ -17,10 +17,9 @@ exports.schoolCreate = (req, res) => {
    }
 };
 exports.schoolList = (req, res) => {
-   
   return SchoolDetails.findAll()
 	  .then(list => {
-  	  res.send({ message: 'School was successfully created.',
+  	  res.send({ message: 'School listing.',
   	  data:list});
   }).catch(err => {
       res.status(500).send({ message: err.message });
