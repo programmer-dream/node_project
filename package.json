@@ -1,0 +1,23 @@
+{
+  "name": "vls_workspace",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start:vls": "yarn workspace vls start",
+    "start": "concurrently --kill-others-on-fail \"yarn start:vls\" ",
+    "dev:vls": "yarn workspace vls dev",
+    "dev": "concurrently --kill-others-on-fail \"yarn dev:vls\" "
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "private": true,
+  "workspaces": [
+    "vls",
+    "video"
+  ],
+  "dependencies": {
+    "concurrently": "^5.3.0"
+  }
+}

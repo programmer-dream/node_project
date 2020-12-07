@@ -1,0 +1,53 @@
+'use strict';
+
+module.exports = {
+  up: async (queryInterface, Sequelize) => {
+    /**
+     * Add altering commands here.
+     *
+     * Example:
+     * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
+     */
+  await queryInterface.createTable('SubjectFaculty', {
+      SubjectVlsId: {
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+        type: Sequelize.INTEGER
+      },
+      BranchVlsId: {
+        type: Sequelize.INTEGER
+      },
+      ClassVlsId: {
+        allowNull: false,
+        type: Sequelize.INTEGER
+      },
+      facultyVlsId: {
+        allowNull: false,
+        type: Sequelize.INTEGER
+      },
+      subject: {
+        type: Sequelize.TEXT
+      },
+
+      createdAt: {
+        allowNull: false,
+        type: Sequelize.DATE
+      },
+      updatedAt: {
+        allowNull: false,
+        type: Sequelize.DATE
+      }
+    });
+  },
+
+  down: async (queryInterface, Sequelize) => {
+    /**
+     * Add reverting commands here.
+     *
+     * Example:
+     * await queryInterface.dropTable('users');
+     */
+     await queryInterface.dropTable('SubjectFaculty');
+  }
+};
