@@ -1,7 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const { check } = require('express-validator');
-const studentController = require("../controllers/student.controller");
+const parentController = require("../controllers/parent.controller");
 
 const helper = require("../helper");
 const upload  = helper.upload;
@@ -18,20 +18,18 @@ module.exports = function(app) {
     next();
   });
 
-  app.post("/api/studentCreate",[
+  app.post("/api/parentCreate",[
     upload.single('profilepic'),
     check('firstName', 'firstName field is invalid, etc etc').not().isEmpty(),
     check('dob', 'dob field is invalid, etc etc').not().isEmpty(),
     check('contact1', 'contact1 field is invalid, etc etc').not().isEmpty(),
-    check('fatherName', 'fatherName field is invalid, etc etc').not().isEmpty(),
-    check('motherName', 'motherName field is invalid, etc etc').not().isEmpty(),
     check('Address', 'Address field is invalid, etc etc').not().isEmpty(),
-    ],studentController.create);
+    ],parentController.create);
 
-  app.get("/api/studentView/:id",studentController.view);
-  app.get("/api/studentList/",studentController.list);
-  app.put("/api/studentUpdate/:id",upload.single('profilepic'),studentController.update);
-  app.delete("/api/studentlDelete/:id",studentController.delete);
-  app.delete("/api/studentBulkDelete/",studentController.bulkDelete);
+  app.get("/api/parentView/:id",parentController.view);
+  app.get("/api/parentList/",parentController.list);
+  app.put("/api/parentUpdate/:id",upload.single('profilepic'),parentController.update);
+  app.delete("/api/parentlDelete/:id",parentController.delete);
+  app.delete("/api/parentBulkDelete/",parentController.bulkDelete);
   
 };

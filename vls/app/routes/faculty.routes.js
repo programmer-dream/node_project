@@ -19,7 +19,7 @@ module.exports = function(app) {
   });
 
   app.post("/api/facultyCreate",[
-    upload.single('img'),
+    upload.single('profilepic'),
     check('firstName', 'firstName field is invalid, etc etc').not().isEmpty(),
     check('dob', 'dob field is invalid, etc etc').not().isEmpty(),
     check('contact1', 'contact1 field is invalid, etc etc').not().isEmpty(),
@@ -30,8 +30,15 @@ module.exports = function(app) {
 
   app.get("/api/facultyView/:id",facultyController.view);
   app.get("/api/facultyList/",facultyController.list);
-  app.put("/api/facultyUpdate/:id",facultyController.update);
+  app.put("/api/facultyUpdate/:id",upload.single('profilepic'),facultyController.update);
   app.delete("/api/facultylDelete/:id",facultyController.delete);
   app.delete("/api/facultyBulkDelete/",facultyController.bulkDelete);
   
+  //faculty professional 
+  app.post("/api/faculty/Professional",facultyController.createProfessional);
+  app.get("/api/faculty/Professional/:id",facultyController.professionalView);
+  app.get("/api/faculty/Professional",facultyController.professionalList);
+  app.put("/api/faculty/Professional/:id",facultyController.professionalUpdate);
+  app.delete("/api/faculty/Professional/:id",facultyController.professionalDelete);
+  app.delete("/api/faculty/Professional/",facultyController.professionalBulkDelete);
 };
