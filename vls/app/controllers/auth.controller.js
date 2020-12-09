@@ -60,11 +60,11 @@ exports.signin = (req, res) => {
     });
 };
 
-exports.test = (req, res) => {
-  let token = req.headers["x-access-token"];
-  const decoded = jwt.verify(token, config.secret);
-  res.send({ message: "token",data: decoded.id});
-};
+// exports.test = (req, res) => {
+//   let token = req.headers["x-access-token"];
+//   const decoded = jwt.verify(token, config.secret);
+//   res.send({ message: "token",data: decoded.id});
+// };
 
 exports.resetPassword = async (req, res) => {
   let token = req.headers["x-access-token"];
