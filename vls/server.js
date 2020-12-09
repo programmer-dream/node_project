@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const path = require("path");
 require('dotenv').config()
 
 const app = express();
@@ -8,6 +9,8 @@ const app = express();
 var corsOptions = {
   origin: "*"
 };
+
+app.use(express.static(path.join(__dirname, 'uploads')));
 
 app.use(cors(corsOptions));
 // parse requests of content-type - application/json
@@ -24,6 +27,8 @@ app.get("/",function(req, res){
 require("./app/routes/branch.routes")(app);
 require("./app/routes/school.routes")(app);
 require('./app/routes/auth.routes')(app);
+require('./app/routes/student.routes')(app);
+require('./app/routes/faculty.routes')(app);
 // set port, listen for requests
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

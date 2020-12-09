@@ -16,10 +16,10 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       BranchVlsId: {
-        allowNull: false,
         type: Sequelize.INTEGER
       },
       firstName: {
+        allowNull: false,
         type: Sequelize.STRING
       },
       middleName: {
@@ -29,12 +29,14 @@ module.exports = {
         type: Sequelize.STRING
       },
       dob: {
+        allowNull: false,
         type: Sequelize.STRING
       },
       sex: {
         type: Sequelize.STRING
       },
       contact1: {
+        allowNull: false,
         type: Sequelize.STRING
       },
       contact2: {
@@ -74,12 +76,14 @@ module.exports = {
         type: Sequelize.STRING
       },
       fatherName: {
+        allowNull: false,
         type: Sequelize.STRING
       },
       fatherQualification: {
         type: Sequelize.STRING
       },
       motherName: {
+        allowNull: false,
         type: Sequelize.STRING
       },
       motherQualification: {

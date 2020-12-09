@@ -1,25 +1,14 @@
-'use strict';
-
-module.exports = {
-  up: async (queryInterface, Sequelize) => {
-    /**
-     * Add altering commands here.
-     *
-     * Example:
-     * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
-     */
-  await queryInterface.createTable('StudentPersonal', {
+module.exports = (sequelize, Sequelize) => {
+  const StudentPersonal = sequelize.define("StudentPersonal", {
       StudentPersonalId: {
-        allowNull: false,
-        autoIncrement: true,
+        type: Sequelize.INTEGER,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        autoIncrement: true
       },
       StudentVlsId: {
         type: Sequelize.INTEGER
       },
       firstName: {
-        allowNull: false,
         type: Sequelize.STRING
       },
       middleName: {
@@ -29,11 +18,9 @@ module.exports = {
         type: Sequelize.STRING
       },
       dob: {
-        allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.STRING
       },
       contact1: {
-        allowNull: false,
         type: Sequelize.STRING
       },
       contact2: {
@@ -43,14 +30,12 @@ module.exports = {
         type: Sequelize.STRING
       },
       fatherName: {
-        allowNull: false,
         type: Sequelize.STRING
       },
       fatherQualification: {
         type: Sequelize.STRING
       },
       motherName: {
-        allowNull: false,
         type: Sequelize.STRING
       },
       motherQualification: {
@@ -60,7 +45,6 @@ module.exports = {
         type: Sequelize.STRING
       },
       Address: {
-        allowNull: false,
         type: Sequelize.STRING
       },
       Hobbies: {
@@ -68,25 +52,11 @@ module.exports = {
       },
       PassionVlsId: {
         type: Sequelize.STRING
-      },
-      createdAt: {
-        allowNull: false,
-        type: Sequelize.DATE
-      },
-      updatedAt: {
-        allowNull: false,
-        type: Sequelize.DATE
       }
-    });
-  },
-
-  down: async (queryInterface, Sequelize) => {
-    /**
-     * Add reverting commands here.
-     *
-     * Example:
-     * await queryInterface.dropTable('users');
-     */
-     await queryInterface.dropTable('StudentPersonal');
+  },{
+    tableName: 'StudentPersonal'
   }
+  );
+
+  return StudentPersonal;
 };

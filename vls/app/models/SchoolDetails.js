@@ -2,7 +2,8 @@ module.exports = (sequelize, Sequelize) => {
   const SchoolDetails = sequelize.define("SchoolDetails", {
     SchoolVlsId: {
         type: Sequelize.INTEGER,
-        primaryKey: true
+        primaryKey: true,
+        autoIncrement: true
     },
       Name: {
         allowNull: false,

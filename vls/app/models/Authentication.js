@@ -9,6 +9,12 @@ module.exports = (sequelize, Sequelize) => {
     },
     password: {
       type: Sequelize.STRING
+    },
+    userType: {
+      type: Sequelize.ENUM('Student','Faculty','Parent','Admin')
+    },
+    UserId: {
+      type: Sequelize.INTEGER
     }
   },{
     tableName: 'Authentication'
