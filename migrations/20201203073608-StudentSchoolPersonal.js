@@ -9,16 +9,16 @@ module.exports = {
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
   await queryInterface.createTable('StudentSchoolPersonal', {
-      StudentSchoolVlsId: {
+      studentSchoolVlsId: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      StudentVlsId: {
+      studentVlsId: {
         type: Sequelize.INTEGER
       },
-      BranchVlsId: {
+      branchVlsId: {
         type: Sequelize.INTEGER
       },
       firstName: {
@@ -65,17 +65,17 @@ module.exports = {
       profilepic: {
         type: Sequelize.STRING
       },
-      Address: {
+      address: {
         allowNull: false,
         type: Sequelize.STRING
       },
-      Hobbies: {
+      hobbies: {
         type: Sequelize.STRING
       },
-      ParentVlsId: {
+      parentVlsId: {
         type: Sequelize.INTEGER
       },
-      PassionVlsId: {
+      passionVlsId: {
         type: Sequelize.INTEGER
       },
       createdAt: {

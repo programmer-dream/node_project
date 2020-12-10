@@ -9,22 +9,22 @@ module.exports = {
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
   await queryInterface.createTable('PassionAndInterests', {
-      PassionVlsId: {
+      passionVlsId: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      PassionName: {
+      passionName: {
         type: Sequelize.STRING
       },
-      PassionType: {
+      passionType: {
         type: Sequelize.STRING
       },
-      CommunityChatVlsId: {
+      communityChatVlsId: {
         type: Sequelize.STRING
       },
-      Description: {
+      description: {
         type: Sequelize.STRING
       },
       createdAt: {

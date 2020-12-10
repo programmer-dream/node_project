@@ -9,13 +9,13 @@ module.exports = {
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
   await queryInterface.createTable('StudentVlsReport', {
-      StudentVlsReportId: {
+      studentVlsReportId: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      StudentVlsId: {
+      studentVlsId: {
         type: Sequelize.INTEGER
       },
       testId: {

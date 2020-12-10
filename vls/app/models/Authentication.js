@@ -1,10 +1,10 @@
 module.exports = (sequelize, Sequelize) => {
   const Authentication = sequelize.define("Authentication", {
-    AuthVlsId: {
+    authVlsId: {
         type: Sequelize.INTEGER,
         primaryKey: true
     },
-    RecoveryEmailId: {
+    recoveryEmailId: {
       type: Sequelize.STRING
     },
     password: {
@@ -13,7 +13,7 @@ module.exports = (sequelize, Sequelize) => {
     userType: {
       type: Sequelize.ENUM('Student','Faculty','Parent','Admin')
     },
-    UserId: {
+    userId: {
       type: Sequelize.INTEGER
     },
     oldPassword1: {

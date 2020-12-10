@@ -5,7 +5,7 @@ module.exports = (sequelize, Sequelize) => {
         primaryKey: true,
         autoIncrement: true
       },
-      BranchVlsId: {
+      branchVlsId: {
         type: Sequelize.INTEGER
       },
       firstName: {
@@ -38,31 +38,31 @@ module.exports = (sequelize, Sequelize) => {
       qualification1: {
         type: Sequelize.STRING
       },
-      Degree1: {
+      degree1: {
         type: Sequelize.STRING
       },
-      University1: {
+      university1: {
         type: Sequelize.STRING
       },
-      Year1: {
+      year1: {
         type: Sequelize.STRING
       },
-      Degree2: {
+      degree2: {
         type: Sequelize.STRING
       },
-      University2: {
+      university2: {
         type: Sequelize.STRING
       },
-      Year2: {
+      year2: {
         type: Sequelize.STRING
       },
-      Degree3: {
+      degree3: {
         type: Sequelize.STRING
       },
-      University3: {
+      university3: {
         type: Sequelize.STRING
       },
-      Year3: {
+      year3: {
         type: Sequelize.STRING
       },
       fatherName: {
@@ -79,7 +79,7 @@ module.exports = (sequelize, Sequelize) => {
       motherQualification: {
         type: Sequelize.STRING
       },
-      EmergencyContact: {
+      emergencyContact: {
         type: Sequelize.STRING
       },
       profilepic: {
@@ -88,7 +88,7 @@ module.exports = (sequelize, Sequelize) => {
       motherQualification: {
         type: Sequelize.STRING
       },
-      Hobbies: {
+      hobbies: {
         type: Sequelize.STRING
       },
       createdAt: {

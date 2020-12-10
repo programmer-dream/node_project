@@ -8,7 +8,7 @@ module.exports = (sequelize, Sequelize) => {
       facultyVlsId: {
         type: Sequelize.INTEGER
       },
-      BranchVlsId: {
+      branchVlsId: {
         type: Sequelize.INTEGER
       },
       designation: {

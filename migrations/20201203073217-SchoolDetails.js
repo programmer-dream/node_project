@@ -9,87 +9,87 @@ module.exports = {
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
   await queryInterface.createTable('SchoolDetails', {
-      SchoolVlsId: {
+      schoolVlsId: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      Name: {
+      name: {
         allowNull: false,
         type: Sequelize.STRING
       },
-      WebsiteURL: {
+      websiteURL: {
         type: Sequelize.STRING
       },
-      Description: {
+      description: {
         allowNull: false,
         type: Sequelize.STRING
       },
-      Address: {
+      address: {
         allowNull: false,
         type: Sequelize.STRING
       },
-      Contact1: {
+      contact1: {
         allowNull: false,
         type: Sequelize.STRING
       },
-      Contact2: {
+      contact2: {
         type: Sequelize.STRING
       },
-      Contact3: {
+      contact3: {
         type: Sequelize.STRING
       },
-      EmailId1: {
+      emailId1: {
         allowNull: false,
         type: Sequelize.STRING
       },
-      EmailId2: {
+      emailId2: {
         type: Sequelize.STRING
       },
-      Notes: {
+      notes: {
         type: Sequelize.STRING
       },
-      Ratings: {
+      ratings: {
         type: Sequelize.STRING
       },
-      FeedbackSupport: {
+      feedbackSupport: {
         type: Sequelize.STRING
       },
-      LearningLibrarySuport: {
+      learningLibrarySuport: {
         type: Sequelize.ENUM('SMS', 'Email', 'Both')
       },
       videoLibrarySupport: {
         type: Sequelize.BOOLEAN
       },
-      AssignmentSupport: {
+      assignmentSupport: {
         type: Sequelize.BOOLEAN
       },
       chatSupport: {
         type: Sequelize.BOOLEAN
       },
-      CommunityChatSupport: {
+      communityChatSupport: {
         type: Sequelize.BOOLEAN
       },
-      RewardsAndRecognitionSupport: {
+      rewardsAndRecognitionSupport: {
         type: Sequelize.BOOLEAN
       },
-      NotificationSupport: {
+      notificationSupport: {
         type: Sequelize.BOOLEAN
       },
-      AlertSupport: {
+      alertSupport: {
         type: Sequelize.BOOLEAN
       },
-      MailboxSupport: {
+      mailboxSupport: {
         type: Sequelize.BOOLEAN
       },
       ERPSupport: {
         type: Sequelize.BOOLEAN
       },
-      AuthenticationType: {
+      authenticationType: {
         type: Sequelize.ENUM('OTP', 'thirdparty','captcha','checkbox')
       },
-      SchoolSecretTokenKey: {
+      schoolSecretTokenKey: {
         type: Sequelize.STRING
       },
       createdAt: {

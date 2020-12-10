@@ -9,22 +9,22 @@ module.exports = {
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
     await queryInterface.createTable('Authentication', {
-      AuthVlsId: {
+      authVlsId: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      UserId: {
+      userId: {
         type: Sequelize.INTEGER
       },
       password: {
         type: Sequelize.STRING
       },
-      SchoolVlsId: {
+      schoolVlsId: {
         type: Sequelize.INTEGER
       },
-      BranchVlsId: {
+      branchVlsId: {
         type: Sequelize.INTEGER
       },
       userType: {
@@ -45,7 +45,7 @@ module.exports = {
         allowNull: true,
         type: Sequelize.STRING
       },
-      PasswordCriteria: {
+      passwordCriteria: {
         allowNull: true,
         type: Sequelize.STRING
       },
@@ -53,19 +53,19 @@ module.exports = {
         allowNull: true,
         type: Sequelize.INTEGER
       },
-      RecoveryEmailId: {
+      recoveryEmailId: {
         allowNull: true,
         type: Sequelize.STRING
       },
-      PasswordResetType: {
+      passwordResetType: {
         allowNull: true,
         type: Sequelize.ENUM('OTP', 'PasswordResetLink')
       },
-      RecoveryContactNo: {
+      recoveryContactNo: {
         allowNull: true,
         type: Sequelize.STRING
       },
-      AutenticationType: {
+      autenticationType: {
         allowNull: true,
         type: Sequelize.ENUM('OTP', 'Captcha','Checkbox','thirdParty')
       },
