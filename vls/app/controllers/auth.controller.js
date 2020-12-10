@@ -22,11 +22,14 @@ exports.signup = (req, res) => {
   if(!req.body.userName || !req.body.password){
       res.status(200).send({ message: "empty inputs" });
   }
+
+  let password = bcrypt.hashSync(req.body.password, 8)
   // Save to Database
   Authentication.create({
     UserId: req.body.userName,
-    password: bcrypt.hashSync(req.body.password, 8),
-    userType: 'Admin'
+    password: password,
+    userType: 'Admin',
+    oldPassword1: password
   }).then(Authentication => {
       res.send({ message: "User was registered successfully!" });
   }).catch(err => {
