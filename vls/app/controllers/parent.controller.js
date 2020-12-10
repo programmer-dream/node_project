@@ -2,7 +2,7 @@ const { validationResult } = require('express-validator');
 const db = require("../models");
 const Op = db.Sequelize.Op;
 const sequelize = db.sequelize;
-
+const bcrypt = require("bcryptjs");
 const Parent = db.Parent;
 const Authentication = db.Authentication;
 
@@ -16,10 +16,22 @@ exports.create = async (req, res) => {
    	   	  if(req.file){
 			req.body.profilepic = req.file.filename;
 		 }
+
+		 let latestUser = await Authentication.findOne({ order: [ [ 'UserId', 'DESC' ]] });
+		 if(latestUser && latestUser.UserId){
+			req.body.ParentVlsId = latestUser.UserId + 1
+		 }else{
+			let UserId = Math.floor(1000 + Math.random() * 9000);
+			req.body.ParentVlsId = UserId
+		 }
+		 
    		 const parent = await Parent.create(req.body,{ transaction: t });
+   		 let password = bcrypt.hashSync(req.body.password, 8);
    		 let auth = {
    		 				userType:"Parent",
-   		 				UserId:parent.ParentVlsId
+   		 				UserId:parent.ParentVlsId,
+   		 				password:password,
+   		 				oldPassword1:password
    		 };
    		 await Authentication.create(auth,{ transaction: t });
    		 await t.commit();

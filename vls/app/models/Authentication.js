@@ -15,6 +15,15 @@ module.exports = (sequelize, Sequelize) => {
     },
     UserId: {
       type: Sequelize.INTEGER
+    },
+    oldPassword1: {
+      type: Sequelize.INTEGER
+    },
+    oldPassword2: {
+      type: Sequelize.INTEGER
+    },
+    oldPassword3: {
+      type: Sequelize.INTEGER
     }
   },{
     tableName: 'Authentication'

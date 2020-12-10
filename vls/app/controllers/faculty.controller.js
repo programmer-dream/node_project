@@ -1,7 +1,7 @@
 const { validationResult } = require('express-validator');
 const db = require("../models");
 const Op = db.Sequelize.Op;
-
+const bcrypt = require("bcryptjs");
 const facultyPersonal = db.facultyPersonal;
 const facultyProfessional = db.facultyProfessional;
 const Authentication = db.Authentication;
@@ -27,9 +27,12 @@ exports.create = async (req, res) => {
 		}
 
    		 const faculty = await facultyPersonal.create(req.body,{ transaction: t });
+   		 let password = bcrypt.hashSync(req.body.password, 8);
    		 let auth = {
    		 				userType:"Faculty",
-   		 				UserId:faculty.facultyVlsId
+   		 				UserId:faculty.facultyVlsId,
+   		 				password:password,
+   		 				oldPassword1:password
    		 };
    		 await Authentication.create(auth,{ transaction: t });
    		 await t.commit();

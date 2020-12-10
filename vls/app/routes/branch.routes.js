@@ -26,6 +26,13 @@ module.exports = function(app) {
 
   app.get("/api/branchView/:id",authJwt.verifyToken,branchController.branchView);
   app.get("/api/branchList",authJwt.verifyToken,branchController.branchList);
-  app.put("/api/branchUpdate/:id",authJwt.verifyToken,branchController.branchUpdate);
+  app.put("/api/branchUpdate/:id",[
+    authJwt.verifyToken,
+    check('BranchName','BranchName field is required.').not().isEmpty(),
+    check('Contact1','Contact1 field is required.').not().isEmpty(),
+    check('EmailId1','Enter valid email.').not().isEmpty(),
+    check('Address','Address field is required.').not().isEmpty(),
+    check('SchoolId','SchoolId field is required.').not().isEmpty()
+    ],branchController.branchUpdate);
   app.delete("/api/branchDelete/:id",authJwt.verifyToken,branchController.branchDelete);
 };

@@ -21,17 +21,28 @@ module.exports = function(app) {
   app.post("/api/facultyCreate",[
     upload.single('profilepic'),
     authJwt.verifyToken,
-    check('firstName', 'firstName field is invalid, etc etc').not().isEmpty(),
-    check('dob', 'dob field is invalid, etc etc').not().isEmpty(),
-    check('contact1', 'contact1 field is invalid, etc etc').not().isEmpty(),
-    check('fatherName', 'fatherName field is invalid, etc etc').not().isEmpty(),
-    check('motherName', 'motherName field is invalid, etc etc').not().isEmpty(),
-    check('Address', 'Address field is invalid, etc etc').not().isEmpty(),
+    check('firstName', 'firstName field is required.').not().isEmpty(),
+    check('dob', 'dob field is required.').not().isEmpty(),
+    check('contact1', 'contact1 field is required.').not().isEmpty(),
+    check('fatherName', 'fatherName field is required.').not().isEmpty(),
+    check('motherName', 'motherName field is required.').not().isEmpty(),
+    check('Address', 'Address field is required.').not().isEmpty(),
+    check('password', 'password field is reuired.').not().isEmpty()
     ],facultyController.create);
 
   app.get("/api/facultyView/:id",authJwt.verifyToken,facultyController.view);
   app.get("/api/facultyList/",authJwt.verifyToken,facultyController.list);
-  app.put("/api/facultyUpdate/:id",[upload.single('profilepic'),authJwt.verifyToken],facultyController.update);
+  app.put("/api/facultyUpdate/:id",[
+    upload.single('profilepic'),
+    authJwt.verifyToken,
+    check('firstName', 'firstName field is required.').not().isEmpty(),
+    check('dob', 'dob field is required.').not().isEmpty(),
+    check('contact1', 'contact1 field is required.').not().isEmpty(),
+    check('fatherName', 'fatherName field is required.').not().isEmpty(),
+    check('motherName', 'motherName field is required.').not().isEmpty(),
+    check('Address', 'Address field is required.').not().isEmpty(),
+    check('password', 'password field is reuired.').not().isEmpty()
+    ],facultyController.update);
   app.delete("/api/facultylDelete/:id",authJwt.verifyToken,facultyController.delete);
   app.delete("/api/facultyBulkDelete/",authJwt.verifyToken,facultyController.bulkDelete);
   

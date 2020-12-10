@@ -5,6 +5,7 @@ const StudentPersonal = db.StudentPersonal;
 const StudentSchoolPersonal = db.StudentSchoolPersonal;
 const Authentication = db.Authentication;
 const sequelize = db.sequelize;
+const bcrypt = require("bcryptjs");
 
 exports.create = async (req, res) => {
 	const t = await sequelize.transaction();
@@ -20,7 +21,7 @@ exports.create = async (req, res) => {
 	   	   	// Check if userId exit else create new userId
 			let latestUser = await Authentication.findOne({ order: [ [ 'UserId', 'DESC' ]] });
 			if(latestUser && latestUser.UserId){
-				req.body.StudentPersonalId = latestUser.UserId + 1
+				req.body.StudentSchoolVlsId = latestUser.UserId + 1
 				req.body.StudentPersonalId = latestUser.UserId + 1
 				req.body.StudentVlsId = latestUser.UserId + 1
 			}else{
@@ -32,10 +33,12 @@ exports.create = async (req, res) => {
 
 			await StudentPersonal.create(req.body,{ transaction: t });
 			const student = await StudentSchoolPersonal.create(req.body,{ transaction: t });
-
+			let password = bcrypt.hashSync(req.body.password, 8);
 			let auth = {
 				userType:"Student",
-				UserId:student.StudentSchoolVlsId
+				UserId:student.StudentSchoolVlsId,
+				password:password,
+				oldPassword1:password
 			};
 			await Authentication.create(auth,{ transaction: t });
 			await t.commit();
