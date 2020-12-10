@@ -9,72 +9,72 @@ module.exports = {
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
   await queryInterface.createTable('Feedback', {
-      FeedbackId: {
+      feedbackId: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      ReplyVlsId: {
+      replyVlsId: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      BranchVlsId: {
+      branchVlsId: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      FeedbackType: {
+      feedbackType: {
         type: Sequelize.ENUM('Query','LearningLibrary','VideoLibrary','Ticket')
       },
-      QueryVlsId: {
+      queryVlsId: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      LearningLibraryVlsId: {
+      learningLibraryVlsId: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      VideoLibraryVlsId: {
+      videoLibraryVlsId: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      LiveMeetingVlsId: {
+      liveMeetingVlsId: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      TicketVlsId: {
+      ticketVlsId: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      ReplyUserType: {
+      replyUserType: {
         allowNull: false,
         type: Sequelize.ENUM('student','Faculty','Parent')
       },
-      ReplyMessage: {
+      replyMessage: {
         allowNull: false,
         type: Sequelize.STRING
       },
-      StudentVlsId: {
+      studentVlsId: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      TeacherVlsId: {
+      teacherVlsId: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      ParentVlsId: {
+      parentVlsId: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      ReplyDate: {
+      replyDate: {
         allowNull: false,
         type: Sequelize.DATE
       },
-      NextReplyVlsId: {
+      nextReplyVlsId: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      ReplyReplyVlsId: {
+      replyReplyVlsId: {
         allowNull: false,
         type: Sequelize.INTEGER
       },

@@ -9,41 +9,41 @@ module.exports = {
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
   await queryInterface.createTable('AssignmentQuestions', {
-      AssignmentQuestionId: {
+      assignmentQuestionId: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      BranchVlsId: {
+      branchVlsId: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      AssignmentVlsId: {
+      assignmentVlsId: {
         allowNull: false,
         type: Sequelize.STRING
       },
-      QuestionType: {
+      questionType: {
         allowNull: false,
         type: Sequelize.ENUM('Form','Choice','MultipleChecklist','Offline')
       },
-      Question: {
+      question: {
         allowNull: false,
         type: Sequelize.STRING
       },
-      Description: {
+      description: {
         type: Sequelize.STRING
       },
-      Choice1: {
+      choice1: {
         type: Sequelize.STRING
       },
-      Choice2: {
+      choice2: {
         type: Sequelize.STRING
       },
-      Choice3: {
+      choice3: {
         type: Sequelize.STRING
       },
-      Choice4: {
+      choice4: {
         type: Sequelize.STRING
       },
       nextAssignmentQuestionId: {

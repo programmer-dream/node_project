@@ -1,11 +1,11 @@
 module.exports = (sequelize, Sequelize) => {
   const Parent = sequelize.define("Parent", {
-      ParentVlsId: {
+      parentVlsId: {
         type: Sequelize.INTEGER,
         primaryKey: true,
         autoIncrement: true
       },
-      BranchVlsId: {
+      branchVlsId: {
         //allowNull: false,
         type: Sequelize.INTEGER
       },
@@ -37,13 +37,13 @@ module.exports = (sequelize, Sequelize) => {
       profilepic: {
         type: Sequelize.STRING
       },
-      Address: {
+      address: {
         type: Sequelize.STRING
       },
-      Hobbies: {
+      hobbies: {
         type: Sequelize.STRING
       },
-      EmergencyContact: {
+      emergencyContact: {
         type: Sequelize.STRING
       },
       createdAt: {

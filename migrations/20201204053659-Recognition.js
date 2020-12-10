@@ -9,34 +9,34 @@ module.exports = {
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
   await queryInterface.createTable('Recognition', {
-      RecognitionVlsId: {
+      recognitionVlsId: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      BranchVlsId: {
+      branchVlsId: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      StudentVlsId: {
+      studentVlsId: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      TeacherVlsId: {
+      teacherVlsId: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      Subject: {
+      subject: {
         type: Sequelize.STRING
       },
-      Description: {
+      description: {
         type: Sequelize.STRING
       },
-      Date: {
+      date: {
         type: Sequelize.DATE
       },
-      Rating: {
+      rating: {
         type: Sequelize.STRING
       },
       createdAt: {

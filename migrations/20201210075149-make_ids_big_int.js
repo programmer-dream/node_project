@@ -3,19 +3,19 @@
 module.exports = {
     up: (queryInterface, Sequelize) => {
         return Promise.all([
-            queryInterface.changeColumn('StudentPersonal', 'StudentPersonalId', {
+            queryInterface.changeColumn('StudentPersonal', 'studentPersonalId', {
                 type: Sequelize.BIGINT,
                 allowNull: true,
             }),
-            queryInterface.changeColumn('StudentPersonal', 'StudentVlsId', {
+            queryInterface.changeColumn('StudentPersonal', 'studentVlsId', {
                 type: Sequelize.BIGINT,
                 allowNull: true,
             }),
-            queryInterface.changeColumn('StudentSchoolPersonal', 'StudentSchoolVlsId', {
+            queryInterface.changeColumn('StudentSchoolPersonal', 'studentSchoolVlsId', {
                 type: Sequelize.BIGINT,
                 allowNull: true,
             }),
-            queryInterface.changeColumn('StudentSchoolPersonal', 'StudentVlsId', {
+            queryInterface.changeColumn('StudentSchoolPersonal', 'studentVlsId', {
                 type: Sequelize.BIGINT,
                 allowNull: true,
             }),
@@ -27,15 +27,15 @@ module.exports = {
                 type: Sequelize.BIGINT,
                 allowNull: true,
             }),
-            queryInterface.changeColumn('Parent', 'ParentVlsId', {
+            queryInterface.changeColumn('Parent', 'parentVlsId', {
                 type: Sequelize.BIGINT,
                 allowNull: true,
             }),
-            queryInterface.changeColumn('Authentication', 'UserId', {
+            queryInterface.changeColumn('Authentication', 'userId', {
                 type: Sequelize.BIGINT,
                 allowNull: true,
             }),
-            queryInterface.changeColumn('StudentSchoolPersonal', 'ParentVlsId', {
+            queryInterface.changeColumn('StudentSchoolPersonal', 'parentVlsId', {
                 type: Sequelize.BIGINT,
                 allowNull: true,
             })

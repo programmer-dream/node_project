@@ -9,66 +9,66 @@ module.exports = {
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
   await queryInterface.createTable('StudentQuery', {
-      BranchTimesheetId: {
+      branchTimesheetId: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      BranchVlsId: {
+      branchVlsId: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      QueryVlsId: {
+      queryVlsId: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      StudentVlsId: {
+      studentVlsId: {
         type: Sequelize.INTEGER
       },
-      ClassVlsId: {
+      classVlsId: {
         type: Sequelize.INTEGER
       },
-      QueryType: {
+      queryType: {
         type: Sequelize.STRING
       },
-      QueryDate: {
+      queryDate: {
         type: Sequelize.STRING
       },
-      QueryStatus: {
+      queryStatus: {
         type: Sequelize.ENUM('open','Inprogress','Closed','Rejected')
       },
-      Topic: {
+      topic: {
         type: Sequelize.STRING
       },
-      Subject: {
+      subject: {
         type: Sequelize.STRING
       },
-      QueryLevel: {
+      queryLevel: {
         type: Sequelize.ENUM('Basic', 'Intermediate','Expert')
       },
-      Headline: {
+      headline: {
         type: Sequelize.STRING
       },
-      Description: {
+      description: {
         type: Sequelize.STRING
       },
-      Response: {
+      response: {
         type: Sequelize.STRING
       },
-      ResponseDate: {
+      responseDate: {
         type: Sequelize.STRING
       },
-      ReplyVlsId: {
+      replyVlsId: {
         type: Sequelize.INTEGER
       },
-      Rating: {
+      rating: {
         type: Sequelize.STRING
       },
-      Likes: {
+      likes: {
         type: Sequelize.STRING
       },
-      Tags: {
+      tags: {
         type: Sequelize.STRING
       },
       createdAt: {
