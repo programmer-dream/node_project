@@ -29,7 +29,8 @@ exports.create = async (req, res) => {
    		 let password = bcrypt.hashSync(req.body.password, 8);
    		 let auth = {
    		 				userType:"Parent",
-   		 				UserId:parent.ParentVlsId,
+   		 				userVlsId:parent.ParentVlsId,
+   		 				UserId: req.body.userName,
    		 				password:password,
    		 				oldPassword1:password
    		 };

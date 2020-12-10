@@ -17,20 +17,13 @@ exports.create = async (req, res) => {
    	   	if(req.file){
 			req.body.profilepic = req.file.filename;
 		  }
-   	   	// Check if userId exit else create new userId
-   	   	let latestUser = await Authentication.findOne({ order: [ [ 'UserId', 'DESC' ]] });
-		if(latestUser && latestUser.UserId){
-			req.body.facultyVlsId = latestUser.UserId + 1
-		}else{
-			let UserId = Math.floor(1000 + Math.random() * 9000);
-			req.body.facultyVlsId = UserId
-		}
 
    		 const faculty = await facultyPersonal.create(req.body,{ transaction: t });
    		 let password = bcrypt.hashSync(req.body.password, 8);
    		 let auth = {
    		 				userType:"Faculty",
-   		 				UserId:faculty.facultyVlsId,
+   		 				userVlsId:faculty.facultyVlsId,
+   		 				UserId: req.body.userName,
    		 				password:password,
    		 				oldPassword1:password
    		 };

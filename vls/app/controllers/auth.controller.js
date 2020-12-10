@@ -60,7 +60,12 @@ exports.signin = (req, res) => {
         });
       }
 
-      var token = jwt.sign({ id: Authentication.AuthVlsId,UserId:Authentication.UserId, type:Authentication.userType }, config.secret, {
+      var token = jwt.sign({  
+                              id: Authentication.AuthVlsId,
+                              userId:Authentication.UserId, 
+                              type:Authentication.userType,
+                              userVlsId:Authentication.userVlsId
+                          }, config.secret, {
         expiresIn: 86400 // 24 hours
       });
 
