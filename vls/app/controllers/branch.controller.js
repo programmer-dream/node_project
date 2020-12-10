@@ -45,7 +45,7 @@ exports.branchUpdate = (req, res) => {
   	 res.send({ success: false, message: 'Branch not found' });
   }else{
 	   return BranchDetails.update(req.body, {
-	    where: { BranchVlsId: req.params.id }
+	    where: { branchVlsId: req.params.id }
 	  }).then(async (num) => {
 	      if (num == 1) {
 	      	let branch = await BranchDetails.findByPk(req.params.id);
@@ -57,7 +57,7 @@ exports.branchUpdate = (req, res) => {
 	      } else {
 	        res.send({
 	          success: false,
-	          message: `Cannot update Branch with id=${id}. Maybe Branch was not found or req.body is empty!`
+	          message: `Cannot update Branch with id=${req.params.id}. Maybe Branch was not found or req.body is empty!`
 	        });
 	      }
      }).catch(err => {
@@ -72,7 +72,7 @@ exports.branchDelete = (req, res) => {
   	 res.send({ success: false, message: 'Branch not found' });
   }else{
 	  BranchDetails.destroy({
-	    where: { BranchVlsId: req.params.id }
+	    where: { branchVlsId: req.params.id }
 	  })
 	    .then(num => {
 	      if (num == 1) {
@@ -83,7 +83,7 @@ exports.branchDelete = (req, res) => {
 	      } else {
 	        res.send({
 	          success: false,
-	          message: `Cannot delete Branch with id=${id}. Maybe School was not found!`
+	          message: `Cannot delete Branch with id=${req.params.id}. Maybe School was not found!`
 	        });
 	      }
 	    })

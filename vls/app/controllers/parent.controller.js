@@ -30,7 +30,7 @@ exports.create = async (req, res) => {
    		 let auth = {
    		 				userType:"Parent",
    		 				userVlsId:parent.ParentVlsId,
-   		 				UserId: req.body.userName,
+   		 				userId: req.body.userName,
    		 				password:password,
    		 				oldPassword1:password
    		 };
@@ -68,7 +68,7 @@ exports.update = (req, res) => {
 			req.body.profilepic = req.file.filename;
 	  	}
 	   return Parent.update(req.body, {
-	    where: { ParentVlsId: req.params.id }
+	    where: { parentVlsId: req.params.id }
 	  }).then(async (num) => {
 	      if (num >= 1) {
 	      	let school = await Parent.findByPk(req.params.id)
@@ -93,7 +93,7 @@ exports.delete = (req, res) => {
   	 res.send({ success: false, message: 'Parent not found' });
   }else{
 	  Parent.destroy({
-	    where: { ParentVlsId: req.params.id }
+	    where: { parentVlsId: req.params.id }
 	  })
 	    .then(num => {
 	      if (num == 1) {
@@ -118,7 +118,7 @@ exports.bulkDelete = (req, res) => {
   	 res.send({ success: false, message: 'Parent not found' });
   }else{
 	  Parent.destroy({
-	     where: { ParentVlsId: req.body.ids}
+	     where: { parentVlsId: req.body.ids}
 	  })
 	    .then(num => {
 	      if (num >= 1) {
