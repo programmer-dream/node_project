@@ -9,16 +9,16 @@ module.exports = {
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
   await queryInterface.createTable('SubjectFaculty', {
-      SubjectVlsId: {
+      subjectVlsId: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      BranchVlsId: {
+      branchVlsId: {
         type: Sequelize.INTEGER
       },
-      ClassVlsId: {
+      classVlsId: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
@@ -29,7 +29,6 @@ module.exports = {
       subject: {
         type: Sequelize.TEXT
       },
-
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

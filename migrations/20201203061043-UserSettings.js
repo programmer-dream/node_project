@@ -15,11 +15,11 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      FeedbackSupport: {
+      feedbackSupport: {
         allowNull: true,
         type: Sequelize.ENUM('yes', 'no')
       },
-      LearningLibrarySuport: {
+      learningLibrarySuport: {
         allowNull: true,
         type: Sequelize.ENUM('yes', 'no')
       },
@@ -27,7 +27,7 @@ module.exports = {
         allowNull: true,
         type: Sequelize.ENUM('yes', 'no')
       },
-      AssignmentSupport: {
+      assignmentSupport: {
         allowNull: true,
         type: Sequelize.ENUM('yes', 'no')
       },
@@ -35,23 +35,23 @@ module.exports = {
         allowNull: true,
         type: Sequelize.ENUM('yes', 'no')
       },
-      CommunityChatSupport: {
+      communityChatSupport: {
         allowNull: true,
         type: Sequelize.ENUM('yes', 'no')
       },
-      RewardsAndRecognitionSupport: {
+      rewardsAndRecognitionSupport: {
         allowNull: true,
         type: Sequelize.ENUM('yes', 'no')
       },
-      NotificationSupport: {
+      notificationSupport: {
         allowNull: true,
         type: Sequelize.ENUM('yes', 'no')
       },
-      AlertSupport: {
+      alertSupport: {
         allowNull: true,
         type: Sequelize.ENUM('yes', 'no')
       },
-      MailboxSupport: {
+      mailboxSupport: {
         allowNull: true,
         type: Sequelize.ENUM('yes', 'no')
       },
@@ -59,11 +59,11 @@ module.exports = {
         allowNull: true,
         type: Sequelize.ENUM('yes', 'no')
       },
-      StudentReport: {
+      studentReport: {
         allowNull: true,
         type: Sequelize.ENUM('Readonly', 'ReadWrite')
       },
-      LearningLibraryPermission: {
+      learningLibraryPermission: {
         allowNull: true,
         type: Sequelize.ENUM('Readonly', 'ReadWrite')
       },
@@ -71,7 +71,7 @@ module.exports = {
         allowNull: true,
         type: Sequelize.ENUM('Readonly', 'ReadWrite')
       },
-      AssignmentPermission: {
+      assignmentPermission: {
         allowNull: true,
         type: Sequelize.ENUM('Readonly', 'ReadWrite')
       },
@@ -79,23 +79,23 @@ module.exports = {
         allowNull: true,
         type: Sequelize.ENUM('Readonly', 'ReadWrite')
       },
-      CommunityChatPermission: {
+      communityChatPermission: {
         allowNull: true,
         type: Sequelize.ENUM('Readonly', 'ReadWrite')
       },
-      RewardsAndRecognitionPermission: {
+      rewardsAndRecognitionPermission: {
         allowNull: true,
         type: Sequelize.ENUM('Readonly', 'ReadWrite')
       },
-      NotificationPermission: {
+      notificationPermission: {
         allowNull: true,
         type: Sequelize.ENUM('Readonly', 'ReadWrite')
       },
-      AlertPermission: {
+      alertPermission: {
         allowNull: true,
         type: Sequelize.ENUM('Readonly', 'ReadWrite')
       },
-      MailboxPermission: {
+      mailboxPermission: {
         allowNull: true,
         type: Sequelize.ENUM('Readonly', 'ReadWrite')
       },

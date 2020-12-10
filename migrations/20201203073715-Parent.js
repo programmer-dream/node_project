@@ -9,13 +9,13 @@ module.exports = {
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
   await queryInterface.createTable('Parent', {
-      ParentVlsId: {
+      parentVlsId: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      BranchVlsId: {
+      branchVlsId: {
         type: Sequelize.INTEGER
       },
       firstName: {
@@ -46,13 +46,13 @@ module.exports = {
       profilepic: {
         type: Sequelize.STRING
       },
-      Address: {
+      address: {
         type: Sequelize.STRING
       },
-      Hobbies: {
+      hobbies: {
         type: Sequelize.STRING
       },
-      EmergencyContact: {
+      emergencyContact: {
         type: Sequelize.STRING
       },
       createdAt: {

@@ -9,20 +9,20 @@ module.exports = {
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
   await queryInterface.createTable('ClassDetails', {
-      ClassVlsId: {
+      lassVlsId: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      BranchVlsId: {
+      branchVlsId: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      Class: {
+      class: {
         type: Sequelize.STRING
       },
-      Section: {
+      section: {
         type: Sequelize.STRING
       },
       classTeacherId: {

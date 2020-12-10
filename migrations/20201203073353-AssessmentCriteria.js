@@ -9,85 +9,85 @@ module.exports = {
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
   await queryInterface.createTable('AssessmentCriteria', {
-      AssessmentVlsId: {
+      assessmentVlsId: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      BranchVlsId: {
+      branchVlsId: {
         type: Sequelize.INTEGER
       },
-      FirstSubjectTestMax: {
+      firstSubjectTestMax: {
         type: Sequelize.STRING
       },
-      FirstSubjectTestPassingCriteria: {
+      firstSubjectTestPassingCriteria: {
         type: Sequelize.STRING
       },
-      FirstSubjectTestFirstClassCriteria: {
+      firstSubjectTestFirstClassCriteria: {
         type: Sequelize.STRING
       },
-      FirstSubjectTestSecondClassCriteria: {
+      firstSubjectTestSecondClassCriteria: {
         type: Sequelize.STRING
       },
-      FirstSubjectTestThirdClassCriteria: {
+      firstSubjectTestThirdClassCriteria: {
         type: Sequelize.STRING
       },
-      OtherSubjectTestMax: {
+      otherSubjectTestMax: {
         type: Sequelize.STRING
       },
-      OtherSubjectTestPassingCriteria: {
+      otherSubjectTestPassingCriteria: {
         type: Sequelize.STRING
       },
-      OtherSubjectTestFirstClassCriteria: {
+      otherSubjectTestFirstClassCriteria: {
         type: Sequelize.STRING
       },
-      OtherSubjectTestSecondClassCriteria: {
+      otherSubjectTestSecondClassCriteria: {
         type: Sequelize.STRING
       },
-      OtherSubjectTestThirdClassCriteria: {
+      otherSubjectTestThirdClassCriteria: {
         type: Sequelize.STRING
       },
-      FirstSubjectAnnualMax: {
+      firstSubjectAnnualMax: {
         type: Sequelize.STRING
       },
-      FirstSubjectAnnualPassingCriteria: {
+      firstSubjectAnnualPassingCriteria: {
         type: Sequelize.STRING
       },
-      FirstSubjectAnnualFirstClassCriteria: {
+      firstSubjectAnnualFirstClassCriteria: {
         type: Sequelize.STRING
       },
-      FirstSubjectAnnualSecondClassCriteria: {
+      firstSubjectAnnualSecondClassCriteria: {
         type: Sequelize.STRING
       },
-      FirstSubjectAnnualThirdClassCriteria: {
+      firstSubjectAnnualThirdClassCriteria: {
         type: Sequelize.STRING
       },
-      OtherSubjectAnnualMax: {
+      otherSubjectAnnualMax: {
         type: Sequelize.STRING
       },
-      OtherSubjectAnnualPassingCriteria: {
+      otherSubjectAnnualPassingCriteria: {
         type: Sequelize.STRING
       },
-      OtherSubjectAnnualFirstClassCriteria: {
+      otherSubjectAnnualFirstClassCriteria: {
         type: Sequelize.STRING
       },
-      OtherSubjectAnnualSecondClassCriteria: {
+      otherSubjectAnnualSecondClassCriteria: {
         type: Sequelize.STRING
       },
-      OtherSubjectAnnualThirdClassCriteria: {
+      otherSubjectAnnualThirdClassCriteria: {
         type: Sequelize.STRING
       },
-      SportPassingCriteria: {
+      sportPassingCriteria: {
         type: Sequelize.STRING
       },
-      SportsFirstClassCriteria: {
+      sportsFirstClassCriteria: {
         type: Sequelize.STRING
       },
-      SportSecondClassCriteria: {
+      sportSecondClassCriteria: {
         type: Sequelize.STRING
       },
-      SportThirdClassCriteria: {
+      sportThirdClassCriteria: {
         type: Sequelize.STRING
       },
       createdAt: {

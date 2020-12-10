@@ -10,7 +10,7 @@ module.exports = {
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
   await queryInterface.createTable('VideoLearningLibrary', {
-      VideoLearningLibraryVlsId: {
+      videoLearningLibraryVlsId: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
@@ -22,37 +22,37 @@ module.exports = {
       description: {
         type: Sequelize.STRING
       },
-      Subject: {
+      subject: {
         type: Sequelize.STRING
       },
-      Topic: {
+      topic: {
         type: Sequelize.STRING
       },
       URL: {
         type: Sequelize.STRING
       },
-      VideoFormat: {
+      videoFormat: {
         type: Sequelize.STRING
       },
-      VideoSize: {
+      videoSize: {
         type: Sequelize.STRING
       },
-      RecommendedStudentLevel: {
+      recommendedStudentLevel: {
         type: Sequelize.STRING
       },
-      VideoLibraryLevel: {
+      videoLibraryLevel: {
         type: Sequelize.ENUM('Basic', 'Intermediate','Expert')
       },
-      Ratings: {
+      ratings: {
         type: Sequelize.STRING
       },
-      Tags: {
+      tags: {
         type: Sequelize.STRING
       },
-      Likes: {
+      likes: {
         type: Sequelize.STRING
       },
-      ReplyVlsId: {
+      replyVlsId: {
         type: Sequelize.STRING
       },
       createdAt: {

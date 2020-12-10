@@ -9,24 +9,24 @@ module.exports = {
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
   await queryInterface.createTable('BranchTestList', {
-      TestId: {
+      testId: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      BranchVlsId: {
+      branchVlsId: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      TestType: {
+      testType: {
         type: Sequelize.STRING
       },
-      Date: {
+      date: {
         allowNull: false,
         type: Sequelize.DATE
       },
-      ClassVlsId: {
+      classVlsId: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
