@@ -1,19 +1,9 @@
-'use strict';
-
-module.exports = {
-  up: async (queryInterface, Sequelize) => {
-    /**
-     * Add altering commands here.
-     *
-     * Example:
-     * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
-     */
-  await queryInterface.createTable('facultyProfessional', {
+module.exports = (sequelize, Sequelize) => {
+  const facultyProfessional = sequelize.define("facultyProfessional", {
       facultyProfessionalId: {
-        allowNull: false,
-        autoIncrement: true,
+        type: Sequelize.INTEGER,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        autoIncrement: true
       },
       facultyVlsId: {
         type: Sequelize.INTEGER
@@ -25,7 +15,7 @@ module.exports = {
         type: Sequelize.STRING
       },
       dateOfJoining: {
-        type: Sequelize.DATE
+        type: Sequelize.STRING
       },
       teacherType: {
         type: Sequelize.STRING
@@ -98,16 +88,10 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE
       }
-    });
-  },
-
-  down: async (queryInterface, Sequelize) => {
-    /**
-     * Add reverting commands here.
-     *
-     * Example:
-     * await queryInterface.dropTable('users');
-     */
-     await queryInterface.dropTable('facultyProfessional');
+  },{
+    tableName: 'facultyProfessional'
   }
+  );
+
+  return facultyProfessional;
 };

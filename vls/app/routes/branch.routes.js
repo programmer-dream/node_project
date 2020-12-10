@@ -1,8 +1,8 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const { body } = require('express-validator');
+const { check } = require('express-validator');
 const branchController = require("../controllers/branch.controller");
-
+const { authJwt } = require("../middleware");
 const app = express();
 app.use(bodyParser.json());
 
@@ -16,15 +16,23 @@ module.exports = function(app) {
   });
 
   app.post("/api/branchCreate",[
-  	body('BranchName').isLength({ min: 1 }).withMessage('BranchName field is required.'),
-  	body('Contact1').isLength({ min: 1 }).withMessage('Contact1 field is required.'),
-  	body('EmailId1').isEmail().withMessage('Enter valid email.'),
-  	body('Address').isLength({ min: 1 }).withMessage('Address field is required.'),
-  	body('SchoolId').isLength({ min: 1 }).withMessage('SchoolId field is required.')
+    authJwt.verifyToken,
+  	check('BranchName','BranchName field is required.').not().isEmpty(),
+  	check('Contact1','Contact1 field is required.').not().isEmpty(),
+  	check('EmailId1','Enter valid email.').not().isEmpty(),
+  	check('Address','Address field is required.').not().isEmpty(),
+  	check('SchoolId','SchoolId field is required.').not().isEmpty()
   	],branchController.branchCreate);
 
-  app.get("/api/branchView/:id",branchController.branchView);
-  app.get("/api/branchList",branchController.branchList);
-  app.put("/api/branchUpdate/:id",branchController.branchUpdate);
-  app.delete("/api/branchDelete/:id",branchController.branchDelete);
+  app.get("/api/branchView/:id",authJwt.verifyToken,branchController.branchView);
+  app.get("/api/branchList",authJwt.verifyToken,branchController.branchList);
+  app.put("/api/branchUpdate/:id",[
+    authJwt.verifyToken,
+    check('BranchName','BranchName field is required.').not().isEmpty(),
+    check('Contact1','Contact1 field is required.').not().isEmpty(),
+    check('EmailId1','Enter valid email.').not().isEmpty(),
+    check('Address','Address field is required.').not().isEmpty(),
+    check('SchoolId','SchoolId field is required.').not().isEmpty()
+    ],branchController.branchUpdate);
+  app.delete("/api/branchDelete/:id",authJwt.verifyToken,branchController.branchDelete);
 };

@@ -7,7 +7,7 @@ const Op = db.Sequelize.Op;
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
 
-exports.userName = (req, res) => {
+exports.userName = async (req, res) => {
   let latestUser = await Authentication.findOne({ order: [ [ 'UserId', 'DESC' ]] })
   let UserId = ""
     if(latestUser && latestUser.UserId){
@@ -60,7 +60,7 @@ exports.signin = (req, res) => {
         });
       }
 
-      var token = jwt.sign({ id: Authentication.AuthVlsId }, config.secret, {
+      var token = jwt.sign({ id: Authentication.AuthVlsId,UserId:Authentication.UserId, type:Authentication.userType }, config.secret, {
         expiresIn: 86400 // 24 hours
       });
 

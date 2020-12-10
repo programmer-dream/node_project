@@ -67,6 +67,8 @@ db.BranchDetails = require("./BranchDetails.js")(sequelize, Sequelize);
 db.StudentPersonal = require("./StudentPersonal.js")(sequelize, Sequelize);
 db.StudentSchoolPersonal = require("./StudentSchoolPersonal.js")(sequelize, Sequelize);
 db.facultyPersonal = require("./facultyPersonal.js")(sequelize, Sequelize);
+db.facultyProfessional = require("./facultyProfessional.js")(sequelize, Sequelize);
+db.Parent = require("./Parent.js")(sequelize, Sequelize);
 
 module.exports = db;
 
