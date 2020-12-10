@@ -78,13 +78,13 @@ exports.signin = (req, res) => {
 };
 
 // exports.test = (req, res) => {
-//   let token = req.headers["x-access-token"];
+//   let token = req.headers["token"];
 //   const decoded = jwt.verify(token, config.secret);
 //   res.send({ message: "token",data: decoded.id});
 // };
 
 exports.resetPassword = async (req, res) => {
-  let token = req.headers["x-access-token"];
+  let token = req.headers["token"];
   if(!req.body.old_password){
       res.status(200).send({ message: "can't empty old_password." });
   }
