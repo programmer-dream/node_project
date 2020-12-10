@@ -12,6 +12,6 @@ module.exports = function(app) {
 
   app.post("/api/auth/signup",authController.signup);
   app.post("/api/auth/signin",authController.signin);
-  app.get("/api/userName",authController.userName);
+  app.get("/api/userId",authController.userId);
   app.post("/api/resetPassword",[authJwt.verifyToken],authController.resetPassword);
 };

@@ -7,19 +7,19 @@ const Op = db.Sequelize.Op;
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
 
-exports.userName = async (req, res) => {
-    res.send({ userName: Date.now() });
+exports.userId = async (req, res) => {
+    res.send({ userId: Date.now() });
 };
 
 exports.signup = (req, res) => {
-  if(!req.body.userName || !req.body.password){
+  if(!req.body.userId || !req.body.password){
       res.status(200).send({ message: "empty inputs" });
   }
 
   let password = bcrypt.hashSync(req.body.password, 8)
   // Save to Database
   Authentication.create({
-    userId: req.body.userName,
+    userId: req.body.userId,
     password: password,
     userType: 'Admin',
     oldPassword1: password
@@ -33,7 +33,7 @@ exports.signup = (req, res) => {
 exports.signin = (req, res) => {
   Authentication.findOne({
     where: {
-      userId: req.body.userName
+      userId: req.body.userId
     }
   })
     .then(Authentication => {
@@ -64,7 +64,7 @@ exports.signin = (req, res) => {
 
       res.status(200).send({
         authVlsId: Authentication.authVlsId,
-        userName: Authentication.userId,
+        userId: Authentication.userId,
         userType: Authentication.userType,
         recoveryEmailId: Authentication.recoveryEmailId,
         accessToken: token
