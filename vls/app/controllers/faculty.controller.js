@@ -23,7 +23,7 @@ exports.create = async (req, res) => {
    		 let auth = {
    		 				userType:"Faculty",
    		 				userVlsId:faculty.facultyVlsId,
-   		 				UserId: req.body.userName,
+   		 				userId: req.body.userName,
    		 				password:password,
    		 				oldPassword1:password
    		 };

@@ -25,7 +25,7 @@ exports.create = async (req, res) => {
 			let auth = {
 				userType:"Student",
 				userVlsId:student.StudentSchoolVlsId,
-				UserId: req.body.userName,
+				userId: req.body.userName,
 				password:password,
 				oldPassword1:password
 			};
@@ -79,7 +79,7 @@ exports.update = async (req, res) => {
 		  req.body.profilepic = req.file.filename;
 	   }
 	   return StudentSchoolPersonal.update(req.body, {
-	    where: { StudentSchoolVlsId: req.params.id }
+	    where: { studentSchoolVlsId: req.params.id }
 	  }).then(async (num) => {
 	      if (num == 1) {
 	      	let student  = await StudentSchoolPersonal.findByPk(req.params.id)
@@ -107,7 +107,7 @@ exports.delete = (req, res) => {
   	 res.send({ success: false, message: 'Student not found' });
   }else{
 	  StudentSchoolPersonal.destroy({
-	    where: { StudentSchoolVlsId: req.params.id }
+	    where: { studentSchoolVlsId: req.params.id }
 	  })
 	    .then(num => {
 	      if (num == 1) {
@@ -134,7 +134,7 @@ exports.bulkDelete = (req, res) => {
   	 res.send({ success: false,message: 'Student not found' });
   }else{
 	  StudentSchoolPersonal.destroy({
-	     where: { StudentSchoolVlsId: req.body.ids}
+	     where: { studentSchoolVlsId: req.body.ids}
 	  })
 	    .then(num => {
 	      if (num >= 1) {

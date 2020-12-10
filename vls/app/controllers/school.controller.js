@@ -44,7 +44,7 @@ exports.schoolUpdate = (req, res) => {
   	 res.send({ success: false, message: 'School not found' });
   }else{
 	   return SchoolDetails.update(req.body, {
-	    where: { SchoolVlsId: req.params.id }
+	    where: { schoolVlsId: req.params.id }
 	  }).then(async (num) => {
 	  	 let school = await SchoolDetails.findByPk(req.params.id)
 	      if (num == 1) {
@@ -71,7 +71,7 @@ exports.schoolDelete = (req, res) => {
   	 res.send({ success: false, message: 'School not found' });
   }else{
 	  SchoolDetails.destroy({
-	    where: { SchoolVlsId: req.params.id }
+	    where: { schoolVlsId: req.params.id }
 	  })
 	    .then(num => {
 	      if (num == 1) {
@@ -98,7 +98,7 @@ exports.schoolBulkDelete = (req, res) => {
   	 res.send({ success: false, message: 'School not found' });
   }else{
 	  SchoolDetails.destroy({
-	     where: { SchoolVlsId: req.body.ids}
+	     where: { schoolVlsId: req.body.ids}
 	  })
 	    .then(num => {
 	      if (num == 1) {

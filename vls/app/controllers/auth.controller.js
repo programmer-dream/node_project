@@ -8,14 +8,14 @@ var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
 
 exports.userName = async (req, res) => {
-  let latestUser = await Authentication.findOne({ order: [ [ 'UserId', 'DESC' ]] })
+  let latestUser = await Authentication.findOne({ order: [ [ 'userId', 'DESC' ]] })
   let UserId = ""
-    if(latestUser && latestUser.UserId){
-      UserId = latestUser.UserId + 1
+    if(latestUser && latestUser.userId){
+      userId = latestUser.userId + 1
     }else{
-      UserId = Math.floor(1000 + Math.random() * 9000)
+      userId = Math.floor(1000 + Math.random() * 9000)
     }
-    res.send({ userName: UserId });
+    res.send({ userName: userId });
 };
 
 exports.signup = (req, res) => {
@@ -26,7 +26,7 @@ exports.signup = (req, res) => {
   let password = bcrypt.hashSync(req.body.password, 8)
   // Save to Database
   Authentication.create({
-    UserId: req.body.userName,
+    userId: req.body.userName,
     password: password,
     userType: 'Admin',
     oldPassword1: password
@@ -40,7 +40,7 @@ exports.signup = (req, res) => {
 exports.signin = (req, res) => {
   Authentication.findOne({
     where: {
-      UserId: req.body.userName
+      userId: req.body.userName
     }
   })
     .then(Authentication => {
@@ -61,8 +61,8 @@ exports.signin = (req, res) => {
       }
 
       var token = jwt.sign({  
-                              id: Authentication.AuthVlsId,
-                              userId:Authentication.UserId, 
+                              id: Authentication.authVlsId,
+                              userId:Authentication.userId, 
                               type:Authentication.userType,
                               userVlsId:Authentication.userVlsId
                           }, config.secret, {
@@ -70,10 +70,10 @@ exports.signin = (req, res) => {
       });
 
       res.status(200).send({
-        authVlsId: Authentication.AuthVlsId,
-        userName: Authentication.UserId,
+        authVlsId: Authentication.authVlsId,
+        userName: Authentication.userId,
         userType: Authentication.userType,
-        recoveryEmailId: Authentication.RecoveryEmailId,
+        recoveryEmailId: Authentication.recoveryEmailId,
         accessToken: token
       });
     })
@@ -97,14 +97,14 @@ exports.resetPassword = async (req, res) => {
       res.status(200).send({ message: "can't empty inputs new_password." });
   }
   const decoded = jwt.verify(token, config.secret);
-  let Auth = await Authentication.findByPk(decoded.id);
+  let auth = await Authentication.findByPk(decoded.id);
 
-  if(!Auth){
+  if(!auth){
       res.status(200).send({ message: "user not found" });
   }
   let passwordIsValid = bcrypt.compareSync(
     req.body.old_password,
-    Auth.password
+    auth.password
   );
   if(!passwordIsValid){
       res.status(200).send({ message: "Old password should be matched." });
@@ -112,7 +112,7 @@ exports.resetPassword = async (req, res) => {
     Authentication.update({
       password:bcrypt.hashSync(req.body.new_password, 8)
     },{
-      where: { AuthVlsId: decoded.id }
+      where: { authVlsId: decoded.id }
     })
       .then(num => {
         if (num == 1) {
