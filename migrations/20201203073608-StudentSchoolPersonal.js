@@ -10,12 +10,10 @@ module.exports = {
      */
   await queryInterface.createTable('StudentSchoolPersonal', {
       studentSchoolVlsId: {
+        type: Sequelize.INTEGER,
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
-      },
-      studentVlsId: {
         type: Sequelize.INTEGER
       },
       branchVlsId: {
