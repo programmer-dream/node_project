@@ -42,7 +42,7 @@ exports.create = async (req, res) => {
 			};
 			await Authentication.create(auth,{ transaction: t });
 			await t.commit();
-			res.send({ message: 'Student was successfully created.' });
+			res.send({ success: true , message: 'Student was successfully created.',data: student});
 
    	   }
 	} catch (error) {
@@ -80,7 +80,7 @@ exports.view = async(req, res) => {
   }
 };
 
-exports.update = (req, res) => {
+exports.update = async (req, res) => {
   if(!req.params.id){
   	 res.send({ success: false,
   	 			message: 'Student not found' 
@@ -91,11 +91,13 @@ exports.update = (req, res) => {
 	   }
 	   return StudentSchoolPersonal.update(req.body, {
 	    where: { StudentSchoolVlsId: req.params.id }
-	  }).then(num => {
+	  }).then(async (num) => {
 	      if (num == 1) {
+	      	let student  = await StudentSchoolPersonal.findByPk(req.params.id)
 	        res.send({
 	          success: true,
-	          message: "Student was updated successfully."
+	          message: "Student was updated successfully.",
+	          data:student
 	        });
 	      } else {
 	        res.send({

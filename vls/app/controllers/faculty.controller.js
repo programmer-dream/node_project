@@ -36,7 +36,7 @@ exports.create = async (req, res) => {
    		 };
    		 await Authentication.create(auth,{ transaction: t });
    		 await t.commit();
-   		 res.send({ success: true, message: 'Faculty was successfully created.' });
+   		 res.send({ success: true, message: 'Faculty was successfully created.',data: faculty});
    	   }
 	} catch (error) {
 	   await t.rollback();
@@ -60,8 +60,8 @@ exports.view = async(req, res) => {
   if(!req.params.id){
   	 res.send({ success: false, message: 'Faculty was not found' });
   }else{
-  	let school = await facultyPersonal.findByPk(req.params.id)
-  	res.send({ success: true, message: "Faculty data" ,data : school});
+  	let faculty = await facultyPersonal.findByPk(req.params.id)
+  	res.send({ success: true, message: "Faculty data" ,data : faculty});
   }
 };
 
@@ -75,11 +75,13 @@ exports.update = (req, res) => {
 		}
 	   return facultyPersonal.update(req.body, {
 	    where: { facultyVlsId: req.params.id }
-	  }).then(num => {
+	  }).then(async (num) => {
 	      if (num == 1) {
+	      	let faculty = await facultyPersonal.findByPk(req.params.id)
 	        res.send({
 	          success: true,
-	          message: "Faculty was updated successfully."
+	          message: "Faculty was updated successfully.",
+	          data:faculty
 	        });
 	      } else {
 	        res.send({
@@ -176,8 +178,8 @@ exports.professionalView = async(req, res) => {
   if(!req.params.id){
   	 res.send({ success: false, message: 'Faculty was not found' });
   }else{
-  	let school = await facultyProfessional.findByPk(req.params.id)
-  	res.send({ success: true, message: "Faculty data" ,data : school});
+  	let facultyPro = await facultyProfessional.findByPk(req.params.id)
+  	res.send({ success: true, message: "Faculty data" ,data : facultyPro});
   }
 };
 exports.professionalUpdate = (req, res) => {
@@ -186,11 +188,13 @@ exports.professionalUpdate = (req, res) => {
   }else{
 	   return facultyProfessional.update(req.body, {
 	    where: { facultyProfessionalId: req.params.id }
-	  }).then(num => {
+	  }).then(async (num) => {
 	      if (num == 1) {
+	      	let facultyPro = await facultyProfessional.findByPk(req.params.id)
 	        res.send({
 	          success: true,
-	          message: "Faculty was updated successfully."
+	          message: "Faculty was updated successfully.",
+	          data:facultyPro
 	        });
 	      } else {
 	        res.send({

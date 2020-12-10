@@ -10,7 +10,7 @@ exports.schoolCreate = (req, res) => {
    }else{
    	  SchoolDetails.create(req.body)
    	  .then(SchoolDetails => {
-	  	  res.send({ success: true,message: 'School was successfully created.' });
+	  	  res.send({ success: true,message: 'School was successfully created.', data: SchoolDetails });
 	  }).catch(err => {
 	      res.status(500).send({ success: false, message: err.message });
 	  });
@@ -45,11 +45,13 @@ exports.schoolUpdate = (req, res) => {
   }else{
 	   return SchoolDetails.update(req.body, {
 	    where: { SchoolVlsId: req.params.id }
-	  }).then(num => {
+	  }).then(async (num) => {
+	  	 let school = await SchoolDetails.findByPk(req.params.id)
 	      if (num == 1) {
 	        res.send({
 	          success: true,
-	          message: "School was updated successfully."
+	          message: "School was updated successfully.",
+	          data:school
 	        });
 	      } else {
 	        res.send({

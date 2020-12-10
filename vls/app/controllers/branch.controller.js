@@ -11,7 +11,7 @@ exports.branchCreate = (req, res) => {
    }else{
    	  BranchDetails.create(req.body)
    	  .then(BranchDetails => {
-	  	  res.send({ success: true , message: 'Branch was successfully created.' });
+	  	  res.send({ success: true , message: 'Branch was successfully created.',data: BranchDetails});
 	  }).catch(err => {
 	      res.status(500).send({ success: false, message: err.message });
 	  });
@@ -34,8 +34,8 @@ exports.branchView = async(req, res) => {
   if(!req.params.id){
   	 res.send({ success: false, message: 'Branch was not found' });
   }else{
-  	let school = await BranchDetails.findByPk(req.params.id)
-  	res.send({ success: true, message: "Branch data" ,data : school});
+  	let branch = await BranchDetails.findByPk(req.params.id)
+  	res.send({ success: true, message: "Branch data" ,data : branch});
   }
 };
 
@@ -46,11 +46,13 @@ exports.branchUpdate = (req, res) => {
   }else{
 	   return BranchDetails.update(req.body, {
 	    where: { BranchVlsId: req.params.id }
-	  }).then(num => {
+	  }).then(async (num) => {
 	      if (num == 1) {
+	      	let branch = await BranchDetails.findByPk(req.params.id);
 	        res.send({
 	          success: true,
-	          message: "Branch was updated successfully."
+	          message: "Branch was updated successfully.",
+	          data:branch
 	        });
 	      } else {
 	        res.send({

@@ -2,7 +2,8 @@ module.exports = (sequelize, Sequelize) => {
   const BranchDetails = sequelize.define("BranchDetails", {
     BranchVlsId: {
         type: Sequelize.INTEGER,
-        primaryKey: true
+        primaryKey: true,
+        autoIncrement: true
     },
       SchoolId: {
         allowNull: false,

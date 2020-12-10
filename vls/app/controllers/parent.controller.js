@@ -35,7 +35,7 @@ exports.create = async (req, res) => {
    		 };
    		 await Authentication.create(auth,{ transaction: t });
    		 await t.commit();
-   		 res.send({ success: true, message: 'Parent was successfully created.' });
+   		 res.send({ success: true, message: 'Parent was successfully created.',data: parent});
    	   }
 	} catch (error) {
 	   await t.rollback();
@@ -68,11 +68,13 @@ exports.update = (req, res) => {
 	  	}
 	   return Parent.update(req.body, {
 	    where: { ParentVlsId: req.params.id }
-	  }).then(num => {
+	  }).then(async (num) => {
 	      if (num >= 1) {
+	      	let school = await Parent.findByPk(req.params.id)
 	        res.send({
 	          success: true,
-	          message: "Parent was updated successfully."
+	          message: "Parent was updated successfully.",
+	          data:school
 	        });
 	      } else {
 	        res.send({
