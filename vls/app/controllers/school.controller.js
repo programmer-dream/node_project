@@ -16,6 +16,8 @@ exports.schoolCreate = (req, res) => {
 	  });
    }
 };
+
+
 exports.schoolList = (req, res) => {
   return SchoolDetails.findAll()
 	  .then(list => {
@@ -25,6 +27,8 @@ exports.schoolList = (req, res) => {
       res.status(500).send({ message: err.message });
   });
 };
+
+
 exports.schoolView = async(req, res) => {
   if(!req.params.id){
   	 res.send({ message: 'School was not found' });
@@ -33,6 +37,8 @@ exports.schoolView = async(req, res) => {
   	res.send({ message: "School data" ,data : school});
   }
 };
+
+
 exports.schoolUpdate = (req, res) => {
   if(!req.params.id){
   	 res.send({ message: 'School not found' });
@@ -54,6 +60,8 @@ exports.schoolUpdate = (req, res) => {
      });
   }
 };
+
+
 exports.schoolDelete = (req, res) => {
   if(!req.params.id){
   	 res.send({ message: 'School not found' });
@@ -77,6 +85,8 @@ exports.schoolDelete = (req, res) => {
 	    });
   }	
 };
+
+
 exports.schoolBulkDelete = (req, res) => {
   if(!req.body.ids){
   	 res.send({ message: 'School not found' });

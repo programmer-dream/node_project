@@ -8,13 +8,14 @@ var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
 
 exports.signup = (req, res) => {
-  if(!req.body.email || !req.body.password){
+  if(!req.body.userName || !req.body.password){
       res.status(200).send({ message: "empty inputs" });
   }
   // Save to Database
   Authentication.create({
-    RecoveryEmailId: req.body.email,
-    password: bcrypt.hashSync(req.body.password, 8)
+    UserId: req.body.userName,
+    password: bcrypt.hashSync(req.body.password, 8),
+    userType: 'Admin'
   }).then(Authentication => {
       res.send({ message: "User was registered successfully!" });
   }).catch(err => {
@@ -25,7 +26,7 @@ exports.signup = (req, res) => {
 exports.signin = (req, res) => {
   Authentication.findOne({
     where: {
-      RecoveryEmailId: req.body.email
+      UserId: req.body.userName
     }
   })
     .then(Authentication => {
@@ -50,8 +51,10 @@ exports.signin = (req, res) => {
       });
 
       res.status(200).send({
-        AuthVlsId: Authentication.AuthVlsId,
-        email: Authentication.RecoveryEmailId,
+        authVlsId: Authentication.AuthVlsId,
+        userName: Authentication.UserId,
+        userType: Authentication.userType,
+        recoveryEmailId: Authentication.RecoveryEmailId,
         accessToken: token
       });
     })

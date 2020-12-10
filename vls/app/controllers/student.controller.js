@@ -10,25 +10,41 @@ exports.create = async (req, res) => {
 	req.body.profilepic = req.file.filename;
 	const t = await sequelize.transaction();
 	const errors = validationResult(req);
+
 	try {
 	   if(errors.array().length){
    	  	 res.send({ message: errors.array() });
    	   }else{
-   		 await StudentPersonal.create(req.body,{ transaction: t });
-   		 const student = await StudentSchoolPersonal.create(req.body,{ transaction: t });
-   		 let auth = {
-   		 				userType:"Student",
-   		 				UserId:student.StudentSchoolVlsId
-   		 };
-   		 await Authentication.create(auth,{ transaction: t });
-   		 await t.commit();
-   		 res.send({ message: 'Student was successfully created.' });
+   	   		// Check if userId exit else create new userId
+			let latestUser = await Authentication.findOne({ order: [ [ 'UserId', 'DESC' ]] });
+			if(latestUser && latestUser.UserId){
+				req.body.StudentPersonalId = latestUser.UserId + 1
+				req.body.StudentPersonalId = latestUser.UserId + 1
+				req.body.StudentVlsId = latestUser.UserId + 1
+			}else{
+				let UserId = Math.floor(1000 + Math.random() * 9000);
+				req.body.StudentSchoolVlsId = UserId
+				req.body.StudentPersonalId = UserId
+				req.body.StudentVlsId = UserId
+			}
+
+			await StudentPersonal.create(req.body,{ transaction: t });
+			const student = await StudentSchoolPersonal.create(req.body,{ transaction: t });
+
+			let auth = {
+				userType:"Student",
+				UserId:student.StudentSchoolVlsId
+			};
+			await Authentication.create(auth,{ transaction: t });
+			await t.commit();
+			res.send({ message: 'Student was successfully created.' });
    	   }
 	} catch (error) {
 	   await t.rollback();
 	   res.status(500).send({ message: error.message });
 	}
 };
+
 exports.list = (req, res) => {
   return StudentSchoolPersonal.findAll()
 	  .then(list => {
@@ -38,6 +54,7 @@ exports.list = (req, res) => {
       res.status(500).send({ message: err.message });
   });
 };
+
 exports.view = async(req, res) => {
   if(!req.params.id){
   	 res.send({ message: 'Student was not found' });
@@ -46,6 +63,7 @@ exports.view = async(req, res) => {
   	res.send({ message: "Student data" ,data : school});
   }
 };
+
 exports.update = (req, res) => {
   if(!req.params.id){
   	 res.send({ message: 'Student not found' });
