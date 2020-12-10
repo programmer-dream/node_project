@@ -14,9 +14,18 @@ exports.create = async (req, res) => {
 	   if(errors.array().length){
    	  	 res.send({ success: false, message: errors.array() });
    	   }else{
-   	   	  if(req.file){
+   	   	if(req.file){
 			req.body.profilepic = req.file.filename;
 		  }
+   	   	// Check if userId exit else create new userId
+   	   	let latestUser = await Authentication.findOne({ order: [ [ 'UserId', 'DESC' ]] });
+		if(latestUser && latestUser.UserId){
+			req.body.facultyVlsId = latestUser.UserId + 1
+		}else{
+			let UserId = Math.floor(1000 + Math.random() * 9000);
+			req.body.facultyVlsId = UserId
+		}
+
    		 const faculty = await facultyPersonal.create(req.body,{ transaction: t });
    		 let auth = {
    		 				userType:"Faculty",
@@ -31,6 +40,8 @@ exports.create = async (req, res) => {
 	   res.status(500).send({ success: false, message: error.message });
 	}
 };
+
+
 exports.list = (req, res) => {
   return facultyPersonal.findAll()
 	  .then(list => {
@@ -40,6 +51,8 @@ exports.list = (req, res) => {
       res.status(500).send({ success: false, message: err.message });
   });
 };
+
+
 exports.view = async(req, res) => {
   if(!req.params.id){
   	 res.send({ success: false, message: 'Faculty was not found' });
@@ -48,6 +61,8 @@ exports.view = async(req, res) => {
   	res.send({ success: true, message: "Faculty data" ,data : school});
   }
 };
+
+
 exports.update = (req, res) => {
   if(!req.params.id){
   	 res.send({ success: false, message: 'Faculty not found' });
@@ -74,6 +89,8 @@ exports.update = (req, res) => {
      });
   }
 };
+
+
 exports.delete = (req, res) => {
   if(!req.params.id){
   	 res.send({ success: false, message: 'Faculty not found' });
@@ -99,6 +116,8 @@ exports.delete = (req, res) => {
 	    });
   }	
 };
+
+
 exports.bulkDelete = (req, res) => {
   if(!req.body.ids){
   	 res.send({ success: false, message: 'Faculty not found' });

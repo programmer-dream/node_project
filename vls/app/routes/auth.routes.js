@@ -12,6 +12,6 @@ module.exports = function(app) {
 
   app.post("/api/auth/signup",authCntroller.signup);
   app.post("/api/auth/signin",authCntroller.signin);
-  app.get("/api/test",[authJwt.verifyToken],authCntroller.test);
+  // app.get("/api/test",[authJwt.verifyToken],authCntroller.test);
   app.post("/api/resetPassword",[authJwt.verifyToken],authCntroller.resetPassword);
 };

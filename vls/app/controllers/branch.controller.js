@@ -3,6 +3,7 @@ const db = require("../models");
 const Op = db.Sequelize.Op;
 const BranchDetails = db.BranchDetails;
 
+
 exports.branchCreate = (req, res) => {
    const errors = validationResult(req);
    if(errors.array().length){
@@ -16,6 +17,8 @@ exports.branchCreate = (req, res) => {
 	  });
    }
 };
+
+
 exports.branchList = (req, res) => {
   return BranchDetails.findAll()
 	  .then(list => {
@@ -25,6 +28,8 @@ exports.branchList = (req, res) => {
       res.status(500).send({ success: false, message: err.message });
   });
 };
+
+
 exports.branchView = async(req, res) => {
   if(!req.params.id){
   	 res.send({ success: false, message: 'Branch was not found' });
@@ -33,6 +38,8 @@ exports.branchView = async(req, res) => {
   	res.send({ success: true, message: "Branch data" ,data : school});
   }
 };
+
+
 exports.branchUpdate = (req, res) => {
   if(!req.params.id){
   	 res.send({ success: false, message: 'Branch not found' });
@@ -56,6 +63,8 @@ exports.branchUpdate = (req, res) => {
      });
   }
 };
+
+
 exports.branchDelete = (req, res) => {
   if(!req.params.id){
   	 res.send({ success: false, message: 'Branch not found' });

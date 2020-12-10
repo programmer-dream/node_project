@@ -9,25 +9,38 @@ const sequelize = db.sequelize;
 exports.create = async (req, res) => {
 	const t = await sequelize.transaction();
 	const errors = validationResult(req);
+
 	try {
 	   if(errors.array().length){
    	  	 res.send({ success: false, message: errors.array() });
    	   }else{
-   	   	 if(req.file){
-			req.body.profilepic = req.file.filename;
-		 }
-   		 await StudentPersonal.create(req.body,{ transaction: t });
-   		 const student = await StudentSchoolPersonal.create(req.body,{ transaction: t });
-   		 let auth = {
-   		 			userType:"Student",
-   		 			UserId:student.StudentSchoolVlsId
-   		 };
-   		 await Authentication.create(auth,{ transaction: t });
-   		 await t.commit();
-   		 res.send({ success: true,
-   		 			message: 'Student was successfully created.',
-   		 			data: student
-   		 		});
+	   	   	 if(req.file){
+				req.body.profilepic = req.file.filename;
+			 }
+	   	   	// Check if userId exit else create new userId
+			let latestUser = await Authentication.findOne({ order: [ [ 'UserId', 'DESC' ]] });
+			if(latestUser && latestUser.UserId){
+				req.body.StudentPersonalId = latestUser.UserId + 1
+				req.body.StudentPersonalId = latestUser.UserId + 1
+				req.body.StudentVlsId = latestUser.UserId + 1
+			}else{
+				let UserId = Math.floor(1000 + Math.random() * 9000);
+				req.body.StudentSchoolVlsId = UserId
+				req.body.StudentPersonalId = UserId
+				req.body.StudentVlsId = UserId
+			}
+
+			await StudentPersonal.create(req.body,{ transaction: t });
+			const student = await StudentSchoolPersonal.create(req.body,{ transaction: t });
+
+			let auth = {
+				userType:"Student",
+				UserId:student.StudentSchoolVlsId
+			};
+			await Authentication.create(auth,{ transaction: t });
+			await t.commit();
+			res.send({ message: 'Student was successfully created.' });
+
    	   }
 	} catch (error) {
 	   await t.rollback();
@@ -37,6 +50,7 @@ exports.create = async (req, res) => {
 	   					});
 	}
 };
+
 exports.list = (req, res) => {
   return StudentSchoolPersonal.findAll()
 	  .then(list => {
@@ -49,6 +63,7 @@ exports.list = (req, res) => {
       					});
   });
 };
+
 exports.view = async(req, res) => {
   if(!req.params.id){
   	 res.send({ success: false,
@@ -61,6 +76,7 @@ exports.view = async(req, res) => {
   			   data : school});
   }
 };
+
 exports.update = (req, res) => {
   if(!req.params.id){
   	 res.send({ success: false,
