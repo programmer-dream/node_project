@@ -9,50 +9,50 @@ module.exports = {
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
   await queryInterface.createTable('LearningLibrary', {
-      LearningLibraryVlsId: {
+      learningLibraryVlsId: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      BranchVlsId: {
+      branchVlsId: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
       description: {
         type: Sequelize.STRING
       },
-      Subject: {
+      subject: {
         type: Sequelize.STRING
       },
-      Topic: {
+      topic: {
         type: Sequelize.STRING
       },
       URL: {
         type: Sequelize.STRING
       },
-      DocumentType: {
+      documentType: {
         type: Sequelize.STRING
       },
-      DocumentSize: {
+      documentSize: {
         type: Sequelize.STRING
       },
-      RecommendedStudentLevel: {
+      recommendedStudentLevel: {
         type: Sequelize.ENUM('Basic','Intermediate','Expert')
       },
-      LibraryLevel: {
+      libraryLevel: {
         type: Sequelize.STRING
       },
-      Ratings: {
+      ratings: {
         type: Sequelize.STRING
       },
-      Tags: {
+      tags: {
         type: Sequelize.STRING
       },
-      Likes: {
+      likes: {
         type: Sequelize.STRING
       },
-      ReplyVlsId: {
+      replyVlsId: {
         type: Sequelize.INTEGER
       },
       createdAt: {

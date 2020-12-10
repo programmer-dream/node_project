@@ -9,21 +9,21 @@ module.exports = {
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
   await queryInterface.createTable('BranchTimesheet', {
-      BranchTimesheetId: {
+      branchTimesheetId: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      BranchVlsId: {
+      branchVlsId: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      TimesheetId: {
+      timesheetId: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      TimesheetType: {
+      timesheetType: {
         type: Sequelize.STRING
       },
       createdAt: {

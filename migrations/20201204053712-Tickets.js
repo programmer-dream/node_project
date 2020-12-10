@@ -9,39 +9,39 @@ module.exports = {
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
   await queryInterface.createTable('Tickets', {
-      TicketVlsId: {
+      ticketVlsId: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      BranchVlsId: {
+      branchVlsId: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      TicketOwner: {
+      ticketOwner: {
         type: Sequelize.ENUM('Student','faculty','parent')
       },
-      TickerOwnerVlsId: {
+      tickerOwnerVlsId: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      Subject: {
+      subject: {
         type: Sequelize.STRING
       },
-      OpenDate: {
+      openDate: {
         type: Sequelize.DATE
       },
-      Response: {
+      response: {
         type: Sequelize.STRING
       },
-      Attachment: {
+      attachment: {
         type: Sequelize.STRING
       },
-      TicketStatus: {
+      ticketStatus: {
         type: Sequelize.STRING
       },
-      ReplyVlsId: {
+      replyVlsId: {
         allowNull: false,
         type: Sequelize.INTEGER
       },

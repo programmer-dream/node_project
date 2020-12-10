@@ -1,14 +1,14 @@
 module.exports = (sequelize, Sequelize) => {
   const StudentSchoolPersonal = sequelize.define("StudentSchoolPersonal", {
-      StudentSchoolVlsId: {
+      studentSchoolVlsId: {
         type: Sequelize.INTEGER,
         primaryKey: true,
         autoIncrement: true
       },
-      StudentVlsId: {
+      studentVlsId: {
         type: Sequelize.INTEGER
       },
-      BranchVlsId: {
+      branchVlsId: {
         type: Sequelize.INTEGER
       },
       firstName: {
@@ -50,16 +50,16 @@ module.exports = (sequelize, Sequelize) => {
       profilepic: {
         type: Sequelize.STRING
       },
-      Address: {
+      address: {
         type: Sequelize.STRING
       },
-      Hobbies: {
+      hobbies: {
         type: Sequelize.STRING
       },
-      ParentVlsId: {
+      parentVlsId: {
         type: Sequelize.INTEGER
       },
-      PassionVlsId: {
+      passionVlsId: {
         type: Sequelize.INTEGER
       }
   },{

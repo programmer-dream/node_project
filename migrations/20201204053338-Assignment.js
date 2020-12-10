@@ -9,41 +9,41 @@ module.exports = {
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
   await queryInterface.createTable('Assignment', {
-      AssignmentVlsId: {
+      assignmentVlsId: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      BranchVlsId: {
+      branchVlsId: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      AssignmentClassId: {
+      assignmentClassId: {
         allowNull: false,
         type: Sequelize.STRING
       },
-      AssignmentDate: {
+      assignmentDate: {
         allowNull: false,
         type: Sequelize.DATE
       },
-      AssignmentCompletionDate: {
+      assignmentCompletionDate: {
         type: Sequelize.ENUM('Online','Offline')
       },
-      AssignmentType: {
+      assignmentType: {
         type: Sequelize.STRING
       },
-      RootAssignmentQuestionId: {
+      rootAssignmentQuestionId: {
         allowNull: false,
         type: Sequelize.STRING
       },
-      NoOfAssignmentsSubmitted: {
+      noOfAssignmentsSubmitted: {
         type: Sequelize.STRING
       },
-      NoOfAssignmentsRejected: {
+      noOfAssignmentsRejected: {
         type: Sequelize.STRING
       },
-      AssignmentLevel: {
+      assignmentLevel: {
         type: Sequelize.STRING
       },
       createdAt: {

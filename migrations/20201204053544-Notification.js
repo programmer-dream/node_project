@@ -9,41 +9,41 @@ module.exports = {
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
   await queryInterface.createTable('Notification', {
-      NotificationVlsId: {
+      notificationVlsId: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      BranchVlsId: {
+      branchVlsId: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      Message: {
+      message: {
         type: Sequelize.TEXT
       },
-      Sender: {
+      sender: {
         type: Sequelize.STRING
       },
-      ReceiverType: {
+      receiverType: {
         type: Sequelize.ENUM('general','faculty','student','parents','school')
       },
       updateDate: {
         type: Sequelize.DATE
       },
-      StartDate: {
+      startDate: {
         type: Sequelize.DATE
       },
-      EndDate: {
+      endDate: {
         type: Sequelize.DATE
       },
-      NotificationType: {
+      notificationType: {
         type: Sequelize.ENUM('Display','pop-up','alert')
       },
-      NoOfRepetition: {
+      noOfRepetition: {
         type: Sequelize.STRING
       },
-      NoOfRepeatPerDay: {
+      noOfRepeatPerDay: {
         type: Sequelize.STRING
       },
       URL: {

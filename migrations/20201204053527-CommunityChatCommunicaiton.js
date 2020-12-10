@@ -9,41 +9,41 @@ module.exports = {
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
   await queryInterface.createTable('CommunityChatCommunicaiton', {
-      CommunityChatCommunicationVlsId: {
+      communityChatCommunicationVlsId: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      BranchVlsId: {
+      branchVlsId: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      CommunityChatVlsId: {
+      communityChatVlsId: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      ReplyUserType: {
+      replyUserType: {
         type: Sequelize.STRING
       },
-      ReplyMessage: {
+      replyMessage: {
         type: Sequelize.TEXT
       },
-      SenderType: {
+      senderType: {
         type: Sequelize.STRING
       },
-      SenderVlsId: {
+      senderVlsId: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      ReplyDate: {
+      replyDate: {
         type: Sequelize.DATE
       },
-      NextCommunityChatCommunicationVlsId: {
+      nextCommunityChatCommunicationVlsId: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      ReplyCommunityChatCommunicationVlsId: {
+      replyCommunityChatCommunicationVlsId: {
         allowNull: false,
         type: Sequelize.INTEGER
       },

@@ -9,64 +9,64 @@ module.exports = {
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
   await queryInterface.createTable('LiveStreaming', {
-      LiveStreamVlsId: {
+      liveStreamVlsId: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      BranchVlsId: {
+      branchVlsId: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      CreateDate: {
+      createDate: {
         type: Sequelize.DATE
       },
-      Subject: {
+      subject: {
         type: Sequelize.STRING
       },
-      MeetingDateTime: {
+      meetingDateTime: {
         type: Sequelize.DATE
       },
-      MeetingLink: {
+      meetingLink: {
         type: Sequelize.STRING
       },
-      MeetingType: {
+      meetingType: {
         type: Sequelize.ENUM('Internal','Public')
       },
-      Rating: {
+      rating: {
         type: Sequelize.STRING
       },
-      MeetingOwnerVlsId: {
+      meetingOwnerVlsId: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      MeetingCreaterVlsId: {
+      meetingCreaterVlsId: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      NoOfInvitees: {
+      noOfInvitees: {
         type: Sequelize.STRING
       },
-      NoOfAttendees: {
+    noOfAttendees: {
         type: Sequelize.STRING
       },
-      InviteesVlsIdsList: {
+      inviteesVlsIdsList: {
         type: Sequelize.STRING
       },
-      LiveStreamTokenId: {
+      liveStreamTokenId: {
         type: Sequelize.INTEGER
       },
-      Ratings: {
+      ratings: {
         type: Sequelize.STRING
       },
-      Tags: {
+      tags: {
         type: Sequelize.STRING
       },
-      Likes: {
+      likes: {
         type: Sequelize.STRING
       },
-      ReplyVlsId: {
+      replyVlsId: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
