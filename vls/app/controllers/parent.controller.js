@@ -16,21 +16,13 @@ exports.create = async (req, res) => {
    	   	  if(req.file){
 			req.body.profilepic = req.file.filename;
 		 }
-
-		 let latestUser = await Authentication.findOne({ order: [ [ 'UserId', 'DESC' ]] });
-		 if(latestUser && latestUser.UserId){
-			req.body.ParentVlsId = latestUser.UserId + 1
-		 }else{
-			let UserId = Math.floor(1000 + Math.random() * 9000);
-			req.body.ParentVlsId = UserId
-		 }
 		 
    		 const parent = await Parent.create(req.body,{ transaction: t });
    		 let password = bcrypt.hashSync(req.body.password, 8);
    		 let auth = {
    		 				userType:"Parent",
    		 				userVlsId:parent.ParentVlsId,
-   		 				userId: req.body.userName,
+   		 				userId: Date.now(),
    		 				password:password,
    		 				oldPassword1:password
    		 };

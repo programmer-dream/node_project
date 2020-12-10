@@ -24,11 +24,12 @@ exports.create = async (req, res) => {
 			let password = bcrypt.hashSync(req.body.password, 8);
 			let auth = {
 				userType:"Student",
-				userVlsId:student.StudentSchoolVlsId,
-				userId: req.body.userName,
+				userVlsId:student.studentSchoolVlsId,
+				userId: Date.now(),
 				password:password,
 				oldPassword1:password
 			};
+
 			await Authentication.create(auth,{ transaction: t });
 			await t.commit();
 			res.send({ success: true , message: 'Student was successfully created.',data: student});
