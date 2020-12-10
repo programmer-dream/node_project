@@ -7,6 +7,17 @@ const Op = db.Sequelize.Op;
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
 
+exports.userName = (req, res) => {
+  let latestUser = await Authentication.findOne({ order: [ [ 'UserId', 'DESC' ]] })
+  let UserId = ""
+    if(latestUser && latestUser.UserId){
+      UserId = latestUser.UserId + 1
+    }else{
+      UserId = Math.floor(1000 + Math.random() * 9000)
+    }
+    res.send({ userName: UserId });
+};
+
 exports.signup = (req, res) => {
   if(!req.body.userName || !req.body.password){
       res.status(200).send({ message: "empty inputs" });

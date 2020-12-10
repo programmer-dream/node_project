@@ -1,5 +1,5 @@
 const { authJwt } = require("../middleware");
-const authCntroller = require("../controllers/auth.controller");
+const authController = require("../controllers/auth.controller");
 
 module.exports = function(app) {
   app.use(function(req, res, next) {
@@ -10,8 +10,8 @@ module.exports = function(app) {
     next();
   });
 
-  app.post("/api/auth/signup",authCntroller.signup);
-  app.post("/api/auth/signin",authCntroller.signin);
-  // app.get("/api/test",[authJwt.verifyToken],authCntroller.test);
-  app.post("/api/resetPassword",[authJwt.verifyToken],authCntroller.resetPassword);
+  app.post("/api/auth/signup",authController.signup);
+  app.post("/api/auth/signin",authController.signin);
+  app.get("/api/userName",authController.userName);
+  app.post("/api/resetPassword",[authJwt.verifyToken],authController.resetPassword);
 };
