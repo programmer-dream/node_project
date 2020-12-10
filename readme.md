@@ -9,9 +9,9 @@
 yarn #This should be for initial folder.
 npm install #This should be for individual folders
 
-# Create Database
-# Change DB settings in config/database.js
-# Change env settings in config/env.js
+Create Database
+Change DB settings in config/database.js
+Change env settings in config/env.js
 
 # Migrate Db Command 
 npx sequelize-cli db:migrate #Run Migration
