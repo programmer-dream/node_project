@@ -8,14 +8,7 @@ var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
 
 exports.userName = async (req, res) => {
-  let latestUser = await Authentication.findOne({ order: [ [ 'userId', 'DESC' ]] })
-  let UserId = ""
-    if(latestUser && latestUser.userId){
-      userId = latestUser.userId + 1
-    }else{
-      userId = Math.floor(1000 + Math.random() * 9000)
-    }
-    res.send({ userName: userId });
+    res.send({ userName: Date.now() });
 };
 
 exports.signup = (req, res) => {
