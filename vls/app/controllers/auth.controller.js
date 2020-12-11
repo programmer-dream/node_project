@@ -28,25 +28,23 @@ async function getNewUserId() {
 /**
  * API for register new Admin user's
  */
- function signUp(userDetails) {
-  if(!req.body.userId || !req.body.password){
+ async function signUp(userDetails) {
+  if(!userDetails.userId || !userDetails.password){
       throw 'userId and Password are required'
   }
 
-  let password = bcrypt.hashSync(req.body.password, 8)
+  let password = bcrypt.hashSync(userDetails.password, 8)
   let newUserDetails = {
-    userId: req.body.userId,
+    userId: userDetails.userId,
     password: password,
     userType: 'Admin',
     oldPassword1: password
   }
 
   // Save to Database
-  Authentication.create(newUserDetails).then(Authentication => {
-      return { message: "User was registered successfully!" }
-  }).catch(err => {
-      throw err.message
-  });
+  let authUser = await Authentication.create(newUserDetails);
+  if(authUser && authUser.authVlsId)
+    return { message: "User registered successfully!" };
 
 }
 
@@ -55,6 +53,7 @@ async function getNewUserId() {
  * API for signIn user's
  */
 async function signIn(userDetails) {
+
   let user = await Authentication.findOne({ where: { userId: userDetails.userId } })
   if(user  && bcrypt.compareSync(userDetails.password, user.password) ){
     // expire token with time
