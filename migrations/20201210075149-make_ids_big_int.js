@@ -81,12 +81,10 @@ module.exports = {
                 allowNull: false,
             }),
             queryInterface.changeColumn('Chat', 'senderUserVlsId', {
-                type: Sequelize.BIGINT,
-                allowNull: false,
+                type: Sequelize.BIGINT
             }),
             queryInterface.changeColumn('Chat', 'receiverUserVlsId', {
-                type: Sequelize.BIGINT,
-                allowNull: false,
+                type: Sequelize.BIGINT
             }),
             queryInterface.changeColumn('CommunityChatCommunicaiton', 'senderUserVlsId', {
                 type: Sequelize.BIGINT,
@@ -113,6 +111,14 @@ module.exports = {
                 allowNull: false,
             }),
             queryInterface.changeColumn('SubjectFaculty', 'facultyVlsId', {
+                type: Sequelize.BIGINT,
+                allowNull: false,
+            }),
+            queryInterface.changeColumn('Feedback', 'teacherVlsId', {
+                type: Sequelize.BIGINT,
+                allowNull: false,
+            }),
+            queryInterface.changeColumn('Feedback', 'parentVlsId', {
                 type: Sequelize.BIGINT,
                 allowNull: false,
             })
