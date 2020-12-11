@@ -21,7 +21,7 @@ module.exports = {
       },
       assignmentVlsId: {
         allowNull: false,
-        type: Sequelize.STRING
+        type: Sequelize.INTEGER
       },
       questionType: {
         allowNull: false,

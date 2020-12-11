@@ -23,7 +23,7 @@ module.exports = {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      assignmetVlsId: {
+      assignmentVlsId: {
         allowNull: false,
         type: Sequelize.INTEGER
       },

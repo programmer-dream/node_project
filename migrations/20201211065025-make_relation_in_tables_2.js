@@ -8,8 +8,8 @@ module.exports = {
      * Example:
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
-     return Promise.all([
-        queryInterface.addConstraint('BranchTestList', {
+     // return Promise.all([
+        await queryInterface.addConstraint('BranchTestList', {
               type: 'FOREIGN KEY',
               fields: ['classVlsId'],
               name: 'FK_classVlsId_BranchTestList', // useful if using queryInterface.removeConstraint
@@ -19,8 +19,8 @@ module.exports = {
               },
               onDelete: 'no action',
               onUpdate: 'no action',
-        }),
-        queryInterface.addConstraint('StudentTestReport', {
+        });
+        await queryInterface.addConstraint('StudentTestReport', {
               type: 'FOREIGN KEY',
               fields: ['studentVlsId'],
               name: 'FK_studentVlsId_StudentTestReport', // useful if using queryInterface.removeConstraint
@@ -30,8 +30,8 @@ module.exports = {
               },
               onDelete: 'no action',
               onUpdate: 'no action',
-        }),
-        queryInterface.addConstraint('StudentTestReport', {
+        });
+        await queryInterface.addConstraint('StudentTestReport', {
               type: 'FOREIGN KEY',
               fields: ['branchVlsId'],
               name: 'FK_branchVlsId_StudentTestReport', // useful if using queryInterface.removeConstraint
@@ -41,8 +41,8 @@ module.exports = {
               },
               onDelete: 'no action',
               onUpdate: 'no action',
-        }),
-        queryInterface.addConstraint('StudentTestReport', {
+        });
+        await queryInterface.addConstraint('StudentTestReport', {
               type: 'FOREIGN KEY',
               fields: ['classVlsId'],
               name: 'FK_classVlsId_StudentTestReport', // useful if using queryInterface.removeConstraint
@@ -52,8 +52,8 @@ module.exports = {
               },
               onDelete: 'no action',
               onUpdate: 'no action',
-        }),
-        queryInterface.addConstraint('StudentSchoolPersonal', {
+        });
+        await queryInterface.addConstraint('StudentSchoolPersonal', {
               type: 'FOREIGN KEY',
               fields: ['branchVlsId'],
               name: 'FK_branchVlsId_Student', // useful if using queryInterface.removeConstraint
@@ -63,8 +63,8 @@ module.exports = {
               },
               onDelete: 'no action',
               onUpdate: 'no action',
-        }),
-        queryInterface.addConstraint('StudentSchoolPersonal', {
+        });
+        await queryInterface.addConstraint('StudentSchoolPersonal', {
               type: 'FOREIGN KEY',
               fields: ['passionVlsId'],
               name: 'FK_passionVlsId_Student', // useful if using queryInterface.removeConstraint
@@ -74,8 +74,8 @@ module.exports = {
               },
               onDelete: 'no action',
               onUpdate: 'no action',
-        }),
-        queryInterface.addConstraint('StudentSchoolPersonal', {
+        });
+        await queryInterface.addConstraint('StudentSchoolPersonal', {
               type: 'FOREIGN KEY',
               fields: ['parentVlsId'],
               name: 'FK_ParentVlsId_Student', // useful if using queryInterface.removeConstraint
@@ -85,8 +85,8 @@ module.exports = {
               },
               onDelete: 'no action',
               onUpdate: 'no action',
-        }),
-        queryInterface.addConstraint('StudentAcademic', {
+        });
+        await queryInterface.addConstraint('StudentAcademic', {
               type: 'FOREIGN KEY',
               fields: ['studentVlsId'],
               name: 'FK_studentVlsId_Student', // useful if using queryInterface.removeConstraint
@@ -96,8 +96,8 @@ module.exports = {
               },
               onDelete: 'no action',
               onUpdate: 'no action',
-        }),
-        queryInterface.addConstraint('StudentAcademic', {
+        });
+        await queryInterface.addConstraint('StudentAcademic', {
               type: 'FOREIGN KEY',
               fields: ['branchVlsId'],
               name: 'FK_branchVlsId_StudentAcademic', // useful if using queryInterface.removeConstraint
@@ -107,8 +107,8 @@ module.exports = {
               },
               onDelete: 'no action',
               onUpdate: 'no action',
-        }),
-        queryInterface.addConstraint('StudentAcademic', {
+        });
+        await queryInterface.addConstraint('StudentAcademic', {
               type: 'FOREIGN KEY',
               fields: ['classVlsId'],
               name: 'FK_classVlsId_StudentAcademic', // useful if using queryInterface.removeConstraint
@@ -118,8 +118,8 @@ module.exports = {
               },
               onDelete: 'no action',
               onUpdate: 'no action',
-        }),
-        queryInterface.addConstraint('facultyProfessional', {
+        });
+        await queryInterface.addConstraint('facultyProfessional', {
               type: 'FOREIGN KEY',
               fields: ['facultyVlsId'],
               name: 'FK_facultyVlsId_facultyProfessional', // useful if using queryInterface.removeConstraint
@@ -129,8 +129,8 @@ module.exports = {
               },
               onDelete: 'no action',
               onUpdate: 'no action',
-        }),
-        queryInterface.addConstraint('facultyProfessional', {
+        });
+        await queryInterface.addConstraint('facultyProfessional', {
               type: 'FOREIGN KEY',
               fields: ['branchVlsId'],
               name: 'FK_branchVlsId_facultyProfessional', // useful if using queryInterface.removeConstraint
@@ -140,8 +140,8 @@ module.exports = {
               },
               onDelete: 'no action',
               onUpdate: 'no action',
-        }),
-        queryInterface.addConstraint('Parent', {
+        });
+        await queryInterface.addConstraint('Parent', {
               type: 'FOREIGN KEY',
               fields: ['branchVlsId'],
               name: 'FK_branchVlsId_Parent', // useful if using queryInterface.removeConstraint
@@ -151,8 +151,8 @@ module.exports = {
               },
               onDelete: 'no action',
               onUpdate: 'no action',
-        }),
-        queryInterface.addConstraint('BranchTimesheet', {
+        });
+        await queryInterface.addConstraint('BranchTimesheet', {
               type: 'FOREIGN KEY',
               fields: ['branchVlsId'],
               name: 'FK_branchVlsId_BranchTimesheet', // useful if using queryInterface.removeConstraint
@@ -162,8 +162,8 @@ module.exports = {
               },
               onDelete: 'no action',
               onUpdate: 'no action',
-        }),
-        queryInterface.addConstraint('StudentQuery', {
+        });
+        await queryInterface.addConstraint('StudentQuery', {
               type: 'FOREIGN KEY',
               fields: ['branchVlsId'],
               name: 'FK_branchVlsId_StudentQuery', // useful if using queryInterface.removeConstraint
@@ -173,8 +173,8 @@ module.exports = {
               },
               onDelete: 'no action',
               onUpdate: 'no action',
-        })
-     ])
+        });
+     // ])
   },
 
   down: async (queryInterface, Sequelize) => {
@@ -184,48 +184,48 @@ module.exports = {
      * Example:
      * await queryInterface.dropTable('users');
      */
-      return Promise.all([
-        queryInterface.sequelize.query('ALTER TABLE BranchTestList DROP CONSTRAINT FK_classVlsId_BranchTestList;'),
-        queryInterface.removeIndex('BranchTestList', 'FK_classVlsId_BranchTestList'),
 
-        queryInterface.sequelize.query('ALTER TABLE StudentTestReport DROP CONSTRAINT FK_studentVlsId_StudentTestReport;'),
-        queryInterface.removeIndex('StudentTestReport', 'FK_studentVlsId_StudentTestReport'),
+        await queryInterface.sequelize.query('ALTER TABLE BranchTestList DROP CONSTRAINT FK_classVlsId_BranchTestList;');
+        await queryInterface.removeIndex('BranchTestList', 'FK_classVlsId_BranchTestList');
 
-        queryInterface.sequelize.query('ALTER TABLE StudentTestReport DROP CONSTRAINT FK_branchVlsId_StudentTestReport;'),
-        queryInterface.removeIndex('StudentTestReport', 'FK_branchVlsId_StudentTestReport'),
+        await queryInterface.sequelize.query('ALTER TABLE StudentTestReport DROP CONSTRAINT FK_studentVlsId_StudentTestReport;');
+        await queryInterface.removeIndex('StudentTestReport', 'FK_studentVlsId_StudentTestReport');
 
-        queryInterface.sequelize.query('ALTER TABLE StudentTestReport DROP CONSTRAINT FK_classVlsId_StudentTestReport;'),
-        queryInterface.removeIndex('StudentTestReport', 'FK_classVlsId_StudentTestReport'),
+        await queryInterface.sequelize.query('ALTER TABLE StudentTestReport DROP CONSTRAINT FK_branchVlsId_StudentTestReport;');
+        await queryInterface.removeIndex('StudentTestReport', 'FK_branchVlsId_StudentTestReport');
 
-        queryInterface.sequelize.query('ALTER TABLE StudentSchoolPersonal DROP CONSTRAINT FK_branchVlsId_Student;'),
-        queryInterface.removeIndex('StudentSchoolPersonal', 'FK_branchVlsId_Student'),
+        await queryInterface.sequelize.query('ALTER TABLE StudentTestReport DROP CONSTRAINT FK_classVlsId_StudentTestReport;');
+        await queryInterface.removeIndex('StudentTestReport', 'FK_classVlsId_StudentTestReport');
 
-        queryInterface.sequelize.query('ALTER TABLE StudentSchoolPersonal DROP CONSTRAINT FK_passionVlsId_Student;'),
-        queryInterface.removeIndex('StudentSchoolPersonal', 'FK_passionVlsId_Student'),
+        await queryInterface.sequelize.query('ALTER TABLE StudentSchoolPersonal DROP CONSTRAINT FK_branchVlsId_Student;');
+        await queryInterface.removeIndex('StudentSchoolPersonal', 'FK_branchVlsId_Student');
 
-        queryInterface.sequelize.query('ALTER TABLE StudentSchoolPersonal DROP CONSTRAINT FK_ParentVlsId_Student;'),
-        queryInterface.removeIndex('StudentSchoolPersonal', 'FK_ParentVlsId_Student'),
+        await queryInterface.sequelize.query('ALTER TABLE StudentSchoolPersonal DROP CONSTRAINT FK_passionVlsId_Student;');
+        await queryInterface.removeIndex('StudentSchoolPersonal', 'FK_passionVlsId_Student');
 
-        queryInterface.sequelize.query('ALTER TABLE StudentAcademic DROP CONSTRAINT FK_studentVlsId_Student;'),
-        queryInterface.removeIndex('StudentAcademic', 'FK_studentVlsId_Student'),
+        await queryInterface.sequelize.query('ALTER TABLE StudentSchoolPersonal DROP CONSTRAINT FK_ParentVlsId_Student;');
+        await queryInterface.removeIndex('StudentSchoolPersonal', 'FK_ParentVlsId_Student');
 
-        queryInterface.sequelize.query('ALTER TABLE StudentAcademic DROP CONSTRAINT FK_branchVlsId_StudentAcademic;'),
-        queryInterface.removeIndex('StudentAcademic', 'FK_branchVlsId_StudentAcademic'),
+        await queryInterface.sequelize.query('ALTER TABLE StudentAcademic DROP CONSTRAINT FK_studentVlsId_Student;');
+        await queryInterface.removeIndex('StudentAcademic', 'FK_studentVlsId_Student');
 
-        queryInterface.sequelize.query('ALTER TABLE StudentAcademic DROP CONSTRAINT FK_classVlsId_StudentAcademic;'),
-        queryInterface.removeIndex('StudentAcademic', 'FK_classVlsId_StudentAcademic'),
+        await queryInterface.sequelize.query('ALTER TABLE StudentAcademic DROP CONSTRAINT FK_branchVlsId_StudentAcademic;');
+        await queryInterface.removeIndex('StudentAcademic', 'FK_branchVlsId_StudentAcademic');
 
-        queryInterface.sequelize.query('ALTER TABLE facultyProfessional DROP CONSTRAINT FK_facultyVlsId_facultyProfessional;'),
-        queryInterface.removeIndex('facultyProfessional', 'FK_facultyVlsId_facultyProfessional'),
+        await queryInterface.sequelize.query('ALTER TABLE StudentAcademic DROP CONSTRAINT FK_classVlsId_StudentAcademic;');
+        await queryInterface.removeIndex('StudentAcademic', 'FK_classVlsId_StudentAcademic');
 
-        queryInterface.sequelize.query('ALTER TABLE facultyProfessional DROP CONSTRAINT FK_branchVlsId_facultyProfessional;'),
-        queryInterface.removeIndex('facultyProfessional', 'FK_branchVlsId_facultyProfessional'),
+        await queryInterface.sequelize.query('ALTER TABLE facultyProfessional DROP CONSTRAINT FK_facultyVlsId_facultyProfessional;');
+        await queryInterface.removeIndex('facultyProfessional', 'FK_facultyVlsId_facultyProfessional');
 
-        queryInterface.sequelize.query('ALTER TABLE BranchTimesheet DROP CONSTRAINT FK_branchVlsId_BranchTimesheet;'),
-        queryInterface.removeIndex('BranchTimesheet', 'FK_branchVlsId_BranchTimesheet'),
+        await queryInterface.sequelize.query('ALTER TABLE facultyProfessional DROP CONSTRAINT FK_branchVlsId_facultyProfessional;');
+        await queryInterface.removeIndex('facultyProfessional', 'FK_branchVlsId_facultyProfessional');
 
-        queryInterface.sequelize.query('ALTER TABLE StudentQuery DROP CONSTRAINT FK_branchVlsId_StudentQuery;'),
-        queryInterface.removeIndex('StudentQuery', 'FK_branchVlsId_StudentQuery')
-      ])
+        await queryInterface.sequelize.query('ALTER TABLE BranchTimesheet DROP CONSTRAINT FK_branchVlsId_BranchTimesheet;');
+        await queryInterface.removeIndex('BranchTimesheet', 'FK_branchVlsId_BranchTimesheet');
+
+        await queryInterface.sequelize.query('ALTER TABLE StudentQuery DROP CONSTRAINT FK_branchVlsId_StudentQuery;');
+        await queryInterface.removeIndex('StudentQuery', 'FK_branchVlsId_StudentQuery');
+      // ])
   }
 };
