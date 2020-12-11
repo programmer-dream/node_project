@@ -67,7 +67,7 @@ module.exports = {
         type: Sequelize.STRING
       },
       passionVlsId: {
-        type: Sequelize.STRING
+        type: Sequelize.INTEGER
       },
       createdAt: {
         allowNull: false,
