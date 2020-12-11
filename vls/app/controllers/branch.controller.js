@@ -66,7 +66,6 @@ exports.branchUpdate = (req, res) => {
   }
 };
 
-
 exports.branchDelete = (req, res) => {
   if(!req.params.id){
   	 res.send({ success: false, message: 'Branch not found' });
@@ -89,6 +88,34 @@ exports.branchDelete = (req, res) => {
 	    })
 	    .catch(err => {
 	      res.status(500).send({ success: false, message: err.message });
+	    });
+  }	
+};
+exports.bulkDelete = (req, res) => {
+  if(!req.body.ids){
+  	 res.send({ success: false,message: 'Branch not found' });
+  }else{
+  	  if(!Array.isArray(req.body.ids)){
+  	  	res.send({ success: false,message: 'ids index must be an array.' });
+  	  }
+	  BranchDetails.destroy({
+	     where: { branchVlsId: req.body.ids}
+	  })
+	    .then(num => {
+	      if (num >= 1) {
+	        res.send({
+	          success: true,
+	          message: "Branch Student's was deleted successfully!"
+	        });
+	      } else {
+	        res.send({
+	          success: false,
+	          message: `Cannot delete Selected Branch's. Maybe Branch was not found!`
+	        });
+	      }
+	    })
+	    .catch(err => {
+	      res.status(500).send({ success: false,message: err.message });
 	    });
   }	
 };

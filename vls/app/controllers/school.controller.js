@@ -97,6 +97,9 @@ exports.schoolBulkDelete = (req, res) => {
   if(!req.body.ids){
   	 res.send({ success: false, message: 'School not found' });
   }else{
+  	  if(!Array.isArray(req.body.ids)){
+  	  	res.send({ success: false,message: 'ids index must be an array.' });
+  	  }
 	  SchoolDetails.destroy({
 	     where: { schoolVlsId: req.body.ids}
 	  })

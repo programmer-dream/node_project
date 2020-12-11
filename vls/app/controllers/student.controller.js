@@ -141,6 +141,9 @@ exports.bulkDelete = (req, res) => {
   if(!req.body.ids){
   	 res.send({ success: false,message: 'Student not found' });
   }else{
+  	  if(!Array.isArray(req.body.ids)){
+  	  	res.send({ success: false,message: 'ids index must be an array.' });
+  	  }
 	  StudentSchoolPersonal.destroy({
 	     where: { studentSchoolVlsId: req.body.ids}
 	  })

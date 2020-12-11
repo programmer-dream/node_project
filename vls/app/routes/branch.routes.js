@@ -14,25 +14,26 @@ module.exports = function(app) {
     );
     next();
   });
-
+ 
   app.post("/api/branchCreate",[
     authJwt.verifyToken,
-  	check('BranchName','BranchName field is required.').not().isEmpty(),
-  	check('Contact1','Contact1 field is required.').not().isEmpty(),
-  	check('EmailId1','Enter valid email.').not().isEmpty(),
-  	check('Address','Address field is required.').not().isEmpty(),
-  	check('SchoolId','SchoolId field is required.').not().isEmpty()
+  	check('branchName','BranchName field is required.').not().isEmpty(),
+  	check('contact1','Contact1 field is required.').not().isEmpty(),
+  	check('emailId1','Enter valid email.').not().isEmpty(),
+  	check('address','Address field is required.').not().isEmpty(),
+  	check('schoolId','SchoolId field is required.').not().isEmpty()
   	],branchController.branchCreate);
 
   app.get("/api/branchView/:id",authJwt.verifyToken,branchController.branchView);
   app.get("/api/branchList",authJwt.verifyToken,branchController.branchList);
   app.put("/api/branchUpdate/:id",[
     authJwt.verifyToken,
-    check('BranchName','BranchName field is required.').not().isEmpty(),
-    check('Contact1','Contact1 field is required.').not().isEmpty(),
-    check('EmailId1','Enter valid email.').not().isEmpty(),
-    check('Address','Address field is required.').not().isEmpty(),
-    check('SchoolId','SchoolId field is required.').not().isEmpty()
+    check('branchName','BranchName field is required.').not().isEmpty(),
+    check('contact1','Contact1 field is required.').not().isEmpty(),
+    check('emailId1','Enter valid email.').not().isEmpty(),
+    check('address','Address field is required.').not().isEmpty(),
+    check('schoolId','SchoolId field is required.').not().isEmpty()
     ],branchController.branchUpdate);
   app.delete("/api/branchDelete/:id",authJwt.verifyToken,branchController.branchDelete);
+  app.delete("/api/branchBulkDelete",authJwt.verifyToken,branchController.bulkDelete);
 };

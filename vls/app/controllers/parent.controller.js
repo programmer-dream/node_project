@@ -112,6 +112,9 @@ exports.bulkDelete = (req, res) => {
   if(!req.body.ids){
   	 res.send({ success: false, message: 'Parent not found' });
   }else{
+  	  if(!Array.isArray(req.body.ids)){
+  	  	res.send({ success: false,message: 'ids index must be an array.' });
+  	  }
 	  Parent.destroy({
 	     where: { parentVlsId: req.body.ids}
 	  })

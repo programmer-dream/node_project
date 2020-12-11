@@ -123,6 +123,9 @@ exports.bulkDelete = (req, res) => {
   if(!req.body.ids){
   	 res.send({ success: false, message: 'Faculty not found' });
   }else{
+  	  if(!Array.isArray(req.body.ids)){
+  	  	res.send({ success: false,message: 'ids index must be an array.' });
+  	  }
 	  facultyPersonal.destroy({
 	     where: { facultyVlsId: req.body.ids}
 	  })
@@ -145,7 +148,7 @@ exports.bulkDelete = (req, res) => {
   }	
 };
 // fuculty professional
-exports.createProfessional = async (req, res) => {
+exports.createProfessional = async (req, res) => { 
 	const t = await sequelize.transaction();
 	const errors = validationResult(req);
 	try {
@@ -232,6 +235,9 @@ exports.professionalBulkDelete = (req, res) => {
   if(!req.body.ids){
   	 res.send({ success: false, message: 'Faculty not found' });
   }else{
+  	  if(!Array.isArray(req.body.ids)){
+  	  	res.send({ success: false,message: 'ids index must be an array.' });
+  	  }
 	  facultyProfessional.destroy({
 	     where: { facultyProfessionalId: req.body.ids}
 	  })

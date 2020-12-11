@@ -47,9 +47,15 @@ module.exports = function(app) {
   app.delete("/api/facultyBulkDelete/",authJwt.verifyToken,facultyController.bulkDelete);
   
   //faculty professional 
-  app.post("/api/faculty/Professional",authJwt.verifyToken,facultyController.createProfessional);
+  app.post("/api/faculty/Professional",[
+    authJwt.verifyToken,
+    check('facultyVlsId', 'facultyVlsId field is required.').not().isEmpty(),
+    ],facultyController.createProfessional);
   app.get("/api/faculty/Professional/:id",authJwt.verifyToken,facultyController.professionalView);
-  app.get("/api/faculty/Professional",authJwt.verifyToken,facultyController.professionalList);
+  app.get("/api/faculty/Professional",[
+    authJwt.verifyToken,
+    check('facultyVlsId', 'facultyVlsId field is required.').not().isEmpty(),
+    ],facultyController.professionalList);
   app.put("/api/faculty/Professional/:id",authJwt.verifyToken,facultyController.professionalUpdate);
   app.delete("/api/faculty/Professional/:id",authJwt.verifyToken,facultyController.professionalDelete);
   app.delete("/api/faculty/Professional/",authJwt.verifyToken,facultyController.professionalBulkDelete);

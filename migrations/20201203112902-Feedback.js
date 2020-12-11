@@ -9,15 +9,11 @@ module.exports = {
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
   await queryInterface.createTable('Feedback', {
-      feedbackId: {
-        allowNull: false,
-        autoIncrement: true,
-        primaryKey: true,
-        type: Sequelize.INTEGER
-      },
       replyVlsId: {
         allowNull: false,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        autoIncrement: true,
+        primaryKey: true,
       },
       branchVlsId: {
         allowNull: false,
