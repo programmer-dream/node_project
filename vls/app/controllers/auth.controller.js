@@ -4,7 +4,7 @@ const Authentication = db.Authentication;
 
 const Op = db.Sequelize.Op;
 
-var jwt = require("express-jwt");
+var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
 
 module.exports = {
@@ -19,9 +19,9 @@ module.exports = {
 /**
  * API for get new user's ID
  */
-function getNewUserId() {
+async function getNewUserId() {
   let userID = Date.now();
-  return userID
+  return {userID}
 }
 
 
@@ -61,16 +61,16 @@ async function signIn(userDetails) {
     // let token = jwt.sign({id: Authentication.authVlsId,}, config.secret, {expiresIn: 86400});  // 24 hours
 
     let tokenDetails = {
-            id: Authentication.authVlsId,
-            userId:Authentication.userId, 
-            type:Authentication.userType,
-            userVlsId:Authentication.userVlsId
+            id:         user.authVlsId,
+            userId:     user.userId, 
+            type:       user.userType,
+            userVlsId:  user.userVlsId
     }
 
     // create token
-    let token = jwt.sign(tokenDetails, config.secret);
+    let token = jwt.sign(tokenDetails, config.secret, {expiresIn: 86400});
 
-    return {status: "success", ...user, token };
+    return {status: "success", user, token };
 
   }
 

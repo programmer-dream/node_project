@@ -2,10 +2,11 @@ const express = require('express');
 const router = express.Router()
 const authController = require("../controllers/auth.controller");
 
+// GET
+router.get("/userId",getNewUserID);
 // POST
 router.post("/signup",register);
 router.post("/signin",authenticate);
-router.get("/userId",getNewUserId);
 router.post("/resetPassword",resetPassword);
 
 module.exports = router;
@@ -25,8 +26,8 @@ function register(req, res, next) {
 }
 
 // Function for get new user's ID
-function getNewUserId(req, res, next) {
-    authController.getNewUserId(req.body)
+function getNewUserID(req, res, next) {
+    authController.getNewUserId()
         .then(user => user ? res.json(user) : res.status(400).json({ status: "error", message: 'Error while registring user' }))
         .catch(err => next(err));
 }
