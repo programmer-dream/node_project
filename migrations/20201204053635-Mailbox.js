@@ -9,21 +9,25 @@ module.exports = {
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
   await queryInterface.createTable('Mailbox', {
-      messageVlsId: {
+      mailboxId: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
+        type: Sequelize.INTEGER
+      },
+      messageVlsId: {
+        allowNull: false,
         type: Sequelize.INTEGER
       },
       branchVlsId: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      senderId: {
+      senderUserVlsId: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      receiverId: {
+      receiverUserVlsId: {
         allowNull: false,
         type: Sequelize.INTEGER
       },

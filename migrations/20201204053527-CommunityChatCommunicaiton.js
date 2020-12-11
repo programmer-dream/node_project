@@ -32,7 +32,7 @@ module.exports = {
       senderType: {
         type: Sequelize.STRING
       },
-      senderVlsId: {
+      senderUserVlsId: {
         allowNull: false,
         type: Sequelize.INTEGER
       },

@@ -31,7 +31,7 @@ module.exports = {
         type: Sequelize.ENUM('Student','Faculty','Parent','Admin')
       },
       userVlsId: {
-        type: Sequelize.INTEGER
+        type: Sequelize.BIGINT
       },
       oldPassword1: {
         allowNull: true,

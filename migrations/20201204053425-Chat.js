@@ -19,11 +19,11 @@ module.exports = {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      senderUserId: {
+      senderUserVlsId: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      receiverUserId: {
+      receiverUserVlsId: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
