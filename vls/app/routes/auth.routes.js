@@ -1,17 +1,40 @@
-const { authJwt } = require("../middleware");
+const express = require('express'); 
+const router = express.Router()
 const authController = require("../controllers/auth.controller");
 
-module.exports = function(app) {
-  app.use(function(req, res, next) {
-    res.header(
-      "Access-Control-Allow-Headers",
-      "token, Origin, Content-Type, Accept"
-    );
-    next();
-  });
+// POST
+router.post("/signup",register);
+router.post("/signin",authenticate);
+router.get("/userId",getNewUserId);
+router.post("/resetPassword",resetPassword);
 
-  app.post("/api/auth/signup",authController.signup);
-  app.post("/api/auth/signin",authController.signin);
-  app.get("/api/userId",authController.userId);
-  app.post("/api/resetPassword",[authJwt.verifyToken],authController.resetPassword);
-};
+module.exports = router;
+
+// Function for authenticate user's details
+function authenticate(req, res, next) {
+    authController.signIn(req.body)
+        .then(user => user ? res.json(user) : res.status(400).json({ status: "error", message: 'Oops, wrong credentials, please try again' }))
+        .catch(err => next(err));
+}
+
+// Function for register user's details
+function register(req, res, next) {
+    authController.signUp(req.body)
+        .then(user => user ? res.json(user) : res.status(400).json({ status: "error", message: 'Error while registring user' }))
+        .catch(err => next(err));
+}
+
+// Function for get new user's ID
+function getNewUserId(req, res, next) {
+    authController.getNewUserId(req.body)
+        .then(user => user ? res.json(user) : res.status(400).json({ status: "error", message: 'Error while registring user' }))
+        .catch(err => next(err));
+}
+
+// Function for reset password
+function resetPassword(req, res, next) {
+      authController.resetPassword(req.body, req.user.id)
+          .then(user => user ? res.json(user) : res.status(400).json({ status: "error", message: 'Email not found' }))
+          .catch(err => next(err));
+
+}
