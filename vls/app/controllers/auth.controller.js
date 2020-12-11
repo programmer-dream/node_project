@@ -112,7 +112,7 @@ async function resetPassword(body, userId) {
     Authentication.update({ password:bcrypt.hashSync(req.body.new_password, 8)},{
       where: { authVlsId: decoded.id }
     }).then(num => {
-        return (num == 1) ?  { message: 'password updated successfully' } : return { message: 'sorry! password not updated' }
+        return (num == 1) ?  { message: 'password updated successfully' } : { message: 'sorry! password not updated' }
     }).catch(err => {
         throw err.message
       });
