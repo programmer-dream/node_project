@@ -9,7 +9,7 @@ module.exports = {
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
   await queryInterface.createTable('ClassDetails', {
-      lassVlsId: {
+      classVlsId: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,

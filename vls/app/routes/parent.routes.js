@@ -24,7 +24,7 @@ module.exports = function(app) {
     check('firstName', 'firstName field is required.').not().isEmpty(),
     check('dob', 'dob field is required.').not().isEmpty(),
     check('contact1', 'contact1 field is required.').not().isEmpty(),
-    check('Address', 'Address field is required.').not().isEmpty(),
+    check('address', 'Address field is required.').not().isEmpty(),
     check('password', 'password field is reuired.').not().isEmpty()
     ],parentController.create);
 
@@ -36,10 +36,10 @@ module.exports = function(app) {
     check('firstName', 'firstName field is required.').not().isEmpty(),
     check('dob', 'dob field is required.').not().isEmpty(),
     check('contact1', 'contact1 field is required.').not().isEmpty(),
-    check('Address', 'Address field is required.').not().isEmpty(),
+    check('address', 'Address field is required.').not().isEmpty(),
     check('password', 'password field is reuired.').not().isEmpty()
     ],parentController.update);
-  app.delete("/api/parentlDelete/:id",authJwt.verifyToken,parentController.delete);
+  app.delete("/api/parentDelete/:id",authJwt.verifyToken,parentController.delete);
   app.delete("/api/parentBulkDelete/",authJwt.verifyToken,parentController.bulkDelete);
   
 };

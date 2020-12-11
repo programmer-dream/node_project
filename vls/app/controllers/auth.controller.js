@@ -120,7 +120,7 @@ exports.resetPassword = async (req, res) => {
       })
       .catch(err => {
         res.status(500).send({
-          message: "Error updating password with id=" + id
+          message: "Error updating password"
         });
       });
   }

@@ -9,7 +9,7 @@ module.exports = {
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
   await queryInterface.createTable('StudentQuery', {
-      branchTimesheetId: {
+      studentQueryId: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,

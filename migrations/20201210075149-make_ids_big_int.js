@@ -5,35 +5,35 @@ module.exports = {
         return Promise.all([
             queryInterface.changeColumn('StudentPersonal', 'studentPersonalId', {
                 type: Sequelize.BIGINT,
-                allowNull: true,
+                allowNull: false,
+                autoIncrement: true
             }),
             queryInterface.changeColumn('StudentPersonal', 'studentVlsId', {
                 type: Sequelize.BIGINT,
-                allowNull: true,
+                allowNull: false,
             }),
             queryInterface.changeColumn('StudentSchoolPersonal', 'studentSchoolVlsId', {
                 type: Sequelize.BIGINT,
-                allowNull: true,
-            }),
-            queryInterface.changeColumn('StudentSchoolPersonal', 'studentVlsId', {
-                type: Sequelize.BIGINT,
-                allowNull: true,
+                allowNull: false,
+                autoIncrement: true
             }),
             queryInterface.changeColumn('facultyPersonal', 'facultyVlsId', {
                 type: Sequelize.BIGINT,
-                allowNull: true,
+                allowNull: false,
+                autoIncrement: true
             }),
             queryInterface.changeColumn('facultyProfessional', 'facultyVlsId', {
                 type: Sequelize.BIGINT,
-                allowNull: true,
+                allowNull: false,
             }),
             queryInterface.changeColumn('Parent', 'parentVlsId', {
                 type: Sequelize.BIGINT,
-                allowNull: true,
+                allowNull: false,
+                autoIncrement: true
             }),
             queryInterface.changeColumn('Authentication', 'userId', {
                 type: Sequelize.BIGINT,
-                allowNull: true,
+                allowNull: false,
             }),
             queryInterface.changeColumn('StudentSchoolPersonal', 'parentVlsId', {
                 type: Sequelize.BIGINT,

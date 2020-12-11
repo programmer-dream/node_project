@@ -25,19 +25,21 @@ exports.create = async (req, res) => {
 			let studentId = student.studentSchoolVlsId
 			req.body.studentVlsId = studentId
 			let password = bcrypt.hashSync(req.body.password, 8);
+			let user_id = Date.now()
 			let auth = {
 				userType:"Student",
 				userVlsId:studentId,
-				userId: Date.now(),
+				userId: user_id,
 				password:password,
 				oldPassword1:password
 			};
-
+			let created_student = student.toJSON()
+			created_student.userId = user_id;
 			await StudentPersonal.create(req.body,{ transaction: t });
 			await Authentication.create(auth,{ transaction: t });
 
 			await t.commit();
-			res.send({ success: true , message: 'Student was successfully created.',data: student});
+			res.send({ success: true , message: 'Student was successfully created.',data: created_student});
 
    	   }
 	} catch (error) {

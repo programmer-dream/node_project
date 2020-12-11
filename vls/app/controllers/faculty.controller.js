@@ -20,16 +20,19 @@ exports.create = async (req, res) => {
 
    		 const faculty = await facultyPersonal.create(req.body,{ transaction: t });
    		 let password = bcrypt.hashSync(req.body.password, 8);
+   		 let user_id = Date.now()
    		 let auth = {
    		 				userType:"Faculty",
    		 				userVlsId:faculty.facultyVlsId,
-   		 				userId: Date.now(),
+   		 				userId: user_id,
    		 				password:password,
    		 				oldPassword1:password
    		 };
+   		 let created_faculty = faculty.toJSON()
+   		 created_faculty.userId = user_id;
    		 await Authentication.create(auth,{ transaction: t });
    		 await t.commit();
-   		 res.send({ success: true, message: 'Faculty was successfully created.',data: faculty});
+   		 res.send({ success: true, message: 'Faculty was successfully created.',data: created_faculty});
    	   }
 	} catch (error) {
 	   await t.rollback();

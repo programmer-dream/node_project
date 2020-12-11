@@ -19,20 +19,23 @@ exports.create = async (req, res) => {
 		 
    		 const parent = await Parent.create(req.body,{ transaction: t });
    		 let password = bcrypt.hashSync(req.body.password, 8);
+   		 let user_id  = Date.now()
    		 let auth = {
    		 				userType:"Parent",
    		 				userVlsId:parent.ParentVlsId,
-   		 				userId: Date.now(),
+   		 				userId: user_id,
    		 				password:password,
    		 				oldPassword1:password
    		 };
+   		 created_parent = parent.toJSON()
+   		 created_parent.userId = user_id
    		 await Authentication.create(auth,{ transaction: t });
    		 await t.commit();
-   		 res.send({ success: true, message: 'Parent was successfully created.',data: parent});
+   		 res.send({ success: true, message: 'Parent was successfully created.',data: created_parent});
    	   }
 	} catch (error) {
 	   await t.rollback();
-	   res.status(500).send({ success: false, message: error.message,data:'test' });
+	   res.status(500).send({ success: false, message: error.message });
 	}
 };
 exports.list = (req, res) => {
@@ -48,8 +51,8 @@ exports.view = async(req, res) => {
   if(!req.params.id){
   	 res.send({ success: false, message: 'Parent was not found' });
   }else{
-  	let school = await Parent.findByPk(req.params.id)
-  	res.send({ success: true, message: "Parent data" ,data : school});
+  	let parent = await Parent.findByPk(req.params.id)
+  	res.send({ success: true, message: "Parent data" ,data : parent});
   }
 };
 exports.update = (req, res) => {
@@ -63,11 +66,11 @@ exports.update = (req, res) => {
 	    where: { parentVlsId: req.params.id }
 	  }).then(async (num) => {
 	      if (num >= 1) {
-	      	let school = await Parent.findByPk(req.params.id)
+	      	let parent = await Parent.findByPk(req.params.id)
 	        res.send({
 	          success: true,
 	          message: "Parent was updated successfully.",
-	          data:school
+	          data:parent
 	        });
 	      } else {
 	        res.send({

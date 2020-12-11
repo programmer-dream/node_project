@@ -5,9 +5,6 @@ module.exports = (sequelize, Sequelize) => {
         primaryKey: true,
         autoIncrement: true
       },
-      studentVlsId: {
-        type: Sequelize.INTEGER
-      },
       branchVlsId: {
         type: Sequelize.INTEGER
       },

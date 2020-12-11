@@ -27,7 +27,7 @@ module.exports = function(app) {
     check('contact1', 'contact1 field is required.').not().isEmpty(),
     check('fatherName', 'fatherName field is required.').not().isEmpty(),
     check('motherName', 'motherName field is required.').not().isEmpty(),
-    check('Address', 'Address field is required.').not().isEmpty(),
+    check('address', 'Address field is required.').not().isEmpty(),
     check('password', 'password field is reuired.').not().isEmpty()
     ],studentController.create);
 
@@ -41,7 +41,7 @@ module.exports = function(app) {
     check('contact1', 'contact1 field is required.').not().isEmpty(),
     check('fatherName', 'fatherName field is required.').not().isEmpty(),
     check('motherName', 'motherName field is required.').not().isEmpty(),
-    check('Address', 'Address field is required.').not().isEmpty(),
+    check('address', 'Address field is required.').not().isEmpty(),
     check('password', 'password field is reuired.').not().isEmpty()
     ],studentController.update);
   app.delete("/api/studentlDelete/:id",authJwt.verifyToken,studentController.delete);
