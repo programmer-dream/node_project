@@ -7,13 +7,22 @@ const Authentication = db.Authentication;
 const sequelize = db.sequelize;
 const bcrypt = require("bcryptjs");
 
-exports.create = async (req, res) => {
+module.exports = {
+  create,
+  view,
+  list,
+  update,
+  studentDelete,
+  bulkDelete
+};
+
+async function create(req){
 	const t = await sequelize.transaction();
 	const errors = validationResult(req);
 
 	try {
 	   if(errors.array().length){
-   	  	 res.send({ success: false, message: errors.array() });
+   	  	 throw { success: false, message: errors.array() };
    	   }else{
 	   	   	 if(req.file){
 				req.body.profilepic = req.file.filename;
@@ -39,129 +48,57 @@ exports.create = async (req, res) => {
 			await Authentication.create(auth,{ transaction: t });
 
 			await t.commit();
-			res.send({ success: true , message: 'Student was successfully created.',data: created_student});
+			return { success: true , message: 'Student was successfully created.',data: created_student};
 
    	   }
 	} catch (error) {
 	   await t.rollback();
-	   res.status(500).send({ 
+	   return { 
 	   						success: false,
 	   						message: error.message 
-	   					});
+	   					};
 	}
 };
 
-exports.list = (req, res) => {
-  return StudentSchoolPersonal.findAll()
-	  .then(list => {
-  	  res.send({ success: true,
-  	  			 message: 'Student listing.',
-  	  			 data:list});
-  }).catch(err => {
-      res.status(500).send({ success: false,
-      						 message: err.message 
-      					});
-  });
+async function list(){
+  let list =  await StudentSchoolPersonal.findAll()
+  	  return { success: true,message: 'Student listing',data:list};
 };
 
-exports.view = async(req, res) => {
-  if(!req.params.id){
-  	 res.send({ success: false,
-  	 			message: 'Student was not found' 
-  	 		});
-  }else{
-  	let school = await StudentSchoolPersonal.findByPk(req.params.id)
-  	res.send({ success: true, 
-  			   message: "Student data" ,
-  			   data : school});
-  }
+async function view(id){
+  if(!id) throw { success: false,message: 'Student was not found' };
+  	let school = await StudentSchoolPersonal.findByPk(id)
+  	return { success: true, message: "Student data", data : school};
 };
 
-exports.update = async (req, res) => {
-  if(!req.params.id){
-  	 res.send({ success: false,
-  	 			message: 'Student not found' 
-  	 		});
-  }else{
-  	   if(req.file){
-		  req.body.profilepic = req.file.filename;
-	   }
-	   return StudentSchoolPersonal.update(req.body, {
-	    where: { studentSchoolVlsId: req.params.id }
-	  }).then(async (num) => {
-	      if (num == 1) {
-	      	let student  = await StudentSchoolPersonal.findByPk(req.params.id)
-	        res.send({
-	          success: true,
-	          message: "Student was updated successfully.",
-	          data:student
-	        });
-	      } else {
-	        res.send({
-	          success: false,
-	          message: `Cannot update Student with id=${req.params.id}. Maybe Student was not found or req.body is empty!`
-	        });
-	      }
-     }).catch(err => {
-	      res.status(500).send({
-	      	success: false, 
-	      	message: err.message 
-	      });
-     });
-  }
+async function update(req){
+   if(req.file){
+	  req.body.profilepic = req.file.filename;
+   }
+   let num = await StudentSchoolPersonal.update(req.body, {
+    where: { studentSchoolVlsId: req.params.id }
+  })
+   if(num != 1) throw 'Cannot update Student'
+   let student  = await StudentSchoolPersonal.findByPk(req.params.id)
+    return {
+      success: true,
+      message: "Student was updated successfully.",
+      data:student
+    }
 };
-exports.delete = (req, res) => {
-  if(!req.params.id){
-  	 res.send({ success: false, message: 'Student not found' });
-  }else{
-	  StudentSchoolPersonal.destroy({
-	    where: { studentSchoolVlsId: req.params.id }
-	  })
-	    .then(num => {
-	      if (num == 1) {
-	        res.send({
-	          success: true,
-	          message: "Student was deleted successfully!"
-	        });
-	      } else {
-	        res.send({
-	          success: false,
-	          message: `Cannot delete Student with id=${req.params.id}. Maybe Student was not found!`
-	        });
-	      }
-	    })
-	    .catch(err => {
-	      res.status(500).send({ success: false,
-	      						 message: err.message 
-	      					});
-	    });
-  }	
+async function studentDelete(id){
+  let num = await StudentSchoolPersonal.destroy({
+    where: { studentSchoolVlsId: id }
+  })
+	 if(num != 1) throw 'Student not deleted'
+	 return {success:true,message:'Student deleted successfully'}
 };
-exports.bulkDelete = (req, res) => {
-  if(!req.body.ids){
-  	 res.send({ success: false,message: 'Student not found' });
-  }else{
-  	  if(!Array.isArray(req.body.ids)){
-  	  	res.send({ success: false,message: 'ids index must be an array.' });
-  	  }
-	  StudentSchoolPersonal.destroy({
-	     where: { studentSchoolVlsId: req.body.ids}
-	  })
-	    .then(num => {
-	      if (num >= 1) {
-	        res.send({
-	          success: true,
-	          message: "Selected Student's was deleted successfully!"
-	        });
-	      } else {
-	        res.send({
-	          success: false,
-	          message: `Cannot delete Selected Student's. Maybe Student was not found!`
-	        });
-	      }
-	    })
-	    .catch(err => {
-	      res.status(500).send({ success: false,message: err.message });
-	    });
-  }	
+async function bulkDelete(body){
+  if(!Array.isArray(body.ids)) throw 'ids index must be an array'
+
+  let num = await StudentSchoolPersonal.destroy({
+    where: { studentSchoolVlsId: body.ids }
+  })
+	 if(num != 1) throw 'Student not deleted'
+	 return {success:true,message:'Student deleted successfully'}
 };

@@ -3,22 +3,27 @@ const db = require("../models");
 const Op = db.Sequelize.Op;
 const SchoolDetails = db.SchoolDetails;
 
-exports.schoolCreate = (req, res) => {
+module.exports = {
+  create,
+  view,
+  list,
+  update,
+  schoolDelete,
+  bulkDelete
+};
+async function create(req){
    const errors = validationResult(req);
    if(errors.array().length){
-   	  res.send({ success: false, message: errors.array() });
-   }else{
-   	  SchoolDetails.create(req.body)
-   	  .then(SchoolDetails => {
-	  	  res.send({ success: true,message: 'School was successfully created.', data: SchoolDetails });
-	  }).catch(err => {
-	      res.status(500).send({ success: false, message: err.message });
-	  });
+   	  return { success: false, message: errors.array() };
    }
+   let schoolDetails = await SchoolDetails.create(req.body);
+   if(schoolDetails)
+   	return { success: true,message: 'School created successfully', data: schoolDetails };
+
 };
 
 
-exports.schoolList = (req, res) => {
+async function list(req, res){
   return SchoolDetails.findAll()
 	  .then(list => {
   	  res.send({ success: true ,message: 'School listing.',
@@ -29,95 +34,47 @@ exports.schoolList = (req, res) => {
 };
 
 
-exports.schoolView = async(req, res) => {
-  if(!req.params.id){
-  	 res.send({ success: false, message: 'School was not found' });
-  }else{
-  	let school = await SchoolDetails.findByPk(req.params.id)
-  	res.send({ success: true, message: "School data" ,data : school});
-  }
+async function view(id){
+	let school = await SchoolDetails.findByPk(id)
+	return { success: true, message: "School data" ,data : school};
 };
 
 
-exports.schoolUpdate = (req, res) => {
-  if(!req.params.id){
-  	 res.send({ success: false, message: 'School not found' });
-  }else{
-	   return SchoolDetails.update(req.body, {
-	    where: { schoolVlsId: req.params.id }
-	  }).then(async (num) => {
-	  	 let school = await SchoolDetails.findByPk(req.params.id)
-	      if (num == 1) {
-	        res.send({
-	          success: true,
-	          message: "School was updated successfully.",
-	          data:school
-	        });
-	      } else {
-	        res.send({
-	          success: false,
-	          message: `Cannot update School with id=${id}. Maybe School was not found or req.body is empty!`
-	        });
-	      }
-     }).catch(err => {
-	      res.status(500).send({ success: false,message: err.message });
-     });
-  }
+async function update(req){
+   const errors = validationResult(req);
+   if(errors.array().length){
+   	  return { success: false, message: errors.array() };
+   }
+   let num = await SchoolDetails.update(req.body, {
+			    where: { schoolVlsId: req.params.id }
+			  });
+   if(num != 1) throw 'school not updated'
+   let school = await SchoolDetails.findByPk(req.params.id)
+	return { success: true, message: "School data" ,data : school};
 };
 
 
-exports.schoolDelete = (req, res) => {
-  if(!req.params.id){
-  	 res.send({ success: false, message: 'School not found' });
-  }else{
-	  SchoolDetails.destroy({
-	    where: { schoolVlsId: req.params.id }
-	  })
-	    .then(num => {
-	      if (num == 1) {
-	        res.send({
-	          success: true,
-	          message: "School was deleted successfully!"
-	        });
-	      } else {
-	        res.send({
-	          success: false,
-	          message: `Cannot delete School with id=${id}. Maybe School was not found!`
-	        });
-	      }
-	    })
-	    .catch(err => {
-	      res.status(500).send({ success: false, message: err.message });
-	    });
-  }	
+async function schoolDelete(id){
+	let num = await SchoolDetails.destroy({
+		where: { schoolVlsId: id }
+	})
+	if(num !=1) throw "School not deleted"
+	return { success: true,
+		message: "School deleted successfully!"
+	}
 };
 
 
-exports.schoolBulkDelete = (req, res) => {
-  if(!req.body.ids){
-  	 res.send({ success: false, message: 'School not found' });
-  }else{
-  	  if(!Array.isArray(req.body.ids)){
-  	  	res.send({ success: false,message: 'ids index must be an array.' });
-  	  }
-	  SchoolDetails.destroy({
-	     where: { schoolVlsId: req.body.ids}
-	  })
-	    .then(num => {
-	      if (num == 1) {
-	        res.send({
-	          success: true,
-	          message: "Selected school's was deleted successfully!"
-	        });
-	      } else {
-	        res.send({
-	          success: false,
-	          message: `Cannot delete Selected school's. Maybe School was not found!`
-	        });
-	      }
-	    })
-	    .catch(err => {
-	      res.status(500).send({ success: false, message: err.message });
-	    });
-  }	
+async function bulkDelete(ids){
+	if(!Array.isArray(ids)){
+		return { success: false,message: 'ids index must be an array' };
+	}
+	let num = await SchoolDetails.destroy({
+		where: { schoolVlsId: ids}
+	})
+	if(num !=1) throw 'school not deleted'
+
+	return { success: true,
+		 message: "School deleted successfully!"
+	}
 };
