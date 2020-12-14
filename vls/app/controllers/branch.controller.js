@@ -14,10 +14,9 @@ module.exports = {
 
 async function branchCreate (req) {
 	const errors = validationResult(req);
-	if(errors.array().length){
-		  return { success: false, message: errors.array() }
-	}
-
+	if(errors.array().length)
+		 return { success: false, message: errors.array() }
+	
 	let branch = await BranchDetails.create(req.body);
 	branch = branch.toJSON();
 	if(branch && branch.branchVlsId){
@@ -38,7 +37,6 @@ async function branchList (){
 
 
 async function branchView(params) {
-
 	let branchID = params.id
   	let branchDetails = await BranchDetails.findByPk(branchID)
 	if(!branchDetails) throw 'Branch not found';
@@ -50,18 +48,16 @@ async function branchView(params) {
 
 
 async function branchUpdate (req) {
-
 	const errors = validationResult(req);
-	if(errors.array().length){
+	if(errors.array().length)
 		  return { success:false, message: errors.array() }
-	}
-
+	
 	let branchID = req.params.id;
 	let branchBody = req.body;
   	let branchDetails = await BranchDetails.findByPk(branchID)
 	if(!branchDetails) throw 'Branch not found';
 
-   let branch = await BranchDetails.update(branchBody, {
+    let branch = await BranchDetails.update(branchBody, {
 	    where: { branchVlsId: branchID }
 	  })
 

@@ -19,12 +19,12 @@ async function create(req){
 	const t = await sequelize.transaction();
 	const errors = validationResult(req);
 	try {
-	   if(errors.array().length){
+	   if(errors.array().length)
    	  	 return { success: false, message: errors.array() };
-   	   }else{
+   	   
    	   	 if(req.file){
-			req.body.profilepic = req.file.filename;
-		 }
+    			req.body.profilepic = req.file.filename;
+    		 }
    		 const parent = await Parent.create(req.body,{ transaction: t });
    		 let password = bcrypt.hashSync(req.body.password, 8);
    		 let user_id  = Date.now()
@@ -40,7 +40,7 @@ async function create(req){
    		 await Authentication.create(auth,{ transaction: t });
    		 await t.commit();
    		 return { success: true, message: 'Parent was successfully created.',data: created_parent};
-   	   }
+   	   
 	} catch (error) {
 	   await t.rollback();
 	   return { success: false, message: error.message };

@@ -6,25 +6,31 @@ const app = express();
 const router = express.Router()
 app.use(bodyParser.json());
 
-  router.post("/create",[
-  	check('name','Name field is required.').not().isEmpty(),
-  	check('description','Description field is required.').not().isEmpty(),
-  	check('contact1','Contact1 field is required.').not().isEmpty(),
-  	check('emailId1','Enter valid email.').not().isEmpty(),
-  	check('address','Address field is required.').not().isEmpty()
-  	],create);
+//Post routes
+router.post("/create",[
+  check('name','Name field is required.').not().isEmpty(),
+  check('description','Description field is required.').not().isEmpty(),
+  check('contact1','Contact1 field is required.').not().isEmpty(),
+  check('emailId1','Enter valid email.').not().isEmpty(),
+  check('address','Address field is required.').not().isEmpty()
+],create);
 
-  router.get("/view/:id" ,view);
-  router.get("/list/" ,list);
-  router.put("/update/:id",[
-    check('name','Name field is required.').not().isEmpty(),
-    check('description','Description field is required.').not().isEmpty(),
-    check('contact1','Contact1 field is required.').not().isEmpty(),
-    check('emailId1','Enter valid email.').not().isEmpty(),
-    check('address','Address field is required.').not().isEmpty()
-    ],update);
-  router.delete("/delete/:id" ,schoolDelete);
-  router.delete("/bulkDelete/" ,bulkDelete);
+//Get routes
+router.get("/view/:id" ,view);
+router.get("/list/" ,list);
+
+//Put routes
+router.put("/update/:id",[
+  check('name','Name field is required.').not().isEmpty(),
+  check('description','Description field is required.').not().isEmpty(),
+  check('contact1','Contact1 field is required.').not().isEmpty(),
+  check('emailId1','Enter valid email.').not().isEmpty(),
+  check('address','Address field is required.').not().isEmpty()
+],update);
+
+//Delete routes
+router.delete("/delete/:id" ,schoolDelete);
+router.delete("/bulkDelete/" ,bulkDelete);
   
 module.exports = router;
 

@@ -9,7 +9,8 @@ const router = express.Router()
 const app = express();
 app.use(bodyParser.json());
 
-  router.post("/create",[
+//Post route
+router.post("/create",[
     upload.single('profilepic'),
     check('firstName', 'firstName field is required.').not().isEmpty(),
     check('dob', 'dob field is required.').not().isEmpty(),
@@ -18,11 +19,14 @@ app.use(bodyParser.json());
     check('motherName', 'motherName field is required.').not().isEmpty(),
     check('address', 'Address field is required.').not().isEmpty(),
     check('password', 'password field is reuired.').not().isEmpty()
-    ],create);
+],create);
 
-  router.get("/view/:id" ,view);
-  router.get("/list" ,list);
-  router.put("/update/:id",[
+//Get route
+router.get("/view/:id" ,view);
+router.get("/list" ,list);
+
+//Put route
+router.put("/update/:id",[
     upload.single('profilepic'),
     check('firstName', 'firstName field is required.').not().isEmpty(),
     check('dob', 'dob field is required.').not().isEmpty(),
@@ -31,9 +35,11 @@ app.use(bodyParser.json());
     check('motherName', 'motherName field is required.').not().isEmpty(),
     check('address', 'Address field is required.').not().isEmpty(),
     check('password', 'password field is reuired.').not().isEmpty()
-    ],update);
-  router.delete("/delete/:id" ,studentDelete);
-  router.delete("/bulkDelete/" ,bulkDelete);
+],update);
+
+//Delete route
+router.delete("/delete/:id" ,studentDelete);
+router.delete("/bulkDelete/" ,bulkDelete);
   
 module.exports = router;
 

@@ -21,14 +21,11 @@ async function create(req){
 	const errors = validationResult(req);
 
 	try {
-	   if(errors.array().length){
-   	  	 throw { success: false, message: errors.array() };
-   	   }else{
+	   if(errors.array().length)
+   	  	 return { success: false, message: errors.array() };
 	   	   	 if(req.file){
 				req.body.profilepic = req.file.filename;
 			 }
-
-			
 			const student = await StudentSchoolPersonal.create(req.body,{ transaction: t });
 
 			let studentId = student.studentSchoolVlsId
@@ -50,7 +47,7 @@ async function create(req){
 			await t.commit();
 			return { success: true , message: 'Student was successfully created.',data: created_student};
 
-   	   }
+   	   
 	} catch (error) {
 	   await t.rollback();
 	   return { 
@@ -62,11 +59,11 @@ async function create(req){
 
 async function list(){
   let list =  await StudentSchoolPersonal.findAll()
-  	  return { success: true,message: 'Student listing',data:list};
+  return { success: true,message: 'Student listing',data:list};
 };
 
 async function view(id){
-  if(!id) throw { success: false,message: 'Student was not found' };
+  if(!id) return { success: false,message: 'Student not found' };
   	let school = await StudentSchoolPersonal.findByPk(id)
   	return { success: true, message: "Student data", data : school};
 };
@@ -78,11 +75,11 @@ async function update(req){
    let num = await StudentSchoolPersonal.update(req.body, {
     where: { studentSchoolVlsId: req.params.id }
   })
-   if(num != 1) throw 'Cannot update Student'
+   if(num != 1) throw 'Student not updated'
    let student  = await StudentSchoolPersonal.findByPk(req.params.id)
     return {
       success: true,
-      message: "Student was updated successfully.",
+      message: "Student updated successfully.",
       data:student
     }
 };
@@ -95,10 +92,9 @@ async function studentDelete(id){
 };
 async function bulkDelete(body){
   if(!Array.isArray(body.ids)) throw 'ids index must be an array'
-
   let num = await StudentSchoolPersonal.destroy({
     where: { studentSchoolVlsId: body.ids }
   })
-	 if(num != 1) throw 'Student not deleted'
-	 return {success:true,message:'Student deleted successfully'}
+  if(num != 1) throw 'Student not deleted'
+  return {success:true,message:'Student deleted successfully'}
 };

@@ -8,27 +8,33 @@ const router = express.Router()
 const app = express();
 app.use(bodyParser.json());
 
-  router.post("/create",[
+//Post routes
+router.post("/create",[
   upload.single('profilepic'),
   check('firstName', 'firstName field is required.').not().isEmpty(),
   check('dob', 'dob field is required.').not().isEmpty(),
   check('contact1', 'contact1 field is required.').not().isEmpty(),
   check('address', 'Address field is required.').not().isEmpty(),
   check('password', 'password field is reuired.').not().isEmpty()
-  ],create);
+],create);
 
-  router.get("/view/:id" ,view);
-  router.get("/list/" ,list);
-  router.put("/update/:id",[
+//Get routes
+router.get("/view/:id" ,view);
+router.get("/list/" ,list);
+
+//Put routes
+router.put("/update/:id",[
   upload.single('profilepic'),
   check('firstName', 'firstName field is required.').not().isEmpty(),
   check('dob', 'dob field is required.').not().isEmpty(),
   check('contact1', 'contact1 field is required.').not().isEmpty(),
   check('address', 'Address field is required.').not().isEmpty(),
   check('password', 'password field is reuired.').not().isEmpty()
-  ],update);
-  router.delete("/delete/:id" ,parentDelete);
-  router.delete("/bulkDelete/" ,bulkDelete);
+],update);
+
+//Delete routes
+router.delete("/delete/:id" ,parentDelete);
+router.delete("/bulkDelete/" ,bulkDelete);
   
 module.exports = router;
 
