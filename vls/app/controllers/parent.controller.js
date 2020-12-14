@@ -6,17 +6,25 @@ const bcrypt = require("bcryptjs");
 const Parent = db.Parent;
 const Authentication = db.Authentication;
 
-exports.create = async (req, res) => {
+module.exports = {
+  create,
+  view,
+  list,
+  update,
+  parentDelete,
+  bulkDelete
+};
+
+async function create(req){
 	const t = await sequelize.transaction();
 	const errors = validationResult(req);
 	try {
 	   if(errors.array().length){
-   	  	 res.send({ success: false, message: errors.array() });
+   	  	 return { success: false, message: errors.array() };
    	   }else{
-   	   	  if(req.file){
+   	   	 if(req.file){
 			req.body.profilepic = req.file.filename;
 		 }
-		 
    		 const parent = await Parent.create(req.body,{ transaction: t });
    		 let password = bcrypt.hashSync(req.body.password, 8);
    		 let user_id  = Date.now()
@@ -31,108 +39,51 @@ exports.create = async (req, res) => {
    		 created_parent.userId = user_id
    		 await Authentication.create(auth,{ transaction: t });
    		 await t.commit();
-   		 res.send({ success: true, message: 'Parent was successfully created.',data: created_parent});
+   		 return { success: true, message: 'Parent was successfully created.',data: created_parent};
    	   }
 	} catch (error) {
 	   await t.rollback();
-	   res.status(500).send({ success: false, message: error.message });
+	   return { success: false, message: error.message };
 	}
 };
-exports.list = (req, res) => {
-  return Parent.findAll()
-	  .then(list => {
-  	  res.send({ success: true, message: 'Parent listing.',
-  	  data:list});
-  }).catch(err => {
-      res.status(500).send({ success: false, message: err.message });
-  });
+async function list(req, res){
+  let list = await Parent.findAll()
+  return { success: true, message: 'Parent listing.',
+  data:list};
 };
-exports.view = async(req, res) => {
-  if(!req.params.id){
-  	 res.send({ success: false, message: 'Parent was not found' });
-  }else{
-  	let parent = await Parent.findByPk(req.params.id)
-  	res.send({ success: true, message: "Parent data" ,data : parent});
-  }
+async function view(id){
+  	let parent = await Parent.findByPk(id)
+  	return { success: true, message: "Parent data" ,data : parent};
 };
-exports.update = (req, res) => {
-  if(!req.params.id){
-  	 res.send({ success: false, message: 'Parent not found' });
-  }else{
-  		if(req.file){
-			req.body.profilepic = req.file.filename;
-	  	}
-	   return Parent.update(req.body, {
-	    where: { parentVlsId: req.params.id }
-	  }).then(async (num) => {
-	      if (num >= 1) {
-	      	let parent = await Parent.findByPk(req.params.id)
-	        res.send({
-	          success: true,
-	          message: "Parent was updated successfully.",
-	          data:parent
-	        });
-	      } else {
-	        res.send({
-	          success: false,
-	          message: `Cannot update Parent with id=${req.params.id}. Maybe Parent was not found or req.body is empty!`
-	        });
-	      }
-     }).catch(err => {
-	      res.status(500).send({ success: false, message: err.message });
-     });
-  }
+async function update(req){
+  	const errors = validationResult(req);
+	if(req.file){
+		req.body.profilepic = req.file.filename;
+	}
+	let num = await Parent.update(req.body, {
+		where: { parentVlsId: req.params.id }
+	})
+	if(num != 1) throw 'parent not updated'
+	let parent = await Parent.findByPk(req.params.id)
+	return {success: true,
+	        message: "Parent updated successfully",
+	        data:parent
+	       }
 };
-exports.delete = (req, res) => {
-  if(!req.params.id){
-  	 res.send({ success: false, message: 'Parent not found' });
-  }else{
-	  Parent.destroy({
-	    where: { parentVlsId: req.params.id }
-	  })
-	    .then(num => {
-	      if (num == 1) {
-	        res.send({
-	          success: true,
-	          message: "Parent was deleted successfully!"
-	        });
-	      } else {
-	        res.send({
-	          success: false,
-	          message: `Cannot delete Parent with id=${id}. Maybe Parent was not found!`
-	        });
-	      }
-	    })
-	    .catch(err => {
-	      res.status(500).send({ success: false, message: err.message });
-	    });
-  }	
+async function parentDelete(id){
+  let num = await Parent.destroy({
+    where: { parentVlsId: id }
+  })
+  if(num != 1) throw 'parent not deleted'    
+  return {success: true,message: "Parent deleted successfully"}     	
 };
-exports.bulkDelete = (req, res) => {
-  if(!req.body.ids){
-  	 res.send({ success: false, message: 'Parent not found' });
-  }else{
-  	  if(!Array.isArray(req.body.ids)){
-  	  	res.send({ success: false,message: 'ids index must be an array.' });
-  	  }
-	  Parent.destroy({
-	     where: { parentVlsId: req.body.ids}
-	  })
-	    .then(num => {
-	      if (num >= 1) {
-	        res.send({
-	          success: true,
-	          message: "Selected Parent's was deleted successfully!"
-	        });
-	      } else {
-	        res.send({
-	          success: false,
-	          message: `Cannot delete Selected Parent's. Maybe Student was not found!`
-	        });
-	      }
-	    })
-	    .catch(err => {
-	      res.status(500).send({ success: false, message: err.message });
-	    });
-  }	
+async function bulkDelete(ids){
+	if(!Array.isArray(ids)){
+	  	return { success: false,message: 'ids index must be an array.'};
+	}
+	let num = await Parent.destroy({
+	    where: { parentVlsId: ids }
+	})
+	if(num != 1) throw 'parent not deleted'    
+	return {success: true,message: "Parent deleted successfully"}
 };

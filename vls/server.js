@@ -33,11 +33,10 @@ app.get("/",function(req, res){
 // api routes
 app.use('/auth', require('./app/routes/auth.routes'));
 app.use('/branch', require('./app/routes/branch.routes'));
-
-require("./app/routes/school.routes")(app);
-require('./app/routes/student.routes')(app);
-require('./app/routes/faculty.routes')(app);
-require('./app/routes/parent.routes')(app);
+app.use('/student', require('./app/routes/student.routes'));
+app.use('/school', require('./app/routes/school.routes'));
+app.use('/parent', require('./app/routes/parent.routes'));
+app.use('/faculty', require('./app/routes/faculty.routes'));
 
 // global error handler
 app.use(errorHandler);
