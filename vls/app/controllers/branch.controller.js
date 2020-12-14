@@ -3,119 +3,97 @@ const db = require("../models");
 const Op = db.Sequelize.Op;
 const BranchDetails = db.BranchDetails;
 
+module.exports = {
+  branchCreate,
+  branchList,
+  branchView,
+  branchUpdate,
+  branchDelete,
+  bulkDelete
+};
 
-exports.branchCreate = (req, res) => {
-   const errors = validationResult(req);
-   if(errors.array().length){
-   	  res.send({ success: false, message: errors.array() });
-   }else{
-   	  BranchDetails.create(req.body)
-   	  .then(BranchDetails => {
-	  	  res.send({ success: true , message: 'Branch was successfully created.',data: BranchDetails});
-	  }).catch(err => {
-	      res.status(500).send({ success: false, message: err.message });
-	  });
-   }
+async function branchCreate (req) {
+	const errors = validationResult(req);
+	if(errors.array().length){
+		  return { success: false, message: errors.array() }
+	}
+
+	let branch = await BranchDetails.create(req.body);
+	branch = branch.toJSON();
+	if(branch && branch.branchVlsId){
+		return { 
+				success: true, 
+				message: 'Branch created successfully',
+				data: branch
+			};
+	}
+
 };
 
 
-exports.branchList = (req, res) => {
-  return BranchDetails.findAll()
-	  .then(list => {
-  	  res.send({ success: true ,message: 'Branch listing.',
-  	  data:list});
-  }).catch(err => {
-      res.status(500).send({ success: false, message: err.message });
-  });
+async function branchList (){
+	let branch =  await BranchDetails.findAll()
+	return { success: true, message: 'Branch listing', data: branch };
 };
 
 
-exports.branchView = async(req, res) => {
-  if(!req.params.id){
-  	 res.send({ success: false, message: 'Branch was not found' });
-  }else{
-  	let branch = await BranchDetails.findByPk(req.params.id)
-  	res.send({ success: true, message: "Branch data" ,data : branch});
-  }
+async function branchView(params) {
+
+	let branchID = params.id
+  	let branchDetails = await BranchDetails.findByPk(branchID)
+	if(!branchDetails) throw 'Branch not found';
+
+	let branch = await BranchDetails.findByPk(branchID)
+	return { success:true, message:"Branch data", data : branch};
+
 };
 
 
-exports.branchUpdate = (req, res) => {
-  if(!req.params.id){
-  	 res.send({ success: false, message: 'Branch not found' });
-  }else{
-	   return BranchDetails.update(req.body, {
-	    where: { branchVlsId: req.params.id }
-	  }).then(async (num) => {
-	      if (num == 1) {
-	      	let branch = await BranchDetails.findByPk(req.params.id);
-	        res.send({
-	          success: true,
-	          message: "Branch was updated successfully.",
-	          data:branch
-	        });
-	      } else {
-	        res.send({
-	          success: false,
-	          message: `Cannot update Branch with id=${req.params.id}. Maybe Branch was not found or req.body is empty!`
-	        });
-	      }
-     }).catch(err => {
-	      res.status(500).send({ success: false, message: err.message });
-     });
-  }
-};
+async function branchUpdate (req) {
 
-exports.branchDelete = (req, res) => {
-  if(!req.params.id){
-  	 res.send({ success: false, message: 'Branch not found' });
-  }else{
-	  BranchDetails.destroy({
-	    where: { branchVlsId: req.params.id }
+	const errors = validationResult(req);
+	if(errors.array().length){
+		  return { success:false, message: errors.array() }
+	}
+
+	let branchID = req.params.id;
+	let branchBody = req.body;
+  	let branchDetails = await BranchDetails.findByPk(branchID)
+	if(!branchDetails) throw 'Branch not found';
+
+   let branch = await BranchDetails.update(branchBody, {
+	    where: { branchVlsId: branchID }
 	  })
-	    .then(num => {
-	      if (num == 1) {
-	        res.send({
-	          success: true,
-	          message: "Branch was deleted successfully!"
-	        });
-	      } else {
-	        res.send({
-	          success: false,
-	          message: `Cannot delete Branch with id=${req.params.id}. Maybe School was not found!`
-	        });
-	      }
-	    })
-	    .catch(err => {
-	      res.status(500).send({ success: false, message: err.message });
-	    });
-  }	
+
+   if (branch >= 1) {
+   		let branchDetails = await BranchDetails.findByPk(branchID)
+   		return {
+          success: true,
+          message: "Branch was updated successfully.",
+          data:branchDetails
+        };
+    }
+
 };
-exports.bulkDelete = (req, res) => {
-  if(!req.body.ids){
-  	 res.send({ success: false,message: 'Branch not found' });
-  }else{
-  	  if(!Array.isArray(req.body.ids)){
-  	  	res.send({ success: false,message: 'ids index must be an array.' });
-  	  }
-	  BranchDetails.destroy({
-	     where: { branchVlsId: req.body.ids}
+
+async function branchDelete (params) {
+	let branchID = params.id
+  	let branchDetails = await BranchDetails.findByPk(branchID)
+	if(!branchDetails) throw 'Branch not found';
+
+	let branch = await BranchDetails.destroy({
+	    where: { branchVlsId: branchID }
 	  })
-	    .then(num => {
-	      if (num >= 1) {
-	        res.send({
-	          success: true,
-	          message: "Branch Student's was deleted successfully!"
-	        });
-	      } else {
-	        res.send({
-	          success: false,
-	          message: `Cannot delete Selected Branch's. Maybe Branch was not found!`
-	        });
-	      }
-	    })
-	    .catch(err => {
-	      res.status(500).send({ success: false,message: err.message });
-	    });
-  }	
+	return { success:true, message:"Branch deleted successfully!"};
+	
+};
+async function bulkDelete (body) {
+	let ids = body.ids
+	if(!ids) throw 'Branch not found';
+	if(!Array.isArray(ids)) throw 'ids must be an array';
+	let branch = await BranchDetails.destroy({
+	    where: { branchVlsId: ids }
+	  })
+	return { success:true, message:"Branch deleted successfully!"};
+	
 };

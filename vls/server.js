@@ -32,8 +32,8 @@ app.get("/",function(req, res){
 
 // api routes
 app.use('/auth', require('./app/routes/auth.routes'));
+app.use('/branch', require('./app/routes/branch.routes'));
 
-require("./app/routes/branch.routes")(app);
 require("./app/routes/school.routes")(app);
 require('./app/routes/student.routes')(app);
 require('./app/routes/faculty.routes')(app);
