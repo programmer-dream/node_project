@@ -17,7 +17,7 @@ module.exports = {
                 table: 'SchoolDetails',
                 field: 'schoolVlsId',
               },
-              onDelete: 'no action',
+              onDelete: 'CASCADE',
               onUpdate: 'no action',
         }),
         queryInterface.addConstraint('Authentication', {
@@ -28,7 +28,7 @@ module.exports = {
                 table: 'BranchDetails',
                 field: 'branchVlsId',
               },
-              onDelete: 'no action',
+              onDelete: 'CASCADE',
               onUpdate: 'no action',
         }),
         queryInterface.addConstraint('Authentication', {
@@ -39,7 +39,7 @@ module.exports = {
                 table: 'UserSettings',
                 field: 'userSettingsVlsId',
               },
-              onDelete: 'no action',
+              onDelete: 'CASCADE',
               onUpdate: 'no action',
         }),
         queryInterface.addConstraint('StudentVls', {
@@ -50,7 +50,7 @@ module.exports = {
                 table: 'StudentSchoolPersonal',
                 field: 'studentSchoolVlsId',
               },
-              onDelete: 'no action',
+              onDelete: 'CASCADE',
               onUpdate: 'no action',
         }),
         queryInterface.addConstraint('StudentVlsReport', {
@@ -61,7 +61,7 @@ module.exports = {
                 table: 'StudentSchoolPersonal',
                 field: 'studentSchoolVlsId',
               },
-              onDelete: 'no action',
+              onDelete: 'CASCADE',
               onUpdate: 'no action',
         }),
         queryInterface.addConstraint('StudentPersonal', {
@@ -72,7 +72,7 @@ module.exports = {
                 table: 'StudentSchoolPersonal',
                 field: 'studentSchoolVlsId',
               },
-              onDelete: 'no action',
+              onDelete: 'CASCADE',
               onUpdate: 'no action',
         }),
         queryInterface.addConstraint('StudentPersonal', {
@@ -83,7 +83,7 @@ module.exports = {
                 table: 'PassionAndInterests',
                 field: 'passionVlsId',
               },
-              onDelete: 'no action',
+              onDelete: 'CASCADE',
               onUpdate: 'no action',
         }),
         queryInterface.addConstraint('AssessmentCriteria', {
@@ -94,7 +94,7 @@ module.exports = {
                 table: 'BranchDetails',
                 field: 'branchVlsId',
               },
-              onDelete: 'no action',
+              onDelete: 'CASCADE',
               onUpdate: 'no action',
         }),
         queryInterface.addConstraint('ClassDetails', {
@@ -105,7 +105,7 @@ module.exports = {
                 table: 'BranchDetails',
                 field: 'branchVlsId',
               },
-              onDelete: 'no action',
+              onDelete: 'CASCADE',
               onUpdate: 'no action',
         }),
         queryInterface.addConstraint('SubjectFaculty', {
@@ -116,7 +116,7 @@ module.exports = {
                 table: 'BranchDetails',
                 field: 'branchVlsId',
               },
-              onDelete: 'no action',
+              onDelete: 'CASCADE',
               onUpdate: 'no action',
         }),
         queryInterface.addConstraint('SubjectFaculty', {
@@ -127,7 +127,7 @@ module.exports = {
                 table: 'ClassDetails',
                 field: 'classVlsId',
               },
-              onDelete: 'no action',
+              onDelete: 'CASCADE',
               onUpdate: 'no action',
         }),
         queryInterface.addConstraint('SubjectFaculty', {
@@ -138,7 +138,7 @@ module.exports = {
                 table: 'facultyPersonal',
                 field: 'facultyVlsId',
               },
-              onDelete: 'no action',
+              onDelete: 'CASCADE',
               onUpdate: 'no action',
         }),
         queryInterface.addConstraint('StudentAttendance', {
@@ -149,7 +149,7 @@ module.exports = {
                 table: 'BranchDetails',
                 field: 'branchVlsId',
               },
-              onDelete: 'no action',
+              onDelete: 'CASCADE',
               onUpdate: 'no action',
         }),
         queryInterface.addConstraint('StudentAttendance', {
@@ -160,7 +160,7 @@ module.exports = {
                 table: 'StudentSchoolPersonal',
                 field: 'studentSchoolVlsId',
               },
-              onDelete: 'no action',
+              onDelete: 'CASCADE',
               onUpdate: 'no action',
         }),
         queryInterface.addConstraint('BranchTestList', {
@@ -171,7 +171,7 @@ module.exports = {
                 table: 'BranchDetails',
                 field: 'branchVlsId',
               },
-              onDelete: 'no action',
+              onDelete: 'CASCADE',
               onUpdate: 'no action',
         })
      ])

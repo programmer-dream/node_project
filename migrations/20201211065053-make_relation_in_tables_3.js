@@ -17,7 +17,7 @@ module.exports = {
                 table: 'StudentSchoolPersonal',
                 field: 'studentSchoolVlsId',
               },
-              onDelete: 'no action',
+              onDelete: 'CASCADE',
               onUpdate: 'no action',
         });
         await queryInterface.addConstraint('StudentQuery', {
@@ -28,7 +28,7 @@ module.exports = {
                 table: 'ClassDetails',
                 field: 'classVlsId',
               },
-              onDelete: 'no action',
+              onDelete: 'CASCADE',
               onUpdate: 'no action',
         });
         await queryInterface.addConstraint('StudentQuery', {
@@ -39,7 +39,7 @@ module.exports = {
                 table: 'Feedback',
                 field: 'replyVlsId',
               },
-              onDelete: 'no action',
+              onDelete: 'CASCADE',
               onUpdate: 'no action',
         });
         await queryInterface.addConstraint('Feedback', {
@@ -50,7 +50,7 @@ module.exports = {
                 table: 'BranchDetails',
                 field: 'branchVlsId',
               },
-              onDelete: 'no action',
+              onDelete: 'CASCADE',
               onUpdate: 'no action',
         });
         await queryInterface.addConstraint('Feedback', {
@@ -61,7 +61,7 @@ module.exports = {
                 table: 'StudentQuery',
                 field: 'queryVlsId',
               },
-              onDelete: 'no action',
+              onDelete: 'CASCADE',
               onUpdate: 'no action',
         });
         await queryInterface.addConstraint('Feedback', {
@@ -72,7 +72,7 @@ module.exports = {
                 table: 'LearningLibrary',
                 field: 'learningLibraryVlsId',
               },
-              onDelete: 'no action',
+              onDelete: 'CASCADE',
               onUpdate: 'no action',
         });
         await queryInterface.addConstraint('Feedback', {
@@ -83,7 +83,7 @@ module.exports = {
                 table: 'LiveStreaming',
                 field: 'liveStreamVlsId',
               },
-              onDelete: 'no action',
+              onDelete: 'CASCADE',
               onUpdate: 'no action',
         });
         await queryInterface.addConstraint('Feedback', {
@@ -94,7 +94,7 @@ module.exports = {
                 table: 'Tickets',
                 field: 'ticketVlsId',
               },
-              onDelete: 'no action',
+              onDelete: 'CASCADE',
               onUpdate: 'no action',
         });
         await queryInterface.addConstraint('Feedback', {
@@ -105,7 +105,7 @@ module.exports = {
                 table: 'StudentSchoolPersonal',
                 field: 'studentSchoolVlsId',
               },
-              onDelete: 'no action',
+              onDelete: 'CASCADE',
               onUpdate: 'no action',
         });
         await queryInterface.addConstraint('Feedback', {
@@ -116,7 +116,7 @@ module.exports = {
                 table: 'facultyProfessional',
                 field: 'facultyVlsId',
               },
-              onDelete: 'no action',
+              onDelete: 'CASCADE',
               onUpdate: 'no action',
         });
         await queryInterface.addConstraint('Feedback', {
@@ -127,7 +127,7 @@ module.exports = {
                 table: 'Parent',
                 field: 'parentVlsId',
               },
-              onDelete: 'no action',
+              onDelete: 'CASCADE',
               onUpdate: 'no action',
         });
         await queryInterface.addConstraint('LearningLibrary', {
@@ -138,7 +138,7 @@ module.exports = {
                 table: 'BranchDetails',
                 field: 'branchVlsId',
               },
-              onDelete: 'no action',
+              onDelete: 'CASCADE',
               onUpdate: 'no action',
         });
         await queryInterface.addConstraint('LearningLibrary', {
@@ -149,7 +149,7 @@ module.exports = {
                 table: 'Feedback',
                 field: 'replyVlsId',
               },
-              onDelete: 'no action',
+              onDelete: 'CASCADE',
               onUpdate: 'no action',
         });
         await queryInterface.addConstraint('Assignment', {
@@ -160,7 +160,7 @@ module.exports = {
                 table: 'BranchDetails',
                 field: 'branchVlsId',
               },
-              onDelete: 'no action',
+              onDelete: 'CASCADE',
               onUpdate: 'no action',
         });
         await queryInterface.addConstraint('AssignmentQuestions', {
@@ -171,7 +171,7 @@ module.exports = {
                 table: 'BranchDetails',
                 field: 'branchVlsId',
               },
-              onDelete: 'no action',
+              onDelete: 'CASCADE',
               onUpdate: 'no action',
         });
      // ])

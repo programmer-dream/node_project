@@ -16,7 +16,7 @@ module.exports = {
                 table: 'Assignment',
                 field: 'assignmentVlsId',
               },
-              onDelete: 'no action',
+              onDelete: 'CASCADE',
               onUpdate: 'no action',
         });
         await queryInterface.addConstraint('StudentAssignment', {
@@ -27,7 +27,7 @@ module.exports = {
                 table: 'BranchDetails',
                 field: 'branchVlsId',
               },
-              onDelete: 'no action',
+              onDelete: 'CASCADE',
               onUpdate: 'no action',
         });
         await queryInterface.addConstraint('StudentAssignment', {
@@ -38,7 +38,7 @@ module.exports = {
                 table: 'Assignment',
                 field: 'assignmentVlsId',
               },
-              onDelete: 'no action',
+              onDelete: 'CASCADE',
               onUpdate: 'no action',
         });
         await queryInterface.addConstraint('Chat', {
@@ -49,7 +49,7 @@ module.exports = {
                 table: 'BranchDetails',
                 field: 'branchVlsId',
               },
-              onDelete: 'no action',
+              onDelete: 'CASCADE',
               onUpdate: 'no action',
         });
         await queryInterface.addConstraint('CommunityChat', {
@@ -60,7 +60,7 @@ module.exports = {
                 table: 'BranchDetails',
                 field: 'branchVlsId',
               },
-              onDelete: 'no action',
+              onDelete: 'CASCADE',
               onUpdate: 'no action',
         });
         await queryInterface.addConstraint('CommunityChatCommunicaiton', {
@@ -71,7 +71,7 @@ module.exports = {
                 table: 'BranchDetails',
                 field: 'branchVlsId',
               },
-              onDelete: 'no action',
+              onDelete: 'CASCADE',
               onUpdate: 'no action',
         });
         await queryInterface.addConstraint('CommunityChatCommunicaiton', {
@@ -82,7 +82,7 @@ module.exports = {
                 table: 'CommunityChat',
                 field: 'communityChatVlsId',
               },
-              onDelete: 'no action',
+              onDelete: 'CASCADE',
               onUpdate: 'no action',
         });
         await queryInterface.addConstraint('Notification', {
@@ -93,7 +93,7 @@ module.exports = {
                 table: 'BranchDetails',
                 field: 'branchVlsId',
               },
-              onDelete: 'no action',
+              onDelete: 'CASCADE',
               onUpdate: 'no action',
         });
         await queryInterface.addConstraint('Mailbox', {
@@ -104,7 +104,7 @@ module.exports = {
                 table: 'BranchDetails',
                 field: 'branchVlsId',
               },
-              onDelete: 'no action',
+              onDelete: 'CASCADE',
               onUpdate: 'no action',
         });
         await queryInterface.addConstraint('Mailbox', {
@@ -115,7 +115,7 @@ module.exports = {
                 table: 'Notification',
                 field: 'notificationVlsId',
               },
-              onDelete: 'no action',
+              onDelete: 'CASCADE',
               onUpdate: 'no action',
         });
   },
