@@ -77,9 +77,10 @@ async function branchDelete (params) {
   	let branchDetails = await BranchDetails.findByPk(branchID)
 	if(!branchDetails) throw 'Branch not found';
 
-	let branch = await BranchDetails.destroy({
+	let num = await BranchDetails.destroy({
 	    where: { branchVlsId: branchID }
 	  })
+	if(num != 1) throw 'branch not deleted'
 	return { success:true, message:"Branch deleted successfully!"};
 	
 };
@@ -87,9 +88,10 @@ async function bulkDelete (body) {
 	let ids = body.ids
 	if(!ids) throw 'Branch not found';
 	if(!Array.isArray(ids)) throw 'ids must be an array';
-	let branch = await BranchDetails.destroy({
+	let num = await BranchDetails.destroy({
 	    where: { branchVlsId: ids }
 	  })
+	if(num != 1) throw 'branch not deleted'
 	return { success:true, message:"Branch deleted successfully!"};
 	
 };

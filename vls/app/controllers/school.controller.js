@@ -24,13 +24,8 @@ async function create(req){
 
 
 async function list(req, res){
-  return SchoolDetails.findAll()
-	  .then(list => {
-  	  res.send({ success: true ,message: 'School listing.',
-  	  data:list});
-  }).catch(err => {
-      res.status(500).send({ success: false, message: err.message });
-  });
+  let list =  await SchoolDetails.findAll()
+  return { success: true, message: 'Branch listing', data: list };
 };
 
 
