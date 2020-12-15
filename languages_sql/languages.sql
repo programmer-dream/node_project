@@ -18,53 +18,8 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `ERP`
+-- Database: `VLS`
 --
-
--- --------------------------------------------------------
-
---
--- Table structure for table `languages`
---
-
-CREATE TABLE `languages` (
-  `id` int NOT NULL,
-  `label` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
-  `english` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
-  `bengali` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
-  `spanish` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
-  `arabic` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
-  `hindi` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
-  `urdu` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
-  `chinese` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
-  `japanese` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
-  `portuguese` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
-  `russian` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
-  `french` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
-  `korean` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
-  `german` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
-  `italian` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
-  `thai` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
-  `hungarian` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
-  `dutch` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
-  `latin` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
-  `indonesian` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
-  `turkish` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
-  `greek` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
-  `persian` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
-  `malay` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
-  `telugu` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
-  `tamil` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
-  `gujarati` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
-  `polish` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
-  `ukrainian` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
-  `panjabi` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
-  `romanian` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
-  `burmese` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
-  `yoruba` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
-  `hausa` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
-  `mylang` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `languages`
@@ -1122,25 +1077,6 @@ INSERT INTO `languages` (`id`, `label`, `english`, `bengali`, `spanish`, `arabic
 --
 -- Indexes for dumped tables
 --
-
---
--- Indexes for table `languages`
---
-ALTER TABLE `languages`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `id` (`id`),
-  ADD KEY `label` (`label`);
-
---
--- AUTO_INCREMENT for dumped tables
---
-
---
--- AUTO_INCREMENT for table `languages`
---
-ALTER TABLE `languages`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1037;
-COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
