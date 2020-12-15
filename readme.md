@@ -19,6 +19,9 @@ npx sequelize-cli db:migrate #Run Migration
 # Seeder Db Command 
 npx sequelize-cli db:seed:all #Run DB seed for admin user
 
+#language SQL File.
+Delete Table for languages and import the sql file for languaes in languages folder.
+
 # Serve different folders with yarn workspace
 yarn start:folderName
 
