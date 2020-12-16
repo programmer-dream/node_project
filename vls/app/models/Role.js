@@ -35,9 +35,7 @@ module.exports = (sequelize, Sequelize) => {
     updatedAt: 'modified_at'
   }
   );
-  Roles.associate = function(models) {
-    Roles.belongsTo(models.Authentication, {foreignKey: 'role_id', as:'role'})
-  };
+  
 
   return Roles;
 };

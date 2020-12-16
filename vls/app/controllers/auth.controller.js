@@ -30,7 +30,7 @@ async function getNewUserId() {
  * API for register new Admin user's
  */
  async function signUp(userDetails) {
-  if(!userDetails.userId || !userDetails.password){
+  if(!userDetails.userName || !userDetails.password){
       throw 'userId and Password are required'
   }
 
@@ -56,15 +56,12 @@ async function getNewUserId() {
 async function signIn(userDetails) {
 
   let user = await Authentication.findOne({ 
-                    where: { user_name: userDetails.userId },
-                    attributes: {
-                      include:['user_vls_id'],
-                      exclude:['auth_vls_id','recovery_email_id','old_password2','old_password1','old_password3','created_at','updated_at']
-                    },
+                    attributes: ['auth_vls_id', 'user_vls_id', 'password', 'role_id'],
+                    where: { user_name: userDetails.userName },
                     include: [{ 
                               model:Role,
                               as:'roles',
-                              attributes: ['name']
+                              attributes: ['id','name']
                             }]
                     })
   if(user  && bcrypt.compareSync(userDetails.password, user.password) ){
@@ -80,11 +77,23 @@ async function signIn(userDetails) {
 
     // create token
     let token = jwt.sign(tokenDetails, config.secret, {expiresIn: 86400});
+    // Remove password object from user's object
+    let userWithoutPassword = getUserWithoutPassword(user)
 
-    return {status: "success", token, user };
+    return {status: "success", token, userWithoutPassword };
 
   }
 
+}
+
+/**
+ * Remove password form user's object
+ */
+function getUserWithoutPassword(user){
+  let userObj = user.toJSON();
+  delete userObj.password
+
+  return userObj;
 }
 
 /**
