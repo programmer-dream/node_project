@@ -28,8 +28,8 @@ module.exports = {
           type: Sequelize.STRING(50)
         },
         is_applicable_discount: {
-          type: Sequelize.BOOLEAN
-          defaultValue: false,
+          type: Sequelize.BOOLEAN,
+          defaultValue: false
         },
         academic_year_id: {
           allowNull: false,
@@ -64,8 +64,8 @@ module.exports = {
         },
         paid_status: {
           allowNull: false,
-          type: Sequelize.STRING(20)
-          defaultValue: 'Unpaid',
+          type: Sequelize.STRING(20),
+          defaultValue: 'Unpaid'
         },
         temp_amount: {
           allowNull: false,

@@ -1,6 +1,7 @@
 const db = require("../models");
 const config = require("../../../config/env.js");
 const Authentication = db.Authentication;
+const Role = db.Role;
 
 const Op = db.Sequelize.Op;
 
@@ -54,16 +55,16 @@ async function getNewUserId() {
  */
 async function signIn(userDetails) {
 
-  let user = await Authentication.findOne({ where: { userId: userDetails.userId } })
+  let user = await Authentication.findOne({ where: { user_name: userDetails.userId },include: 'roles' })
   if(user  && bcrypt.compareSync(userDetails.password, user.password) ){
     // expire token with time
     // let token = jwt.sign({id: Authentication.authVlsId,}, config.secret, {expiresIn: 86400});  // 24 hours
 
     let tokenDetails = {
-            id:         user.authVlsId,
-            userId:     user.userId, 
-            type:       user.userType,
-            userVlsId:  user.userVlsId
+            id:         user.auth_vls_id,
+            userId:     user.user_name, 
+            type:       user.role_id,
+            userVlsId:  user.user_vls_id
     }
 
     // create token

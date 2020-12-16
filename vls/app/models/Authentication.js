@@ -1,34 +1,39 @@
 module.exports = (sequelize, Sequelize) => {
-  const Authentication = sequelize.define("Authentication", {
-    authVlsId: {
+  const Authentication = sequelize.define("users", {
+    auth_vls_id: {
         type: Sequelize.INTEGER,
+        autoIncrement: true,
         primaryKey: true
     },
-    recoveryEmailId: {
+    recovery_email_id: {
       type: Sequelize.STRING
     },
     password: {
       type: Sequelize.STRING
     },
-    userType: {
-      type: Sequelize.ENUM('Student','Faculty','Parent','Admin')
-    },
-    userId: {
+    role_id: {
       type: Sequelize.INTEGER
     },
-    oldPassword1: {
+    user_name: {
       type: Sequelize.INTEGER
     },
-    oldPassword2: {
+    old_password1: {
       type: Sequelize.INTEGER
     },
-    oldPassword3: {
+    old_password2: {
+      type: Sequelize.INTEGER
+    },
+    old_password3: {
       type: Sequelize.INTEGER
     }
   },{
-    tableName: 'Authentication'
+    tableName: 'users',
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
   }
   );
-
+  Authentication.associate = function(models) {
+    Authentication.hasOne(models.Role, {foreignKey: 'role_id', as: 'roles'})
+  };
   return Authentication;
 };

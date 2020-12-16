@@ -63,7 +63,10 @@ sequelize.authenticate()
 
 db.Authentication = require("./Authentication.js")(sequelize, Sequelize);
 db.SchoolDetails = require("./School.js")(sequelize, Sequelize);
+db.Role = require("./Role.js")(sequelize, Sequelize);
 
+// db.Authentication.hasOne(db.Role,{foreignKey:'role_id',as:'roles'})
+//db.Role.belongsTo(db.Authentication,{foreignKey:'id'})
 module.exports = db;
 
 

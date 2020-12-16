@@ -12,7 +12,7 @@ module.exports = {
                 type: Sequelize.BIGINT,
                 allowNull: false,
             }),
-            queryInterface.changeColumn('student', 'student_d', {
+            queryInterface.changeColumn('students', 'student_id', {
                 type: Sequelize.BIGINT,
                 allowNull: false,
                 autoIncrement: true
@@ -27,7 +27,7 @@ module.exports = {
                 allowNull: false,
                 autoIncrement: true
             }),
-            queryInterface.changeColumn('users', 'user_id', {
+            queryInterface.changeColumn('users', 'user_name', {
                 type: Sequelize.BIGINT,
                 allowNull: false,
             }),
@@ -40,7 +40,7 @@ module.exports = {
                 allowNull: false,
                 autoIncrement: true
             }),
-            queryInterface.changeColumn('Student_vls_report', 'studentVlsId', {
+            queryInterface.changeColumn('Student_vls_report', 'student_vls_id', {
                 type: Sequelize.BIGINT,
                 allowNull: false,
             }),
@@ -95,14 +95,6 @@ module.exports = {
                 allowNull: false,
             }),
             queryInterface.changeColumn('live_streaming', 'meeting_owner_vls_id', {
-                type: Sequelize.BIGINT,
-                allowNull: false,
-            }),
-            queryInterface.changeColumn('live_streaming', 'meeting_creater_vls_id', {
-                type: Sequelize.BIGINT,
-                allowNull: false,
-            }),
-            queryInterface.changeColumn('subject_faculty', 'faculty_vls_id', {
                 type: Sequelize.BIGINT,
                 allowNull: false,
             }),

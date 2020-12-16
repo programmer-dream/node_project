@@ -11,13 +11,13 @@ module.exports = {
      *   isBetaMember: false
      * }], {});
     */
-    return queryInterface.bulkInsert('Authentication', [{
-      userId: Date.now(),
+    return queryInterface.bulkInsert('users', [{
+      user_name: Date.now(),
       password: '$2a$08$WOjd8dqnu1yUDQrLJe1AxOJTc.YQkZPu3TBW.Z/Bi8vF5cVVu6gGi', // test@123
-      oldPassword1: '$2a$08$WOjd8dqnu1yUDQrLJe1AxOJTc.YQkZPu3TBW.Z/Bi8vF5cVVu6gGi',
-      userType: 'Admin',
-      createdAt: new Date(),
-      updatedAt: new Date()
+      old_password1: '$2a$08$WOjd8dqnu1yUDQrLJe1AxOJTc.YQkZPu3TBW.Z/Bi8vF5cVVu6gGi',
+      role_id: 1,
+      created_at: new Date(),
+      updated_at: new Date()
     }]);
   },
 
@@ -28,6 +28,6 @@ module.exports = {
      * Example:
      * await queryInterface.bulkDelete('People', null, {});
      */
-     return queryInterface.bulkDelete('Authentication', null, {});
+     return queryInterface.bulkDelete('users', null, {});
   }
 };

@@ -10,7 +10,6 @@ module.exports = {
      */
   await queryInterface.createTable('students', {
       student_id: {
-        type: Sequelize.INTEGER,
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
@@ -25,7 +24,7 @@ module.exports = {
       name: {
         allowNull: false,
         type: Sequelize.STRING
-      }
+      },
       subject: {
         type: Sequelize.STRING
       },
