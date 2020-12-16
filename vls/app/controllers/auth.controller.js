@@ -55,7 +55,18 @@ async function getNewUserId() {
  */
 async function signIn(userDetails) {
 
-  let user = await Authentication.findOne({ where: { user_name: userDetails.userId },include: 'roles' })
+  let user = await Authentication.findOne({ 
+                    where: { user_name: userDetails.userId },
+                    attributes: {
+                      include:['user_vls_id'],
+                      exclude:['auth_vls_id','recovery_email_id','old_password2','old_password1','old_password3','created_at','updated_at']
+                    },
+                    include: [{ 
+                              model:Role,
+                              as:'roles',
+                              attributes: ['name']
+                            }]
+                    })
   if(user  && bcrypt.compareSync(userDetails.password, user.password) ){
     // expire token with time
     // let token = jwt.sign({id: Authentication.authVlsId,}, config.secret, {expiresIn: 86400});  // 24 hours
@@ -70,7 +81,7 @@ async function signIn(userDetails) {
     // create token
     let token = jwt.sign(tokenDetails, config.secret, {expiresIn: 86400});
 
-    return {status: "success", user, token };
+    return {status: "success", token, user };
 
   }
 
