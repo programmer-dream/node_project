@@ -8,53 +8,53 @@ module.exports = {
      * Example:
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
-  await queryInterface.createTable('LiveStreaming', {
-      liveStreamVlsId: {
+  await queryInterface.createTable('live_streaming', {
+      live_stream_vls_id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      branchVlsId: {
+      branch_vls_id: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      createDate: {
+      create_date: {
         type: Sequelize.DATE
       },
       subject: {
         type: Sequelize.STRING
       },
-      meetingDateTime: {
+      meeting_date_time: {
         type: Sequelize.DATE
       },
-      meetingLink: {
+      meeting_link: {
         type: Sequelize.STRING
       },
-      meetingType: {
+      meeting_type: {
         type: Sequelize.ENUM('Internal','Public')
       },
       rating: {
         type: Sequelize.STRING
       },
-      meetingOwnerVlsId: {
+      meeting_owner_vls_id: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      meetingCreaterVlsId: {
+      meeting_creater_vlsId: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      noOfInvitees: {
+      no_of_invitees: {
         type: Sequelize.STRING
       },
-    noOfAttendees: {
+      no_of_attendees: {
         type: Sequelize.STRING
       },
-      inviteesVlsIdsList: {
+      invitees_vls_ids_list: {
         type: Sequelize.STRING
       },
-      liveStreamTokenId: {
+      live_stream_token_id: {
         type: Sequelize.INTEGER
       },
       ratings: {
@@ -66,15 +66,15 @@ module.exports = {
       likes: {
         type: Sequelize.STRING
       },
-      replyVlsId: {
+      reply_vls_id: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      createdAt: {
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE
       }
@@ -88,6 +88,6 @@ module.exports = {
      * Example:
      * await queryInterface.dropTable('users');
      */
-     await queryInterface.dropTable('LiveStreaming');
+     await queryInterface.dropTable('live_streaming');
   }
 };

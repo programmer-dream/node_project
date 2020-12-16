@@ -8,41 +8,31 @@ module.exports = {
      * Example:
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
-  await queryInterface.createTable('facultyPersonal', {
-      facultyVlsId: {
+  await queryInterface.createTable('employees', {
+      faculty_vls_id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      branchVlsId: {
+      branch_vls_id: {
         type: Sequelize.INTEGER
       },
-      firstName: {
+      name: {
         allowNull: false,
         type: Sequelize.STRING
       },
-      middleName: {
+      gender: {
         type: Sequelize.STRING
       },
-      lastName: {
-        type: Sequelize.STRING
-      },
-      dob: {
-        allowNull: false,
-        type: Sequelize.STRING
-      },
-      sex: {
-        type: Sequelize.STRING
-      },
-      contact1: {
+      phone: {
         allowNull: false,
         type: Sequelize.STRING
       },
       contact2: {
         type: Sequelize.STRING
       },
-      emailId: {
+      email: {
         type: Sequelize.STRING
       },
       qualification1: {
@@ -75,37 +65,58 @@ module.exports = {
       year3: {
         type: Sequelize.STRING
       },
-      fatherName: {
+      father_name: {
         allowNull: false,
         type: Sequelize.STRING
       },
-      fatherQualification: {
+      father_qualification: {
         type: Sequelize.STRING
       },
-      motherName: {
+      mother_name: {
         allowNull: false,
         type: Sequelize.STRING
       },
-      motherQualification: {
+      mother_qualification: {
         type: Sequelize.STRING
       },
-      emergencyContact: {
+      emergency_contact: {
         type: Sequelize.STRING
       },
-      profilepic: {
+      photo: {
         type: Sequelize.STRING
       },
-      motherQualification: {
+      present_address: {
         type: Sequelize.STRING
       },
       hobbies: {
         type: Sequelize.STRING
       },
-      createdAt: {
+      hobbies: {
+        type: Sequelize.STRING
+      },
+      access_permission: {
+        type: Sequelize.STRING
+      },
+      spare1: {
+        type: Sequelize.STRING
+      },
+      spare2: {
+        type: Sequelize.STRING
+      },
+      spare3: {
+        type: Sequelize.STRING
+      },
+      spare4: {
+        type: Sequelize.STRING
+      },
+      spare5: {
+        type: Sequelize.STRING
+      },
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE
       }
@@ -119,6 +130,6 @@ module.exports = {
      * Example:
      * await queryInterface.dropTable('users');
      */
-     await queryInterface.dropTable('facultyPersonal');
+     await queryInterface.dropTable('employees');
   }
 };

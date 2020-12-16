@@ -8,18 +8,22 @@ module.exports = {
      * Example:
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
-  await queryInterface.createTable('SchoolDetails', {
-      schoolVlsId: {
+  await queryInterface.createTable('school', {
+      school_id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      name: {
+      school_vls_id: {
+        allowNull: false,
+        type: Sequelize.INTEGER
+      },
+      school_name: {
         allowNull: false,
         type: Sequelize.STRING
       },
-      websiteURL: {
+      website_url: {
         type: Sequelize.STRING
       },
       description: {
@@ -30,7 +34,7 @@ module.exports = {
         allowNull: false,
         type: Sequelize.STRING
       },
-      contact1: {
+      phone: {
         allowNull: false,
         type: Sequelize.STRING
       },
@@ -40,7 +44,7 @@ module.exports = {
       contact3: {
         type: Sequelize.STRING
       },
-      emailId1: {
+      email: {
         allowNull: false,
         type: Sequelize.STRING
       },
@@ -53,50 +57,50 @@ module.exports = {
       ratings: {
         type: Sequelize.STRING
       },
-      feedbackSupport: {
+      feedback_support: {
         type: Sequelize.STRING
       },
-      learningLibrarySuport: {
+      learning_library_suport: {
         type: Sequelize.ENUM('SMS', 'Email', 'Both')
       },
-      videoLibrarySupport: {
+      video_library_support: {
         type: Sequelize.BOOLEAN
       },
-      assignmentSupport: {
+      assignment_support: {
         type: Sequelize.BOOLEAN
       },
-      chatSupport: {
+      chat_support: {
         type: Sequelize.BOOLEAN
       },
-      communityChatSupport: {
+      community_chat_support: {
         type: Sequelize.BOOLEAN
       },
-      rewardsAndRecognitionSupport: {
+      rewards_and_recognition_support: {
         type: Sequelize.BOOLEAN
       },
-      notificationSupport: {
+      notification_support: {
         type: Sequelize.BOOLEAN
       },
-      alertSupport: {
+      alert_support: {
         type: Sequelize.BOOLEAN
       },
-      mailboxSupport: {
+      mailbox_support: {
         type: Sequelize.BOOLEAN
       },
-      ERPSupport: {
+      ERP_support: {
         type: Sequelize.BOOLEAN
       },
-      authenticationType: {
+      authentication_type: {
         type: Sequelize.ENUM('OTP', 'thirdparty','captcha','checkbox')
       },
-      schoolSecretTokenKey: {
+      school_secret_token_key: {
         type: Sequelize.STRING
       },
-      createdAt: {
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE
       }
@@ -110,6 +114,6 @@ module.exports = {
      * Example:
      * await queryInterface.dropTable('users');
      */
-     await queryInterface.dropTable('SchoolDetails');
+     await queryInterface.dropTable('school');
   }
 };

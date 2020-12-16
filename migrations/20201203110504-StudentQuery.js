@@ -8,30 +8,30 @@ module.exports = {
      * Example:
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
-  await queryInterface.createTable('StudentQuery', {
-      queryVlsId: {
+  await queryInterface.createTable('student_query', {
+      query_vls_id: {
         allowNull: false,
         type: Sequelize.INTEGER,
         autoIncrement: true,
         primaryKey: true
       },
-      branchVlsId: {
+      branch_vls_id: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      studentVlsId: {
+      student_vls_id: {
         type: Sequelize.INTEGER
       },
-      classVlsId: {
+      class_vls_id: {
         type: Sequelize.INTEGER
       },
-      queryType: {
+      query_type: {
         type: Sequelize.STRING
       },
-      queryDate: {
+      query_date: {
         type: Sequelize.STRING
       },
-      queryStatus: {
+      query_status: {
         type: Sequelize.ENUM('open','Inprogress','Closed','Rejected')
       },
       topic: {
@@ -40,7 +40,7 @@ module.exports = {
       subject: {
         type: Sequelize.STRING
       },
-      queryLevel: {
+      query_level: {
         type: Sequelize.ENUM('Basic', 'Intermediate','Expert')
       },
       headline: {
@@ -52,10 +52,10 @@ module.exports = {
       response: {
         type: Sequelize.STRING
       },
-      responseDate: {
+      response_date: {
         type: Sequelize.STRING
       },
-      replyVlsId: {
+      reply_vls_id: {
         type: Sequelize.INTEGER
       },
       rating: {
@@ -67,11 +67,11 @@ module.exports = {
       tags: {
         type: Sequelize.STRING
       },
-      createdAt: {
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE
       }
@@ -85,6 +85,6 @@ module.exports = {
      * Example:
      * await queryInterface.dropTable('users');
      */
-     await queryInterface.dropTable('StudentQuery');
+     await queryInterface.dropTable('student_query');
   }
 };

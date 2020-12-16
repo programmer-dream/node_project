@@ -8,106 +8,106 @@ module.exports = {
      * Example:
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
-     await queryInterface.createTable('UserSettings', {
-      userSettingsVlsId: {
+     await queryInterface.createTable('user_settings', {
+      user_settings_vls_id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      feedbackSupport: {
+      feedback_support: {
         allowNull: true,
         type: Sequelize.ENUM('yes', 'no')
       },
-      learningLibrarySuport: {
+      learning_library_suport: {
         allowNull: true,
         type: Sequelize.ENUM('yes', 'no')
       },
-      videoLibrarySupport: {
+      video_library_support: {
         allowNull: true,
         type: Sequelize.ENUM('yes', 'no')
       },
-      assignmentSupport: {
+      assignment_support: {
         allowNull: true,
         type: Sequelize.ENUM('yes', 'no')
       },
-      chatSupport: {
+      chat_support: {
         allowNull: true,
         type: Sequelize.ENUM('yes', 'no')
       },
-      communityChatSupport: {
+      community_chat_support: {
         allowNull: true,
         type: Sequelize.ENUM('yes', 'no')
       },
-      rewardsAndRecognitionSupport: {
+      rewards_and_recognition_support: {
         allowNull: true,
         type: Sequelize.ENUM('yes', 'no')
       },
-      notificationSupport: {
+      notification_support: {
         allowNull: true,
         type: Sequelize.ENUM('yes', 'no')
       },
-      alertSupport: {
+      alert_support: {
         allowNull: true,
         type: Sequelize.ENUM('yes', 'no')
       },
-      mailboxSupport: {
+      mailbox_support: {
         allowNull: true,
         type: Sequelize.ENUM('yes', 'no')
       },
-      ERPSupport: {
+      ERP_support: {
         allowNull: true,
         type: Sequelize.ENUM('yes', 'no')
       },
-      studentReport: {
+      student_report: {
         allowNull: true,
         type: Sequelize.ENUM('Readonly', 'ReadWrite')
       },
-      learningLibraryPermission: {
+      learning_library_permission: {
         allowNull: true,
         type: Sequelize.ENUM('Readonly', 'ReadWrite')
       },
-      videoLibraryPermission: {
+      video_library_permission: {
         allowNull: true,
         type: Sequelize.ENUM('Readonly', 'ReadWrite')
       },
-      assignmentPermission: {
+      assignment_permission: {
         allowNull: true,
         type: Sequelize.ENUM('Readonly', 'ReadWrite')
       },
-      chatPermission: {
+      chat_permission: {
         allowNull: true,
         type: Sequelize.ENUM('Readonly', 'ReadWrite')
       },
-      communityChatPermission: {
+      community_chat_permission: {
         allowNull: true,
         type: Sequelize.ENUM('Readonly', 'ReadWrite')
       },
-      rewardsAndRecognitionPermission: {
+      rewards_and_recognition_permission: {
         allowNull: true,
         type: Sequelize.ENUM('Readonly', 'ReadWrite')
       },
-      notificationPermission: {
+      notification_permission: {
         allowNull: true,
         type: Sequelize.ENUM('Readonly', 'ReadWrite')
       },
-      alertPermission: {
+      alert_permission: {
         allowNull: true,
         type: Sequelize.ENUM('Readonly', 'ReadWrite')
       },
-      mailboxPermission: {
+      mailbox_permission: {
         allowNull: true,
         type: Sequelize.ENUM('Readonly', 'ReadWrite')
       },
-      ERPPermission: {
+      ERP_permission: {
         allowNull: true,
         type: Sequelize.ENUM('Readonly', 'ReadWrite')
       },
-      createdAt: {
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE
       }
@@ -121,6 +121,6 @@ module.exports = {
      * Example:
      * await queryInterface.dropTable('users');
      */
-     await queryInterface.dropTable('UserSettings');
+     await queryInterface.dropTable('user_settings');
   }
 };

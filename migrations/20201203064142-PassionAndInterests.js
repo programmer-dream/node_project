@@ -8,30 +8,30 @@ module.exports = {
      * Example:
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
-  await queryInterface.createTable('PassionAndInterests', {
-      passionVlsId: {
+  await queryInterface.createTable('passion_and_interests', {
+      passion_vls_id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      passionName: {
+      passion_name: {
         type: Sequelize.STRING
       },
-      passionType: {
+      passion_type: {
         type: Sequelize.STRING
       },
-      communityChatVlsId: {
+      community_chat_vls_id: {
         type: Sequelize.STRING
       },
       description: {
         type: Sequelize.STRING
       },
-      createdAt: {
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE
       }
@@ -45,6 +45,6 @@ module.exports = {
      * Example:
      * await queryInterface.dropTable('users');
      */
-     await queryInterface.dropTable('PassionAndInterests');
+     await queryInterface.dropTable('passion_and_interests');
   }
 };

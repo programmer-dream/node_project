@@ -8,22 +8,22 @@ module.exports = {
      * Example:
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
-  await queryInterface.createTable('Rewards', {
-      rewardVlsId: {
+  await queryInterface.createTable('rewards', {
+      reward_vls_id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      branchVlsId: {
+      branch_vls_id: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      studentVlsId: {
+      student_vls_id: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      rewardValue: {
+      reward_value: {
         type: Sequelize.STRING
       },
       subject: {
@@ -35,11 +35,11 @@ module.exports = {
       date: {
         type: Sequelize.DATE
       },
-      createdAt: {
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE
       }
@@ -53,6 +53,6 @@ module.exports = {
      * Example:
      * await queryInterface.dropTable('users');
      */
-     await queryInterface.dropTable('Rewards');
+     await queryInterface.dropTable('rewards');
   }
 };

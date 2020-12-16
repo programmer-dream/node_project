@@ -8,28 +8,28 @@ module.exports = {
      * Example:
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
-  await queryInterface.createTable('Tickets', {
-      ticketVlsId: {
+  await queryInterface.createTable('tickets', {
+      ticket_vls_id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      branchVlsId: {
+      branch_vls_id: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      ticketOwner: {
+      ticket_owner: {
         type: Sequelize.ENUM('Student','faculty','parent')
       },
-      tickerOwnerVlsId: {
+      ticker_owner_vls_id: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
       subject: {
         type: Sequelize.STRING
       },
-      openDate: {
+      open_date: {
         type: Sequelize.DATE
       },
       response: {
@@ -38,18 +38,18 @@ module.exports = {
       attachment: {
         type: Sequelize.STRING
       },
-      ticketStatus: {
+      ticket_status: {
         type: Sequelize.STRING
       },
-      replyVlsId: {
+      reply_vls_id: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      createdAt: {
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE
       }
@@ -63,6 +63,6 @@ module.exports = {
      * Example:
      * await queryInterface.dropTable('users');
      */
-     await queryInterface.dropTable('Tickets');
+     await queryInterface.dropTable('tickets');
   }
 };

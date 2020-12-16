@@ -8,24 +8,18 @@ module.exports = {
      * Example:
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
-  await queryInterface.createTable('StudentPersonal', {
-      studentPersonalId: {
+  await queryInterface.createTable('student_vls', {
+      student_vls_id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      studentVlsId: {
+      student_vls_id: {
         type: Sequelize.INTEGER
       },
-      firstName: {
+      name: {
         allowNull: false,
-        type: Sequelize.STRING
-      },
-      middleName: {
-        type: Sequelize.STRING
-      },
-      lastName: {
         type: Sequelize.STRING
       },
       dob: {
@@ -42,18 +36,18 @@ module.exports = {
       email_id: {
         type: Sequelize.STRING
       },
-      fatherName: {
+      father_name: {
         allowNull: false,
         type: Sequelize.STRING
       },
-      fatherQualification: {
+      father_qualification: {
         type: Sequelize.STRING
       },
-      motherName: {
+      mother_name: {
         allowNull: false,
         type: Sequelize.STRING
       },
-      motherQualification: {
+      mother_qualification: {
         type: Sequelize.STRING
       },
       profilepic: {
@@ -66,14 +60,14 @@ module.exports = {
       hobbies: {
         type: Sequelize.STRING
       },
-      passionVlsId: {
+      passion_vls_id: {
         type: Sequelize.INTEGER
       },
-      createdAt: {
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE
       }
@@ -87,6 +81,6 @@ module.exports = {
      * Example:
      * await queryInterface.dropTable('users');
      */
-     await queryInterface.dropTable('StudentPersonal');
+     await queryInterface.dropTable('student_vls');
   }
 };

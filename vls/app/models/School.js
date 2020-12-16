@@ -1,15 +1,6 @@
-'use strict';
-
-module.exports = {
-  up: async (queryInterface, Sequelize) => {
-    /**
-     * Add altering commands here.
-     *
-     * Example:
-     * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
-     */
-  await queryInterface.createTable('branch_details', {
-      branch_vls_id: {
+module.exports = (sequelize, Sequelize) => {
+  const School = sequelize.define("school", {
+    school_id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
@@ -19,15 +10,14 @@ module.exports = {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      school_id: {
+      school_name: {
         allowNull: false,
-        type: Sequelize.INTEGER
+        type: Sequelize.STRING
       },
-      school_vls_id: {
-        allowNull: false,
-        type: Sequelize.INTEGER
+      website_url: {
+        type: Sequelize.STRING
       },
-      branch_name: {
+      description: {
         allowNull: false,
         type: Sequelize.STRING
       },
@@ -35,7 +25,7 @@ module.exports = {
         allowNull: false,
         type: Sequelize.STRING
       },
-      contact1: {
+      phone: {
         allowNull: false,
         type: Sequelize.STRING
       },
@@ -45,7 +35,7 @@ module.exports = {
       contact3: {
         type: Sequelize.STRING
       },
-      emailId1: {
+      email: {
         allowNull: false,
         type: Sequelize.STRING
       },
@@ -58,20 +48,8 @@ module.exports = {
       ratings: {
         type: Sequelize.STRING
       },
-      assessment_system: {
-        type: Sequelize.STRING
-      },
-      assessment_scheme: {
-        type: Sequelize.STRING
-      },
-      assessment_vls_id: {
-        type: Sequelize.STRING
-      },
-      no_of_working_days: {
-        type: Sequelize.STRING
-      },
       feedback_support: {
-        type: Sequelize.BOOLEAN
+        type: Sequelize.STRING
       },
       learning_library_suport: {
         type: Sequelize.ENUM('SMS', 'Email', 'Both')
@@ -103,6 +81,12 @@ module.exports = {
       ERP_support: {
         type: Sequelize.BOOLEAN
       },
+      authentication_type: {
+        type: Sequelize.ENUM('OTP', 'thirdparty','captcha','checkbox')
+      },
+      school_secret_token_key: {
+        type: Sequelize.STRING
+      },
       created_at: {
         allowNull: false,
         type: Sequelize.DATE
@@ -111,16 +95,10 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE
       }
-    });
-  },
-
-  down: async (queryInterface, Sequelize) => {
-    /**
-     * Add reverting commands here.
-     *
-     * Example:
-     * await queryInterface.dropTable('users');
-     */
-     await queryInterface.dropTable('branch_details');
+  },{
+    tableName: 'school'
   }
+  );
+
+  return School;
 };

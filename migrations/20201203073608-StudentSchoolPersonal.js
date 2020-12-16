@@ -8,27 +8,24 @@ module.exports = {
      * Example:
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
-  await queryInterface.createTable('StudentSchoolPersonal', {
-      studentSchoolVlsId: {
+  await queryInterface.createTable('students', {
+      student_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      branchVlsId: {
+      student_vls_id: {
         type: Sequelize.INTEGER
       },
-      firstName: {
+      branch_vls_id: {
+        type: Sequelize.INTEGER
+      },
+      name: {
         allowNull: false,
         type: Sequelize.STRING
-      },
-      middleName: {
-        type: Sequelize.STRING
-      },
-      lastName: {
-        type: Sequelize.STRING
-      },
+      }
       subject: {
         type: Sequelize.STRING
       },
@@ -36,51 +33,70 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE
       },
-      contact1: {
+      gender: {
+        allowNull: false,
+        type: Sequelize.STRING
+      },
+      phone: {
         allowNull: false,
         type: Sequelize.STRING
       },
       contact2: {
         type: Sequelize.STRING
       },
-      emailId: {
+      email: {
         type: Sequelize.STRING
       },
-      fatherName: {
+      father_name: {
         allowNull: false,
         type: Sequelize.STRING
       },
-      fatherQualification: {
+      father_qualification: {
         type: Sequelize.STRING
       },
-      motherName: {
+      mother_name: {
         allowNull: false,
         type: Sequelize.STRING
       },
-      motherQualification: {
+      mother_qualification: {
         type: Sequelize.STRING
       },
-      profilepic: {
+      photo: {
         type: Sequelize.STRING
       },
-      address: {
+      present_address: {
         allowNull: false,
         type: Sequelize.STRING
       },
       hobbies: {
         type: Sequelize.STRING
       },
-      parentVlsId: {
+      parent_vls_id: {
         type: Sequelize.INTEGER
       },
-      passionVlsId: {
+      passion_vls_id: {
         type: Sequelize.INTEGER
       },
-      createdAt: {
+      spare1: {
+        type: Sequelize.STRING
+      },
+      spare2: {
+        type: Sequelize.STRING
+      },
+      spare3: {
+        type: Sequelize.STRING
+      },
+      spare4: {
+        type: Sequelize.STRING
+      },
+      spare5: {
+        type: Sequelize.STRING
+      },
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE
       }
@@ -94,6 +110,6 @@ module.exports = {
      * Example:
      * await queryInterface.dropTable('users');
      */
-     await queryInterface.dropTable('StudentSchoolPersonal');
+     await queryInterface.dropTable('students');
   }
 };

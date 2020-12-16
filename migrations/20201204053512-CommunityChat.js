@@ -8,30 +8,31 @@ module.exports = {
      * Example:
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
-  await queryInterface.createTable('CommunityChat', {
-      communityChatVlsId: {
+  await queryInterface.createTable('community_chat', {
+      community_chat_vls_id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      branchVlsId: {
+      
+      branch_vls_id: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      groupName: {
+      group_name: {
         allowNull: false,
         type: Sequelize.STRING
       },
-      groupType: {
+      group_type: {
         allowNull: false,
         type: Sequelize.STRING
       },
-      userList: {
+      user_list: {
         allowNull: false,
         type: Sequelize.STRING
       },
-      groupAdminUserIdList: {
+      group_admin_user_id_list: {
         type: Sequelize.STRING
       },
       ratings: {
@@ -43,22 +44,22 @@ module.exports = {
       likes: {
         type: Sequelize.STRING
       },
-      communityChatCommunicationVlsId: {
+      community_chat_communication_vls_id: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      startDate: {
+      start_date: {
         allowNull: false,
         type: Sequelize.DATE
       },
-      communityStatus: {
+      community_status: {
         type: Sequelize.ENUM('Active','Deleted')
       },
-      createdAt: {
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE
       }
@@ -72,6 +73,6 @@ module.exports = {
      * Example:
      * await queryInterface.dropTable('users');
      */
-     await queryInterface.dropTable('CommunityChat');
+     await queryInterface.dropTable('community_chat');
   }
 };

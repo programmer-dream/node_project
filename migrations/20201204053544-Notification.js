@@ -8,14 +8,14 @@ module.exports = {
      * Example:
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
-  await queryInterface.createTable('Notification', {
-      notificationVlsId: {
+  await queryInterface.createTable('notification', {
+      notification_vls_id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      branchVlsId: {
+      branch_vls_id: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
@@ -25,35 +25,35 @@ module.exports = {
       sender: {
         type: Sequelize.STRING
       },
-      receiverType: {
+      receiver_type: {
         type: Sequelize.ENUM('general','faculty','student','parents','school')
       },
-      updateDate: {
+      update_date: {
         type: Sequelize.DATE
       },
-      startDate: {
+      start_date: {
         type: Sequelize.DATE
       },
-      endDate: {
+      end_date: {
         type: Sequelize.DATE
       },
-      notificationType: {
+      notification_type: {
         type: Sequelize.ENUM('Display','pop-up','alert')
       },
-      noOfRepetition: {
+      no_of_repetition: {
         type: Sequelize.STRING
       },
-      noOfRepeatPerDay: {
+      no_of_repeat_per_day: {
         type: Sequelize.STRING
       },
       URL: {
         type: Sequelize.STRING
       },
-      createdAt: {
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE
       }
@@ -67,6 +67,6 @@ module.exports = {
      * Example:
      * await queryInterface.dropTable('users');
      */
-     await queryInterface.dropTable('Notification');
+     await queryInterface.dropTable('notification');
   }
 };

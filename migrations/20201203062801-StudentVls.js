@@ -9,39 +9,47 @@ module.exports = {
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
 
-  await queryInterface.createTable('StudentVls', {
-      studentVlsId: {
+  await queryInterface.createTable('student_vls', {
+      student_vls_id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      rewardsEarned: {
+      rewards_earned: {
         type: Sequelize.STRING
       },
-      rewardsRedeemed: {
+      rewards_redeemed: {
         type: Sequelize.STRING
       },
-      noOfQueriesRaised: {
+      no_of_queries_raised: {
         type: Sequelize.STRING
       },
-      timeSpent: {
+      time_spent: {
         type: Sequelize.STRING
       },
-      badgeEarn: {
+      badge_earn: {
         type: Sequelize.STRING
       },
-      noOfRecognitions: {
+      no_of_recognitions: {
         type: Sequelize.STRING
       },
-      averageRecognitionRating: {
+      average_recognition_rating: {
         type: Sequelize.STRING
       },
-      createdAt: {
+      time_spent_video_learning_library: {
+        allowNull: false,
+        type: Sequelize.STRING
+      },
+      student_lenaring_library_vls_id: {
+        allowNull: false,
+        type: Sequelize.INTEGER
+      },
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE
       }
@@ -55,6 +63,6 @@ module.exports = {
      * Example:
      * await queryInterface.dropTable('users');
      */
-     await queryInterface.dropTable('StudentVls');
+     await queryInterface.dropTable('student_vls');
   }
 };

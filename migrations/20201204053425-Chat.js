@@ -8,41 +8,56 @@ module.exports = {
      * Example:
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
-  await queryInterface.createTable('Chat', {
-      chatVlsId: {
+  await queryInterface.createTable('chat', {
+      chat_vls_id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      branchVlsId: {
+      branch_vls_id: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      senderUserVlsId: {
+      school_vls_id: {
+        allowNull: false,
         type: Sequelize.INTEGER
       },
-      receiverUserVlsId: {
+      student_vls_id: {
+        type: Sequelize.INTEGER
+      },
+      sender_user_vls_id: {
+        type: Sequelize.INTEGER
+      },
+      receiver_user_vls_id: {
         type: Sequelize.INTEGER
       },
       date: {
         type: Sequelize.DATE
       },
-      chatMessage: {
+      chat_message: {
         type: Sequelize.TEXT
       },
       status: {
         type: Sequelize.STRING
       },
-      nextChatVlsId: {
+      next_chat_vls_id: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      createdAt: {
+      attachment: {
+        allowNull: false,
+        type: Sequelize.INTEGER
+      },
+      attachmentType: {
+        allowNull: false,
+        type: Sequelize.ENUM('image','document')
+      },
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE
       }
@@ -56,6 +71,6 @@ module.exports = {
      * Example:
      * await queryInterface.dropTable('users');
      */
-     await queryInterface.dropTable('Chat');
+     await queryInterface.dropTable('chat');
   }
 };

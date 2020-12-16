@@ -8,58 +8,52 @@ module.exports = {
      * Example:
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
-  await queryInterface.createTable('Parent', {
-      parentVlsId: {
+  await queryInterface.createTable('guardians', {
+      parent_vls_id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      branchVlsId: {
+      branch_vls_id: {
         type: Sequelize.INTEGER
       },
-      firstName: {
+      name: {
         allowNull: false,
-        type: Sequelize.STRING
-      },
-      middleName: {
-        type: Sequelize.STRING
-      },
-      lastName: {
         type: Sequelize.STRING
       },
       dob: {
         type: Sequelize.DATE
       },
-      contact1: {
+      phone: {
         type: Sequelize.STRING
       },
       contact2: {
         type: Sequelize.STRING
       },
-      emailId: {
+      email: {
         type: Sequelize.STRING
       },
       qualification1: {
         type: Sequelize.STRING
       },
-      profilepic: {
+      photo: {
         type: Sequelize.STRING
       },
-      address: {
+      present_address: {
         type: Sequelize.STRING
       },
       hobbies: {
         type: Sequelize.STRING
       },
-      emergencyContact: {
+      emergency_contact: {
         type: Sequelize.STRING
       },
-      createdAt: {
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE
       }
@@ -73,6 +67,6 @@ module.exports = {
      * Example:
      * await queryInterface.dropTable('users');
      */
-     await queryInterface.dropTable('Parent');
+     await queryInterface.dropTable('guardians');
   }
 };

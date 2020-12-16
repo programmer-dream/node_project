@@ -8,29 +8,26 @@ module.exports = {
      * Example:
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
-  await queryInterface.createTable('BranchTimesheet', {
-      branchTimesheetId: {
+  await queryInterface.createTable('routines', {
+      branch_timesheet_id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      branchVlsId: {
+      branch_vls_id: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      timesheetId: {
+      school_vls_id: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      timesheetType: {
-        type: Sequelize.STRING
-      },
-      createdAt: {
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE
       }
@@ -44,6 +41,6 @@ module.exports = {
      * Example:
      * await queryInterface.dropTable('users');
      */
-     await queryInterface.dropTable('BranchTimesheet');
+     await queryInterface.dropTable('routines');
   }
 };

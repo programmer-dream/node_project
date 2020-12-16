@@ -8,72 +8,88 @@ module.exports = {
      * Example:
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
-    await queryInterface.createTable('Authentication', {
-      authVlsId: {
+    await queryInterface.createTable('users', {
+      auth_vls_id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      userId: {
+      user_name: {
         type: Sequelize.INTEGER
       },
       password: {
         type: Sequelize.STRING
       },
-      schoolVlsId: {
+      school_id: {
         type: Sequelize.INTEGER
       },
-      branchVlsId: {
+      branch_vls_id: {
         type: Sequelize.INTEGER
       },
-      userType: {
-        type: Sequelize.ENUM('Student','Faculty','Parent','Admin')
+      role_id: {
+        type: Sequelize.INTEGER
       },
-      userVlsId: {
+      user_vls_id: {
         type: Sequelize.BIGINT
       },
-      oldPassword1: {
+      old_password1: {
         allowNull: true,
         type: Sequelize.STRING
       },
-      oldPassword2: {
+      old_password2: {
         allowNull: true,
         type: Sequelize.STRING
       },
-      oldPassword3: {
+      old_password3: {
         allowNull: true,
         type: Sequelize.STRING
       },
-      passwordCriteria: {
+      password_criteria: {
         allowNull: true,
         type: Sequelize.STRING
       },
-      userSettingsVlsId: {
+      user_settings_vls_id: {
         allowNull: true,
         type: Sequelize.INTEGER
       },
-      recoveryEmailId: {
+      recovery_email_id: {
         allowNull: true,
         type: Sequelize.STRING
       },
-      passwordResetType: {
+      password_reset_type: {
         allowNull: true,
         type: Sequelize.ENUM('OTP', 'PasswordResetLink')
       },
-      recoveryContactNo: {
+      recovery_contact_no: {
         allowNull: true,
         type: Sequelize.STRING
       },
-      autenticationType: {
+      autentication_type: {
         allowNull: true,
         type: Sequelize.ENUM('OTP', 'Captcha','Checkbox','thirdParty')
       },
-      createdAt: {
+      last_login: {
+        allowNull: true,
+        type: Sequelize.STRING
+      },
+      vls_session_id: {
+        allowNull: true,
+        type: Sequelize.STRING
+      },
+      erp_session_id: {
+        allowNull: true,
+        type: Sequelize.STRING
+      },
+      session_expiry: {
+        allowNull: true,
+        type: Sequelize.STRING
+      },
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE
       }
@@ -87,6 +103,6 @@ module.exports = {
      * Example:
      * await queryInterface.dropTable('users');
      */
-     await queryInterface.dropTable('Authentication');
+     await queryInterface.dropTable('users');
   }
 };

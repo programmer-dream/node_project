@@ -8,34 +8,34 @@ module.exports = {
      * Example:
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
-  await queryInterface.createTable('Mailbox', {
-      mailboxId: {
+  await queryInterface.createTable('mailbox', {
+      mailbox_id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      messageVlsId: {
+      message_vls_id: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      branchVlsId: {
+      branch_vls_id: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      senderUserVlsId: {
+      sender_user_vls_id: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      receiverUserVlsId: {
+      receiver_user_vls_id: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      fromDate: {
+      from_date: {
         allowNull: false,
         type: Sequelize.DATE
       },
-      receiveDate: {
+      receive_date: {
         allowNull: false,
         type: Sequelize.DATE
       },
@@ -60,11 +60,11 @@ module.exports = {
       spare5: {
         type: Sequelize.STRING
       },
-      createdAt: {
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE
       }
@@ -78,6 +78,6 @@ module.exports = {
      * Example:
      * await queryInterface.dropTable('users');
      */
-     await queryInterface.dropTable('Mailbox');
+     await queryInterface.dropTable('mailbox');
   }
 };

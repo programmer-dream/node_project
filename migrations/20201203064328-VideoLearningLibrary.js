@@ -9,8 +9,8 @@ module.exports = {
      * Example:
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
-  await queryInterface.createTable('VideoLearningLibrary', {
-      videoLearningLibraryVlsId: {
+  await queryInterface.createTable('video_learning_library', {
+      video_learning_library_vls_id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
@@ -31,16 +31,16 @@ module.exports = {
       URL: {
         type: Sequelize.STRING
       },
-      videoFormat: {
+      video_format: {
         type: Sequelize.STRING
       },
-      videoSize: {
+      video_size: {
         type: Sequelize.STRING
       },
-      recommendedStudentLevel: {
+      recommended_student_level: {
         type: Sequelize.STRING
       },
-      videoLibraryLevel: {
+      video_library_level: {
         type: Sequelize.ENUM('Basic', 'Intermediate','Expert')
       },
       ratings: {
@@ -52,14 +52,14 @@ module.exports = {
       likes: {
         type: Sequelize.STRING
       },
-      replyVlsId: {
+      reply_vls_id: {
         type: Sequelize.STRING
       },
-      createdAt: {
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE
       }
@@ -73,6 +73,6 @@ module.exports = {
      * Example:
      * await queryInterface.dropTable('users');
      */
-     await queryInterface.dropTable('VideoLearningLibrary');
+     await queryInterface.dropTable('video_learning_library');
   }
 };

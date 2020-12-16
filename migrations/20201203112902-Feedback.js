@@ -8,77 +8,80 @@ module.exports = {
      * Example:
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
-  await queryInterface.createTable('Feedback', {
-      replyVlsId: {
+  await queryInterface.createTable('feedback', {
+      reply_vls_id: {
         allowNull: false,
         type: Sequelize.INTEGER,
         autoIncrement: true,
         primaryKey: true,
       },
-      branchVlsId: {
+      branch_vls_id: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      feedbackType: {
+      student_vls_id: {
+        type: Sequelize.INTEGER
+      },
+      feedback_type: {
         type: Sequelize.ENUM('Query','LearningLibrary','VideoLibrary','Ticket')
       },
-      queryVlsId: {
+      query_vls_id: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      learningLibraryVlsId: {
+      learning_library_vls_id: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      videoLibraryVlsId: {
+      video_library_vls_id: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      liveMeetingVlsId: {
+      live_meeting_vls_id: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      ticketVlsId: {
+      ticket_vls_id: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      replyUserType: {
+      reply_user_type: {
         allowNull: false,
         type: Sequelize.ENUM('student','Faculty','Parent')
       },
-      replyMessage: {
+      reply_message: {
         allowNull: false,
         type: Sequelize.STRING
       },
-      studentVlsId: {
+      student_vls_id: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      teacherVlsId: {
+      teacher_vls_id: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      parentVlsId: {
+      parent_vls_id: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      replyDate: {
+      reply_date: {
         allowNull: false,
         type: Sequelize.DATE
       },
-      nextReplyVlsId: {
+      next_reply_vls_id: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      replyReplyVlsId: {
+      reply_reply_vls_id: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      createdAt: {
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE
       }
@@ -92,6 +95,6 @@ module.exports = {
      * Example:
      * await queryInterface.dropTable('users');
      */
-     await queryInterface.dropTable('Feedback');
+     await queryInterface.dropTable('feedback');
   }
 };

@@ -8,15 +8,18 @@ module.exports = {
      * Example:
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
-  await queryInterface.createTable('LearningLibrary', {
-      learningLibraryVlsId: {
+  await queryInterface.createTable('learning_library', {
+      learning_library_vls_id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      branchVlsId: {
+      branch_vls_id: {
         allowNull: false,
+        type: Sequelize.INTEGER
+      },
+      student_vls_id: {
         type: Sequelize.INTEGER
       },
       description: {
@@ -31,16 +34,16 @@ module.exports = {
       URL: {
         type: Sequelize.STRING
       },
-      documentType: {
+      document_type: {
         type: Sequelize.STRING
       },
-      documentSize: {
+      document_size: {
         type: Sequelize.STRING
       },
-      recommendedStudentLevel: {
+      recommended_student_level: {
         type: Sequelize.ENUM('Basic','Intermediate','Expert')
       },
-      libraryLevel: {
+      library_level: {
         type: Sequelize.STRING
       },
       ratings: {
@@ -52,14 +55,14 @@ module.exports = {
       likes: {
         type: Sequelize.STRING
       },
-      replyVlsId: {
+      reply_vls_id: {
         type: Sequelize.INTEGER
       },
-      createdAt: {
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE
       }
@@ -73,6 +76,6 @@ module.exports = {
      * Example:
      * await queryInterface.dropTable('users');
      */
-     await queryInterface.dropTable('LearningLibrary');
+     await queryInterface.dropTable('learning_library');
   }
 };

@@ -8,29 +8,29 @@ module.exports = {
      * Example:
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
-  await queryInterface.createTable('StudentAssignment', {
-      studentAssignmentId: {
+  await queryInterface.createTable('student_assignment', {
+      student_assignment_id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      studentVlsId: {
+      student_vls_id: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      branchVlsId: {
+      branch_vls_id: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      assignmentVlsId: {
+      assignment_vls_id: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      assignmentStatus: {
+      assignment_status: {
         type: Sequelize.ENUM('New','Inprogress','Submitted','ValidationInprogress','Approved','Rejected','Closed')
       },
-      submissionDate: {
+      submission_date: {
         type: Sequelize.DATE
       },
       assessment: {
@@ -39,15 +39,15 @@ module.exports = {
       comments: {
         type: Sequelize.STRING
       },
-      followupAssignmentVlsId: {
+      followup_assignment_vls_id: {
         allowNull: false,
         type: Sequelize.INTEGER 
       },
-      createdAt: {
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE
       }
@@ -61,6 +61,6 @@ module.exports = {
      * Example:
      * await queryInterface.dropTable('users');
      */
-     await queryInterface.dropTable('StudentAssignment');
+     await queryInterface.dropTable('student_assignment');
   }
 };

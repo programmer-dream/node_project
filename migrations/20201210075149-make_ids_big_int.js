@@ -3,122 +3,114 @@
 module.exports = {
     up: (queryInterface, Sequelize) => {
         return Promise.all([
-            queryInterface.changeColumn('StudentPersonal', 'studentPersonalId', {
+            queryInterface.changeColumn('student_vls', 'student_vls_id', {
                 type: Sequelize.BIGINT,
                 allowNull: false,
                 autoIncrement: true
             }),
-            queryInterface.changeColumn('StudentPersonal', 'studentVlsId', {
+            queryInterface.changeColumn('student_vls', 'student_vls_id', {
                 type: Sequelize.BIGINT,
                 allowNull: false,
             }),
-            queryInterface.changeColumn('StudentSchoolPersonal', 'studentSchoolVlsId', {
-                type: Sequelize.BIGINT,
-                allowNull: false,
-                autoIncrement: true
-            }),
-            queryInterface.changeColumn('facultyPersonal', 'facultyVlsId', {
+            queryInterface.changeColumn('student', 'student_d', {
                 type: Sequelize.BIGINT,
                 allowNull: false,
                 autoIncrement: true
             }),
-            queryInterface.changeColumn('facultyProfessional', 'facultyVlsId', {
-                type: Sequelize.BIGINT,
-                allowNull: false,
-            }),
-            queryInterface.changeColumn('Parent', 'parentVlsId', {
+            queryInterface.changeColumn('employees', 'faculty_vls_id', {
                 type: Sequelize.BIGINT,
                 allowNull: false,
                 autoIncrement: true
             }),
-            queryInterface.changeColumn('Authentication', 'userId', {
+            queryInterface.changeColumn('guardians', 'parent_vls_id', {
+                type: Sequelize.BIGINT,
+                allowNull: false,
+                autoIncrement: true
+            }),
+            queryInterface.changeColumn('users', 'user_id', {
                 type: Sequelize.BIGINT,
                 allowNull: false,
             }),
-            queryInterface.changeColumn('StudentSchoolPersonal', 'parentVlsId', {
+            queryInterface.changeColumn('students', 'parent_vls_id', {
                 type: Sequelize.BIGINT,
                 allowNull: true,
             }),
-            queryInterface.changeColumn('StudentVls', 'studentVlsId', {
+            queryInterface.changeColumn('student_vls', 'student_vls_id', {
                 type: Sequelize.BIGINT,
                 allowNull: false,
                 autoIncrement: true
             }),
-            queryInterface.changeColumn('StudentVlsReport', 'studentVlsId', {
+            queryInterface.changeColumn('Student_vls_report', 'studentVlsId', {
                 type: Sequelize.BIGINT,
                 allowNull: false,
             }),
-            queryInterface.changeColumn('StudentPersonal', 'studentVlsId', {
+            queryInterface.changeColumn('student_vls', 'student_vls_id', {
                 type: Sequelize.BIGINT,
                 allowNull: false,
             }),
-            queryInterface.changeColumn('StudentAttendance', 'studentVlsId', {
+            queryInterface.changeColumn('student_attendances', 'student_id', {
                 type: Sequelize.BIGINT,
                 allowNull: false,
             }),
-            queryInterface.changeColumn('StudentTestReport', 'studentVlsId', {
+            queryInterface.changeColumn('exam_results', 'student_id', {
                 type: Sequelize.BIGINT,
                 allowNull: false,
             }),
-            queryInterface.changeColumn('StudentAcademic', 'studentVlsId', {
+            queryInterface.changeColumn('student_query', 'student_vls_id', {
                 type: Sequelize.BIGINT,
                 allowNull: false,
             }),
-            queryInterface.changeColumn('StudentQuery', 'studentVlsId', {
+            queryInterface.changeColumn('feedback', 'student_vls_id', {
                 type: Sequelize.BIGINT,
                 allowNull: false,
             }),
-            queryInterface.changeColumn('Feedback', 'studentVlsId', {
+            queryInterface.changeColumn('rewards', 'student_vls_id', {
                 type: Sequelize.BIGINT,
                 allowNull: false,
             }),
-            queryInterface.changeColumn('Rewards', 'studentVlsId', {
+            queryInterface.changeColumn('recognition', 'student_vls_id', {
                 type: Sequelize.BIGINT,
                 allowNull: false,
             }),
-            queryInterface.changeColumn('Recognition', 'studentVlsId', {
-                type: Sequelize.BIGINT,
-                allowNull: false,
-            }),
-            queryInterface.changeColumn('Chat', 'senderUserVlsId', {
+            queryInterface.changeColumn('chat', 'sender_user_vls_id', {
                 type: Sequelize.BIGINT
             }),
-            queryInterface.changeColumn('Chat', 'receiverUserVlsId', {
+            queryInterface.changeColumn('chat', 'receiver_user_vls_id', {
                 type: Sequelize.BIGINT
             }),
-            queryInterface.changeColumn('CommunityChatCommunicaiton', 'senderUserVlsId', {
+            queryInterface.changeColumn('Community_chat_communicaiton', 'sender_user_vls_id', {
                 type: Sequelize.BIGINT,
                 allowNull: false,
             }),
-            queryInterface.changeColumn('Mailbox', 'senderUserVlsId', {
+            queryInterface.changeColumn('mailbox', 'sender_user_vls_id', {
                 type: Sequelize.BIGINT,
                 allowNull: false,
             }),
-            queryInterface.changeColumn('Mailbox', 'receiverUserVlsId', {
+            queryInterface.changeColumn('mailbox', 'receiver_user_vls_id', {
                 type: Sequelize.BIGINT,
                 allowNull: false,
             }),
-            queryInterface.changeColumn('Tickets', 'tickerOwnerVlsId', {
+            queryInterface.changeColumn('tickets', 'ticker_owner_vls_id', {
                 type: Sequelize.BIGINT,
                 allowNull: false,
             }),
-            queryInterface.changeColumn('LiveStreaming', 'meetingOwnerVlsId', {
+            queryInterface.changeColumn('live_streaming', 'meeting_owner_vls_id', {
                 type: Sequelize.BIGINT,
                 allowNull: false,
             }),
-            queryInterface.changeColumn('LiveStreaming', 'meetingCreaterVlsId', {
+            queryInterface.changeColumn('live_streaming', 'meeting_creater_vls_id', {
                 type: Sequelize.BIGINT,
                 allowNull: false,
             }),
-            queryInterface.changeColumn('SubjectFaculty', 'facultyVlsId', {
+            queryInterface.changeColumn('subject_faculty', 'faculty_vls_id', {
                 type: Sequelize.BIGINT,
                 allowNull: false,
             }),
-            queryInterface.changeColumn('Feedback', 'teacherVlsId', {
+            queryInterface.changeColumn('feedback', 'teacher_vls_id', {
                 type: Sequelize.BIGINT,
                 allowNull: false,
             }),
-            queryInterface.changeColumn('Feedback', 'parentVlsId', {
+            queryInterface.changeColumn('feedback', 'parent_vls_id', {
                 type: Sequelize.BIGINT,
                 allowNull: false,
             })

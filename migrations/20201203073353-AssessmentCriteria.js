@@ -8,93 +8,100 @@ module.exports = {
      * Example:
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
-  await queryInterface.createTable('AssessmentCriteria', {
-      assessmentVlsId: {
+  await queryInterface.createTable('assessment_criteria', {
+      assessment_vls_id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      branchVlsId: {
+      school_id: {
+        allowNull: false,
         type: Sequelize.INTEGER
       },
-      firstSubjectTestMax: {
+      branch_vls_id: {
+        type: Sequelize.INTEGER
+      },
+      school_vls_id: {
+        type: Sequelize.INTEGER
+      },
+      first_subject_test_max: {
         type: Sequelize.STRING
       },
-      firstSubjectTestPassingCriteria: {
+      first_subject_test_passing_criteria: {
         type: Sequelize.STRING
       },
-      firstSubjectTestFirstClassCriteria: {
+      first_subject_test_first_class_criteria: {
         type: Sequelize.STRING
       },
-      firstSubjectTestSecondClassCriteria: {
+      first_subject_test_second_class_criteria: {
         type: Sequelize.STRING
       },
-      firstSubjectTestThirdClassCriteria: {
+      first_subject_test_third_class_criteria: {
         type: Sequelize.STRING
       },
-      otherSubjectTestMax: {
+      other_subject_test_max: {
         type: Sequelize.STRING
       },
-      otherSubjectTestPassingCriteria: {
+      other_subject_test_passing_criteria: {
         type: Sequelize.STRING
       },
-      otherSubjectTestFirstClassCriteria: {
+      other_subject_test_first_class_criteria: {
         type: Sequelize.STRING
       },
-      otherSubjectTestSecondClassCriteria: {
+      other_subject_test_second_class_criteria: {
         type: Sequelize.STRING
       },
-      otherSubjectTestThirdClassCriteria: {
+      other_subject_test_third_class_criteria: {
         type: Sequelize.STRING
       },
-      firstSubjectAnnualMax: {
+      first_subject_annual_max: {
         type: Sequelize.STRING
       },
-      firstSubjectAnnualPassingCriteria: {
+      first_subject_annual_passing_criteria: {
         type: Sequelize.STRING
       },
-      firstSubjectAnnualFirstClassCriteria: {
+      first_subject_annual_first_class_criteria: {
         type: Sequelize.STRING
       },
-      firstSubjectAnnualSecondClassCriteria: {
+      first_subject_annual_second_class_criteria: {
         type: Sequelize.STRING
       },
-      firstSubjectAnnualThirdClassCriteria: {
+      first_subject_annual_third_class_criteria: {
         type: Sequelize.STRING
       },
-      otherSubjectAnnualMax: {
+      other_subject_annual_max: {
         type: Sequelize.STRING
       },
-      otherSubjectAnnualPassingCriteria: {
+      other_subject_annual_passing_criteria: {
         type: Sequelize.STRING
       },
-      otherSubjectAnnualFirstClassCriteria: {
+      other_subject_annual_first_class_criteria: {
         type: Sequelize.STRING
       },
-      otherSubjectAnnualSecondClassCriteria: {
+      other_subject_annual_second_class_criteria: {
         type: Sequelize.STRING
       },
-      otherSubjectAnnualThirdClassCriteria: {
+      other_subject_annual_third_class_criteria: {
         type: Sequelize.STRING
       },
-      sportPassingCriteria: {
+      sport_passing_criteria: {
         type: Sequelize.STRING
       },
-      sportsFirstClassCriteria: {
+      sports_first_class_criteria: {
         type: Sequelize.STRING
       },
-      sportSecondClassCriteria: {
+      sport_second_class_criteria: {
         type: Sequelize.STRING
       },
-      sportThirdClassCriteria: {
+      sport_third_class_criteria: {
         type: Sequelize.STRING
       },
-      createdAt: {
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE
       }
@@ -108,6 +115,6 @@ module.exports = {
      * Example:
      * await queryInterface.dropTable('users');
      */
-     await queryInterface.dropTable('AssessmentCriteria');
+     await queryInterface.dropTable('assessment_criteria');
   }
 };

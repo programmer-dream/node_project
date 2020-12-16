@@ -8,49 +8,52 @@ module.exports = {
      * Example:
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
-  await queryInterface.createTable('Assignment', {
-      assignmentVlsId: {
+  await queryInterface.createTable('assignment', {
+      assignment_vls_id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      branchVlsId: {
+      branch_vls_id: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      assignmentClassId: {
+      student_vls_id: {
+        type: Sequelize.INTEGER
+      },
+      assignment_class_id: {
         allowNull: false,
         type: Sequelize.STRING
       },
-      assignmentDate: {
+      assignment_date: {
         allowNull: false,
         type: Sequelize.DATE
       },
-      assignmentCompletionDate: {
+      assignment_completion_date: {
         type: Sequelize.ENUM('Online','Offline')
       },
-      assignmentType: {
+      assignment_type: {
         type: Sequelize.STRING
       },
-      rootAssignmentQuestionId: {
+      root_assignment_question_id: {
         allowNull: false,
         type: Sequelize.STRING
       },
-      noOfAssignmentsSubmitted: {
+      no_of_assignments_submitted: {
         type: Sequelize.STRING
       },
-      noOfAssignmentsRejected: {
+      no_of_assignments_rejected: {
         type: Sequelize.STRING
       },
-      assignmentLevel: {
+      assignment_level: {
         type: Sequelize.STRING
       },
-      createdAt: {
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE
       }
@@ -64,6 +67,6 @@ module.exports = {
      * Example:
      * await queryInterface.dropTable('users');
      */
-     await queryInterface.dropTable('Assignment');
+     await queryInterface.dropTable('assignment');
   }
 };
