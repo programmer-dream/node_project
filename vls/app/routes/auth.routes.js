@@ -2,14 +2,13 @@ const express = require('express');
 const router = express.Router()
 const authController = require("../controllers/auth.controller");
 
-// GET
-// router.get("/userId",getNewUserID);
+
 // POST
-// router.post("/signup",register);
 router.post("/signin",authenticate);
 router.post("/resetPassword",resetPassword);
 router.post("/forgetPassword",forgetPassword);
 router.post("/updatePassword",updatePasswordWithForgetPwd);
+router.post("/verifyOTP",verifyOTP);
 
 module.exports = router;
 
@@ -17,20 +16,6 @@ module.exports = router;
 function authenticate(req, res, next) {
     authController.signIn(req.body)
         .then(user => user ? res.json(user) : res.status(400).json({ status: "error", message: 'Oops, wrong credentials, please try again' }))
-        .catch(err => next(err));
-}
-
-// Function for register user's details
-function register(req, res, next) {
-    authController.signUp(req.body)
-        .then(user => user ? res.json(user) : res.status(400).json({ status: "error", message: 'Error while registring user' }))
-        .catch(err => next(err));
-}
-
-// Function for get new user's ID
-function getNewUserID(req, res, next) {
-    authController.getNewUserId()
-        .then(user => user ? res.json(user) : res.status(400).json({ status: "error", message: 'Error while registring user' }))
         .catch(err => next(err));
 }
 
@@ -42,7 +27,7 @@ function resetPassword(req, res, next) {
 
 }
 
-// Function for reset password
+// Function for forgot password
 function forgetPassword(req, res, next) {
       authController.forgetPassword(req.body)
           .then(user => user ? res.json(user) : res.status(400).json({ status: "error", message: 'Mail not sent' }))
@@ -50,10 +35,18 @@ function forgetPassword(req, res, next) {
 
 }
 
-// match password
+// update password if forgot token match
 function updatePasswordWithForgetPwd(req, res, next) {
       authController.updatePasswordWithForgetPwd(req.body)
           .then(user => user ? res.json(user) : res.status(400).json({ status: "error", message: 'Link has been expired' }))
+          .catch(err => next(err));
+
+}
+
+// update password if forgot token match
+function verifyOTP(req, res, next) {
+      authController.verifyOTP(req.body)
+          .then(user => user ? res.json(user) : res.status(400).json({ status: "error", message: 'OTP has been expired' }))
           .catch(err => next(err));
 
 }

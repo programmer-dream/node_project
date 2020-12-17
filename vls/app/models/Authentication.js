@@ -28,6 +28,12 @@ module.exports = (sequelize, Sequelize) => {
     },
     user_vls_id: {
       type: Sequelize.INTEGER
+    },
+    recovery_contact_no: {
+      type: Sequelize.STRING
+    },
+    forget_pwd_otp: {
+      type: Sequelize.STRING
     }
   },{
     tableName: 'users',
