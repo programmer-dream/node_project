@@ -3,8 +3,8 @@ const express = require('express');
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const path = require("path");
-const jwt = require('app/helper/jwt');
-const errorHandler = require('app/helper/error-handler');
+const jwt = require('./app/helper/jwt');
+const errorHandler = require('./app/helper/error-handler');
 require('dotenv').config()
 
 const app = express();
@@ -32,7 +32,6 @@ app.get("/",function(req, res){
 
 // api routes
 app.use('/auth', require('./app/routes/auth.routes'));
-app.use('/student', require('./app/routes/student.routes'));
 
 // global error handler
 app.use(errorHandler);

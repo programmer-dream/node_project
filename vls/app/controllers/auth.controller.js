@@ -11,46 +11,12 @@ var bcrypt = require("bcryptjs");
 
 module.exports = {
   signIn,
-  signUp,
   resetPassword,
-  getNewUserId,
   getById,
   forgetPassword,
-  updatePasswordWithForgetPwd
+  updatePasswordWithForgetPwd,
+  verifyOTP
 };
-
-
-/**
- * API for get new user's ID
- */
-async function getNewUserId() {
-  let userID = Date.now();
-  return {userID}
-}
-
-
-/**
- * API for register new Admin user's
- */
- async function signUp(userDetails) {
-  if(!userDetails.userName || !userDetails.password){
-      throw 'userId and Password are required'
-  }
-
-  let password = bcrypt.hashSync(userDetails.password, 8)
-  let newUserDetails = {
-    userId: userDetails.userId,
-    password: password,
-    userType: 'Admin',
-    oldPassword1: password
-  }
-
-  // Save to Database
-  let authUser = await Authentication.create(newUserDetails);
-  if(authUser && authUser.authVlsId)
-    return { message: "User registered successfully!" };
-
-}
 
 
 /**
@@ -59,12 +25,12 @@ async function getNewUserId() {
 async function signIn(userDetails) {
 
   let user = await Authentication.findOne({ 
-                    attributes: ['auth_vls_id', 'user_vls_id', 'password', 'role_id'],
+                    attributes: ['auth_vls_id', 'user_name', 'user_vls_id', 'password', 'role_id'],
                     where: { user_name: userDetails.userName },
                     include: [{ 
                               model:Role,
                               as:'roles',
-                              attributes: ['id','name']
+                              attributes: ['id','name', 'slug']
                             }]
                     })
   if(user  && bcrypt.compareSync(userDetails.password, user.password) ){
@@ -74,7 +40,7 @@ async function signIn(userDetails) {
     let tokenDetails = {
             id:      user.auth_vls_id,
             userId:     user.user_name, 
-            type:       user.role_id,
+            role:       user.roles.slug,
             userVlsId:  user.user_vls_id
     }
 
@@ -156,14 +122,121 @@ async function resetPassword(body, userId) {
     return { status: "success",message: 'password updated successfully' }
 }
 
+/**
+ * API for verify otp for user's
+ */
+async function verifyOTP(body){
+
+  if(!body.otp) throw 'OTP not found'
+
+  let user = await Authentication.findOne({
+                      where:{ forget_pwd_token: body.token }
+                    });
+
+  if(!user) throw 'Token has been expired';
+
+  if(user.forget_pwd_otp == body.otp){
+    if(user.recovery_email_id =='' || user.recovery_email_id == null  ) throw 'No email is associated with this account. Please contact VLS'
+    
+    user.update({
+        forget_pwd_token:null,
+        forget_pwd_otp:null,
+        password_reset_type:null
+      })
+
+    await sendForgotPasswordEmail(user)
+
+    return {status: "success", message:'Mail sent successfully' };
+  }else{
+    throw 'Invalid OTP';
+  }
+}
+
+/**
+ * API for forgot password for user's
+ */
 async function forgetPassword(body) {
   user_name = body.userName
   if(!user_name) throw 'userName is required'
   let user = await Authentication.findOne({
-                      where:{ user_name: user_name }
+                      where:{ user_name: user_name },
+                      include: [{ 
+                              model:Role,
+                              as:'roles',
+                              attributes: ['id','slug']
+                            }]
                     });
   if(!user) throw 'user not found'
-  if(user.recovery_email_id =='' || user.recovery_email_id == null  ) throw 'no email associated with this account. please try differnet method to reset password'
+
+  let userRole = user.roles.slug
+  if(userRole == 'student'){
+    if(user.recovery_email_id =='' || user.recovery_email_id == null  ) throw 'No email is associated with this account. Please contact VLS'
+    
+    await sendForgotPasswordEmail(user)
+
+    return {status: "success", type:'email', message:'Mail sent successfully' };
+  }else{
+    if(user.recovery_contact_no =='' || user.recovery_contact_no == null  ) throw 'No phone is associated with this account. Please contact VLS'
+    
+    return await sendOtpToUser(user)
+  }
+  
+}
+
+
+/**
+ * generate otp for user
+ */
+async function sendOtpToUser(user) {
+
+    let genOTP = generateOTP();
+    //genrate token
+    let forget_pwd_token = forgetToken(30)
+    const client = require('twilio')(config.twillioAccountSid, config.twillioauthToken);
+
+    return await client.messages.create({
+        body: 'Here is the OTP :'+genOTP,
+        to: user.recovery_contact_no,  // Text this number
+        from: config.twillioNumber // From a valid Twilio number
+    })
+    .then((messages) => {
+      user.update({
+        forget_pwd_token:forget_pwd_token,
+        forget_pwd_otp:genOTP,
+        password_reset_type:'OTP'
+      })
+
+      return {token:forget_pwd_token, type:'otp', message:"OTP sent successfully"}
+    })
+    .catch((error)=>{
+      console.log(error);
+      throw 'OPT send failed, Please try again later.';
+    });
+}
+
+/**
+ * generate otp for user
+ */
+function generateOTP() {
+
+    // Declare a string variable
+    // which stores all string
+    var string = '0123456789';
+    let OTP = '';
+
+    // Find the length of string
+    var len = 10;
+    for (let i = 0; i < 6; i++ ) {
+        OTP += string[Math.floor(Math.random() * len)];
+    }
+    return OTP;
+}
+
+
+/**
+ * Send Email to user
+ */
+async function sendForgotPasswordEmail(user){
   //genrate token
   let forget_pwd_token = forgetToken(30)
   //update token
@@ -172,13 +245,12 @@ async function forgetPassword(body) {
     password_reset_type:'PasswordResetLink'
   })
   let email   = user.recovery_email_id 
-  let link    = config.link +'?token='+ forget_pwd_token
+  let link    = config.forgotLink +'?token='+ forget_pwd_token
   let subject = 'Reset your account password'
   let html_body    ='<p>Click <a href="' + link + '">here</a> to reset your password</p>';
   await mailer(email,subject, html_body) //send mail to the user
-  return {status: "success", message:'Mail sent successfully' };
-}
 
+}
 /**
  * API for forget token 
  */
