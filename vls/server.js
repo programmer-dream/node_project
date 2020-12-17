@@ -33,6 +33,7 @@ app.get("/",function(req, res){
 // api routes
 app.use('/auth', require('./app/routes/auth.routes'));
 app.use('/student', require('./app/routes/student.routes'));
+app.use('/dashboard', require('./app/routes/profile.routes'));
 
 // global error handler
 app.use(errorHandler);

@@ -25,6 +25,9 @@ module.exports = (sequelize, Sequelize) => {
     },
     password_reset_type: {
       type: Sequelize.STRING
+    },
+    user_vls_id: {
+      type: Sequelize.INTEGER
     }
   },{
     tableName: 'users',
