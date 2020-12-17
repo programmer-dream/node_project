@@ -5,9 +5,11 @@
   "main": "index.js",
   "scripts": {
     "start:vls": "yarn workspace vls start",
-    "start": "concurrently --kill-others-on-fail \"yarn start:vls\" ",
+    "start:query": "yarn workspace query_management start",
+    "start": "concurrently --kill-others-on-fail \"yarn start:vls\" \"yarn start:query\" ",
     "dev:vls": "yarn workspace vls dev",
-    "dev": "concurrently --kill-others-on-fail \"yarn dev:vls\" "
+    "dev:query": "yarn workspace query_management dev",
+    "dev": "concurrently --kill-others-on-fail \"yarn dev:vls\" \"yarn dev:query\" "
   },
   "keywords": [],
   "author": "",
@@ -15,7 +17,7 @@
   "private": true,
   "workspaces": [
     "vls",
-    "video"
+    "query_management"
   ],
   "dependencies": {
     "concurrently": "^5.3.0"
