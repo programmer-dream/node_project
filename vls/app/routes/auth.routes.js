@@ -8,6 +8,8 @@ const authController = require("../controllers/auth.controller");
 // router.post("/signup",register);
 router.post("/signin",authenticate);
 router.post("/resetPassword",resetPassword);
+router.post("/forgetPassword",forgetPassword);
+router.post("/updatePassword",updatePasswordWithForgetPwd);
 
 module.exports = router;
 
@@ -36,6 +38,22 @@ function getNewUserID(req, res, next) {
 function resetPassword(req, res, next) {
       authController.resetPassword(req.body, req.user.id)
           .then(user => user ? res.json(user) : res.status(400).json({ status: "error", message: 'Email not found' }))
+          .catch(err => next(err));
+
+}
+
+// Function for reset password
+function forgetPassword(req, res, next) {
+      authController.forgetPassword(req.body)
+          .then(user => user ? res.json(user) : res.status(400).json({ status: "error", message: 'Mail not sent' }))
+          .catch(err => next(err));
+
+}
+
+// match password
+function updatePasswordWithForgetPwd(req, res, next) {
+      authController.updatePasswordWithForgetPwd(req.body)
+          .then(user => user ? res.json(user) : res.status(400).json({ status: "error", message: 'Link has been expired' }))
           .catch(err => next(err));
 
 }

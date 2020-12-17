@@ -33,17 +33,9 @@ module.exports = {
       user_vls_id: {
         type: Sequelize.BIGINT
       },
-      old_password1: {
+      old_passwords: {
         allowNull: true,
-        type: Sequelize.STRING
-      },
-      old_password2: {
-        allowNull: true,
-        type: Sequelize.STRING
-      },
-      old_password3: {
-        allowNull: true,
-        type: Sequelize.STRING
+        type: Sequelize.TEXT
       },
       password_criteria: {
         allowNull: true,

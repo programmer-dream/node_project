@@ -14,7 +14,7 @@ module.exports = {
     return queryInterface.bulkInsert('users', [{
       user_name: Date.now(),
       password: '$2a$08$WOjd8dqnu1yUDQrLJe1AxOJTc.YQkZPu3TBW.Z/Bi8vF5cVVu6gGi', // test@123
-      old_password1: '$2a$08$WOjd8dqnu1yUDQrLJe1AxOJTc.YQkZPu3TBW.Z/Bi8vF5cVVu6gGi',
+      old_passwords: '["$2a$08$WOjd8dqnu1yUDQrLJe1AxOJTc.YQkZPu3TBW.Z/Bi8vF5cVVu6gGi"]',
       role_id: 1,
       created_at: new Date(),
       updated_at: new Date()

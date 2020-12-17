@@ -17,14 +17,14 @@ module.exports = (sequelize, Sequelize) => {
     user_name: {
       type: Sequelize.INTEGER
     },
-    old_password1: {
+    old_passwords: {
       type: Sequelize.INTEGER
     },
-    old_password2: {
-      type: Sequelize.INTEGER
+    forget_pwd_token: {
+      type: Sequelize.STRING
     },
-    old_password3: {
-      type: Sequelize.INTEGER
+    password_reset_type: {
+      type: Sequelize.STRING
     }
   },{
     tableName: 'users',
