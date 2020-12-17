@@ -11,6 +11,8 @@ function jwt() {
             // public routes that don't require authentication
             '/auth/signin',
             '/auth/signup',
+            '/auth/forgetPassword',
+            '/auth/updatePassword',
         ]
     });
 }
