@@ -64,6 +64,9 @@ sequelize.authenticate()
 db.Authentication = require("./Authentication.js")(sequelize, Sequelize);
 db.SchoolDetails = require("./School.js")(sequelize, Sequelize);
 db.Role = require("./Role.js")(sequelize, Sequelize);
+db.Student = require("./Student.js")(sequelize, Sequelize);
+db.Guardian = require("./Guardian.js")(sequelize, Sequelize);
+db.Employee = require("./Employee.js")(sequelize, Sequelize);
 
 db.Authentication.belongsTo(db.Role,{foreignKey:'role_id',as:'roles'})
 //db.Role.belongsTo(db.Authentication,{foreignKey:'role_id',as:'roles'})
