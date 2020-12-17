@@ -32,8 +32,7 @@ module.exports = (sequelize, Sequelize) => {
     updatedAt: 'updated_at'
   }
   );
-  Authentication.associate = function(models) {
-    Authentication.hasOne(models.Role, {foreignKey: 'role_id', as: 'roles'})
-  };
+
+  
   return Authentication;
 };

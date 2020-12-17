@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Dec 15, 2020 at 06:48 AM
+-- Generation Time: Dec 16, 2020 at 09:34 AM
 -- Server version: 8.0.22
 -- PHP Version: 7.3.11
 
@@ -18,8 +18,56 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `VLS`
+-- Database: `ERP`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `languages`
+--
+
+CREATE TABLE IF NOT EXISTS `languages` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `label` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `english` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
+  `bengali` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
+  `spanish` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
+  `arabic` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
+  `hindi` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
+  `urdu` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
+  `chinese` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
+  `japanese` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
+  `portuguese` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
+  `russian` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
+  `french` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
+  `korean` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
+  `german` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
+  `italian` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
+  `thai` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
+  `hungarian` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
+  `dutch` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
+  `latin` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
+  `indonesian` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
+  `turkish` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
+  `greek` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
+  `persian` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
+  `malay` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
+  `telugu` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
+  `tamil` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
+  `gujarati` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
+  `polish` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
+  `ukrainian` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
+  `panjabi` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
+  `romanian` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
+  `burmese` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
+  `yoruba` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
+  `hausa` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
+  `mylang` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci,
+  PRIMARY KEY (`id`),
+  KEY `id` (`id`),
+  KEY `label` (`label`)
+) ENGINE=MyISAM AUTO_INCREMENT=1037 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `languages`
@@ -1073,10 +1121,7 @@ INSERT INTO `languages` (`id`, `label`, `english`, `bengali`, `spanish`, `arabic
 (1034, 'following_is_your_live_class_schedule', 'Following is your live class schedule', 'আপনার লাইভ ক্লাসের শিডিউলটি নীচে দেওয়া হয়েছে', 'El siguiente es su horario de clases en vivo', 'فيما يلي جدول الحصص الحية الخاصة بك', 'निम्नलिखित आपके लाइव क्लास का कार्यक्रम है', 'آپ کا رواں طبقاتی شیڈول مندرجہ ذیل ہے', '以下是您的现场课程表', '以下はあなたのライブクラススケジュールです', 'A seguir, é o seu horário de aula ao vivo', 'Следуйте вашему расписанию в прямом эфире', 'Voici votre horaire de cours en direct', '다음은 라이브 수업 일정입니다', 'Im Folgenden finden Sie Ihren Stundenplan', 'Di seguito è riportato l\'orario delle lezioni dal vivo', NULL, 'Az alábbiakban látható az élő óráid', 'Hieronder volgt je live lesrooster', 'Post Vivamus sit amet genus schedule', 'Berikut ini adalah jadwal kelas live Anda', 'Canlı ders programınız aşağıdadır', 'Ακολουθεί το πρόγραμμα ζωντανών μαθημάτων', 'برنامه زیر کلاس زندگی شما است', 'Berikut adalah jadual kelas langsung anda', NULL, NULL, 'તમારું લાઇવ ક્લાસ શેડ્યૂલ નીચે મુજબ છે', 'Oto harmonogram zajęć na żywo', 'Далі йде ваш графік живих занять', 'ਹੇਠਾਂ ਤੁਹਾਡਾ ਲਾਈਵ ਕਲਾਸ ਸ਼ਡਿ .ਲ ਹੈ', 'Urmează programul clasei tale live', NULL, 'Atẹle ni iṣeto kilasi kilasi rẹ', 'Mai biyo baya shine tsarin karatun ku na yau da kullun', NULL),
 (1035, 'following_is_your_child_live_class_schedule', 'Following is your child live class schedule', 'আপনার সন্তানের লাইভ ক্লাসের সময়সূচীটি নিম্নলিখিত', 'El siguiente es el horario de clases en vivo de su hijo', 'فيما يلي الجدول الزمني لطفلك الحي', 'निम्नलिखित आपके बच्चे का लाइव क्लास शेड्यूल है', 'آپ کے بچے کا براہ راست کلاس شیڈول مندرجہ ذیل ہے', '以下是您的孩子的现场课程表', '以下はあなたの子供のライブクラススケジュールです', 'A seguir está o horário das aulas ao vivo do seu filho', 'Ниже приводится расписание занятий вашего ребенка', 'Voici l\'horaire des cours en direct de votre enfant', '다음은 자녀의 라이브 수업 일정입니다', 'Im Folgenden finden Sie den Stundenplan für Ihr Kind', 'Di seguito è riportato il programma delle lezioni dal vivo di tuo figlio', NULL, 'Az alábbiakban látható a gyermek élő órája', 'Hieronder volgt het live lesschema van uw kind', 'Post puer est vivere genus schedule', 'Berikut ini adalah jadwal kelas langsung anak Anda', 'Çocuğunuzun canlı sınıf programı aşağıdadır', 'Ακολουθεί το πρόγραμμα ζωντανής τάξης του παιδιού σας', 'جدول زیر برنامه کلاس زندگی کودک شما است', 'Berikut adalah jadual kelas langsung anak anda', NULL, NULL, 'તમારા બાળકનું લાઇવ ક્લાસ શેડ્યૂલ નીચે મુજબ છે', 'Oto harmonogram zajęć na żywo dla Twojego dziecka', 'Далі йде розклад живих занять у вашої дитини', 'ਤੁਹਾਡੇ ਬੱਚੇ ਦਾ ਲਾਈਵ ਕਲਾਸ ਦਾ ਸਮਾਂ-ਸਾਰਣੀ ਹੇਠਾਂ ਦਿੱਤਾ ਹੈ', 'Urmează programul clasei în direct pentru copii', NULL, 'Atẹle ni iṣeto kilasi laaye ọmọ rẹ', 'Mai zuwa shine jadawalin aji na rayuwar yaran ku', NULL),
 (1036, 'live_class_type', 'Live Class Type', 'লাইভ ক্লাস টাইপ', 'Tipo de clase en vivo', 'نوع الفصل المباشر', 'लाइव क्लास टाइप', 'براہ راست کلاس کی قسم', '現場課堂類型', 'ライブクラスタイプ', 'Tipo de classe ao vivo', 'Тип Живого Класса', 'Type de cours en direct', '라이브 클래스 유형', 'Live-Klassentyp', 'Tipo di lezione dal vivo', 'ประเภทคลาสสด', 'Élő osztály típusa', 'Live klassetype', 'Vivamus Type Paleonemertea Class', 'Jenis Kelas Langsung', 'Canlı Sınıf Tipi', 'Τύπος ζωντανής τάξης', 'نوع کلاس زنده', 'Jenis Kelas Langsung', 'లైవ్ క్లాస్ రకం', 'நேரடி வகுப்பு வகை', 'જીવંત વર્ગ પ્રકાર', 'Typ klasy na żywo', 'Тип живого класу', 'ਲਾਈਵ ਕਲਾਸ ਦੀ ਕਿਸਮ', 'Tip de clasă în direct', 'Live Class အမျိုးအစား', 'Iru Class', 'Nauin Kiran Kira', NULL);
-
---
--- Indexes for dumped tables
---
+COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
