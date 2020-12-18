@@ -78,7 +78,7 @@ module.exports = {
             queryInterface.changeColumn('chat', 'receiver_user_vls_id', {
                 type: Sequelize.BIGINT
             }),
-            queryInterface.changeColumn('Community_chat_communicaiton', 'sender_user_vls_id', {
+            queryInterface.changeColumn('community_chat_communicaiton', 'sender_user_vls_id', {
                 type: Sequelize.BIGINT,
                 allowNull: false,
             }),
