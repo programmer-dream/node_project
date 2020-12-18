@@ -23,6 +23,8 @@ module.exports = {
  * API for signIn user's
  */
 async function signIn(userDetails) {
+  if(!userDetails.userName) throw 'UserName is required'
+  if(!userDetails.password) throw 'Password is required'
 
   let user = await Authentication.findOne({ 
                     attributes: ['auth_vls_id', 'user_name', 'user_vls_id', 'password', 'role_id'],

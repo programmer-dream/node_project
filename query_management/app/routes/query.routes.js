@@ -3,7 +3,7 @@ const router = express.Router()
 const queryController = require("../controllers/query.controller");
 const { check } = require('express-validator');
 
-// Get
+//Post
 router.post("/create",[
     check('subject','Subject field is required.').not().isEmpty(),
     check('description','Description field is required.').not().isEmpty(),
@@ -12,14 +12,16 @@ router.post("/create",[
     check('school_vls_id','School_vls_id field is required.').not().isEmpty(),
     check('faculty_vls_id','Faculty_vls_id field is required.').not().isEmpty()
     ],createQuery);
-//post 
+router.post("/assignQuery",assignQuery);
+
+//Get 
 router.get("/view/:id",viewQuery);
 router.get("/list",queryList);
 router.get("/listFaculty",listFaculty);
-//delete
+//Delete
 router.delete("/delete/:id",deleteQuery);
 
-//put
+//Put
 router.put("/update/:id",[
     check('subject','Subject field is required.').not().isEmpty(),
     check('description','Description field is required.').not().isEmpty(),
@@ -64,6 +66,12 @@ function viewQuery(req, res, next) {
 // Function for delete query details
 function deleteQuery(req, res, next) {
     queryController.deleteQuery(req.params.id)
+        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Oops, wrong credentials, please try again' }))
+        .catch(err => next(err));
+}
+// Function for assing query
+function assignQuery(req, res, next) {
+    queryController.assignQuery(req.body)
         .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Oops, wrong credentials, please try again' }))
         .catch(err => next(err));
 }

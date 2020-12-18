@@ -14,7 +14,8 @@ module.exports = {
   listFaculty,
   update,
   view,
-  deleteQuery
+  deleteQuery,
+  assignQuery
 };
 /**
  * API for create new query
@@ -46,9 +47,9 @@ async function view(id){
  */
 async function list(params){
   let schoolVlsId   = params.schoolVlsId
-  let studentVlsId  = params.studentVlsId
+  let facultyVlsId  = params.facultyVlsId
   if(!schoolVlsId) throw 'schoolVlsId is required'
-  if(!studentVlsId) throw 'studentVlsId is required'
+  if(!facultyVlsId) throw 'facultyVlsId is required'
 
   //start pagination
   let limit = 10
@@ -63,7 +64,7 @@ async function list(params){
                       limit:limit,
                       offset:offset,
                       where:{school_vls_id : schoolVlsId,
-                               student_vls_id : studentVlsId},
+                               faculty_vls_id : facultyVlsId},
                       attributes: ['query_vls_id', 'query_date', 'query_status', 'subject', 'description','tags']
                       });
   return { success: true, message: "All query data", data:studentQuery };
@@ -125,8 +126,28 @@ async function deleteQuery(id) {
   let num = await StudentQuery.destroy({
       where: { query_vls_id: id }
     })
-  if(num != 1) throw 'Branch not found'
-  return { success:true, message:"Branch deleted successfully!"};
+  if(num != 1) throw 'Query not found'
+  return { success:true, message:"Query deleted successfully!"};
+  
+};
+/**
+ * API for delete query
+ */
+async function assignQuery(body) {
+  let queryVlsId   = body.queryVlsId
+  let facultyVlsId = body.facultyVlsId
+  if(!facultyVlsId) throw 'facultyVlsId is required'
+  if(!queryVlsId)   throw   'queryVlsId is required'
+    updateField = {
+      faculty_vls_id:facultyVlsId
+    }
+  let num = await StudentQuery.update(updateField,{
+                       where:{
+                              query_vls_id : queryVlsId
+                             }
+                    });
+  if(num != 1) throw 'Query not found'
+  return { success:true, message:"Query assigned successfully!"};
   
 };
 /**
