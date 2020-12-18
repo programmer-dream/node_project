@@ -19,6 +19,10 @@ module.exports = {
         allowNull: false,
         type: Sequelize.INTEGER
       },
+      school_vls_id: {
+        allowNull: false,
+        type: Sequelize.INTEGER
+      },
       student_vls_id: {
         type: Sequelize.INTEGER
       },

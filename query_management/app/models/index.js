@@ -61,33 +61,7 @@ sequelize.authenticate()
 	}
 );
 
-//db.Role.belongsTo(db.Authentication,{foreignKey:'role_id',as:'roles'})
+db.StudentQuery = require("./StudentQuery.js")(sequelize, Sequelize);
+db.Employee = require("../../../vls/app/models/Employee.js")(sequelize, Sequelize);
+
 module.exports = db;
-
-
-
-// Example for connection 
-
-// Include Sequelize module 
-// const Sequelize = require('sequelize') 
-// require('dotenv').config()
-
-// // Creating new Object of Sequelize 
-// const sequelize = new Sequelize( 
-// 	process.env.DB_NAME, 
-// 	process.env.DB_USER, 
-// 	process.env.DB_PASS, { 
-
-// 		// Explicitly specifying 
-// 		// mysql database 
-// 		dialect: 'mysql', 
-
-// 		// By default host is 'localhost'		 
-// 		host: process.env.DB_HOST
-// 	} 
-// ); 
-
-// // Exporting the sequelize object. 
-// // We can use it in another file 
-// // for creating models 
-// module.exports = sequelize 

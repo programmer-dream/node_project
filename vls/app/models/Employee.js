@@ -103,6 +103,18 @@ module.exports = (sequelize, Sequelize) => {
       spare5: {
         type: Sequelize.STRING
       },
+      isPrincipal: {
+        type: Sequelize.STRING
+      },
+      spare5: {
+        type: Sequelize.STRING
+      },
+      spare5: {
+        type: Sequelize.STRING
+      },
+      spare5: {
+        type: Sequelize.STRING
+      },
       created_at: {
         allowNull: false,
         type: Sequelize.DATE

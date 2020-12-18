@@ -19,6 +19,10 @@ module.exports = {
         allowNull: false,
         type: Sequelize.INTEGER
       },
+      school_vls_id: {
+        allowNull: false,
+        type: Sequelize.INTEGER
+      },
       student_vls_id: {
         type: Sequelize.INTEGER
       },
@@ -68,10 +72,6 @@ module.exports = {
       reply_date: {
         allowNull: false,
         type: Sequelize.DATE
-      },
-      next_reply_vls_id: {
-        allowNull: false,
-        type: Sequelize.INTEGER
       },
       reply_reply_vls_id: {
         allowNull: false,

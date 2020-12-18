@@ -1,15 +1,6 @@
-'use strict';
-
-module.exports = {
-  up: async (queryInterface, Sequelize) => {
-    /**
-     * Add altering commands here.
-     *
-     * Example:
-     * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
-     */
-  await queryInterface.createTable('student_query', {
-      query_vls_id: {
+module.exports = (sequelize, Sequelize) => {
+  const StudentQuery = sequelize.define("student_query", {
+    query_vls_id: {
         allowNull: false,
         type: Sequelize.INTEGER,
         autoIncrement: true,
@@ -20,7 +11,6 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       school_vls_id: {
-        allowNull: false,
         type: Sequelize.INTEGER
       },
       student_vls_id: {
@@ -33,7 +23,7 @@ module.exports = {
         type: Sequelize.STRING
       },
       query_date: {
-        type: Sequelize.DATE
+        type: Sequelize.STRING
       },
       query_status: {
         type: Sequelize.ENUM('open','Inprogress','Closed','Rejected')
@@ -57,7 +47,7 @@ module.exports = {
         type: Sequelize.STRING
       },
       response_date: {
-        type: Sequelize.DATE
+        type: Sequelize.STRING
       },
       rating: {
         type: Sequelize.STRING
@@ -68,24 +58,15 @@ module.exports = {
       tags: {
         type: Sequelize.STRING
       },
-      created_at: {
-        allowNull: false,
-        type: Sequelize.DATE
-      },
-      updated_at: {
-        allowNull: false,
-        type: Sequelize.DATE
-      }
-    });
-  },
-
-  down: async (queryInterface, Sequelize) => {
-    /**
-     * Add reverting commands here.
-     *
-     * Example:
-     * await queryInterface.dropTable('users');
-     */
-     await queryInterface.dropTable('student_query');
-  }
+      faculty_vls_id: {
+        type: Sequelize.INTEGER
+      } 
+  },{
+      tableName: 'student_query',
+      createdAt: 'created_at',
+      updatedAt: 'updated_at'
+    }
+  );
+  
+  return StudentQuery;
 };

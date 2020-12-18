@@ -19,6 +19,10 @@ module.exports = {
         allowNull: false,
         type: Sequelize.INTEGER
       },
+      school_vls_id: {
+        allowNull: false,
+        type: Sequelize.INTEGER
+      },
       ticket_owner: {
         type: Sequelize.ENUM('Student','faculty','parent')
       },
@@ -40,10 +44,6 @@ module.exports = {
       },
       ticket_status: {
         type: Sequelize.STRING
-      },
-      reply_vls_id: {
-        allowNull: false,
-        type: Sequelize.INTEGER
       },
       created_at: {
         allowNull: false,

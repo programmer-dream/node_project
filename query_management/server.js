@@ -31,7 +31,7 @@ app.get("/",function(req, res){
 });
 
 // api routes
-
+app.use('/query', require('./app/routes/query.routes'));
 
 // global error handler
 app.use(errorHandler);
