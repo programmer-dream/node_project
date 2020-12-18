@@ -19,6 +19,10 @@ module.exports = {
         allowNull: false,
         type: Sequelize.INTEGER
       },
+      school_vls_id: {
+        allowNull: false,
+        type: Sequelize.INTEGER
+      },
       branch_vls_id: {
         allowNull: false,
         type: Sequelize.INTEGER
@@ -59,6 +63,14 @@ module.exports = {
       },
       spare5: {
         type: Sequelize.STRING
+      },
+      attachment: {
+        allowNull: false,
+        type: Sequelize.INTEGER
+      },
+      attachmentType: {
+        allowNull: false,
+        type: Sequelize.ENUM('image','document')
       },
       created_at: {
         allowNull: false,

@@ -15,7 +15,10 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      
+      school_vls_id: {
+        allowNull: false,
+        type: Sequelize.INTEGER
+      },
       branch_vls_id: {
         allowNull: false,
         type: Sequelize.INTEGER

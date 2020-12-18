@@ -19,13 +19,17 @@ module.exports = {
         allowNull: false,
         type: Sequelize.INTEGER
       },
+      school_vls_id: {
+        allowNull: false,
+        type: Sequelize.INTEGER
+      },
       create_date: {
         type: Sequelize.DATE
       },
       subject: {
         type: Sequelize.STRING
       },
-      meeting_date_time: {
+      Date: {
         type: Sequelize.DATE
       },
       meeting_link: {
@@ -66,9 +70,26 @@ module.exports = {
       likes: {
         type: Sequelize.STRING
       },
-      reply_vls_id: {
-        allowNull: false,
+      teacher_id: {
         type: Sequelize.INTEGER
+      },
+      meeting_id: {
+        type: Sequelize.INTEGER
+      },
+      meeting_password: {
+        type: Sequelize.STRING
+      },
+      class_vls_id: {
+        type: Sequelize.INTEGER
+      },
+      section_vls_id: {
+        type: Sequelize.INTEGER
+      },
+      start_time: {
+        type: Sequelize.STRING
+      },
+      end_time: {
+        type: Sequelize.STRING
       },
       created_at: {
         allowNull: false,

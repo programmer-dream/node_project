@@ -23,6 +23,46 @@ module.exports = {
         allowNull: false,
         type: Sequelize.INTEGER
       },
+      class_id: {
+        allowNull: false,
+        type: Sequelize.INTEGER
+      },
+      section_id: {
+        allowNull: false,
+        type: Sequelize.INTEGER
+      },
+      subject_id: {
+        allowNull: false,
+        type: Sequelize.INTEGER
+      },
+      teacher_id: {
+        allowNull: false,
+        type: Sequelize.INTEGER
+      },
+      academic_year_id: {
+        allowNull: false,
+        type: Sequelize.INTEGER
+      },
+      day: {
+        allowNull: false,
+        type: Sequelize.STRING
+      },
+      start_time: {
+        allowNull: false,
+        type: Sequelize.STRING
+      },
+      end_time: {
+        allowNull: false,
+        type: Sequelize.STRING
+      },
+      room_no: {
+        allowNull: false,
+        type: Sequelize.INTEGER
+      },
+      status: {
+        allowNull: false,
+        type: Sequelize.TINYINT(1)
+      },
       created_at: {
         allowNull: false,
         type: Sequelize.DATE
