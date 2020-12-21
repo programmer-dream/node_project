@@ -1,6 +1,6 @@
 module.exports = (sequelize, Sequelize) => {
-  const School = sequelize.define("school", {
-    school_id: {
+  const BranchDetails = sequelize.define("branch_details", {
+    branch_vls_id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
@@ -10,14 +10,15 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      school_name: {
+      school_id: {
         allowNull: false,
-        type: Sequelize.STRING
+        type: Sequelize.INTEGER
       },
-      website_url: {
-        type: Sequelize.STRING
+      school_vls_id: {
+        allowNull: false,
+        type: Sequelize.INTEGER
       },
-      description: {
+      branch_name: {
         allowNull: false,
         type: Sequelize.STRING
       },
@@ -25,7 +26,7 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: false,
         type: Sequelize.STRING
       },
-      phone: {
+      contact1: {
         allowNull: false,
         type: Sequelize.STRING
       },
@@ -35,7 +36,7 @@ module.exports = (sequelize, Sequelize) => {
       contact3: {
         type: Sequelize.STRING
       },
-      email: {
+      emailId1: {
         allowNull: false,
         type: Sequelize.STRING
       },
@@ -48,8 +49,20 @@ module.exports = (sequelize, Sequelize) => {
       ratings: {
         type: Sequelize.STRING
       },
-      feedback_support: {
+      assessment_system: {
         type: Sequelize.STRING
+      },
+      assessment_scheme: {
+        type: Sequelize.STRING
+      },
+      assessment_vls_id: {
+        type: Sequelize.STRING
+      },
+      no_of_working_days: {
+        type: Sequelize.STRING
+      },
+      feedback_support: {
+        type: Sequelize.BOOLEAN
       },
       learning_library_suport: {
         type: Sequelize.ENUM('SMS', 'Email', 'Both')
@@ -81,12 +94,6 @@ module.exports = (sequelize, Sequelize) => {
       ERP_support: {
         type: Sequelize.BOOLEAN
       },
-      authentication_type: {
-        type: Sequelize.ENUM('OTP', 'thirdparty','captcha','checkbox')
-      },
-      school_secret_token_key: {
-        type: Sequelize.STRING
-      },
       created_at: {
         allowNull: false,
         type: Sequelize.DATE
@@ -94,13 +101,13 @@ module.exports = (sequelize, Sequelize) => {
       updated_at: {
         allowNull: false,
         type: Sequelize.DATE
-      }
+      } 
   },{
-    tableName: 'school',
+    tableName: 'branch_details',
     createdAt: 'created_at',
     updatedAt: 'updated_at'
   }
   );
 
-  return School;
+  return BranchDetails;
 };
