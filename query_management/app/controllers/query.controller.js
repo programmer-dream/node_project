@@ -15,7 +15,8 @@ module.exports = {
   update,
   view,
   deleteQuery,
-  assignQuery
+  assignQuery,
+  listSubject
 };
 /**
  * API for create new query
@@ -46,26 +47,54 @@ async function view(id){
  * API for list query according to school and student
  */
 async function list(params){
+  let optional      = []
   let schoolVlsId   = params.schoolVlsId
   let facultyVlsId  = params.facultyVlsId
+  let branchVlsId   = params.branchVlsId
   if(!schoolVlsId) throw 'schoolVlsId is required'
-  if(!facultyVlsId) throw 'facultyVlsId is required'
-
+    optional.push({school_vls_id  : schoolVlsId})
+  if(!branchVlsId) throw 'branchVlsId is required'
+    optional.push({branch_vls_id  : branchVlsId})
   //start pagination
-  let limit = 10
-  let offset = 0
+  let limit   = 10
+  let offset  = 0
+  let search  = '';
+  let status  = ['open','closed'];
+  let orderBy = 'desc';
+  let tag     = '';
   if(params.size)
      limit = parseInt(params.size)
   if(params.page)
       offset = 0 + (parseInt(params.page) - 1) * limit
+  if(params.search)
+      search = params.search
+  if(params.status)
+    status = []
+    status.push(params.status)
+  if(params.orderBy)
+     orderBy = params.orderBy
+  if(params.tag)
+     tag = params.tag
+  if(params.facultyVlsId) 
+    optional.push({faculty_vls_id : facultyVlsId})
+  if(params.studentVlsId) 
+    optional.push({student_vls_id : studentVlsId})
   //end pagination
-
   let studentQuery  = await StudentQuery.findAll({  
                       limit:limit,
                       offset:offset,
-                      where:{school_vls_id : schoolVlsId,
-                               faculty_vls_id : facultyVlsId},
-                      attributes: ['query_vls_id', 'query_date', 'query_status', 'subject', 'description','tags']
+                      where:{
+                             [Op.or]:optional,
+                             branch_vls_id  : branchVlsId,
+                             topic: { [Op.like]: `%`+search+`%` },
+                             description: { [Op.like]: `%`+search+`%` },
+                             tags: { [Op.like]: `%`+tag+`%` },
+                             query_status:{ [Op.in]: status }
+                             },
+                      order: [
+                              ['query_vls_id', orderBy]
+                      ],
+                      attributes: ['query_vls_id', 'query_date', 'query_status', 'subject', 'description','tags','topic']
                       });
   return { success: true, message: "All query data", data:studentQuery };
 };
@@ -150,6 +179,7 @@ async function assignQuery(body) {
   return { success:true, message:"Query assigned successfully!"};
   
 };
+
 /**
  * API for get today's date
  */
@@ -165,3 +195,25 @@ function formatDate() {
       day = '0' + day;
   return [year, month, day].join('-');
 }
+/**
+ * API for get today's date
+ */
+async function listSubject(params){
+  if(!params.branchVlsId) throw 'branchVlsId is required'
+  //start pagination
+  let limit = 10
+  let offset = 0
+  if(params.size)
+     limit = parseInt(params.size)
+  if(params.page)
+      offset = 0 + (parseInt(params.page) - 1) * limit
+  //end pagination
+  let branchVlsId = params.branchVlsId
+  let employee  = await Employee.findAll({
+                  limit:limit,
+                  offset:offset,
+                  where:{isTeacher : 1,branch_vls_id:branchVlsId},
+                  attributes: ['faculty_vls_id', 'name', 'photo'],
+                });
+  return { success: true, message: "All query data", data:employee };
+};
