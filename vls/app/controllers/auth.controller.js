@@ -51,7 +51,7 @@ async function signIn(userDetails) {
     // Remove password object from user's object
     let userWithoutPassword = getUserWithoutPassword(user)
 
-    return {status: "success", token, userWithoutPassword };
+    return {status: "success", token, data: userWithoutPassword };
 
   }
 
