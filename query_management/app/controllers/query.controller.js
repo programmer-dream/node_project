@@ -112,7 +112,7 @@ async function update(req){
                                    }
                           });
   if(!num) throw 'Query not updated'
-      let query = await StudentQuery.findByPk(1)
+      let query = await StudentQuery.findByPk(id)
      
   return { success: true, 
            message: "Query updated successfully", 
