@@ -49,6 +49,9 @@ module.exports = (sequelize, Sequelize) => {
       ratings: {
         type: Sequelize.STRING
       },
+      subjects: {
+        type: Sequelize.TEXT
+      },
       assessment_system: {
         type: Sequelize.STRING
       },

@@ -19,7 +19,7 @@ router.post("/assignQuery",assignQuery);
 router.get("/view/:id",viewQuery);
 router.get("/list",queryList);
 router.get("/listFaculty",listFaculty);
-router.get("/listSubject",listSubject);
+router.get("/listSubject/branch/:id",listSubject);
 //Delete
 router.delete("/delete/:id",deleteQuery);
 
@@ -80,7 +80,7 @@ function assignQuery(req, res, next) {
 }
 // Function for assing query
 function listSubject(req, res, next) {
-    queryController.listSubject(req.body)
+    queryController.listSubject(req.params)
         .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Oops, wrong credentials, please try again' }))
         .catch(err => next(err));
 }
