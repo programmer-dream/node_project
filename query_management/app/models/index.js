@@ -62,6 +62,9 @@ sequelize.authenticate()
 );
 
 db.StudentQuery = require("./StudentQuery.js")(sequelize, Sequelize);
+db.Comment = require("./Comment.js")(sequelize, Sequelize);
+db.Employee = require("../../../vls/app/models/Employee.js")(sequelize, Sequelize);
+db.Student = require("../../../vls/app/models/Student.js")(sequelize, Sequelize);
 db.Employee = require("../../../vls/app/models/Employee.js")(sequelize, Sequelize);
 
 module.exports = db;
