@@ -61,42 +61,12 @@ sequelize.authenticate()
 	}
 );
 
-db.Authentication = require("./Authentication.js")(sequelize, Sequelize);
-db.SchoolDetails = require("./School.js")(sequelize, Sequelize);
-db.Role = require("./Role.js")(sequelize, Sequelize);
-db.Student = require("./Student.js")(sequelize, Sequelize);
-db.Guardian = require("./Guardian.js")(sequelize, Sequelize);
-db.Employee = require("./Employee.js")(sequelize, Sequelize);
-db.Branch = require("./Branch.js")(sequelize, Sequelize);
+db.LearningLibrary = require("./LearningLibrary.js")(sequelize, Sequelize);
+db.SchoolDetails = require("../../../vls/app/models/School.js")(sequelize, Sequelize);
+db.Branch = require("../../../vls/app/models/Branch.js")(sequelize, Sequelize);
+// db.Comment = require("./Comment.js")(sequelize, Sequelize);
+// db.Employee = require("../../../vls/app/models/Employee.js")(sequelize, Sequelize);
+// db.Student = require("../../../vls/app/models/Student.js")(sequelize, Sequelize);
+// db.Employee = require("../../../vls/app/models/Employee.js")(sequelize, Sequelize);
 
-db.Authentication.belongsTo(db.Role,{foreignKey:'role_id',as:'roles'})
-//db.Role.belongsTo(db.Authentication,{foreignKey:'role_id',as:'roles'})
 module.exports = db;
-
-
-
-// Example for connection 
-
-// Include Sequelize module 
-// const Sequelize = require('sequelize') 
-// require('dotenv').config()
-
-// // Creating new Object of Sequelize 
-// const sequelize = new Sequelize( 
-// 	process.env.DB_NAME, 
-// 	process.env.DB_USER, 
-// 	process.env.DB_PASS, { 
-
-// 		// Explicitly specifying 
-// 		// mysql database 
-// 		dialect: 'mysql', 
-
-// 		// By default host is 'localhost'		 
-// 		host: process.env.DB_HOST
-// 	} 
-// ); 
-
-// // Exporting the sequelize object. 
-// // We can use it in another file 
-// // for creating models 
-// module.exports = sequelize 

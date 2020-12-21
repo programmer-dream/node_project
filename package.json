@@ -6,10 +6,12 @@
   "scripts": {
     "start:vls": "yarn workspace vls start",
     "start:query": "yarn workspace query_management start",
-    "start": "concurrently --kill-others-on-fail \"yarn start:vls\" \"yarn start:query\" ",
+    "start:library": "yarn workspace learning_library start",
+    "start": "concurrently --kill-others-on-fail \"yarn start:vls\" \"yarn start:query\" \"yarn start:library\"",
     "dev:vls": "yarn workspace vls dev",
     "dev:query": "yarn workspace query_management dev",
-    "dev": "concurrently --kill-others-on-fail \"yarn dev:vls\" \"yarn dev:query\" "
+    "dev:library": "yarn workspace learning_library dev",
+    "dev": "concurrently --kill-others-on-fail \"yarn dev:vls\" \"yarn dev:query\" \"yarn dev:library\" "
   },
   "keywords": [],
   "author": "",
@@ -17,7 +19,8 @@
   "private": true,
   "workspaces": [
     "vls",
-    "query_management"
+    "query_management",
+    "learning_library"
   ],
   "dependencies": {
     "concurrently": "^5.3.0",

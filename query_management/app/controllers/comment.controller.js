@@ -114,7 +114,7 @@ async function update(req){
                                  }
                        });
   if(!num) throw 'Comment not updated'
-      let comment = await Comment.findByPk(1)
+      let comment = await Comment.findByPk(id)
      
   return { success: true, 
            message: "Comment updated successfully", 
