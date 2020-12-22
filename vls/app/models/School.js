@@ -51,41 +51,44 @@ module.exports = (sequelize, Sequelize) => {
       feedback_support: {
         type: Sequelize.STRING
       },
-      learning_library_suport: {
-        type: Sequelize.ENUM('SMS', 'Email', 'Both')
+      learning_library_support: {
+        type: Sequelize.ENUM('yes','no')
       },
       video_library_support: {
-        type: Sequelize.BOOLEAN
+        type: Sequelize.ENUM('yes','no')
       },
       assignment_support: {
-        type: Sequelize.BOOLEAN
+        type: Sequelize.ENUM('yes','no')
       },
       chat_support: {
-        type: Sequelize.BOOLEAN
+        type: Sequelize.ENUM('yes','no')
       },
       community_chat_support: {
-        type: Sequelize.BOOLEAN
+        type: Sequelize.ENUM('yes','no')
       },
       rewards_and_recognition_support: {
-        type: Sequelize.BOOLEAN
+        type: Sequelize.ENUM('yes','no')
       },
       notification_support: {
-        type: Sequelize.BOOLEAN
+        type: Sequelize.ENUM('yes','no')
       },
       alert_support: {
-        type: Sequelize.BOOLEAN
+        type: Sequelize.ENUM('yes','no')
       },
       mailbox_support: {
-        type: Sequelize.BOOLEAN
+        type: Sequelize.ENUM('yes','no')
       },
       ERP_support: {
-        type: Sequelize.BOOLEAN
+        type: Sequelize.ENUM('yes','no')
       },
       authentication_type: {
         type: Sequelize.ENUM('OTP', 'thirdparty','captcha','checkbox')
       },
       school_secret_token_key: {
         type: Sequelize.STRING
+      },
+      learning_library_support_type: {
+        type: Sequelize.ENUM('SMS', 'Email', 'Both')
       },
       created_at: {
         allowNull: false,

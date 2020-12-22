@@ -68,10 +68,12 @@ db.Student = require("./Student.js")(sequelize, Sequelize);
 db.Guardian = require("./Guardian.js")(sequelize, Sequelize);
 db.Employee = require("./Employee.js")(sequelize, Sequelize);
 db.Branch = require("./Branch.js")(sequelize, Sequelize);
+db.UserSetting = require("./UserSetting.js")(sequelize, Sequelize);
 
 db.Authentication.belongsTo(db.Role,{foreignKey:'role_id',as:'roles'})
 db.Authentication.belongsTo(db.SchoolDetails,{foreignKey:'school_id',as:'school'})
 db.Authentication.belongsTo(db.Branch,{foreignKey:'branch_vls_id',as:'branch'})
+db.Authentication.hasOne(db.UserSetting,{foreignKey:'user_settings_vls_id',as:'userSetting'})
 //db.Role.belongsTo(db.Authentication,{foreignKey:'role_id',as:'roles'})
 module.exports = db;
 

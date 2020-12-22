@@ -1,12 +1,9 @@
 module.exports = (sequelize, Sequelize) => {
   const Student = sequelize.define("students", {
-    student_id: {
+    student_vls_id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
-      },
-      student_vls_id: {
         type: Sequelize.INTEGER
       },
       branch_vls_id: {

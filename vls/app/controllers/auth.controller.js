@@ -5,6 +5,7 @@ const Authentication = db.Authentication;
 const Role = db.Role;
 const School = db.SchoolDetails;
 const Branch = db.Branch;
+const UserSetting = db.UserSetting;
 
 const Op = db.Sequelize.Op;
 
@@ -18,7 +19,8 @@ module.exports = {
   forgetPassword,
   updatePasswordWithForgetPwd,
   verifyOTP,
-  userSettings
+  userSettings,
+  userStatus
 };
 
 
@@ -30,7 +32,7 @@ async function signIn(userDetails) {
   if(!userDetails.password) throw 'Password is required'
 
   let user = await Authentication.findOne({ 
-                    attributes: ['auth_vls_id', 'user_name', 'user_vls_id', 'password', 'role_id','name','photo','recovery_email_id'],
+                    attributes: ['auth_vls_id', 'user_name', 'user_vls_id', 'password', 'role_id','name','photo','recovery_email_id', 'branch_vls_id', 'school_id'],
                     where: { user_name: userDetails.userName },
                     include: [{ 
                               model:Role,
@@ -311,7 +313,7 @@ async function updatePasswordWithForgetPwd(body) {
  * API for udate user password with link
  */
 async function userSettings(user) {
-    let userDetails = await Authentication.findOne({ 
+    let userDetails = await Authentication.findOne({
                     attributes: ['auth_vls_id', 'user_name', 'user_vls_id', 'password', 'role_id'],
                     where: { auth_vls_id: user.id },
                     include: [{ 
@@ -320,17 +322,63 @@ async function userSettings(user) {
                             },{ 
                               model:School,
                               as:'school',
+                            },{ 
+                              model:UserSetting,
+                              as:'userSetting',
                             }]
                     })
 
     if(!userDetails) throw 'User not found'
+    if(!userDetails.school) throw 'School is not associated with this user'
+    if(!userDetails.branch) throw 'Branch is not associated with this user'
+    if(!userDetails.userSetting) throw 'User Setting is not associated with this user' 
 
     userDetails = userDetails.toJSON()
     let permissionArray = config.permissionsArray.split(',')
 
+    let userSettings = userDetails.userSetting
+
+    delete userSettings.user_settings_vls_id
+    delete userSettings.created_at
+    delete userSettings.updated_at
+
     permissionArray.map( item => {
-      console.log(item)
+
+      if( userDetails.school[item] == null || userDetails.school[item] == 'no' ){
+        userSettings[item] = 'no'
+      }else if( userDetails.branch[item] == null || userDetails.branch[item] == 'no' ){
+        userSettings[item] = 'no'
+      }
+
     })
-    
-   return {status: "success", message:'Password updated successfully' };
+
+    Object.keys(userSettings).forEach(function(key) {
+        if(userSettings[key] == null) {
+            userSettings[key] = 'no';
+        }
+    })
+
+
+   return {status: "success", userSettings };
+}
+
+
+/**
+ * API for udate user status
+ */
+async function userStatus(user, body) {
+
+  if(!body.status || body.status == "") throw 'Status is required'
+
+  let users = await Authentication.findOne({
+                      where:{ user_name: user.userId }
+                    });
+
+  if(!users) throw 'User not found'
+
+  let num = await users.update({
+              status:body.status
+            })
+
+   return {status: "success", message:'Status updated successfully' };
 }
