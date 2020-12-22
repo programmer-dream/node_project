@@ -27,7 +27,7 @@ async function signIn(userDetails) {
   if(!userDetails.password) throw 'Password is required'
 
   let user = await Authentication.findOne({ 
-                    attributes: ['auth_vls_id', 'user_name', 'user_vls_id', 'password', 'role_id'],
+                    attributes: ['auth_vls_id', 'user_name', 'user_vls_id', 'password', 'role_id','name','photo','recovery_email_id'],
                     where: { user_name: userDetails.userName },
                     include: [{ 
                               model:Role,
@@ -49,7 +49,8 @@ async function signIn(userDetails) {
     // create token
     let token = jwt.sign(tokenDetails, config.secret, {expiresIn: 86400});
     // Remove password object from user's object
-    let userWithoutPassword = getUserWithoutPassword(user)
+    let data = getUserWithoutPassword(user)
+
 
     return {status: "success", token, data: userWithoutPassword };
 
