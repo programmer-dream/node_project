@@ -139,18 +139,9 @@ async function list(params){
  */
 async function listFaculty(params){
   if(!params.branchVlsId) throw 'branchVlsId is required'
-  //start pagination
-  let limit = 10
-  let offset = 0
-  if(params.size)
-     limit = parseInt(params.size)
-  if(params.page)
-      offset = 0 + (parseInt(params.page) - 1) * limit
-  //end pagination
+ 
   let branchVlsId = params.branchVlsId
   let employee  = await Employee.findAll({
-                  limit:limit,
-                  offset:offset,
                   where:{isTeacher : 1,branch_vls_id:branchVlsId},
                   attributes: ['faculty_vls_id', 'name', 'photo'],
                 });
@@ -240,22 +231,15 @@ function formatDate() {
 async function listSubject(params){
   try{
     if(!params.id) throw 'branch id is required'
-    //start pagination
-    let limit = 10
-    let offset = 0
-    if(params.size)
-       limit = parseInt(params.size)
-    if(params.page)
-        offset = 0 + (parseInt(params.page) - 1) * limit
-    //end pagination
+    
     let branchVlsId = params.id
-    let employee  = await Branch.findAll({
-                    limit:limit,
-                    offset:offset,
+    let employee  = await Branch.findOne({
                     where:{branch_vls_id:branchVlsId},
-                    attributes: ['branch_name', 'address', 'contact1','emailId1','subjects'],
+                    attributes: ['subjects'],
                   });
-    return { success: true, message: "Branch data", data:employee };
+    let subjects = employee.toJSON()
+    subjectListing = JSON.parse(subjects.subjects)
+    return { success: true, message: "Branch data", data:subjectListing };
   }catch(err){
     return { success: false, message: err.message};
   }
