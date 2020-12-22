@@ -6,6 +6,7 @@ const { check } = require('express-validator');
 //Post
 router.post("/create",[
     check('subject','Subject field is required.').not().isEmpty(),
+    check('topic','Topic field is required.').not().isEmpty(),
     check('description','Description field is required.').not().isEmpty(),
     check('branch_vls_id','Branch_vls_id field is required.').not().isEmpty(),
     check('student_vls_id','Student_vls_id field is required.').not().isEmpty(),
@@ -18,12 +19,14 @@ router.post("/assignQuery",assignQuery);
 router.get("/view/:id",viewQuery);
 router.get("/list",queryList);
 router.get("/listFaculty",listFaculty);
+router.get("/listSubject/branch/:id",listSubject);
 //Delete
 router.delete("/delete/:id",deleteQuery);
 
 //Put
 router.put("/update/:id",[
     check('subject','Subject field is required.').not().isEmpty(),
+    check('topic','Topic field is required.').not().isEmpty(),
     check('description','Description field is required.').not().isEmpty(),
     check('branch_vls_id','Branch_vls_id field is required.').not().isEmpty(),
     check('student_vls_id','Student_vls_id field is required.').not().isEmpty(),
@@ -72,6 +75,12 @@ function deleteQuery(req, res, next) {
 // Function for assing query
 function assignQuery(req, res, next) {
     queryController.assignQuery(req.body)
+        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Oops, wrong credentials, please try again' }))
+        .catch(err => next(err));
+}
+// Function for assing query
+function listSubject(req, res, next) {
+    queryController.listSubject(req.params)
         .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Oops, wrong credentials, please try again' }))
         .catch(err => next(err));
 }
