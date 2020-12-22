@@ -5,6 +5,7 @@ const sequelize = db.sequelize;
 const Comment = db.Comment;
 const Student = db.Student;
 const Employee = db.Employee;
+const StudentQuery = db.StudentQuery;
 
 module.exports = {
   create,
@@ -17,15 +18,27 @@ module.exports = {
  * API for create new comment
  */
 async function create(req){
-  const errors = validationResult(req);
-  if(errors.array().length)
-     return { success: false, message: errors.array() }
-  if(!req.user) throw 'User not found'
-  req.body.user_vls_id = req.user.userVlsId
-  req.body.user_type   = req.user.role  
-  let createdQuery     = await Comment.create(req.body);
+  try{
+    const errors = validationResult(req);
+    if(errors.array().length)
+       return { success: false, message: errors.array() }
+    if(!req.user) throw 'User not found'
+    req.body.user_vls_id = req.user.userVlsId
+    req.body.user_type   = req.user.role  
 
-  return { success: true, message: "Comment created successfully", data:createdQuery };
+    let createdComment     = await Comment.create(req.body);
+    if(createdComment){
+        let id   = req.body.query_vls_id;
+        let num  = await StudentQuery.update({is_comment:1},{
+                      where:{
+                            query_vls_id : id
+                          }
+                    });
+    }
+    return { success: true, message: "Comment created successfully", data:createdComment };
+  }catch(err){
+    return { success: false, message: err.message};
+  }
 };
 /**
  * API for view comment
@@ -52,6 +65,7 @@ async function list(params){
   if(params.page)
       offset = 0 + (parseInt(params.page) - 1) * limit
   //end pagination
+  let allCount  = await Comment.count()
 
   let comments  = await Comment.findAll({  
                       limit:limit,
@@ -62,7 +76,7 @@ async function list(params){
 
   let comentWithUser = await setUsers(comments)
 
-  return { success: true, message: "All Comment data", data:comentWithUser };
+  return { success: true, message: "All Comment data", total:allCount, data:comentWithUser };
 };
 
 
