@@ -329,6 +329,9 @@ async function userSettings(user) {
                     })
 
     if(!userDetails) throw 'User not found'
+    if(!userDetails.school) throw 'School is not associated with this user'
+    if(!userDetails.branch) throw 'Branch is not associated with this user'
+    if(!userDetails.userSetting) throw 'User Setting is not associated with this user' 
 
     userDetails = userDetails.toJSON()
     let permissionArray = config.permissionsArray.split(',')
