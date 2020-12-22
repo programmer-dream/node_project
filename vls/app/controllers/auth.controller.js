@@ -19,7 +19,8 @@ module.exports = {
   forgetPassword,
   updatePasswordWithForgetPwd,
   verifyOTP,
-  userSettings
+  userSettings,
+  userStatus
 };
 
 
@@ -347,7 +348,7 @@ async function userSettings(user) {
       }
 
     })
-    
+
     Object.keys(userSettings).forEach(function(key) {
         if(userSettings[key] == null) {
             userSettings[key] = 'no';
@@ -356,4 +357,25 @@ async function userSettings(user) {
 
 
    return {status: "success", userSettings };
+}
+
+
+/**
+ * API for udate user status
+ */
+async function userStatus(user, body) {
+
+  if(!body.status || body.status == "") throw 'Status is required'
+    
+  let user = await Authentication.findOne({
+                      where:{ user_name: user.userId }
+                    });
+
+  if(!user) throw 'User not found'
+
+  let num = await user.update({
+              status:body.status
+            })
+
+   return {status: "success", message:'Status updated successfully' };
 }

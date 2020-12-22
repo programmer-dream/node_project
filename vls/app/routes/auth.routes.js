@@ -11,6 +11,7 @@ router.post("/resetPassword",resetPassword);
 router.post("/forgetPassword",forgetPassword);
 router.post("/updatePassword",updatePasswordWithForgetPwd);
 router.post("/verifyOTP",verifyOTP);
+router.post("/userStatus",userStatus);
 
 module.exports = router;
 
@@ -57,6 +58,14 @@ function verifyOTP(req, res, next) {
 function userSettings(req, res, next) {
       authController.userSettings(req.user)
           .then(user => user ? res.json(user) : res.status(400).json({ status: "error", message: 'No permissions found' }))
+          .catch(err => next(err));
+
+}
+
+// Get users permissions
+function userStatus(req, res, next) {
+      authController.userSettings(req.user, req.body)
+          .then(user => user ? res.json(user) : res.status(400).json({ status: "error", message: 'Error while updating user status' }))
           .catch(err => next(err));
 
 }
