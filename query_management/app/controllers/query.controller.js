@@ -48,14 +48,13 @@ async function view(id){
  * API for list query according to school and student
  */
 async function list(params){
-  let optional      = []
+  let whereCondition = {};
   let schoolVlsId   = params.schoolVlsId
-  let facultyVlsId  = params.facultyVlsId
   let branchVlsId   = params.branchVlsId
   if(!schoolVlsId) throw 'schoolVlsId is required'
-    optional.push({school_vls_id  : schoolVlsId})
+    whereCondition.school_vls_id = schoolVlsId
   if(!branchVlsId) throw 'branchVlsId is required'
-    optional.push({branch_vls_id  : branchVlsId})
+    whereCondition.branch_vls_id = branchVlsId
   //start pagination
   let limit   = 10
   let offset  = 0
@@ -63,39 +62,51 @@ async function list(params){
   let status  = ['open','closed'];
   let orderBy = 'desc';
   let tag     = '';
+  let faculty = [];
+  let student = [];
   if(params.size)
      limit = parseInt(params.size)
   if(params.page)
       offset = 0 + (parseInt(params.page) - 1) * limit
+  //search
   if(params.search)
-      search = params.search
+    search = params.search
+    whereCondition.topic = { [Op.like]: `%`+search+`%` }
+  //status 
   if(params.status)
     status = []
     status.push(params.status)
+    whereCondition.query_status={ [Op.in]: status }
+  //orderBy 
   if(params.orderBy)
      orderBy = params.orderBy
+  //search tag
   if(params.tag)
      tag = params.tag
-  if(params.facultyVlsId) 
-    optional.push({faculty_vls_id : facultyVlsId})
-  if(params.studentVlsId) 
-    optional.push({student_vls_id : studentVlsId})
+    whereCondition.tags = { [Op.like]: `%`+tag+`%` }
+  //search faculity  
+  if(params.facultyVlsId)
+    whereCondition.faculty_vls_id = params.facultyVlsId
+  //search student
+  if(params.studentVlsId)
+    whereCondition.student_vls_id = params.studentVlsId
+
   //end pagination
   let studentQuery  = await StudentQuery.findAll({  
                       limit:limit,
                       offset:offset,
                       where:{
-                             [Op.or]:optional,
-                             branch_vls_id  : branchVlsId,
-                             topic: { [Op.like]: `%`+search+`%` },
-                             description: { [Op.like]: `%`+search+`%` },
-                             tags: { [Op.like]: `%`+tag+`%` },
-                             query_status:{ [Op.in]: status }
-                             },
+                            [Op.or]:[
+                              whereCondition ,
+                              {
+                                description: { [Op.like]: `%`+search+`%`},
+                                tags : { [Op.like]: `%`+tag+`%` }
+                             }]
+                           },
                       order: [
                               ['query_vls_id', orderBy]
                       ],
-                      attributes: ['query_vls_id', 'query_date', 'query_status', 'subject', 'description','tags','topic']
+                      attributes: ['query_vls_id', 'query_date', 'query_status', 'subject', 'description','tags','topic','faculty_vls_id','student_vls_id']
                       });
   return { success: true, message: "All query data", data:studentQuery };
 };
