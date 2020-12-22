@@ -55,7 +55,7 @@ async function signIn(userDetails) {
     let data = getUserWithoutPassword(user)
 
 
-    return {status: "success", token, data: userWithoutPassword };
+    return {status: "success", token, data };
 
   }
 
