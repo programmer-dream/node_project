@@ -65,6 +65,7 @@ async function list(params){
   if(params.page)
       offset = 0 + (parseInt(params.page) - 1) * limit
   //end pagination
+  let allCount  = await Comment.count()
 
   let comments  = await Comment.findAll({  
                       limit:limit,
@@ -75,7 +76,7 @@ async function list(params){
 
   let comentWithUser = await setUsers(comments)
 
-  return { success: true, message: "All Comment data", data:comentWithUser };
+  return { success: true, message: "All Comment data", total:allCount, data:comentWithUser };
 };
 
 

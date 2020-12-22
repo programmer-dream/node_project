@@ -5,6 +5,7 @@ const Op = db.Sequelize.Op;
 const StudentQuery = db.StudentQuery;
 const Employee = db.Employee;
 const Branch = db.Branch;
+const Student = db.Student;
 
 const sequelize = db.sequelize;
 const bcrypt = require("bcryptjs");
@@ -39,7 +40,19 @@ async function create(req){
  * API for view query
  */
 async function view(id){
-  let studentQuery    = await StudentQuery.findByPk(id)           
+  let studentQuery    = await StudentQuery.findOne({
+    where:{id:id},
+    include: [{ 
+                    model:Student,
+                    as:'postedBy',
+                    attributes: ['student_vls_id','name', 'photo']
+                  },
+                  { 
+                    model:Employee,
+                    as:'asignedTo',
+                    attributes: ['faculty_vls_id','name', 'photo']
+                  }]
+    })           
   return { success: true, 
            message: "View query details", 
            data:studentQuery 
@@ -92,6 +105,7 @@ async function list(params){
   if(params.studentVlsId)
     whereCondition.student_vls_id = params.studentVlsId
 
+  let allCount      = await StudentQuery.count()
   //end pagination
   let studentQuery  = await StudentQuery.findAll({  
                       limit:limit,
@@ -107,9 +121,18 @@ async function list(params){
                       order: [
                               ['query_vls_id', orderBy]
                       ],
+                      include: [{ 
+                              model:Student,
+                              as:'postedBy',
+                              attributes: ['student_vls_id','name', 'photo']
+                            },{ 
+                          model:Employee,
+                          as:'asignedTo',
+                          attributes: ['faculty_vls_id','name', 'photo']
+                        }],
                       attributes: ['query_vls_id', 'query_date', 'query_status', 'subject', 'description','tags','topic','faculty_vls_id','student_vls_id','response','response_date','is_comment']
                       });
-  return { success: true, message: "All query data", data:studentQuery };
+  return { success: true, message: "All query data", total : allCount ,data:studentQuery };
 };
 /**
  * API for list faculty school
