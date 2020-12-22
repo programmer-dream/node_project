@@ -60,7 +60,10 @@ module.exports = (sequelize, Sequelize) => {
       },
       faculty_vls_id: {
         type: Sequelize.INTEGER
-      } 
+      },
+      is_comment: {
+        type: Sequelize.BOOLEAN
+      }
   },{
       tableName: 'student_query',
       createdAt: 'created_at',

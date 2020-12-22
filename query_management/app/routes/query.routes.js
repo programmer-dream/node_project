@@ -14,6 +14,7 @@ router.post("/create",[
     check('faculty_vls_id','Faculty_vls_id field is required.').not().isEmpty()
     ],createQuery);
 router.post("/assignQuery",assignQuery);
+router.post("/response",queryResponse);
 
 //Get 
 router.get("/view/:id",viewQuery);
@@ -84,4 +85,9 @@ function listSubject(req, res, next) {
         .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Oops, wrong credentials, please try again' }))
         .catch(err => next(err));
 }
-
+// Function for assing query
+function queryResponse(req, res, next) {
+    queryController.queryResponse(req.body)
+        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Oops, wrong credentials, please try again' }))
+        .catch(err => next(err));
+}

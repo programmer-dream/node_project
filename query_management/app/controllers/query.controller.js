@@ -17,7 +17,8 @@ module.exports = {
   view,
   deleteQuery,
   assignQuery,
-  listSubject
+  listSubject,
+  queryResponse
 };
 /**
  * API for create new query
@@ -106,7 +107,7 @@ async function list(params){
                       order: [
                               ['query_vls_id', orderBy]
                       ],
-                      attributes: ['query_vls_id', 'query_date', 'query_status', 'subject', 'description','tags','topic','faculty_vls_id','student_vls_id']
+                      attributes: ['query_vls_id', 'query_date', 'query_status', 'subject', 'description','tags','topic','faculty_vls_id','student_vls_id','response','response_date','is_comment']
                       });
   return { success: true, message: "All query data", data:studentQuery };
 };
@@ -200,12 +201,15 @@ function formatDate() {
   month = '' + (d.getMonth() + 1),
     day = '' + d.getDate(),
    year = d.getFullYear();
-
+   hour = d.getHours();
+   min  = d.getMinutes();
+   sec  = d.getSeconds()
   if (month.length < 2) 
       month = '0' + month;
   if (day.length < 2) 
       day = '0' + day;
-  return [year, month, day].join('-');
+  date =  [year, month, day].join('-') + ' '+hour+ ':'+min+':'+sec;
+  return date;
 }
 /**
  * API for get today's date
@@ -230,7 +234,29 @@ async function listSubject(params){
                   });
     return { success: true, message: "Branch data", data:employee };
   }catch(err){
-    console.log(err)
+    return { success: false, message: err.message};
+  }
+};
+/**
+ * query response Api 
+ */
+async function queryResponse(body){
+  try{
+    if(!body.queryId) throw 'QueryId is required'
+    if(!body.response) throw'response is required'
+    let queryId               = body.queryId
+    let updateField           = {}
+    updateField.response      = body.response
+    updateField.response_date = formatDate()
+    //return updateField
+    let num = await StudentQuery.update(updateField,{
+                       where:{
+                              query_vls_id : body.queryId
+                             }
+                    });
+  if(num != 1) throw 'Query not found'
+    return { success: true, message: "Response updated successfully" };
+  }catch(err){
     return { success: false, message: err.message};
   }
 };
