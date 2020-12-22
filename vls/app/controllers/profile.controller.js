@@ -17,13 +17,13 @@ async function profile(user){
   let userPorfile
   if(!user) throw 'user not found'
 
-  if(user.role == 'Student'){
+  if(user.role == 'student'){
   	let student = await Student.findOne({ 
                     attributes: ['name', 'phone', 'email', 'present_address', 'photo'],
                     where: { student_vls_id: user.userVlsId }
                     })
   	 userPorfile = student.toJSON();
-  }else if(user.role == 'Guardian'){
+  }else if(user.role == 'guardian'){
   	let guardian = await Guardian.findOne({ 
                     attributes: ['name', 'phone', 'email', 'present_address', 'photo'],
                     where: { parent_vls_id: user.userVlsId }
