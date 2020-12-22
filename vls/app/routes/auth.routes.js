@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router()
 const authController = require("../controllers/auth.controller");
 
+// GET
+router.get("/userSettings",userSettings);
 
 // POST
 router.post("/signin",authenticate);
@@ -47,6 +49,14 @@ function updatePasswordWithForgetPwd(req, res, next) {
 function verifyOTP(req, res, next) {
       authController.verifyOTP(req.body)
           .then(user => user ? res.json(user) : res.status(400).json({ status: "error", message: 'OTP has been expired' }))
+          .catch(err => next(err));
+
+}
+
+// Get users permissions
+function userSettings(req, res, next) {
+      authController.userSettings(req.user)
+          .then(user => user ? res.json(user) : res.status(400).json({ status: "error", message: 'No permissions found' }))
           .catch(err => next(err));
 
 }

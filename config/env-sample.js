@@ -12,5 +12,6 @@ module.exports = {
   forgotLink:'',
   twillioAccountSid: '',
    twillioauthToken: '',
-   twillioNumber:''
+   twillioNumber:'',
+   permissionsArray : "feedback_support,learning_library_suport,video_library_support,assignment_support,chat_support,community_chat_support,rewards_and_recognition_support,notification_support,alert_support,mailbox_support,ERP_support",
 };

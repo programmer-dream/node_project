@@ -70,6 +70,8 @@ db.Employee = require("./Employee.js")(sequelize, Sequelize);
 db.Branch = require("./Branch.js")(sequelize, Sequelize);
 
 db.Authentication.belongsTo(db.Role,{foreignKey:'role_id',as:'roles'})
+db.Authentication.belongsTo(db.SchoolDetails,{foreignKey:'school_id',as:'school'})
+db.Authentication.belongsTo(db.Branch,{foreignKey:'branch_vls_id',as:'branch'})
 //db.Role.belongsTo(db.Authentication,{foreignKey:'role_id',as:'roles'})
 module.exports = db;
 

@@ -3,6 +3,8 @@ const mailer = require('../helper/nodemailer')
 const config = require("../../../config/env.js");
 const Authentication = db.Authentication;
 const Role = db.Role;
+const School = db.SchoolDetails;
+const Branch = db.Branch;
 
 const Op = db.Sequelize.Op;
 
@@ -15,7 +17,8 @@ module.exports = {
   getById,
   forgetPassword,
   updatePasswordWithForgetPwd,
-  verifyOTP
+  verifyOTP,
+  userSettings
 };
 
 
@@ -299,5 +302,34 @@ async function updatePasswordWithForgetPwd(body) {
               old_passwords:JSON.stringify(allPwd)
             })
 
+   return {status: "success", message:'Password updated successfully' };
+}
+
+
+/**
+ * API for udate user password with link
+ */
+async function userSettings(user) {
+    let userDetails = await Authentication.findOne({ 
+                    attributes: ['auth_vls_id', 'user_name', 'user_vls_id', 'password', 'role_id'],
+                    where: { auth_vls_id: user.id },
+                    include: [{ 
+                              model:Branch,
+                              as:'branch',
+                            },{ 
+                              model:School,
+                              as:'school',
+                            }]
+                    })
+
+    if(!userDetails) throw 'User not found'
+
+    userDetails = userDetails.toJSON()
+    let permissionArray = config.permissionsArray.split(',')
+
+    permissionArray.map( item => {
+      console.log(item)
+    })
+    
    return {status: "success", message:'Password updated successfully' };
 }
