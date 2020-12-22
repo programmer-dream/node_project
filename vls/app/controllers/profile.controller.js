@@ -20,7 +20,7 @@ async function profile(user){
   if(user.role == 'Student'){
   	let student = await Student.findOne({ 
                     attributes: ['name', 'phone', 'email', 'present_address', 'photo'],
-                    where: { student_id: user.userVlsId }
+                    where: { student_vls_id: user.userVlsId }
                     })
   	 userPorfile = student.toJSON();
   }else if(user.role == 'Guardian'){
