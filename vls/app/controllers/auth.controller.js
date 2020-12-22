@@ -366,14 +366,14 @@ async function userSettings(user) {
 async function userStatus(user, body) {
 
   if(!body.status || body.status == "") throw 'Status is required'
-    
-  let user = await Authentication.findOne({
+
+  let users = await Authentication.findOne({
                       where:{ user_name: user.userId }
                     });
 
-  if(!user) throw 'User not found'
+  if(!users) throw 'User not found'
 
-  let num = await user.update({
+  let num = await users.update({
               status:body.status
             })
 
