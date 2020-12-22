@@ -31,7 +31,7 @@ async function signIn(userDetails) {
   if(!userDetails.password) throw 'Password is required'
 
   let user = await Authentication.findOne({ 
-                    attributes: ['auth_vls_id', 'user_name', 'user_vls_id', 'password', 'role_id','name','photo','recovery_email_id', 'branch_id', 'school_id'],
+                    attributes: ['auth_vls_id', 'user_name', 'user_vls_id', 'password', 'role_id','name','photo','recovery_email_id', 'branch_vls_id', 'school_id'],
                     where: { user_name: userDetails.userName },
                     include: [{ 
                               model:Role,
