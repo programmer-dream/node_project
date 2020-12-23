@@ -32,7 +32,9 @@ app.get("/",function(req, res){
 
 // api routes
 app.use('/query', require('./app/routes/query.routes'));
-app.use('/comment', require('./app/routes/comment.routes'));
+app.use('/query/comment', require('./app/routes/comment.routes'));
+app.use('/query/ratings', require('./app/routes/ratings.routes'));
+app.use('/query/likes', require('./app/routes/likes.routes'));
 
 // global error handler
 app.use(errorHandler);
