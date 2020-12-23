@@ -41,7 +41,7 @@ async function create(req){
  */
 async function view(id){
   let studentQuery    = await StudentQuery.findOne({
-    where:{id:id},
+    where:{query_vls_id:id},
     include: [{ 
                     model:Student,
                     as:'postedBy',
