@@ -17,13 +17,15 @@ module.exports = {
   deleteLibrary,
   getRatingLikes
 };
+
+
 /**
  * API for create new query
  */
 async function create(req){
   const errors = validationResult(req);
-  if(errors.array().length)
-     throw errors.array()
+  if(errors.array().length) throw errors.array()
+
    //return true
   if(!req.file) throw 'Please attach a file'
       req.body.URL           = req.body.uplodedPath + req.file.filename;
@@ -35,6 +37,8 @@ async function create(req){
 
   return { success: true, message: "Learning library created successfully", data:learningLibrary };
 };
+
+
 /**
  * API for view query
  */
@@ -45,6 +49,8 @@ async function view(id){
            data:learningLibrary 
          };
 };
+
+
 /**
  * API for list query according to school and student
  */
@@ -111,6 +117,8 @@ async function list(params){
                       });
   return { success: true, message: "All Learning library data", total:total, data:learningLibrary };
 };
+
+
 /**
  * API for query update 
  */
@@ -141,6 +149,8 @@ async function update(req){
            data   : query 
          };
 };
+
+
 /**
  * API for delete query
  */
@@ -152,6 +162,8 @@ async function deleteLibrary(id) {
   return { success:true, message:"Learning library deleted successfully!"};
   
 };
+
+
 /**
  * API for get today's date
  */
@@ -168,6 +180,9 @@ function formatDate() {
   return [year, month, day].join('-');
 }
 
+/**
+ * API for get rating and likes for learning library
+ */
 async function getRatingLikes(id, user) {
   try{
     //get like count
