@@ -54,12 +54,13 @@ async function list(params){
   let search        = '';
   let schoolVlsId   = params.schoolVlsId
   let branchVlsId   = params.branchVlsId
+
   if(!schoolVlsId) throw 'schoolVlsId is required'
   if(!branchVlsId) throw 'branchVlsId is required'
+  if(!level.includes(params.level) ) throw 'level must be Basic,Intermediate or Expert'
 
   if(params.search)
     search = params.search
-  
 
   let whereCondition = {
       [Op.or]:{
@@ -71,7 +72,6 @@ async function list(params){
               }
            }
     };
-
   //start pagination
   if(params.size)
      limit = parseInt(params.size)
@@ -83,8 +83,8 @@ async function list(params){
   //status 
   if(params.level){
     level = []
-    status.push(params.level)
-    whereCondition.query_status = { [Op.in]: level }
+    level.push(params.level)
+    whereCondition.recommended_student_level = { [Op.in]: level }
   }
 
   //orderBy 
@@ -96,13 +96,7 @@ async function list(params){
      tag = params.tag
      whereCondition.tags = { [Op.like]: `%`+tag+`%` }
   }
-  // let learningLibrary  = await LearningLibrary.findAll({  
-  //                     limit:limit,
-  //                     offset:offset,
-  //                     where:{school_vls_id : schoolVlsId,
-  //                              branch_vls_id : branchVlsId},
-  //                     attributes: ['subject', 'description', 'topic', 'subject', 'URL','recommended_student_level','tags']
-  //                     });
+  let total = await LearningLibrary.count()
   let learningLibrary  = await LearningLibrary.findAll({  
                       limit:limit,
                       offset:offset,
@@ -112,7 +106,7 @@ async function list(params){
                       ],
                       ttributes: ['subject', 'description', 'topic', 'subject', 'URL','recommended_student_level','tags']
                       });
-  return { success: true, message: "All Learning library data", data:learningLibrary };
+  return { success: true, message: "All Learning library data", total:total, data:learningLibrary };
 };
 /**
  * API for query update 

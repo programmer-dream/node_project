@@ -48,7 +48,7 @@ function updateComment(req, res, next) {
 // Function for view query details
 function viewComment(req, res, next) {
     commentController.view(req.params.id)
-        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while view library comment' }))
+        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while viewing library comment' }))
         .catch(err => next(err));
 }
 // Function for delete query details

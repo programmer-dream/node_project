@@ -19,7 +19,7 @@ router.post("/response",queryResponse);
 //Get 
 router.get("/view/:id",viewQuery);
 router.get("/list",queryList);
-router.get("/listFaculty",listFaculty);
+router.get("/listFaculty/branch/:id",listFaculty);
 router.get("/listSubject/branch/:id",listSubject);
 router.get("/getRatingLikes/:id",getRatingLikes);
 //Delete
@@ -41,60 +41,60 @@ module.exports = router;
 // Function for create query details
 function createQuery(req, res, next) {
     queryController.create(req)
-        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Oops, wrong credentials, please try again' }))
+        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while creating query' }))
         .catch(err => next(err));
 }
 // Function for list query details
 function queryList(req, res, next) {
     queryController.list(req.query, req.user)
-        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Oops, wrong credentials, please try again' }))
+        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while listing query' }))
         .catch(err => next(err));
 }
 // Function for list faculty query details
 function listFaculty(req, res, next) {
-    queryController.listFaculty(req.query)
-        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Oops, wrong credentials, please try again' }))
+    queryController.listFaculty(req.params)
+        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while list faculty' }))
         .catch(err => next(err));
 }
 // Function for update query details
 function updateQuery(req, res, next) {
     queryController.update(req)
-        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Oops, wrong credentials, please try again' }))
+        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while update query' }))
         .catch(err => next(err));
 }
 // Function for view query details
 function viewQuery(req, res, next) {
     queryController.view(req.params.id)
-        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Oops, wrong credentials, please try again' }))
+        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while viewing query' }))
         .catch(err => next(err));
 }
 // Function for delete query details
 function deleteQuery(req, res, next) {
     queryController.deleteQuery(req.params.id)
-        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Oops, wrong credentials, please try again' }))
+        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while deleting query' }))
         .catch(err => next(err));
 }
 // Function for assing query
 function assignQuery(req, res, next) {
     queryController.assignQuery(req.body)
-        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Oops, wrong credentials, please try again' }))
+        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while assinging query' }))
         .catch(err => next(err));
 }
 // Function for assing query
 function listSubject(req, res, next) {
     queryController.listSubject(req.params)
-        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Oops, wrong credentials, please try again' }))
+        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while listing subject' }))
         .catch(err => next(err));
 }
 // Function for assing query
 function queryResponse(req, res, next) {
     queryController.queryResponse(req.body)
-        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Oops, wrong credentials, please try again' }))
+        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while updating query response' }))
         .catch(err => next(err));
 }
 // Function for assing query
 function getRatingLikes(req, res, next) {
     queryController.getRatingLikes(req.params.id , req.user)
-        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Oops, wrong credentials, please try again' }))
+        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while getting query like & ratting' }))
         .catch(err => next(err));
 }

@@ -30,30 +30,30 @@ module.exports = router;
 // Function for create query details
 function createComment(req, res, next) {
     commentController.create(req)
-        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Oops, wrong credentials, please try again' }))
+        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while creating comment' }))
         .catch(err => next(err));
 }
 // Function for list query details
 function listComment(req, res, next) {
     commentController.list(req.query)
-        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Oops, wrong credentials, please try again' }))
+        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while listing comment' }))
         .catch(err => next(err));
 }
 // Function for update query details
 function updateComment(req, res, next) {
     commentController.update(req)
-        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Oops, wrong credentials, please try again' }))
+        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while updating comment' }))
         .catch(err => next(err));
 }
 // Function for view query details
 function viewComment(req, res, next) {
     commentController.view(req.params.id)
-        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Oops, wrong credentials, please try again' }))
+        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while viewing comment' }))
         .catch(err => next(err));
 }
 // Function for delete query details
 function deleteComment(req, res, next) {
     commentController.deleteComment(req.params.id)
-        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Oops, wrong credentials, please try again' }))
+        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while deleting comment' }))
         .catch(err => next(err));
 }
