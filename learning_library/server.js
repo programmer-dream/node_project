@@ -31,8 +31,12 @@ app.get("/",function(req, res){
 });
 
 // api routes
-app.use('/learningLibrary', require('./app/routes/learning_library.routes'));
+
 app.use('/learningLibrary/comment', require('./app/routes/LibraryComment.routes'));
+app.use('/learningLibrary', require('./app/routes/learningLibrary.routes'));
+app.use('/learningLibrary/ratings', require('./app/routes/ratings.routes'));
+app.use('/learningLibrary/likes', require('./app/routes/likes.routes'));
+
 // global error handler
 app.use(errorHandler);
 

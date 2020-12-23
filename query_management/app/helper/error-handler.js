@@ -7,6 +7,11 @@ function errorHandler(err, req, res, next) {
         return res.status(400).json({ status: "error", message: err });
     }
 
+    if (typeof (err) === 'object') {
+        // custom application error
+        return res.status(400).json({ status: "error", message: err });
+    }
+
     if (err.name === 'ValidationError') {
         // mongoose validation error
         return res.status(400).json({ status: "error", message: err.message });

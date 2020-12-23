@@ -11,9 +11,13 @@ const Branch        = db.Branch;
 let storage = multer.diskStorage({
   destination: async function (req, file, cb) {
 
-  let dirpath = config.pdf_path
+  let dirpath     = config.pdf_path
+  let uplodedPath;
   let schoolVlsId = req.body.school_vls_id
   let branchVlsId = req.body.branch_vls_id
+  if(!schoolVlsId) cb("schoolVlsId is requeried")
+  if(!branchVlsId) cb("branchVlsId is requeried")
+
   let school  = await SchoolDetails.findOne({
           where:{school_vls_id:schoolVlsId}
   })
@@ -25,8 +29,9 @@ let storage = multer.diskStorage({
   })
   var branch_name = branch.branch_name;
   branch_name = branch_name.replace(/\s+/g, '-').toLowerCase();
-
-  dirpath = dirpath+"/"+school_name+"/"+branch_name+"/learning-library/"
+  uplodedPath = "/"+school_name+"/"+branch_name+"/learning-library/"
+  dirpath = dirpath + uplodedPath
+  req.body.uplodedPath = uplodedPath
   //console.log(dirpath)
 	if( !fs.existsSync(dirpath) ){
 	    fs.mkdirSync(dirpath, { recursive: true })
