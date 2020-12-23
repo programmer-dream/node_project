@@ -46,7 +46,7 @@ function createQuery(req, res, next) {
 }
 // Function for list query details
 function queryList(req, res, next) {
-    queryController.list(req.query)
+    queryController.list(req.query, req.user)
         .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Oops, wrong credentials, please try again' }))
         .catch(err => next(err));
 }
