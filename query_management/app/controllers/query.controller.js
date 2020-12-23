@@ -24,13 +24,15 @@ module.exports = {
   queryResponse,
   getRatingLikes
 };
+
+
 /**
  * API for create new query
  */
 async function create(req){
   const errors = validationResult(req);
-  if(errors.array().length)
-     return { success: false, message: errors.array() }
+  if(errors.array().length) throw errors.array()
+
   req.body.query_status   = 'open'
   req.body.query_date     = formatDate() 
   if(req.body.tags)
@@ -39,6 +41,8 @@ async function create(req){
 
   return { success: true, message: "Query created successfully", data:createdQuery };
 };
+
+
 /**
  * API for view query
  */
@@ -61,6 +65,8 @@ async function view(id){
            data:studentQuery 
          };
 };
+
+
 /**
  * API for list query according to school and student
  */
@@ -160,6 +166,8 @@ async function list(params,user){
                       });
   return { success: true, message: "All query data", total : allCount ,data:studentQuery };
 };
+
+
 /**
  * API for list faculty school
  */
@@ -173,15 +181,16 @@ async function listFaculty(params){
                 });
   return { success: true, message: "All query data", data:employee };
 };
+
+
 /**
  * API for query update 
  */
 async function update(req){
-  //start validation 
+
   const errors = validationResult(req);
-  if(errors.array().length)
-     return { success: false, message: errors.array() }
-  //end validation
+  if(errors.array().length) throw errors.array()
+
   let id                 = req.params.id
   req.body.query_status  = 'open'
   req.body.query_date    = formatDate() 
@@ -201,6 +210,8 @@ async function update(req){
            data   : query 
          };
 };
+
+
 /**
  * API for delete query
  */
@@ -212,6 +223,8 @@ async function deleteQuery(id) {
   return { success:true, message:"Query deleted successfully!"};
   
 };
+
+
 /**
  * API for delete query
  */
@@ -233,6 +246,7 @@ async function assignQuery(body) {
   
 };
 
+
 /**
  * API for get today's date
  */
@@ -251,6 +265,8 @@ function formatDate() {
   date =  [year, month, day].join('-') + ' '+hour+ ':'+min+':'+sec;
   return date;
 }
+
+
 /**
  * API for get today's date
  */
@@ -267,9 +283,11 @@ async function listSubject(params){
     subjectListing = JSON.parse(subjects.subjects)
     return { success: true, message: "list subject data", data:subjectListing };
   }catch(err){
-    return { success: false, message: err.message};
+    throw err.message
   }
 };
+
+
 /**
  * query response Api 
  */
@@ -290,9 +308,11 @@ async function queryResponse(body){
   if(num != 1) throw 'Query not found'
     return { success: true, message: "Response updated successfully" };
   }catch(err){
-    return { success: false, message: err.message};
+    throw err.message
   }
 };
+
+
 /**
  * API for delete query
  */
@@ -320,6 +340,6 @@ async function getRatingLikes(id, user) {
 
     return { success:true, message:"Rating & like data",like:like,avg:avg,data:userRating};
   }catch(err){
-    return { success:false, message:err.message};
+    throw err.message
   }
 };

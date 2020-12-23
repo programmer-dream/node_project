@@ -20,8 +20,8 @@ module.exports = {
 async function create(req){
   try{
     const errors = validationResult(req);
-    if(errors.array().length)
-       return { success: false, message: errors.array() }
+    if(errors.array().length) throw errors.array()
+
     if(!req.user) throw 'User not found'
     req.body.user_vls_id = req.user.userVlsId
     req.body.user_type   = req.user.role  
@@ -37,9 +37,11 @@ async function create(req){
     }
     return { success: true, message: "Comment created successfully", data:createdComment };
   }catch(err){
-    return { success: false, message: err.message};
+    throw err.message
   }
 };
+
+
 /**
  * API for view comment
  */
@@ -50,6 +52,8 @@ async function view(id){
            data:comment 
          };
 };
+
+
 /**
  * API for list comment according to school and student
  */
@@ -114,11 +118,10 @@ async function setUsers(comments){
  * API for comment update 
  */
 async function update(req){
-  //start validation 
+
   const errors = validationResult(req);
-  if(errors.array().length)
-     return { success: false, message: errors.array() }
-  //end validation
+  if(errors.array().length) throw errors.array()
+
   let id   = req.params.id
   if(!req.user) throw 'User not found'
   req.body.user_vls_id = req.user.userVlsId
@@ -136,6 +139,8 @@ async function update(req){
            data   : comment 
          };
 };
+
+
 /**
  * API for delete comment
  */
@@ -147,6 +152,7 @@ async function deleteComment(id) {
   return { success:true, message:"Comment deleted successfully!"};
   
 };
+
 
 /**
  * API for get today's date

@@ -14,8 +14,7 @@ module.exports = {
 async function addUpdateLikes(req){
   try{
     const errors = validationResult(req);
-    if(errors.array().length)
-       return { success: false, message: errors.array() }
+    if(errors.array().length) throw errors.array()
 
     if(!req.user) throw 'User not found'
 
@@ -43,6 +42,6 @@ async function addUpdateLikes(req){
     
     return { success: true, message: message, data:data };
   }catch(err){
-    return { success: false, message: err.message};
+    throw err.message
   }
 };
