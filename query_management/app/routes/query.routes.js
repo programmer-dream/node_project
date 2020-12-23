@@ -21,6 +21,7 @@ router.get("/view/:id",viewQuery);
 router.get("/list",queryList);
 router.get("/listFaculty",listFaculty);
 router.get("/listSubject/branch/:id",listSubject);
+router.get("/getRatingLikes/:id",getRatingLikes);
 //Delete
 router.delete("/delete/:id",deleteQuery);
 
@@ -88,6 +89,12 @@ function listSubject(req, res, next) {
 // Function for assing query
 function queryResponse(req, res, next) {
     queryController.queryResponse(req.body)
+        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Oops, wrong credentials, please try again' }))
+        .catch(err => next(err));
+}
+// Function for assing query
+function getRatingLikes(req, res, next) {
+    queryController.getRatingLikes(req.params.id , req.user)
         .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Oops, wrong credentials, please try again' }))
         .catch(err => next(err));
 }

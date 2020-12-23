@@ -1,11 +1,13 @@
 const { validationResult } = require('express-validator');
 const db = require("../models");
 const Op = db.Sequelize.Op;
+const Sequelize = db.Sequelize;
 
 const StudentQuery = db.StudentQuery;
 const Employee = db.Employee;
 const Branch = db.Branch;
 const Student = db.Student;
+const Ratings = db.Ratings;
 
 const sequelize = db.sequelize;
 const bcrypt = require("bcryptjs");
@@ -19,7 +21,8 @@ module.exports = {
   deleteQuery,
   assignQuery,
   listSubject,
-  queryResponse
+  queryResponse,
+  getRatingLikes
 };
 /**
  * API for create new query
@@ -265,5 +268,35 @@ async function queryResponse(body){
     return { success: true, message: "Response updated successfully" };
   }catch(err){
     return { success: false, message: err.message};
+  }
+};
+/**
+ * API for delete query
+ */
+async function getRatingLikes(id, user) {
+  try{
+    //get like count
+    let like  = await Ratings.count({
+      where:{likes:1,query_vls_id:id}
+    })
+    //get rating avg
+    let ratings = await Ratings.findOne({
+      attributes: [[Sequelize.fn('SUM', Sequelize.col('ratings')), 'total_ratings'],
+      [Sequelize.fn('COUNT', Sequelize.col('ratings')), 'total_count']],
+      where:{query_vls_id:id},
+      group:['query_vls_id']
+    })
+    //get rating & likes
+    let ratingData = ratings.toJSON();
+    let avg = parseInt(ratingData.total_ratings) / ratingData.total_count
+
+    userRating  = await Ratings.findOne({
+      attributes: ['ratings','likes'],
+      where:{query_vls_id:id,user_vls_id:user.userVlsId}
+    })
+
+    return { success:true, message:"Rating & like data",like:like,avg:avg,data:userRating};
+  }catch(err){
+    return { success:false, message:err.message};
   }
 };
