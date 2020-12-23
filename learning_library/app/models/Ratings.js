@@ -15,7 +15,7 @@ module.exports = (sequelize, Sequelize) => {
       user_vls_id: {
         type: Sequelize.BIGINT
       },
-      query_vls_id: {
+      learning_library_vls_id: {
         type: Sequelize.INTEGER
       }
   },{

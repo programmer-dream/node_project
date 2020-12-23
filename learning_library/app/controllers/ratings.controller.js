@@ -5,13 +5,13 @@ const sequelize = db.sequelize;
 const Ratings = db.Ratings;
 
 module.exports = {
-  addUpdateLikes,
+  addUpdateRatings,
 };
 
 /**
  * API for create/update new Rating
  */
-async function addUpdateLikes(req){
+async function addUpdateRatings(req){
   try{
     const errors = validationResult(req);
     if(errors.array().length)
@@ -22,22 +22,19 @@ async function addUpdateLikes(req){
     req.body.user_vls_id = req.user.userVlsId 
 
     // Check if user exists in table
-    let userEntry = await Ratings.findOne({ where : { user_vls_id : req.body.user_vls_id, query_vls_id : req.body.query_vls_id } })
+    let userEntry = await Ratings.findOne({ where : { user_vls_id : req.body.user_vls_id, learning_library_vls_id : req.body.learning_library_vls_id } })
     console.log(userEntry,"userEntry")
 
-    let likes 
+    let rattings 
     let message 
-    let data 
+    let data
     if(!userEntry || userEntry == null){
-      req.body.likes = 1
-      likes = await Ratings.create(req.body);
-      message = 'like created successfully'
-      data = likes
+      rattings = await Ratings.create(req.body);
+      message = 'Rating created successfully'
+      data = rattings
     }else{
-      (userEntry.likes == 1) ? req.body.likes = 0 : req.body.likes = 1
-      
       userEntry.update(req.body)
-      message = 'like updated successfully'
+      message = 'Rating updated successfully'
       data = req.body
     }
     
