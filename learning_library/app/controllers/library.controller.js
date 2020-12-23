@@ -1,8 +1,10 @@
 const { validationResult } = require('express-validator');
 const db = require("../models");
 const Op = db.Sequelize.Op;
+const Sequelize = db.Sequelize;
 const path = require('path')
 const LearningLibrary = db.LearningLibrary;
+const Ratings         = db.Ratings;
 
 const sequelize = db.sequelize;
 const bcrypt = require("bcryptjs");
@@ -12,7 +14,8 @@ module.exports = {
   list,
   update,
   view,
-  deleteLibrary
+  deleteLibrary,
+  getRatingLikes
 };
 /**
  * API for create new query
@@ -164,3 +167,31 @@ function formatDate() {
       day = '0' + day;
   return [year, month, day].join('-');
 }
+
+async function getRatingLikes(id, user) {
+  try{
+    //get like count
+    let like  = await Ratings.count({
+      where:{likes:1,learning_library_vls_id:id}
+    })
+    //get rating avg
+    let ratings = await Ratings.findOne({
+      attributes: [[Sequelize.fn('SUM', Sequelize.col('ratings')), 'total_ratings'],
+      [Sequelize.fn('COUNT', Sequelize.col('ratings')), 'total_count']],
+      where:{learning_library_vls_id:id},
+      group:['learning_library_vls_id']
+    })
+    //get rating & likes
+    let ratingData = ratings.toJSON();
+    let avg = parseInt(ratingData.total_ratings) / ratingData.total_count
+
+    userRating  = await Ratings.findOne({
+      attributes: ['ratings','likes'],
+      where:{learning_library_vls_id:id,user_vls_id:user.userVlsId}
+    })
+
+    return { success:true, message:"Rating & like data",like:like,avg:avg,data:userRating};
+  }catch(err){
+    throw err.message;
+  }
+};

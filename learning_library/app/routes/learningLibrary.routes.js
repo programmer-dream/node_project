@@ -19,6 +19,7 @@ router.post("/create",[
 //Get 
 router.get("/view/:id",view);
 router.get("/list",list);
+router.get("/getRatingLikes/:id",getRatingLikes);
 //Delete
 router.delete("/delete/:id",deleteLibrary);
 
@@ -64,5 +65,11 @@ function view(req, res, next) {
 function deleteLibrary(req, res, next) {
     libraryController.deleteLibrary(req.params.id)
         .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while deleting comment' }))
+        .catch(err => next(err));
+}
+// Function for assing query
+function getRatingLikes(req, res, next) {
+    libraryController.getRatingLikes(req.params.id , req.user)
+        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while getting like & ratting' }))
         .catch(err => next(err));
 }
