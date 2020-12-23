@@ -14,13 +14,13 @@ router.post("/create",[
     check('description','Description field is required.').not().isEmpty(),
     check('recommended_student_level','Recommended_student_level field is required.').not().isEmpty(),
     check('tags','Tags field is required.').not().isEmpty()
-    ],createComment);
+    ],create);
 
 //Get 
-router.get("/view/:id",viewComment);
-router.get("/list",listComment);
+router.get("/view/:id",view);
+router.get("/list",list);
 //Delete
-router.delete("/delete/:id",deleteComment);
+router.delete("/delete/:id",deleteLibrary);
 
 //Put
 router.put("/update/:id",[
@@ -32,37 +32,37 @@ router.put("/update/:id",[
     check('description','Description field is required.').not().isEmpty(),
     check('recommended_student_level','Recommended_student_level field is required.').not().isEmpty(),
     check('tags','Tags field is required.').not().isEmpty()
-    ],updateComment);
+    ],update);
 
 module.exports = router;
 
 // Function for create query details
-function createComment(req, res, next) {
+function create(req, res, next) {
     libraryController.create(req)
-        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Oops, wrong credentials, please try again' }))
+        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while creating comment' }))
         .catch(err => next(err));
 }
 // Function for list query details
-function listComment(req, res, next) {
+function list(req, res, next) {
     libraryController.list(req.query)
-        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Oops, wrong credentials, please try again' }))
+        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while listing comment' }))
         .catch(err => next(err));
 }
 // Function for update query details
-function updateComment(req, res, next) {
+function update(req, res, next) {
     libraryController.update(req)
-        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Oops, wrong credentials, please try again' }))
+        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while updating comment' }))
         .catch(err => next(err));
 }
 // Function for view query details
-function viewComment(req, res, next) {
+function view(req, res, next) {
     libraryController.view(req.params.id)
-        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Oops, wrong credentials, please try again' }))
+        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while viewing comment' }))
         .catch(err => next(err));
 }
 // Function for delete query details
-function deleteComment(req, res, next) {
+function deleteLibrary(req, res, next) {
     libraryController.deleteLibrary(req.params.id)
-        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Oops, wrong credentials, please try again' }))
+        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while deleting comment' }))
         .catch(err => next(err));
 }

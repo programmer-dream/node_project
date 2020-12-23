@@ -87,7 +87,7 @@ async function list(params,user){
   if(params.page)
       offset = 0 + (parseInt(params.page) - 1) * limit
 
-  if(params.search)
+  if(params.search) 
     search = params.search
 
   let whereCondition = {
@@ -164,9 +164,9 @@ async function list(params,user){
  * API for list faculty school
  */
 async function listFaculty(params){
-  if(!params.branchVlsId) throw 'branchVlsId is required'
+  if(!params.id) throw 'branchVlsId is required'
  
-  let branchVlsId = params.branchVlsId
+  let branchVlsId = params.id
   let employee  = await Employee.findAll({
                   where:{isTeacher : 1,branch_vls_id:branchVlsId},
                   attributes: ['faculty_vls_id', 'name', 'photo'],
@@ -265,7 +265,7 @@ async function listSubject(params){
                   });
     let subjects = employee.toJSON()
     subjectListing = JSON.parse(subjects.subjects)
-    return { success: true, message: "Branch data", data:subjectListing };
+    return { success: true, message: "list subject data", data:subjectListing };
   }catch(err){
     return { success: false, message: err.message};
   }

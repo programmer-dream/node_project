@@ -20,10 +20,10 @@ module.exports = {
 async function create(req){
   const errors = validationResult(req);
   if(errors.array().length)
-     return { success: false, message: errors.array() }
+     throw errors.array()
    //return true
   if(!req.file) throw 'Please attach a file'
-      req.body.URL           = req.file.filename;
+      req.body.URL           = req.body.uplodedPath + req.file.filename;
       req.body.document_type = path.extname(req.file.originalname);
       req.body.document_size = req.file.size;
   if(req.body.tags)
@@ -46,28 +46,67 @@ async function view(id){
  * API for list query according to school and student
  */
 async function list(params){
+  let level        = ['Basic','Intermediate','Expert'];
+  let orderBy       = 'desc';
+  let tag           = '';
+  let limit         = 10;
+  let offset        = 0;
+  let search        = '';
   let schoolVlsId   = params.schoolVlsId
-  let branchVlsId  = params.branchVlsId
+  let branchVlsId   = params.branchVlsId
+
   if(!schoolVlsId) throw 'schoolVlsId is required'
   if(!branchVlsId) throw 'branchVlsId is required'
+  if(!level.includes(params.level) ) throw 'level must be Basic,Intermediate or Expert'
 
+  if(params.search)
+    search = params.search
+
+  let whereCondition = {
+      [Op.or]:{
+                description: { 
+                  [Op.like]: `%`+search+`%`
+                },
+              topic : { 
+                [Op.like]: `%`+search+`%` 
+              }
+           }
+    };
   //start pagination
-  let limit = 10
-  let offset = 0
   if(params.size)
      limit = parseInt(params.size)
   if(params.page)
       offset = 0 + (parseInt(params.page) - 1) * limit
   //end pagination
+  whereCondition.branch_vls_id = branchVlsId
+  whereCondition.school_vls_id = schoolVlsId
+  //status 
+  if(params.level){
+    level = []
+    level.push(params.level)
+    whereCondition.recommended_student_level = { [Op.in]: level }
+  }
 
+  //orderBy 
+  if(params.orderBy)
+     orderBy = params.orderBy
+
+  //search tag
+  if(params.tag){
+     tag = params.tag
+     whereCondition.tags = { [Op.like]: `%`+tag+`%` }
+  }
+  let total = await LearningLibrary.count()
   let learningLibrary  = await LearningLibrary.findAll({  
                       limit:limit,
                       offset:offset,
-                      where:{school_vls_id : schoolVlsId,
-                               branch_vls_id : branchVlsId},
-                      attributes: ['subject', 'description', 'topic', 'subject', 'URL','recommended_student_level','tags']
+                      where: whereCondition,
+                      order: [
+                              ['learning_library_vls_id', orderBy]
+                      ],
+                      ttributes: ['subject', 'description', 'topic', 'subject', 'URL','recommended_student_level','tags']
                       });
-  return { success: true, message: "All Learning library data", data:learningLibrary };
+  return { success: true, message: "All Learning library data", total:total, data:learningLibrary };
 };
 /**
  * API for query update 
