@@ -32,7 +32,7 @@ app.get("/",function(req, res){
 
 // api routes
 app.use('/learningLibrary', require('./app/routes/learning_library.routes'));
-
+app.use('/learningLibrary/comment', require('./app/routes/LibraryComment.routes'));
 // global error handler
 app.use(errorHandler);
 

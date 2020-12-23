@@ -49,6 +49,9 @@ module.exports = (sequelize, Sequelize) => {
       },
       likes: {
         type: Sequelize.STRING
+      },
+      is_comment: {
+        type: Sequelize.BOOLEAN
       }
   },{
     tableName: 'learning_library',
