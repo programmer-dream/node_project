@@ -1,11 +1,13 @@
 const { validationResult } = require('express-validator');
 const db = require("../models");
 const Op = db.Sequelize.Op;
+const Sequelize = db.Sequelize;
 
 const StudentQuery = db.StudentQuery;
 const Employee = db.Employee;
 const Branch = db.Branch;
 const Student = db.Student;
+const Ratings = db.Ratings;
 
 const sequelize = db.sequelize;
 const bcrypt = require("bcryptjs");
@@ -19,7 +21,8 @@ module.exports = {
   deleteQuery,
   assignQuery,
   listSubject,
-  queryResponse
+  queryResponse,
+  getRatingLikes
 };
 /**
  * API for create new query
@@ -61,14 +64,15 @@ async function view(id){
 /**
  * API for list query according to school and student
  */
-async function list(params){
-  let whereCondition = {};
+async function list(params,user){
+
   let schoolVlsId   = params.schoolVlsId
   let branchVlsId   = params.branchVlsId
+  let myQuery       = params.myQuery
+
   if(!schoolVlsId) throw 'schoolVlsId is required'
-    whereCondition.school_vls_id = schoolVlsId
   if(!branchVlsId) throw 'branchVlsId is required'
-    whereCondition.branch_vls_id = branchVlsId
+    
   //start pagination
   let limit   = 10
   let offset  = 0
@@ -82,42 +86,64 @@ async function list(params){
      limit = parseInt(params.size)
   if(params.page)
       offset = 0 + (parseInt(params.page) - 1) * limit
-  //search
+
   if(params.search)
     search = params.search
-    whereCondition.topic = { [Op.like]: `%`+search+`%` }
+
+  let whereCondition = {
+      [Op.or]:{
+                description: { 
+                  [Op.like]: `%`+search+`%`
+                },
+              topic : { 
+                [Op.like]: `%`+search+`%` 
+              }
+           }
+    };
+
+  whereCondition.branch_vls_id = branchVlsId
+  whereCondition.school_vls_id = schoolVlsId
+
+
   //status 
-  if(params.status)
+  if(params.status){
     status = []
     status.push(params.status)
-    whereCondition.query_status={ [Op.in]: status }
+    whereCondition.query_status = { [Op.in]: status }
+  }
+
   //orderBy 
   if(params.orderBy)
      orderBy = params.orderBy
+
   //search tag
-  if(params.tag)
+  if(params.tag){
      tag = params.tag
-    whereCondition.tags = { [Op.like]: `%`+tag+`%` }
+     whereCondition.tags = { [Op.like]: `%`+tag+`%` }
+  }
+
   //search faculity  
   if(params.facultyVlsId)
     whereCondition.faculty_vls_id = params.facultyVlsId
+
   //search student
   if(params.studentVlsId)
     whereCondition.student_vls_id = params.studentVlsId
+
+  if(myQuery){
+    if(user.role == 'student'){
+      whereCondition.student_vls_id = user.userVlsId
+    }else{
+      whereCondition.faculty_vls_id = user.userVlsId
+    }
+  }
 
   let allCount      = await StudentQuery.count()
   //end pagination
   let studentQuery  = await StudentQuery.findAll({  
                       limit:limit,
                       offset:offset,
-                      where:{
-                            [Op.or]:[
-                              whereCondition ,
-                              {
-                                description: { [Op.like]: `%`+search+`%`},
-                                tags : { [Op.like]: `%`+tag+`%` }
-                             }]
-                           },
+                      where: whereCondition,
                       order: [
                               ['query_vls_id', orderBy]
                       ],
@@ -265,5 +291,35 @@ async function queryResponse(body){
     return { success: true, message: "Response updated successfully" };
   }catch(err){
     return { success: false, message: err.message};
+  }
+};
+/**
+ * API for delete query
+ */
+async function getRatingLikes(id, user) {
+  try{
+    //get like count
+    let like  = await Ratings.count({
+      where:{likes:1,query_vls_id:id}
+    })
+    //get rating avg
+    let ratings = await Ratings.findOne({
+      attributes: [[Sequelize.fn('SUM', Sequelize.col('ratings')), 'total_ratings'],
+      [Sequelize.fn('COUNT', Sequelize.col('ratings')), 'total_count']],
+      where:{query_vls_id:id},
+      group:['query_vls_id']
+    })
+    //get rating & likes
+    let ratingData = ratings.toJSON();
+    let avg = parseInt(ratingData.total_ratings) / ratingData.total_count
+
+    userRating  = await Ratings.findOne({
+      attributes: ['ratings','likes'],
+      where:{query_vls_id:id,user_vls_id:user.userVlsId}
+    })
+
+    return { success:true, message:"Rating & like data",like:like,avg:avg,data:userRating};
+  }catch(err){
+    return { success:false, message:err.message};
   }
 };
