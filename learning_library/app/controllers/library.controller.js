@@ -130,7 +130,7 @@ async function update(req){
   //end validation
   let id = req.params.id
   if(!req.file) throw 'Please attach a file'
-      req.body.URL           = req.file.filename;
+      req.body.URL           = req.body.uplodedPath + req.file.filename;
       req.body.document_type = path.extname(req.file.originalname);
       req.body.document_size = req.file.size; 
 
