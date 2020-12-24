@@ -1,6 +1,6 @@
 const express = require('express'); 
 const router = express.Router()
-const commentController = require("../controllers/LibraryComment.controller");
+const commentController = require("../controllers/libraryComment.controller");
 const { check } = require('express-validator');
 
 //Post
