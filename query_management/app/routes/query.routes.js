@@ -15,7 +15,6 @@ router.post("/create",[
     ],createQuery);
 router.post("/assignQuery",assignQuery);
 router.post("/response",queryResponse);
-router.post("/statusUpdate/:id",statusUpdate);
 
 //Get 
 router.get("/view/:id",viewQuery);
@@ -36,6 +35,7 @@ router.put("/update/:id",[
     check('school_vls_id','School_vls_id field is required.').not().isEmpty(),
     check('faculty_vls_id','Faculty_vls_id field is required.').not().isEmpty()
     ],updateQuery);
+router.put("/statusUpdate/:id",statusUpdate);
 
 module.exports = router;
 
