@@ -130,7 +130,7 @@ async function update(req){
   //end validation
   let id = req.params.id
   if(!req.file) throw 'Please attach a file'
-      req.body.URL           = req.file.filename;
+      req.body.URL           = req.body.uplodedPath + req.file.filename;
       req.body.document_type = path.extname(req.file.originalname);
       req.body.document_size = req.file.size; 
 
@@ -185,6 +185,7 @@ function formatDate() {
  */
 async function getRatingLikes(id, user) {
   try{
+    let avg = null
     //get like count
     let like  = await Ratings.count({
       where:{likes:1,learning_library_vls_id:id}
@@ -196,10 +197,11 @@ async function getRatingLikes(id, user) {
       where:{learning_library_vls_id:id},
       group:['learning_library_vls_id']
     })
+    if(ratings){
     //get rating & likes
-    let ratingData = ratings.toJSON();
-    let avg = parseInt(ratingData.total_ratings) / ratingData.total_count
-
+      let ratingData = ratings.toJSON();
+        avg          = parseInt(ratingData.total_ratings) / ratingData.total_count
+    } 
     userRating  = await Ratings.findOne({
       attributes: ['ratings','likes'],
       where:{learning_library_vls_id:id,user_vls_id:user.userVlsId}
