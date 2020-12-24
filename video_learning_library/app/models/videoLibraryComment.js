@@ -6,12 +6,6 @@ module.exports = (sequelize, Sequelize) => {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      school_vls_id: {
-        type: Sequelize.INTEGER
-      },
-      branch_vls_id: {
-        type: Sequelize.INTEGER
-      },
       video_learning_library_vls_id: {
         type: Sequelize.INTEGER
       },

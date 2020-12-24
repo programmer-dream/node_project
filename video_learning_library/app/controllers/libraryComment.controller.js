@@ -27,10 +27,10 @@ async function create(req){
 
     let createdComment     = await VideoLibraryComment.create(req.body);
     if(createdComment){
-        let id   = req.body.learning_library_vls_id;
+        let id   = req.body.video_learning_library_vls_id;
         let num  = await VideoLearningLibrary.update({is_comment:1},{
                       where:{
-                            learning_library_vls_id : id
+                             video_learning_library_vls_id : id
                           }
                     });
     }
@@ -57,8 +57,8 @@ async function view(id){
  * API for list comment according to school and student
  */
 async function list(params){
-  let learningLibraryVlsId   = params.learningLibraryVlsId
-  if(!learningLibraryVlsId) throw 'learningLibraryVlsId is required'
+  let videoLearningLibraryVlsId   = params.videoLearningLibraryVlsId
+  if(!videoLearningLibraryVlsId) throw 'video_learning_library_vls_id is required'
 
   //start pagination
   let limit = 10
@@ -73,8 +73,8 @@ async function list(params){
   let comments  = await VideoLibraryComment.findAll({  
                       limit:limit,
                       offset:offset,
-                      where:{learning_library_vls_id : learningLibraryVlsId},
-                      attributes: ['branch_vls_id','learning_library_vls_id', 'comment_body', 'user_vls_id', 'school_vls_id', 'user_type']
+                      where:{video_learning_library_vls_id : videoLearningLibraryVlsId},
+                      attributes: ['video_learning_library_vls_id', 'comment_body', 'user_vls_id', 'user_type']
                       });
 
   //let comentWithUser = []
@@ -104,7 +104,6 @@ async function setUsers(comments){
         if(user || user != null){
           item.user = {'name': user.name, 'photo': user.photo }
         }
-        console.log(item, "item")
         comentWithUser.push(item)
       })
     );
@@ -117,7 +116,6 @@ async function setUsers(comments){
  * API for comment update 
  */
 async function update(req){
-
   const errors = validationResult(req);
   if(errors.array().length) throw errors.array()
 
