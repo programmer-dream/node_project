@@ -5,7 +5,7 @@ const { check } = require('express-validator');
 
 //Post
 router.post("/",[
-    check('learning_library_vls_id','Learning_library_vls_id field is required.').not().isEmpty()
+    check('video_learning_library_vls_id','Learning_library_vls_id field is required.').not().isEmpty()
     ],addUpdateLikes);
 
 
