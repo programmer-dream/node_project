@@ -12,14 +12,11 @@ module.exports = {
  * API for create/update new Rating
  */
 async function addUpdateLikes(req){
+  const errors = validationResult(req);
+  if(errors.array().length) throw errors.array()
+  if(!req.user) throw 'User not found'
   try{
-    const errors = validationResult(req);
-    if(errors.array().length) throw errors.array()
-
-    if(!req.user) throw 'User not found'
-
     req.body.user_vls_id = req.user.userVlsId 
-
     // Check if user exists in table
     let userEntry = await Ratings.findOne({ where : { user_vls_id : req.body.user_vls_id, query_vls_id : req.body.query_vls_id } })
     console.log(userEntry,"userEntry")

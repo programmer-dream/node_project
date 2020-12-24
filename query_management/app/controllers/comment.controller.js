@@ -18,11 +18,10 @@ module.exports = {
  * API for create new comment
  */
 async function create(req){
+  const errors = validationResult(req);
+  if(errors.array().length) throw errors.array()
+  if(!req.user) throw 'User not found'
   try{
-    const errors = validationResult(req);
-    if(errors.array().length) throw errors.array()
-
-    if(!req.user) throw 'User not found'
     req.body.user_vls_id = req.user.userVlsId
     req.body.user_type   = req.user.role  
 
