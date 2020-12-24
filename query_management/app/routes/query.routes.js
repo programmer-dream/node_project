@@ -15,6 +15,7 @@ router.post("/create",[
     ],createQuery);
 router.post("/assignQuery",assignQuery);
 router.post("/response",queryResponse);
+router.post("/statusUpdate/:id",statusUpdate);
 
 //Get 
 router.get("/view/:id",viewQuery);
@@ -95,6 +96,12 @@ function queryResponse(req, res, next) {
 // Function for assing query
 function getRatingLikes(req, res, next) {
     queryController.getRatingLikes(req.params.id , req.user)
+        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while getting query like & ratting' }))
+        .catch(err => next(err));
+}
+// Function for assing query
+function statusUpdate(req, res, next) {
+    queryController.statusUpdate(req.params.id , req.user)
         .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while getting query like & ratting' }))
         .catch(err => next(err));
 }

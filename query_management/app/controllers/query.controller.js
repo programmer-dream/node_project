@@ -22,7 +22,8 @@ module.exports = {
   assignQuery,
   listSubject,
   queryResponse,
-  getRatingLikes
+  getRatingLikes,
+  statusUpdate
 };
 
 
@@ -351,6 +352,31 @@ async function getRatingLikes(id, user) {
     })
 
     return { success:true, message:"Rating & like data",like:like,avg:avg,data:userRating};
+  }catch(err){
+    throw err.message
+  }
+};
+
+
+/**
+ * API for status update query
+ */
+async function statusUpdate(id, user) {
+  if(user.role != 'student') throw 'unauthorised user'
+  try{
+    let userId = user.userVlsId
+    let query = await StudentQuery.findOne({
+                       where:{
+                              query_vls_id : userId,
+                              query_vls_id : id
+                             }
+                    });
+    if(query){
+      query.update({query_status:'Closed'})
+    }else{
+      throw new Error('Query not found')
+    }
+    return { success:true, message:"Status updated successfully",data:query};
   }catch(err){
     throw err.message
   }
