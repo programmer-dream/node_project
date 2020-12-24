@@ -187,11 +187,15 @@ async function listFaculty(params){
  * API for query update 
  */
 async function update(req){
-
+  let id       = req.params.id
   const errors = validationResult(req);
   if(errors.array().length) throw errors.array()
+  //return 'test'
+  let isResponsed = await StudentQuery.findOne({
+    where : {query_vls_id : id}
+  })
+  if(isResponsed.response) throw 'Query could not be updated because  faculty already responded'
 
-  let id                 = req.params.id
   req.body.query_status  = 'open'
   req.body.query_date    = formatDate() 
 
@@ -271,9 +275,8 @@ function formatDate() {
  * API for get today's date
  */
 async function listSubject(params){
+  if(!params.id) throw 'branch id is required'
   try{
-    if(!params.id) throw 'branch id is required'
-    
     let branchVlsId = params.id
     let employee  = await Branch.findOne({
                     where:{branch_vls_id:branchVlsId},
@@ -292,17 +295,25 @@ async function listSubject(params){
  * query response Api 
  */
 async function queryResponse(body){
+
+  if(!body.queryId) throw 'QueryId is required'
+  if(!body.response) throw'response is required'
+
   try{
-    if(!body.queryId) throw 'QueryId is required'
-    if(!body.response) throw'response is required'
     let queryId               = body.queryId
     let updateField           = {}
     updateField.response      = body.response
     updateField.response_date = formatDate()
     //return updateField
+    let comment = await StudentQuery.findOne({
+      where : {query_vls_id : queryId}
+    })
+
+    if(comment.is_comment) throw new Error('Response could not be updated because student already commented')
+
     let num = await StudentQuery.update(updateField,{
                        where:{
-                              query_vls_id : body.queryId
+                              query_vls_id : queryId
                              }
                     });
   if(num != 1) throw 'Query not found'
@@ -310,6 +321,7 @@ async function queryResponse(body){
   }catch(err){
     throw err.message
   }
+
 };
 
 
