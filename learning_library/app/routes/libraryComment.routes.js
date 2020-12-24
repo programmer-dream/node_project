@@ -21,7 +21,6 @@ router.delete("/delete/:id",deleteComment);
 router.put("/update/:id",[
     check('school_vls_id','School_vls_id field is required.').not().isEmpty(),
     check('branch_vls_id','Branch_vls_id field is required.').not().isEmpty(),
-    check('learning_library_vls_id','Learning_library_vls_id field is required.').not().isEmpty(),
     check('comment_body','Comment_body field is required.').not().isEmpty()
     ],updateComment);
 
