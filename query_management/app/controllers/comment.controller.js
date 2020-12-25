@@ -70,7 +70,7 @@ async function list(params){
                       limit:limit,
                       offset:offset,
                       where:{query_vls_id : queryVlsId},
-                      attributes: ['branch_vls_id','query_vls_id', 'comment_body', 'user_vls_id', 'school_vls_id', 'user_type']
+                      attributes: ['branch_vls_id','query_vls_id', 'comment_body', 'user_vls_id', 'school_vls_id', 'user_type', 'created_at']
                       });
 
   let comentWithUser = await setUsers(comments)
@@ -99,7 +99,7 @@ async function setUsers(comments){
         if(user || user != null){
           item.user = {'name': user.name, 'photo': user.photo }
         }
-        console.log(item, "item")
+        //console.log(item, "item")
         comentWithUser.push(item)
       })
     );
