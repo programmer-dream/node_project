@@ -22,6 +22,7 @@ async function create(req){
   if(errors.array().length) throw errors.array()
   if(!req.user) throw 'User not found'
   try{
+    let commentWithUser  = {}
     req.body.user_vls_id = req.user.userVlsId
     req.body.user_type   = req.user.role  
 
@@ -33,8 +34,18 @@ async function create(req){
                             query_vls_id : id
                           }
                     });
+      if(req.user.role === 'student'){
+          user  = await Student.findByPk(createdComment.user_vls_id)
+      }else{
+          user  = await Employee.findByPk(createdComment.user_vls_id)
+      }
+      if(user || user != null){
+        user = {'name': user.name, 'photo': user.photo }
+      }
     }
-    return { success: true, message: "Comment created successfully", data:createdComment };
+    commentWithUser = createdComment.toJSON()
+    commentWithUser.user = user
+    return { success: true, message: "Comment created successfully", data:commentWithUser };
   }catch(err){
     throw err.message
   }
