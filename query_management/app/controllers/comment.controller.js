@@ -22,6 +22,7 @@ async function create(req){
   if(errors.array().length) throw errors.array()
   if(!req.user) throw 'User not found'
   try{
+    let commentWithUser  = {}
     req.body.user_vls_id = req.user.userVlsId
     req.body.user_type   = req.user.role  
 
@@ -33,8 +34,18 @@ async function create(req){
                             query_vls_id : id
                           }
                     });
+      if(req.user.role === 'student'){
+          user  = await Student.findByPk(createdComment.user_vls_id)
+      }else{
+          user  = await Employee.findByPk(createdComment.user_vls_id)
+      }
+      if(user || user != null){
+        user = {'name': user.name, 'photo': user.photo }
+      }
     }
-    return { success: true, message: "Comment created successfully", data:createdComment };
+    commentWithUser = createdComment.toJSON()
+    commentWithUser.user = user
+    return { success: true, message: "Comment created successfully", data:commentWithUser };
   }catch(err){
     throw err.message
   }
@@ -70,7 +81,7 @@ async function list(params){
                       limit:limit,
                       offset:offset,
                       where:{query_vls_id : queryVlsId},
-                      attributes: ['branch_vls_id','query_vls_id', 'comment_body', 'user_vls_id', 'school_vls_id', 'user_type']
+                      attributes: ['branch_vls_id','query_vls_id', 'comment_body', 'user_vls_id', 'school_vls_id', 'user_type', 'created_at']
                       });
 
   let comentWithUser = await setUsers(comments)
@@ -99,7 +110,7 @@ async function setUsers(comments){
         if(user || user != null){
           item.user = {'name': user.name, 'photo': user.photo }
         }
-        console.log(item, "item")
+        //console.log(item, "item")
         comentWithUser.push(item)
       })
     );
@@ -113,6 +124,7 @@ async function setUsers(comments){
  */
 async function update(req){
   //start validation 
+  let commentWithUser  = {}
   const errors = validationResult(req);
   if(errors.array().length) throw errors.array()
 
@@ -126,11 +138,29 @@ async function update(req){
                                  }
                        });
   if(!num) throw 'Comment not updated'
-      let comment = await Comment.findByPk(id)
+    let comment = await Comment.findByPk(id)
      
+  if(comment){
+        let id   = req.body.query_vls_id;
+        let num  = await StudentQuery.update({is_comment:1},{
+                      where:{
+                            query_vls_id : id
+                          }
+                    });
+      if(req.user.role === 'student'){
+          user  = await Student.findByPk(comment.user_vls_id)
+      }else{
+          user  = await Employee.findByPk(comment.user_vls_id)
+      }
+      if(user || user != null){
+        user = {'name': user.name, 'photo': user.photo }
+      }
+    }
+    commentWithUser = comment.toJSON()
+    commentWithUser.user = user
   return { success: true, 
            message: "Comment updated successfully", 
-           data   : comment 
+           data   : commentWithUser 
          };
 };
 
