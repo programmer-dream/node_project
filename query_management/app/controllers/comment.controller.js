@@ -124,6 +124,7 @@ async function setUsers(comments){
  */
 async function update(req){
   //start validation 
+  let commentWithUser  = {}
   const errors = validationResult(req);
   if(errors.array().length) throw errors.array()
 
@@ -137,11 +138,29 @@ async function update(req){
                                  }
                        });
   if(!num) throw 'Comment not updated'
-      let comment = await Comment.findByPk(id)
+    let comment = await Comment.findByPk(id)
      
+  if(comment){
+        let id   = req.body.query_vls_id;
+        let num  = await StudentQuery.update({is_comment:1},{
+                      where:{
+                            query_vls_id : id
+                          }
+                    });
+      if(req.user.role === 'student'){
+          user  = await Student.findByPk(comment.user_vls_id)
+      }else{
+          user  = await Employee.findByPk(comment.user_vls_id)
+      }
+      if(user || user != null){
+        user = {'name': user.name, 'photo': user.photo }
+      }
+    }
+    commentWithUser = comment.toJSON()
+    commentWithUser.user = user
   return { success: true, 
            message: "Comment updated successfully", 
-           data   : comment 
+           data   : commentWithUser 
          };
 };
 
