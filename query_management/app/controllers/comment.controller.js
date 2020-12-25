@@ -70,6 +70,12 @@ async function list(params){
   //start pagination
   let limit = 10
   let offset = 0
+  let orderBy = 'desc';
+  let whereCondition = {}
+    whereCondition.query_vls_id = queryVlsId
+  if(params.id)
+    whereCondition.id = {[Op.lt]: params.id}
+
   if(params.size)
      limit = parseInt(params.size)
   if(params.page)
@@ -80,8 +86,11 @@ async function list(params){
   let comments  = await Comment.findAll({  
                       limit:limit,
                       offset:offset,
-                      where:{query_vls_id : queryVlsId},
-                      attributes: ['branch_vls_id','query_vls_id', 'comment_body', 'user_vls_id', 'school_vls_id', 'user_type', 'created_at']
+                      where:whereCondition,
+                      order: [
+                              ['id', orderBy]
+                      ],
+                      attributes: ['id','branch_vls_id','query_vls_id', 'comment_body', 'user_vls_id', 'school_vls_id', 'user_type', 'created_at']
                       });
 
   let comentWithUser = await setUsers(comments)
