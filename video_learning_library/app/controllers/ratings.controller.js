@@ -30,7 +30,7 @@ async function addUpdateRatings(req){
       message = 'Rating created successfully'
       data = rattings
     }else{
-      userEntry.update(req.body)
+      await userEntry.update(req.body)
       message = 'Rating updated successfully'
       data = req.body
     }

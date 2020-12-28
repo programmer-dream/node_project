@@ -30,7 +30,7 @@ async function addUpdateRatings(req){
       message = 'Rating created successfully'
       data = rattings
     }else{
-      userEntry.update(req.body)
+      await userEntry.update(req.body)
       message = 'Rating updated successfully'
       data = req.body
     }
@@ -49,7 +49,7 @@ async function addUpdateRatings(req){
       let ratingData = ratingsData.toJSON();
       avg = parseInt(ratingData.total_ratings) / ratingData.total_count
     }
-    
+
     data.avg = avg
 
     return { success: true, message: message, data:data };
