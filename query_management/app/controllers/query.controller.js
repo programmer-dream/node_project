@@ -238,6 +238,7 @@ async function assignQuery(body) {
   let facultyVlsId = body.facultyVlsId
   if(!facultyVlsId) throw 'facultyVlsId is required'
   if(!queryVlsId)   throw   'queryVlsId is required'
+
     updateField = {
       faculty_vls_id:facultyVlsId
     }
@@ -295,7 +296,7 @@ async function listSubject(params){
 /**
  * query response Api 
  */
-async function queryResponse(body){
+async function queryResponse(body, user){
 
   if(!body.queryId) throw 'QueryId is required'
   if(!body.response) throw'response is required'
@@ -305,6 +306,14 @@ async function queryResponse(body){
     let updateField           = {}
     updateField.response      = body.response
     updateField.response_date = formatDate()
+
+    let query  = await StudentQuery.findOne({
+                    where:{query_vls_id:queryId, faculty_vls_id: user.userVlsId},
+                    attributes: ['query_vls_id'],
+                  });
+
+    if(!query) throw new Error('Query not found with this user')
+
     //return updateField
     let comment = await StudentQuery.findOne({
       where : {query_vls_id : queryId}
@@ -314,7 +323,8 @@ async function queryResponse(body){
 
     let num = await StudentQuery.update(updateField,{
                        where:{
-                              query_vls_id : queryId
+                              query_vls_id : queryId,
+                              faculty_vls_id: user.userVlsId
                              }
                     });
   if(num != 1) throw 'Query not found'

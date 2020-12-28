@@ -89,7 +89,7 @@ function listSubject(req, res, next) {
 }
 // Function for assing query
 function queryResponse(req, res, next) {
-    queryController.queryResponse(req.body)
+    queryController.queryResponse(req.body, req.user)
         .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while updating query response' }))
         .catch(err => next(err));
 }
