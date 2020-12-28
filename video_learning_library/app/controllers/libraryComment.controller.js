@@ -63,18 +63,32 @@ async function list(params){
   //start pagination
   let limit = 10
   let offset = 0
+  let whereCondition = {}
+  let orderBy = 'desc'
+
+  whereCondition.video_learning_library_vls_id = videoLearningLibraryVlsId
+
   if(params.size)
      limit = parseInt(params.size)
   if(params.page)
       offset = 0 + (parseInt(params.page) - 1) * limit
+
+  if(params.id){
+    whereCondition.id = {[Op.lt]: params.id}
+    offset = 0
+  }
+
   //end pagination
   let allCount  = await VideoLibraryComment.count( { where: { video_learning_library_vls_id : videoLearningLibraryVlsId } } )
 
   let comments  = await VideoLibraryComment.findAll({  
                       limit:limit,
                       offset:offset,
-                      where:{video_learning_library_vls_id : videoLearningLibraryVlsId},
-                      attributes: ['video_learning_library_vls_id', 'comment_body', 'user_vls_id', 'user_type']
+                      where:whereCondition,
+                      order: [
+                              ['id', orderBy]
+                      ],
+                      attributes: ['id', 'video_learning_library_vls_id', 'comment_body', 'user_vls_id', 'user_type']
                       });
 
   //let comentWithUser = []
