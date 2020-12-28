@@ -22,6 +22,19 @@ async function addUpdateRatings(req){
     let userEntry = await Ratings.findOne({ where : { user_vls_id : req.body.user_vls_id, query_vls_id : req.body.query_vls_id } })
     console.log(userEntry,"userEntry")
 
+    let rattings 
+    let message 
+    let data
+    if(!userEntry || userEntry == null){
+      rattings = await Ratings.create(req.body);
+      message = 'Rating created successfully'
+      data = rattings
+    }else{
+      userEntry.update(req.body)
+      message = 'Rating updated successfully'
+      data = req.body
+    }
+    
     //get rating avg
     let ratingsData = await Ratings.findOne({
       attributes: [[Sequelize.fn('SUM', Sequelize.col('ratings')), 'total_ratings'],
@@ -36,22 +49,9 @@ async function addUpdateRatings(req){
       let ratingData = ratingsData.toJSON();
       avg = parseInt(ratingData.total_ratings) / ratingData.total_count
     }
-
-    let rattings 
-    let message 
-    let data
-    if(!userEntry || userEntry == null){
-      rattings = await Ratings.create(req.body);
-      message = 'Rating created successfully'
-      data = rattings
-      data.avg = avg
-    }else{
-      userEntry.update(req.body)
-      message = 'Rating updated successfully'
-      data = req.body
-      data.avg = avg
-    }
     
+    data.avg = avg
+
     return { success: true, message: message, data:data };
   }catch(err){
     throw err.message
