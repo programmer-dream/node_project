@@ -1,7 +1,7 @@
 const { validationResult } = require('express-validator');
 const db = require("../models");
 const Op = db.Sequelize.Op;
-const sequelize = db.sequelize;
+const Sequelize = db.Sequelize;
 const LibraryComment = db.LibraryComment;
 const Student = db.Student;
 const Employee = db.Employee;
