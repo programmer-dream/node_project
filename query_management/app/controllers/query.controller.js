@@ -353,11 +353,13 @@ async function getRatingLikes(id, user) {
       where:{query_vls_id:id},
       group:['query_vls_id']
     })
+
     if(ratings){
     //get rating & likes
-    let ratingData = ratings.toJSON();
-    let avg = parseInt(ratingData.total_ratings) / ratingData.total_count
+      let ratingData = ratings.toJSON();
+      avg = parseInt(ratingData.total_ratings) / ratingData.total_count
     }
+
     userRating  = await Ratings.findOne({
       attributes: ['ratings','likes'],
       where:{query_vls_id:id,user_vls_id:user.userVlsId}
