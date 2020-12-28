@@ -73,13 +73,17 @@ async function list(params){
   let orderBy = 'desc';
   let whereCondition = {}
     whereCondition.query_vls_id = queryVlsId
-  if(params.id)
-    whereCondition.id = {[Op.lt]: params.id}
 
   if(params.size)
      limit = parseInt(params.size)
   if(params.page)
       offset = 0 + (parseInt(params.page) - 1) * limit
+
+  if(params.id){
+    whereCondition.id = {[Op.lt]: params.id}
+    offset = 0
+  }
+  
   //end pagination
   let allCount  = await Comment.count()
 

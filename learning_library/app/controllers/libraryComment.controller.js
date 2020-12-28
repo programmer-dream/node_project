@@ -22,6 +22,7 @@ async function create(req){
   if(errors.array().length) throw errors.array()
   if(!req.user) throw 'User not found'
   try{
+    let commentWithUser  = {}
     req.body.user_vls_id = req.user.userVlsId
     req.body.user_type   = req.user.role  
 
@@ -33,8 +34,18 @@ async function create(req){
                             learning_library_vls_id : id
                           }
                     });
+      if(req.user.role === 'student'){
+          user  = await Student.findByPk(createdComment.user_vls_id)
+      }else{
+          user  = await Employee.findByPk(createdComment.user_vls_id)
+      }
+      if(user || user != null){
+        user = {'name': user.name, 'photo': user.photo }
+      }
     }
-    return { success: true, message: "Comment created successfully", data:createdComment };
+    commentWithUser = createdComment.toJSON()
+    commentWithUser.user = user
+    return { success: true, message: "Comment created successfully", data:commentWithUser };
   }catch(err){
     throw err.message
   }
@@ -63,6 +74,10 @@ async function list(params){
   //start pagination
   let limit = 10
   let offset = 0
+  let whereCondition = {}
+    whereCondition.learning_library_vls_id = queryVlsId
+  if(params.id)
+    whereCondition.id = {[Op.lt]: params.id}
   if(params.size)
      limit = parseInt(params.size)
   if(params.page)
@@ -73,8 +88,11 @@ async function list(params){
   let comments  = await LibraryComment.findAll({  
                       limit:limit,
                       offset:offset,
-                      where:{learning_library_vls_id : learningLibraryVlsId},
-                      attributes: ['branch_vls_id','learning_library_vls_id', 'comment_body', 'user_vls_id', 'school_vls_id', 'user_type']
+                      where:whereCondition,
+                      order: [
+                              ['id', orderBy]
+                      ],
+                      attributes: ['id','branch_vls_id','learning_library_vls_id', 'comment_body', 'user_vls_id', 'school_vls_id', 'user_type','created_at']
                       });
 
   //let comentWithUser = []
@@ -125,6 +143,7 @@ async function update(req){
   if(!req.user) throw 'User not found'
   req.body.user_vls_id = req.user.userVlsId
   req.body.user_type   = req.user.role
+  let commentWithUser  = {}
   let num              = await LibraryComment.update(req.body,{
                            where:{
                                   id : id
@@ -132,10 +151,21 @@ async function update(req){
                        });
   if(!num) throw 'Comment not updated'
       let comment = await LibraryComment.findByPk(id)
-     
+  if(comment){
+      if(req.user.role === 'student'){
+          user  = await Student.findByPk(comment.user_vls_id)
+      }else{
+          user  = await Employee.findByPk(comment.user_vls_id)
+      }
+      if(user || user != null){
+        user = {'name': user.name, 'photo': user.photo }
+      }
+      commentWithUser = comment.toJSON()
+      commentWithUser.user = user
+  }
   return { success: true, 
            message: "Comment updated successfully", 
-           data   : comment 
+           data   : commentWithUser 
          };
 };
 
