@@ -75,7 +75,7 @@ async function list(params){
   let limit = 10
   let offset = 0
   let whereCondition = {}
-    whereCondition.learning_library_vls_id = queryVlsId
+    whereCondition.learning_library_vls_id = learningLibraryVlsId
   if(params.id)
     whereCondition.id = {[Op.lt]: params.id}
   if(params.size)
@@ -83,7 +83,7 @@ async function list(params){
   if(params.page)
       offset = 0 + (parseInt(params.page) - 1) * limit
   //end pagination
-  let allCount  = await LibraryComment.count()
+  let allCount  = await LibraryComment.count( { where: { learning_library_vls_id : learningLibraryVlsId } } )
 
   let comments  = await LibraryComment.findAll({  
                       limit:limit,

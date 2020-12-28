@@ -85,7 +85,7 @@ async function list(params){
   }
   
   //end pagination
-  let allCount  = await Comment.count()
+  let allCount  = await Comment.count({ where: {query_vls_id : queryVlsId} })
 
   let comments  = await Comment.findAll({  
                       limit:limit,

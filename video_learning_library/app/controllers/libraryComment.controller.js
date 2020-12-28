@@ -68,7 +68,7 @@ async function list(params){
   if(params.page)
       offset = 0 + (parseInt(params.page) - 1) * limit
   //end pagination
-  let allCount  = await VideoLibraryComment.count()
+  let allCount  = await VideoLibraryComment.count( { where: { video_learning_library_vls_id : videoLearningLibraryVlsId } } )
 
   let comments  = await VideoLibraryComment.findAll({  
                       limit:limit,
