@@ -152,18 +152,34 @@ async function list(params,user){
                       offset:offset,
                       where: whereCondition,
                       order: [
-                              ['query_vls_id', orderBy]
-                      ],
-                      include: [{ 
-                              model:Student,
-                              as:'postedBy',
-                              attributes: ['student_vls_id','name', 'photo']
-                            },{ 
-                          model:Employee,
-                          as:'asignedTo',
-                          attributes: ['faculty_vls_id','name', 'photo']
-                        }],
-                      attributes: ['query_vls_id', 'query_date', 'query_status', 'subject', 'description','tags','topic','faculty_vls_id','student_vls_id','response','response_date','is_comment']
+                               ['query_vls_id', orderBy]
+                             ],
+                      include: [
+                                { 
+                                  model:Student,
+                                  as:'postedBy',
+                                  attributes: ['student_vls_id','name', 'photo']
+                                },
+                                { 
+                                  model:Employee,
+                                  as:'asignedTo',
+                                  attributes: ['faculty_vls_id','name', 'photo']
+                                }
+                              ],
+                      attributes: [
+                                    'query_vls_id', 
+                                    'query_date', 
+                                    'query_status', 
+                                    'subject', 
+                                    'description',
+                                    'tags',
+                                    'topic',
+                                    'faculty_vls_id',
+                                    'student_vls_id',
+                                    'response',
+                                    'response_date',
+                                    'is_comment'
+                                  ]
                       });
   return { success: true, message: "All query data", total : allCount ,data:studentQuery };
 };
@@ -177,9 +193,13 @@ async function listFaculty(params){
  
   let branchVlsId = params.id
   let employee  = await Employee.findAll({
-                  where:{isTeacher : 1,branch_vls_id:branchVlsId},
-                  attributes: ['faculty_vls_id', 'name', 'photo'],
-                });
+                      where: { isTeacher : 1, branch_vls_id:branchVlsId },
+                      attributes: [
+                                    'faculty_vls_id', 
+                                    'name', 
+                                    'photo'
+                                  ],
+                  });
   return { success: true, message: "All query data", data:employee };
 };
 
@@ -348,8 +368,10 @@ async function getRatingLikes(id, user) {
     })
     //get rating avg
     let ratings = await Ratings.findOne({
-      attributes: [[Sequelize.fn('SUM', Sequelize.col('ratings')), 'total_ratings'],
-      [Sequelize.fn('COUNT', Sequelize.col('ratings')), 'total_count']],
+      attributes: [
+                    [ Sequelize.fn('SUM', Sequelize.col('ratings')), 'total_ratings' ],
+                    [ Sequelize.fn('COUNT', Sequelize.col('ratings')), 'total_count' ]
+                  ],
       where:{query_vls_id:id},
       group:['query_vls_id']
     })

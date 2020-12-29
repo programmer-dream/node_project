@@ -185,8 +185,10 @@ async function getRatingLikes(id, user) {
     })
     //get rating avg
     let ratings = await Ratings.findOne({
-      attributes: [[Sequelize.fn('SUM', Sequelize.col('ratings')), 'total_ratings'],
-      [Sequelize.fn('COUNT', Sequelize.col('ratings')), 'total_count']],
+      attributes: [ 
+                    [ Sequelize.fn('SUM', Sequelize.col('ratings')), 'total_ratings' ],
+                    [ Sequelize.fn('COUNT', Sequelize.col('ratings')), 'total_count' ]
+                  ],
       where:{video_learning_library_vls_id:id},
       group:['video_learning_library_vls_id']
     })
