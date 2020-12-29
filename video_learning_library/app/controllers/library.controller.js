@@ -27,15 +27,20 @@ async function create(req){
   if(errors.array().length) throw errors.array()
 
    //return true
-  if(!req.file) throw 'Please attach a file'
-      req.body.URL          ="/videos/" + req.file.filename;
-      req.body.video_format = path.extname(req.file.originalname);
-      req.body.video_size   = req.file.size;
-  if(req.body.tags)
-    req.body.tags         = JSON.stringify(req.body.tags)
-  let learningLibrary     = await VideoLearningLibrary.create(req.body);
+  if(!req.file) 
+    throw 'Please attach a file'
 
-  return { success: true, message: "Learning library created successfully", data:learningLibrary };
+  req.body.URL          = "/videos/" + req.file.filename;
+  req.body.video_format = path.extname(req.file.originalname);
+  req.body.video_size   = req.file.size;
+
+  if(req.body.tags)
+    req.body.tags = JSON.stringify(req.body.tags)
+
+  let learningLibrary = await VideoLearningLibrary.create(req.body);
+
+  return { success: true, message: "Learning library created successfully", data:learningLibrary }
+
 };
 
 
@@ -43,11 +48,8 @@ async function create(req){
  * API for view query
  */
 async function view(id){
-  let learningLibrary    = await VideoLearningLibrary.findByPk(id)      
-  return { success: true, 
-           message: "Learning library details", 
-           data:learningLibrary 
-         };
+  let learningLibrary = await VideoLearningLibrary.findByPk(id)      
+  return { success: true, message: "Learning library details", data:learningLibrary };
 };
 
 
@@ -99,6 +101,7 @@ async function list(params){
   }
 
   let total = await VideoLearningLibrary.count()
+
   let learningLibrary  = await VideoLearningLibrary.findAll({  
                       limit:limit,
                       offset:offset,
@@ -106,9 +109,18 @@ async function list(params){
                       order: [
                               ['video_learning_library_vls_id', orderBy]
                       ],
-                      ttributes: ['subject', 'description', 'topic', 'subject', 'URL','recommended_student_level','tags']
+                      attributes: [
+                          'subject', 
+                          'description', 
+                          'topic', 
+                          'subject', 
+                          'URL',
+                          'recommended_student_level',
+                          'tags'
+                        ]
                       });
-  return { success: true, message: "All Learning library data", total:total, data:learningLibrary };
+
+  return { success: true, message: "All Learning library data", total:total, data:learningLibrary }
 };
 
 
@@ -122,25 +134,29 @@ async function update(req){
      return { success: false, message: errors.array() }
   //end validation
   let id = req.params.id
-  if(!req.file) throw 'Please attach a file'
-      req.body.URL           = "/videos/" + req.file.filename;
-      req.body.document_type = path.extname(req.file.originalname);
-      req.body.document_size = req.file.size; 
+  if(!req.file) 
+    throw 'Please attach a file'
+
+  req.body.URL           = "/videos/" + req.file.filename;
+  req.body.document_type = path.extname(req.file.originalname);
+  req.body.document_size = req.file.size; 
 
   if(req.body.tags)
-    req.body.tags        = JSON.stringify(req.body.tags)
-  let num                = await VideoLearningLibrary.update(req.body,{
-                             where:{
-                                    video_learning_library_vls_id : id
-                                   }
-                          });
-  if(!num) throw 'Learning library not updated'
-      let query = await VideoLearningLibrary.findByPk(id)
+    req.body.tags = JSON.stringify(req.body.tags)
+
+  let num = await VideoLearningLibrary.update(req.body,{
+                 where:{
+                        video_learning_library_vls_id : id
+                       }
+              });
+
+  if(!num) 
+    throw 'Learning library not updated'
+  
+  let query = await VideoLearningLibrary.findByPk(id)
      
-  return { success: true, 
-           message: "Learning library updated successfully", 
-           data   : query 
-         };
+  return { success: true, message: "Learning library updated successfully", data: query }
+
 };
 
 
@@ -148,10 +164,13 @@ async function update(req){
  * API for delete query
  */
 async function deleteLibrary(id) {
+
   let num = await VideoLearningLibrary.destroy({
       where: { video_learning_library_vls_id: id }
     })
-  if(num != 1) throw 'Learning library not found'
+  if(num != 1) 
+    throw 'Learning library not found'
+
   return { success:true, message:"Learning library deleted successfully!"};
   
 };
@@ -179,10 +198,12 @@ function formatDate() {
 async function getRatingLikes(id, user) {
   try{
     let avg = null
+
     //get like count
     let like  = await Ratings.count({
       where:{likes:1,video_learning_library_vls_id:id}
     })
+
     //get rating avg
     let ratings = await Ratings.findOne({
       attributes: [ 
@@ -192,17 +213,20 @@ async function getRatingLikes(id, user) {
       where:{video_learning_library_vls_id:id},
       group:['video_learning_library_vls_id']
     })
+
     if(ratings){
     //get rating & likes
       let ratingData = ratings.toJSON();
         avg          = parseInt(ratingData.total_ratings) / ratingData.total_count
-    } 
+    }
+
     userRating  = await Ratings.findOne({
       attributes: ['ratings','likes'],
       where:{video_learning_library_vls_id:id,user_vls_id:user.userVlsId}
     })
 
-    return { success:true, message:"Rating & like data",like:like,avg:avg,data:userRating};
+    return { success:true, message:"Rating & like data",like:like,avg:avg,data:userRating}
+    
   }catch(err){
     throw err.message;
   }

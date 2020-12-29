@@ -21,45 +21,51 @@ async function create(req){
   const errors = validationResult(req);
   if(errors.array().length) throw errors.array()
   if(!req.user) throw 'User not found'
+
   try{
     let commentWithUser  = {}
     req.body.user_vls_id = req.user.userVlsId
     req.body.user_type   = req.user.role  
 
-    let createdComment     = await Comment.create(req.body);
+    let createdComment = await Comment.create(req.body);
+
     if(createdComment){
         let id   = req.body.query_vls_id;
         let num  = await StudentQuery.update({is_comment:1},{
-                      where:{
-                            query_vls_id : id
-                          }
+                      where:{ query_vls_id : id }
                     });
+
       if(req.user.role === 'student'){
           user  = await Student.findByPk(createdComment.user_vls_id)
       }else{
           user  = await Employee.findByPk(createdComment.user_vls_id)
       }
+
       if(user || user != null){
         user = {'name': user.name, 'photo': user.photo }
       }
     }
+
     commentWithUser = createdComment.toJSON()
     commentWithUser.user = user
-    return { success: true, message: "Comment created successfully", data:commentWithUser };
+
+    return { success: true, message: "Comment created successfully", data:commentWithUser }
+
   }catch(err){
     throw err.message
   }
 };
+
+
 /**
  * API for view comment
  */
 async function view(id){
   let comment    = await Comment.findByPk(id)           
-  return { success: true, 
-           message: "View Comment details", 
-           data:comment 
-         };
+  return { success: true, message: "View Comment details", data:comment }
 };
+
+
 /**
  * API for list comment according to school and student
  */
@@ -94,12 +100,21 @@ async function list(params){
                       order: [
                               ['id', orderBy]
                       ],
-                      attributes: ['id','branch_vls_id','query_vls_id', 'comment_body', 'user_vls_id', 'school_vls_id', 'user_type', 'created_at']
+                      attributes: [
+                          'id',
+                          'branch_vls_id',
+                          'query_vls_id', 
+                          'comment_body', 
+                          'user_vls_id', 
+                          'school_vls_id', 
+                          'user_type', 
+                          'created_at'
+                        ]
                       });
 
   let comentWithUser = await setUsers(comments)
 
-  return { success: true, message: "All Comment data", total:allCount, data:comentWithUser };
+  return { success: true, message: "All Comment data", total:allCount, data:comentWithUser }
 };
 
 
@@ -112,19 +127,19 @@ async function setUsers(comments){
 
   await Promise.all(
       comments.map(async item => {
-        item = item.toJSON();
+          item = item.toJSON();
           item.user = user
-        if(item.user_type === 'student'){
-          user  = await Student.findByPk(item.user_vls_id)
-        }else{
-          user  = await Employee.findByPk(item.user_vls_id)
-        }
+          if(item.user_type === 'student'){
+            user  = await Student.findByPk(item.user_vls_id)
+          }else{
+            user  = await Employee.findByPk(item.user_vls_id)
+          }
 
-        if(user || user != null){
-          item.user = {'name': user.name, 'photo': user.photo }
-        }
-        //console.log(item, "item")
-        comentWithUser.push(item)
+          if(user || user != null){
+            item.user = {'name': user.name, 'photo': user.photo }
+          }
+
+          comentWithUser.push(item)
       })
     );
 
@@ -143,23 +158,24 @@ async function update(req){
 
   let id   = req.params.id
   if(!req.user) throw 'User not found'
+  
   req.body.user_vls_id = req.user.userVlsId
   req.body.user_type   = req.user.role
-  let num              = await Comment.update(req.body,{
-                           where:{
-                                  id : id
-                                 }
-                       });
+  
+  let num = await Comment.update(req.body,{
+                     where:{ id: id }
+                 });
+
   if(!num) throw 'Comment not updated'
-    let comment = await Comment.findByPk(id)
+  
+  let comment = await Comment.findByPk(id)
      
   if(comment){
         let id   = req.body.query_vls_id;
         let num  = await StudentQuery.update({is_comment:1},{
-                      where:{
-                            query_vls_id : id
-                          }
+                      where:{ query_vls_id : id }
                     });
+
       if(req.user.role === 'student'){
           user  = await Student.findByPk(comment.user_vls_id)
       }else{
@@ -169,13 +185,14 @@ async function update(req){
         user = {'name': user.name, 'photo': user.photo }
       }
     }
+
     commentWithUser = comment.toJSON()
     commentWithUser.user = user
-  return { success: true, 
-           message: "Comment updated successfully", 
-           data   : commentWithUser 
-         };
+
+  return { success: true, message: "Comment updated successfully", data: commentWithUser }
+
 };
+
 
 /**
  * API for delete comment
@@ -184,10 +201,14 @@ async function deleteComment(id) {
   let num = await Comment.destroy({
       where: { id: id }
     })
-  if(num != 1) throw 'Comment not found'
-  return { success:true, message:"Comment deleted successfully!"};
+
+  if(num != 1) 
+    throw 'Comment not found'
+
+  return { success:true, message:"Comment deleted successfully!"}
   
 };
+
 
 /**
  * API for get today's date

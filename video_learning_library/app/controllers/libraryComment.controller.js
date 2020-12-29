@@ -21,6 +21,7 @@ async function create(req){
   const errors = validationResult(req);
   if(errors.array().length) throw errors.array()
   if(!req.user) throw 'User not found'
+
   try{
     req.body.user_vls_id = req.user.userVlsId
     req.body.user_type   = req.user.role  
@@ -34,7 +35,7 @@ async function create(req){
                           }
                     });
     }
-    return { success: true, message: "Comment created successfully", data:createdComment };
+    return { success: true, message: "Comment created successfully", data:createdComment }
   }catch(err){
     throw err.message
   }
@@ -46,10 +47,7 @@ async function create(req){
  */
 async function view(id){
   let comment    = await VideoLibraryComment.findByPk(id)           
-  return { success: true, 
-           message: "View Comment details", 
-           data:comment 
-         };
+  return { success: true, message: "View Comment details", data:comment }
 };
 
 
@@ -79,7 +77,9 @@ async function list(params){
   }
 
   //end pagination
-  let allCount  = await VideoLibraryComment.count( { where: { video_learning_library_vls_id : videoLearningLibraryVlsId } } )
+  let allCount  = await VideoLibraryComment.count({ 
+                            where: { video_learning_library_vls_id : videoLearningLibraryVlsId } 
+                          })
 
   let comments  = await VideoLibraryComment.findAll({  
                       limit:limit,
@@ -88,13 +88,20 @@ async function list(params){
                       order: [
                               ['id', orderBy]
                       ],
-                      attributes: ['id', 'video_learning_library_vls_id', 'comment_body', 'user_vls_id', 'user_type']
+                      attributes: [
+                          'id', 
+                          'video_learning_library_vls_id', 
+                          'comment_body', 
+                          'user_vls_id', 
+                          'user_type'
+                        ]
                       });
 
-  //let comentWithUser = []
+
   let comentWithUser = await setUsers(comments)
 
-  return { success: true, message: "All Comment data", total:allCount, data:comentWithUser };
+  return { success: true, message: "All Comment data", total:allCount, data:comentWithUser }
+
 };
 
 
@@ -107,18 +114,18 @@ async function setUsers(comments){
 
   await Promise.all(
       comments.map(async item => {
-        item = item.toJSON();
+          item = item.toJSON();
           item.user = user
-        if(item.user_type === 'student'){
-          user  = await Student.findByPk(item.user_vls_id)
-        }else{
-          user  = await Employee.findByPk(item.user_vls_id)
-        }
+          if(item.user_type === 'student'){
+            user  = await Student.findByPk(item.user_vls_id)
+          }else{
+            user  = await Employee.findByPk(item.user_vls_id)
+          }
 
-        if(user || user != null){
-          item.user = {'name': user.name, 'photo': user.photo }
-        }
-        comentWithUser.push(item)
+          if(user || user != null){
+            item.user = {'name': user.name, 'photo': user.photo }
+          }
+          comentWithUser.push(item)
       })
     );
 
@@ -135,20 +142,21 @@ async function update(req){
 
   let id   = req.params.id
   if(!req.user) throw 'User not found'
+
   req.body.user_vls_id = req.user.userVlsId
   req.body.user_type   = req.user.role
-  let num              = await VideoLibraryComment.update(req.body,{
-                           where:{
-                                  id : id
-                                 }
+
+  let num = await VideoLibraryComment.update(req.body,{
+                           where:{ id: id }
                        });
-  if(!num) throw 'Comment not updated'
-      let comment = await VideoLibraryComment.findByPk(id)
+
+  if(!num) 
+    throw 'Comment not updated'
+  
+  let comment = await VideoLibraryComment.findByPk(id)
      
-  return { success: true, 
-           message: "Comment updated successfully", 
-           data   : comment 
-         };
+  return { success: true, message: "Comment updated successfully", data: comment }
+
 };
 
 
@@ -159,8 +167,10 @@ async function deleteComment(id) {
   let num = await VideoLibraryComment.destroy({
       where: { id: id }
     })
-  if(num != 1) throw 'Comment not found'
-  return { success:true, message:"Comment deleted successfully!"};
+  if(num != 1) 
+    throw 'Comment not found'
+
+  return { success:true, message:"Comment deleted successfully!"}
   
 };
 

@@ -19,7 +19,12 @@ async function addUpdateRatings(req){
   try{
     req.body.user_vls_id = req.user.userVlsId 
     // Check if user exists in table
-    let userEntry = await Ratings.findOne({ where : { user_vls_id : req.body.user_vls_id, learning_library_vls_id : req.body.learning_library_vls_id } })
+    let userEntry = await Ratings.findOne({ 
+                            where : { 
+                              user_vls_id : req.body.user_vls_id, 
+                              learning_library_vls_id : req.body.learning_library_vls_id 
+                            } 
+                          })
 
     let rattings 
     let message 
@@ -45,6 +50,7 @@ async function addUpdateRatings(req){
       where:{ learning_library_vls_id: req.body.learning_library_vls_id },
       group:['learning_library_vls_id']
     })
+
     let avg = null
 
     if(ratingsData){
@@ -52,9 +58,11 @@ async function addUpdateRatings(req){
       let ratingData = ratingsData.toJSON();
       avg = parseInt(ratingData.total_ratings) / ratingData.total_count
     }
+
     data.avg = avg
 
-    return { success: true, message: message, data:data };
+    return { success: true, message: message, data:data }
+    
   }catch(err){
     throw err.message
   }

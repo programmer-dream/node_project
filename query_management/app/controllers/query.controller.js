@@ -36,11 +36,13 @@ async function create(req){
 
   req.body.query_status   = 'open'
   req.body.query_date     = formatDate() 
-  if(req.body.tags)
-    req.body.tags         = JSON.stringify(req.body.tags)
-  let createdQuery        = await StudentQuery.create(req.body);
 
-  return { success: true, message: "Query created successfully", data:createdQuery };
+  if(req.body.tags)
+    req.body.tags = JSON.stringify(req.body.tags)
+  
+  let createdQuery = await StudentQuery.create(req.body);
+
+  return { success: true, message: "Query created successfully", data:createdQuery }
 };
 
 
@@ -61,10 +63,8 @@ async function view(id){
                     attributes: ['faculty_vls_id','name', 'photo']
                   }]
     })           
-  return { success: true, 
-           message: "View query details", 
-           data:studentQuery 
-         };
+  return { success: true, message: "View query details", data: studentQuery }
+
 };
 
 
@@ -181,7 +181,8 @@ async function list(params,user){
                                     'is_comment'
                                   ]
                       });
-  return { success: true, message: "All query data", total : allCount ,data:studentQuery };
+  return { success: true, message: "All query data", total : allCount ,data:studentQuery }
+
 };
 
 
@@ -200,7 +201,8 @@ async function listFaculty(params){
                                     'photo'
                                   ],
                   });
-  return { success: true, message: "All query data", data:employee };
+  return { success: true, message: "All query data", data:employee }
+
 };
 
 
@@ -223,17 +225,15 @@ async function update(req){
   if(req.body.tags)
     req.body.tags        = JSON.stringify(req.body.tags)
   let num                = await StudentQuery.update(req.body,{
-                             where:{
-                                    query_vls_id : id
-                                   }
+                             where:{ query_vls_id : id }
                           });
+
   if(!num) throw 'Query not updated'
-      let query = await StudentQuery.findByPk(id)
+  
+  let query = await StudentQuery.findByPk(id)
      
-  return { success: true, 
-           message: "Query updated successfully", 
-           data   : query 
-         };
+  return { success: true, message: "Query updated successfully", data: query }
+  
 };
 
 
@@ -244,8 +244,10 @@ async function deleteQuery(id) {
   let num = await StudentQuery.destroy({
       where: { query_vls_id: id }
     })
+
   if(num != 1) throw 'Query not found'
-  return { success:true, message:"Query deleted successfully!"};
+
+  return { success:true, message:"Query deleted successfully!"}
   
 };
 
@@ -256,18 +258,17 @@ async function deleteQuery(id) {
 async function assignQuery(body) {
   let queryVlsId   = body.queryVlsId
   let facultyVlsId = body.facultyVlsId
+
   if(!facultyVlsId) throw 'facultyVlsId is required'
   if(!queryVlsId)   throw   'queryVlsId is required'
 
-    updateField = {
-      faculty_vls_id:facultyVlsId
-    }
+  updateField = { faculty_vls_id:facultyVlsId }
   let num = await StudentQuery.update(updateField,{
-                       where:{
-                              query_vls_id : queryVlsId
-                             }
+                       where:{ query_vls_id : queryVlsId }
                     });
+
   if(num != 1) throw 'Query not found'
+
   return { success:true, message:"Query assigned successfully!"};
   
 };
@@ -298,15 +299,19 @@ function formatDate() {
  */
 async function listSubject(params){
   if(!params.id) throw 'branch id is required'
+
   try{
     let branchVlsId = params.id
     let employee  = await Branch.findOne({
                     where:{branch_vls_id:branchVlsId},
                     attributes: ['subjects'],
                   });
+
     let subjects = employee.toJSON()
     subjectListing = JSON.parse(subjects.subjects)
-    return { success: true, message: "list subject data", data:subjectListing };
+
+    return { success: true, message: "list subject data", data:subjectListing }
+
   }catch(err){
     throw err.message
   }
@@ -339,7 +344,8 @@ async function queryResponse(body, user){
       where : {query_vls_id : queryId}
     })
 
-    if(comment.is_comment) throw new Error('Response could not be updated because student already commented')
+    if(comment.is_comment) 
+      throw new Error('Response could not be updated because student already commented')
 
     let num = await StudentQuery.update(updateField,{
                        where:{
@@ -347,8 +353,11 @@ async function queryResponse(body, user){
                               faculty_vls_id: user.userVlsId
                              }
                     });
+  
   if(num != 1) throw 'Query not found'
-    return { success: true, message: "Response updated successfully" };
+  
+  return { success: true, message: "Response updated successfully" };
+  
   }catch(err){
     throw err.message
   }
@@ -399,6 +408,7 @@ async function getRatingLikes(id, user) {
  */
 async function statusUpdate(id, user) {
   if(user.role != 'student') throw 'unauthorised user'
+
   try{
     let userId = user.userVlsId
     let query = await StudentQuery.findOne({
@@ -407,12 +417,15 @@ async function statusUpdate(id, user) {
                               query_vls_id : id
                              }
                     });
+
     if(query){
       query.update({query_status:'Closed'})
     }else{
       throw new Error('Query not found')
     }
-    return { success:true, message:"Status updated successfully",data:query};
+
+    return { success:true, message:"Status updated successfully",data:query}
+
   }catch(err){
     throw err.message
   }

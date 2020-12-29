@@ -19,8 +19,12 @@ async function addUpdateRatings(req){
   try{
     req.body.user_vls_id = req.user.userVlsId 
     // Check if user exists in table
-    let userEntry = await Ratings.findOne({ where : { user_vls_id : req.body.user_vls_id, query_vls_id : req.body.query_vls_id } })
-    console.log(userEntry,"userEntry")
+    let userEntry = await Ratings.findOne({ 
+                        where : { 
+                          user_vls_id : req.body.user_vls_id, 
+                          query_vls_id : req.body.query_vls_id 
+                        } 
+                      })
 
     let rattings 
     let message 
@@ -54,7 +58,8 @@ async function addUpdateRatings(req){
 
     data.avg = avg
 
-    return { success: true, message: message, data:data };
+    return { success: true, message: message, data:data }
+    
   }catch(err){
     throw err.message
   }

@@ -19,8 +19,12 @@ async function addUpdateRatings(req){
   try{
     req.body.user_vls_id = req.user.userVlsId 
     // Check if user exists in table
-    let userEntry = await Ratings.findOne({ where : { user_vls_id : req.body.user_vls_id, video_learning_library_vls_id  : req.body.video_learning_library_vls_id  } })
-    //console.log(userEntry,"userEntry")
+    let userEntry = await Ratings.findOne({ 
+                      where : { 
+                        user_vls_id : req.body.user_vls_id, 
+                        video_learning_library_vls_id  : req.body.video_learning_library_vls_id  
+                      } 
+                    })
 
     let rattings 
     let message 

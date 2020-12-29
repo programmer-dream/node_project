@@ -32,7 +32,18 @@ async function signIn(userDetails) {
   if(!userDetails.password) throw 'Password is required'
 
   let user = await Authentication.findOne({ 
-                    attributes: ['auth_vls_id', 'user_name', 'user_vls_id', 'password', 'role_id','name','photo','recovery_email_id', 'branch_vls_id', 'school_id'],
+                    attributes: [
+                        'auth_vls_id', 
+                        'user_name', 
+                        'user_vls_id', 
+                        'password', 
+                        'role_id',
+                        'name',
+                        'photo',
+                        'recovery_email_id', 
+                        'branch_vls_id', 
+                        'school_id'
+                    ],
                     where: { user_name: userDetails.userName },
                     include: [{ 
                               model:Role,
@@ -91,7 +102,8 @@ async function resetPassword(body, userId) {
   if (!body.password) throw 'Enter password'
   if (!body.confirmPassword) throw 'Enter confirm password'
 
-  if (body.password !== body.confirmPassword) return { status: "error", message: "Password and confirm password does not matched." }
+  if (body.password !== body.confirmPassword) 
+    throw "Password and confirm password does not matched"
 
   let auth = await Authentication.findByPk(userId);
 
@@ -122,11 +134,13 @@ async function resetPassword(body, userId) {
   }
 
   Authentication.update({ 
-    password:updatedPassword,
-    old_passwords:JSON.stringify(allPwd)
-    },{
-    where: { auth_vls_id:  userId}
-  })
+      password:updatedPassword,
+      old_passwords:JSON.stringify(allPwd)
+    },
+    {
+      where: { auth_vls_id:  userId }
+    })
+
     return { status: "success",message: 'password updated successfully' }
 }
 
@@ -144,7 +158,8 @@ async function verifyOTP(body){
   if(!user) throw 'Token has been expired';
 
   if(user.forget_pwd_otp == body.otp){
-    if(user.recovery_email_id =='' || user.recovery_email_id == null  ) throw 'No email is associated with this account. Please contact VLS'
+    if(user.recovery_email_id =='' || user.recovery_email_id == null  ) 
+      throw 'No email is associated with this account. Please contact VLS'
     
     user.update({
         forget_pwd_token:null,
@@ -252,13 +267,17 @@ async function sendForgotPasswordEmail(user){
     forget_pwd_token:forget_pwd_token,
     password_reset_type:'PasswordResetLink'
   })
+
   let email   = user.recovery_email_id 
   let link    = config.forgotLink +'?token='+ forget_pwd_token
   let subject = 'Reset your account password'
   let html_body    ='<p>Click <a href="' + link + '">here</a> to reset your password</p>';
+
   await mailer(email,subject, html_body) //send mail to the user
 
 }
+
+
 /**
  * API for forget token 
  */
@@ -272,6 +291,7 @@ function forgetToken(length) {
    return result + Date.now();
 }
 
+
 /**
  * API for udate user password with link
  */
@@ -284,6 +304,7 @@ async function updatePasswordWithForgetPwd(body) {
                     });
 
   if(!user) throw 'link has been expired'
+    
   let allPwd  = JSON.parse(user.old_passwords)
   //encrypt new password
   let updatedPassword = bcrypt.hashSync(newPassword, 8)
@@ -292,12 +313,14 @@ async function updatePasswordWithForgetPwd(body) {
       isTrue = bcrypt.compareSync(newPassword, item)
       if(isTrue) throw 'Your password should not be your last three passwords'
   });
+
   if(allPwd.length < 3 ){
     allPwd.push(updatedPassword)
   }else{
     allPwd.shift()
     allPwd.push(updatedPassword)
   }
+
   let num = await user.update({
               password:updatedPassword,
               forget_pwd_token:null,

@@ -28,14 +28,18 @@ async function create(req){
 
    //return true
   if(!req.file) throw 'Please attach a file'
-      req.body.URL           = req.body.uplodedPath + req.file.filename;
-      req.body.document_type = path.extname(req.file.originalname);
-      req.body.document_size = req.file.size;
-  if(req.body.tags)
-    req.body.tags         = JSON.stringify(req.body.tags)
-  let learningLibrary     = await LearningLibrary.create(req.body);
 
-  return { success: true, message: "Learning library created successfully", data:learningLibrary };
+  req.body.URL           = req.body.uplodedPath + req.file.filename;
+  req.body.document_type = path.extname(req.file.originalname);
+  req.body.document_size = req.file.size;
+
+  if(req.body.tags)
+    req.body.tags = JSON.stringify(req.body.tags)
+
+  let learningLibrary = await LearningLibrary.create(req.body);
+
+  return { success: true, message: "Learning library created successfully", data:learningLibrary }
+
 };
 
 
@@ -44,10 +48,7 @@ async function create(req){
  */
 async function view(id){
   let learningLibrary    = await LearningLibrary.findByPk(id)      
-  return { success: true, 
-           message: "Learning library details", 
-           data:learningLibrary 
-         };
+  return { success: true, message: "Learning library details", data:learningLibrary }
 };
 
 
@@ -105,6 +106,7 @@ async function list(params){
      tag = params.tag
      whereCondition.tags = { [Op.like]: `%`+tag+`%` }
   }
+
   let total = await LearningLibrary.count()
   let learningLibrary  = await LearningLibrary.findAll({  
                       limit:limit,
@@ -113,9 +115,19 @@ async function list(params){
                       order: [
                               ['learning_library_vls_id', orderBy]
                       ],
-                      ttributes: ['subject', 'description', 'topic', 'subject', 'URL','recommended_student_level','tags']
+                      attributes: [
+                          'subject', 
+                          'description', 
+                          'topic', 
+                          'subject', 
+                          'URL',
+                          'recommended_student_level',
+                          'tags'
+                        ]
                       });
-  return { success: true, message: "All Learning library data", total:total, data:learningLibrary };
+
+  return { success: true, message: "All Learning library data", total:total, data:learningLibrary }
+
 };
 
 
@@ -125,29 +137,29 @@ async function list(params){
 async function update(req){
   //start validation 
   const errors = validationResult(req);
-  if(errors.array().length)
-     return { success: false, message: errors.array() }
+  if(errors.array().length) throw errors.array()
+
   //end validation
   let id = req.params.id
   if(!req.file) throw 'Please attach a file'
-      req.body.URL           = req.body.uplodedPath + req.file.filename;
-      req.body.document_type = path.extname(req.file.originalname);
-      req.body.document_size = req.file.size; 
+  
+  req.body.URL           = req.body.uplodedPath + req.file.filename;
+  req.body.document_type = path.extname(req.file.originalname);
+  req.body.document_size = req.file.size; 
 
   if(req.body.tags)
-    req.body.tags        = JSON.stringify(req.body.tags)
-  let num                = await LearningLibrary.update(req.body,{
-                             where:{
-                                    learning_library_vls_id : id
-                                   }
-                          });
+    req.body.tags = JSON.stringify(req.body.tags)
+
+  let num = await LearningLibrary.update(req.body,{
+                         where:{ learning_library_vls_id : id }
+                      });
+
   if(!num) throw 'Learning library not updated'
-      let query = await LearningLibrary.findByPk(id)
+  
+  let query = await LearningLibrary.findByPk(id)
      
-  return { success: true, 
-           message: "Learning library updated successfully", 
-           data   : query 
-         };
+  return { success: true, message: "Learning library updated successfully", data: query }
+
 };
 
 
@@ -156,10 +168,12 @@ async function update(req){
  */
 async function deleteLibrary(id) {
   let num = await LearningLibrary.destroy({
-      where: { learning_library_vls_id: id }
-    })
+                where: { learning_library_vls_id: id }
+              })
+
   if(num != 1) throw 'Learning library not found'
-  return { success:true, message:"Learning library deleted successfully!"};
+  
+  return { success:true, message:"Learning library deleted successfully!"}
   
 };
 
@@ -190,6 +204,7 @@ async function getRatingLikes(id, user) {
     let like  = await Ratings.count({
       where:{likes:1,learning_library_vls_id:id}
     })
+    
     //get rating avg
     let ratings = await Ratings.findOne({
       attributes: [
@@ -199,17 +214,20 @@ async function getRatingLikes(id, user) {
       where:{learning_library_vls_id:id},
       group:['learning_library_vls_id']
     })
+
     if(ratings){
     //get rating & likes
       let ratingData = ratings.toJSON();
         avg          = parseInt(ratingData.total_ratings) / ratingData.total_count
     } 
+
     userRating  = await Ratings.findOne({
       attributes: ['ratings','likes'],
       where:{learning_library_vls_id:id,user_vls_id:user.userVlsId}
     })
 
-    return { success:true, message:"Rating & like data",like:like,avg:avg,data:userRating};
+    return { success:true, message:"Rating & like data",like:like,avg:avg,data:userRating}
+
   }catch(err){
     throw err.message;
   }
