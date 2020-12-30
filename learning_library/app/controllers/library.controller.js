@@ -107,7 +107,8 @@ async function list(params){
      whereCondition.tags = { [Op.like]: `%`+tag+`%` }
   }
 
-  let total = await LearningLibrary.count()
+  let total = await LearningLibrary.count({ where: whereCondition })
+
   let learningLibrary  = await LearningLibrary.findAll({  
                       limit:limit,
                       offset:offset,
