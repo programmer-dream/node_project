@@ -67,7 +67,7 @@ async function list(params){
 
   if(!schoolVlsId) throw 'schoolVlsId is required'
   if(!branchVlsId) throw 'branchVlsId is required'
-  if(!level.includes(params.level) ) throw 'level must be Basic,Intermediate or Expert'
+  if(params.level && !level.includes(params.level) ) throw 'level must be Basic,Intermediate or Expert'
 
   if(params.search)
     search = params.search
