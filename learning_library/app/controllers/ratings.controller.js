@@ -33,12 +33,10 @@ async function addUpdateRatings(req){
       rattings = await Ratings.create(req.body);
       message = 'Rating created successfully'
       data = rattings
-      data.avg = avg
     }else{
       await userEntry.update(req.body)
       message = 'Rating updated successfully'
       data = req.body
-      data.avg = avg
     }
     
     //get rating avg
