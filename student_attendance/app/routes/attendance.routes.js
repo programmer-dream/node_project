@@ -26,10 +26,9 @@ router.put("/update",[
 //Get
 router.get("/classList",classList);
 router.get("/studentList",studentList);
-router.get("/studentList",studentList);
-
-router.get("/listForTeacher",[
-    ],listForTeacher);
+router.get("/listForTeacher",listForTeacher);
+router.get("/listForParent",listForParent);
+router.get("/listParentChildren",listParentChildren);
 
 
 
@@ -69,6 +68,18 @@ function updateLeaveReason(req, res, next) {
 // update list attendance for teacher
 function listForTeacher(req, res, next) {
     attendaceController.listForTeacher(req.query , req.user)
+        .then(list => list ? res.json(list) : res.status(400).json({ status: "error", message: 'Issue while listing classes' }))
+        .catch(err => next(err));
+}
+// update list attendance for parnet & student
+function listForParent(req, res, next) {
+    attendaceController.listForParent(req.query , req.user)
+        .then(list => list ? res.json(list) : res.status(400).json({ status: "error", message: 'Issue while listing classes' }))
+        .catch(err => next(err));
+}
+// update list attendance for parnet & student
+function listParentChildren(req, res, next) {
+    attendaceController.listParentChildren(req.query , req.user)
         .then(list => list ? res.json(list) : res.status(400).json({ status: "error", message: 'Issue while listing classes' }))
         .catch(err => next(err));
 }
