@@ -52,6 +52,9 @@ module.exports = (sequelize, Sequelize) => {
       },
       is_comment: {
         type: Sequelize.BOOLEAN
+      },
+      cover_photo: {
+        type: Sequelize.BOOLEAN
       }
   },{
     tableName: 'learning_library',
