@@ -10,13 +10,16 @@ const Section = db.Section;
 const Student = db.Student;
 const AcademicYear = db.AcademicYear;
 const Authentication = db.Authentication;
+const StudentAbsent = db.StudentAbsent;
 
 
 module.exports = {
   create,
   update,
   classList,
-  studentList
+  studentList,
+  updateLeaveReason,
+  listForTeacher
 };
 
 
@@ -253,4 +256,143 @@ function getDate(type) {
 	    date =  moment()
 	}
 	return date;
+}
+
+
+/**
+ * API for updateLeaveReason 
+ */
+async function updateLeaveReason(req, user){
+	if(user.role !='guardian') 
+		throw 'Unauthorised User'
+
+	const errors = validationResult(req);
+	if(errors.array().length) throw errors.array()
+	//return req.body
+	let student = await Student.findOne({
+				where : {student_vls_id : req.body.student_id}
+			});
+	//return student
+	let reasonData = {
+		student_id : req.body.student_id,
+		school_id  : student.school_id,
+		branch_id  : student.branch_vls_id,
+		created_by : user.userVlsId,
+		modified_by: 0,
+		parent_id  : user.userVlsId,
+		reason     : req.body.reason,
+		date_of_absent  : moment()
+	}
+
+	let studentAbsent = await StudentAbsent.create(reasonData)
+	if(!studentAbsent) throw 'Leave reason not updated'
+
+	return { success: true, message: "Student leave reason updated successfully", data:studentAbsent};
+};
+
+
+/**
+ * API for  
+ */
+async function listForTeacher(params, user){
+	let orderBy 	= 'desc'
+	let limit   	= 10
+	let offset  	= 0
+	let whereCondtion 	= {}
+
+	if(!params.class_id) throw 'Class_id is required'
+    	whereCondtion.class_id = params.class_id
+
+	if(params.size)
+    	limit = parseInt(params.size)
+  	if(params.page)
+    	offset = 0 + (parseInt(params.page) - 1) * limit
+    if(params.orderBy && params.orderBy == 'asc')
+    	orderBy = 'asc'
+
+    if(params.section_id )
+    	whereCondtion.section_id = params.section_id
+    if(params.student_id)
+    	whereCondtion.student_id = params.student_id
+    if(params.month)
+    	whereCondtion.month = params.month
+
+    let attendenceQuery = {  
+	                  limit : limit,
+	                  offset: offset,
+	                  where : whereCondtion,
+	                  order : [
+	                          ['attendance_vls_id', orderBy]
+	                  ],
+	                }
+    if(params.day){
+    	let attributes = ['attendance_vls_id', 'branch_vls_id', 'student_id','academic_year_id','class_id','section_id','school_id','month','year','created_by','modified_by']
+    	attributes.push('day_'+params.day)
+
+    	attendenceQuery = {  
+	                  limit : limit,
+	                  offset: offset,
+	                  where : whereCondtion,
+	                  order : [
+	                          ['attendance_vls_id', orderBy]
+	                  ],
+	                  attributes:attributes
+	                  }
+    }
+    
+    //return whereCondtion
+	let attendance  = await StudentAttendance.findAll(attendenceQuery);
+
+	// return attendance
+	let attendanceArray = await daysArray(attendance)
+
+  	return { success: true, message: "attendance list", data:attendanceArray }
+};
+
+
+async function daysArray(attendance){
+	let studentFinal = []
+	await Promise.all(
+		attendance.map(async student => {
+			let studentdata = []
+			student = student.toJSON()
+
+			for(var i = 1; i<=31; i++){
+				if(student.hasOwnProperty('day_'+i) ){
+					let status = student['day_'+i]
+					let reason = null
+
+					if(student['day_'+i] == 'A'){
+						let absent_date = student.year +"-"+moment().month(student.month).format("M")+"-"+i
+						let date = sequelize.escape(`%${absent_date}%`)
+						let absent = await StudentAbsent.findOne({
+										where:{
+											student_id:student.student_id,
+											date_of_absent:{ 
+							                  [Op.like]: sequelize.literal(`${date}`)
+							                }
+										}
+									})
+						if(absent)
+							reason = absent.reason
+					}
+					 	
+					let dayData = {
+						day: i,
+						status:status,
+						reason: reason
+						
+					}
+
+					delete student['day_'+i]
+
+					studentdata.push(dayData)
+				}
+			}
+			student.days = studentdata
+
+			studentFinal.push(student)
+		})
+	)
+	return studentFinal
 }
