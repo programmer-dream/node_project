@@ -37,7 +37,7 @@ async function create(req){
   if(req.files.coverPhoto){
     req.body.cover_photo = req.body.uplodedPath + req.files.coverPhoto[0].filename;
   }
-  
+
   if(req.body.tags)
     req.body.tags = JSON.stringify(req.body.tags)
 
@@ -129,7 +129,8 @@ async function list(params){
                           'subject', 
                           'URL',
                           'recommended_student_level',
-                          'tags'
+                          'tags',
+                          'cover_photo'
                         ]
                       });
 
