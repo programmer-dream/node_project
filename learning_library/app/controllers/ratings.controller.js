@@ -32,7 +32,7 @@ async function addUpdateRatings(req){
     if(!userEntry || userEntry == null){
       rattings = await Ratings.create(req.body);
       message = 'Rating created successfully'
-      data = rattings
+      data = rattings.toJSON()
     }else{
       await userEntry.update(req.body)
       message = 'Rating updated successfully'
