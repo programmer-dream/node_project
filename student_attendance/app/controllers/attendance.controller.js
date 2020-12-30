@@ -24,6 +24,9 @@ module.exports = {
  * API for create new query
  */
 async function create(req, user){
+	if(user.role =='student' || user.role =='guardian') 
+		throw 'Unauthorised User'
+
 	const errors = validationResult(req);
 	if(errors.array().length) throw errors.array()
 	user = await Authentication.findOne({
@@ -49,9 +52,8 @@ async function create(req, user){
   	let presentStudentArray = await mergeStudents(user, day, presentStudent, allAttendance, 'P')
 
   	let finalStudentArray = await mergeStudents(user, day, absentStudent, presentStudentArray, 'A')
-
-  studentAttendance =  await StudentAttendance.bulkCreate(finalStudentArray)
-  return { success: true, message: "Student attendance created successfully", data:studentAttendance};
+  	
+  return { success: true, message: "Student attendance created successfully", data:finalStudentArray};
 };
 
 
@@ -81,9 +83,20 @@ async function mergeStudents(user, day, studentArray, all_attendance, status){
 				year: getDate('year'),
 				created_by: user.user_vls_id
 			}
-
 			attendanceP[day] = status
 
+			let attendance = await StudentAttendance.findOne({
+							  	where : {
+							  		student_id:student_vls_id,
+							  		month:attendanceP.month,
+							  		year:attendanceP.year
+							  	}
+							  })
+			if(attendance){
+				attendance.update(attendanceP)
+			}else{
+				StudentAttendance.create(attendanceP)
+			}
 			all_attendance.push(attendanceP)
 	  	})
   	);
@@ -91,54 +104,58 @@ async function mergeStudents(user, day, studentArray, all_attendance, status){
   	return all_attendance
 }
 
+
 /**
  * API for update new query
  */
 async function update(req, user){
+	if(user.role =='student' || user.role =='guardian') 
+		throw 'Unauthorised User'
+
 	const errors = validationResult(req);
 	if(errors.array().length) throw errors.array()
-
-	let student_vls_id	= req.body.student_vls_id
+	
+	let studentIDs		= req.body.studentIDs
 	let attendance 		= {}
 	let day 			= 'day_'+moment(req.body.date).format('D')
 	let present         = 'A';
-	let student = await Student.findOne({
-		where : {student_vls_id : student_vls_id}
-	})
-	if(!student) throw 'Student not found'
 
 	if(req.body.present)  
-			present = 'P'
+		present = 'P'
 
-	attendance.student_id 		= student.student_vls_id
-	attendance.branch_vls_id 	= student.branch_vls_id
-	attendance.class_id 		= student.class_id
-	attendance.section_id 		= student.section_id
-	attendance.school_id 		= student.school_id
-	let academicYear = await AcademicYear.findOne({
+	attendance.month 			= moment(req.body.date).format('MMMM')
+	attendance.year 			= moment(req.body.date).format('YYYY')
+	attendance[day] 			= present
+	attendance.modified_by 		= user.userVlsId
+
+	let studentAttendance = await StudentAttendance.findAll({
 		where : {
-					school_id  : student.school_id,
-					is_running : 1
-				}
-	})
-	attendance.academic_year_id 	   = academicYear.id
-	attendance.month 			  	   = getDate('month')
-	attendance.year 			  	   = getDate('year')
-	attendance[day] 				   = present
-	attendance.modified_by 		   	   = user.userVlsId
-	let studentAttendance = await StudentAttendance.findOne({
-		where : {student_id : student_vls_id}
+			student_id : {[Op.in] : studentIDs },
+			month	   : attendance.month,
+			year 	   : attendance.year
+		}
 	})
 
-	num =  await StudentAttendance.update(attendance,{
-		where:{student_id : student_vls_id}
+	if(studentAttendance.length < 1) 
+		throw "Attendance not found for this date or month"
+
+	await StudentAttendance.update(attendance, {
+		where : {
+			student_id : {[Op.in] : studentIDs },
+			month	   : attendance.month,
+			year 	   : attendance.year
+		}
 	})
-	if(num)
-	   studentAttendance =  await StudentAttendance.findOne({
-	   	where:{student_id : student_vls_id}
-	   })
-  
-  return { success: true, message: "Student attendance updated successfully", data : studentAttendance };
+
+	let updatedStudent = await StudentAttendance.findAll({
+		where : {
+			student_id : {[Op.in] : studentIDs },
+			month	   : attendance.month,
+			year 	   : attendance.year
+		}
+	})
+
+  	return { success: true, message: "Student attendance updated successfully", data: updatedStudent};
 };
 
 
@@ -179,7 +196,7 @@ async function classList(params){
 
 
 /**
- * API for list classes 
+ * API for list student 
  */
 async function studentList(params){
 	let orderBy 		= 'desc'

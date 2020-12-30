@@ -12,12 +12,13 @@ router.post("/create",[
 
 //Put
 router.put("/update",[
-    check('student_vls_id','student_id field is required.').not().isEmpty(),
+    check('studentIDs','studentIDs field is required.').not().isEmpty(),
     check('present','present field is required.').not().isEmpty(),
     check('date','date field is required.').not().isEmpty()
     ],attendanceUpdate);
 //Get
 router.get("/classList",classList);
+router.get("/studentList",studentList);
 router.get("/studentList",studentList);
 
 
