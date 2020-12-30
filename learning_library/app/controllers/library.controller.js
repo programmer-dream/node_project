@@ -116,6 +116,7 @@ async function list(params){
                               ['learning_library_vls_id', orderBy]
                       ],
                       attributes: [
+                          'learning_library_vls_id',
                           'subject', 
                           'description', 
                           'topic', 
@@ -204,7 +205,7 @@ async function getRatingLikes(id, user) {
     let like  = await Ratings.count({
       where:{likes:1,learning_library_vls_id:id}
     })
-    
+
     //get rating avg
     let ratings = await Ratings.findOne({
       attributes: [
