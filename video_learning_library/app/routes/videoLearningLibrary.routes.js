@@ -6,7 +6,11 @@ const helper = require("../helper");
 const upload  = helper.upload;
 //Post
 router.post("/create",[
-    upload.single('file'),
+    upload.fields([{
+        name:'file',maxCount:1
+    },{
+        name:'coverPhoto',maxCount:1
+    }]),
     check('subject','Subject field is required.').not().isEmpty(),
     check('topic','Topic field is required.').not().isEmpty(),
     check('description','Description field is required.').not().isEmpty(),
@@ -23,7 +27,11 @@ router.delete("/delete/:id",deleteLibrary);
 
 //Put
 router.put("/update/:id",[
-    upload.single('file'),
+    upload.fields([{
+        name:'file',maxCount:1
+    },{
+        name:'coverPhoto',maxCount:1
+    }]),
     check('subject','Subject field is required.').not().isEmpty(),
     check('topic','Topic field is required.').not().isEmpty(),
     check('description','Description field is required.').not().isEmpty(),

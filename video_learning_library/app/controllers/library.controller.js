@@ -26,13 +26,16 @@ async function create(req){
   const errors = validationResult(req);
   if(errors.array().length) throw errors.array()
 
-   //return true
-  if(!req.file) 
+  if(!req.files.file) 
     throw 'Please attach a file'
 
-  req.body.URL          = "/videos/" + req.file.filename;
-  req.body.video_format = path.extname(req.file.originalname);
-  req.body.video_size   = req.file.size;
+  req.body.URL          = "/videos/" + req.files.file[0].filename;
+  req.body.video_format = path.extname(req.files.file[0].originalname);
+  req.body.video_size   = req.files.file[0].size;
+
+  if(req.files.coverPhoto){
+    req.body.cover_photo = req.body.uplodedPath + req.files.coverPhoto[0].filename;
+  }
 
   if(req.body.tags)
     req.body.tags = JSON.stringify(req.body.tags)
@@ -117,7 +120,8 @@ async function list(params){
                           'subject', 
                           'URL',
                           'recommended_student_level',
-                          'tags'
+                          'tags',
+                          'cover_photo'
                         ]
                       });
 
@@ -131,16 +135,20 @@ async function list(params){
 async function update(req){
   //start validation 
   const errors = validationResult(req);
-  if(errors.array().length)
-     return { success: false, message: errors.array() }
+  if(errors.array().length) throw errors.array()
+
+  if(!req.files.file) throw 'Please attach a file'
+
   //end validation
   let id = req.params.id
-  if(!req.file) 
-    throw 'Please attach a file'
+  
+  req.body.URL          = "/videos/" + req.files.file[0].filename;
+  req.body.video_format = path.extname(req.files.file[0].originalname);
+  req.body.video_size   = req.files.file[0].size; 
 
-  req.body.URL           = "/videos/" + req.file.filename;
-  req.body.document_type = path.extname(req.file.originalname);
-  req.body.document_size = req.file.size; 
+  if(req.files.coverPhoto){
+    req.body.cover_photo = req.body.uplodedPath + req.files.coverPhoto[0].filename;
+  }
 
   if(req.body.tags)
     req.body.tags = JSON.stringify(req.body.tags)
