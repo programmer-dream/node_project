@@ -110,7 +110,7 @@ async function list(params){
                               ['video_learning_library_vls_id', orderBy]
                       ],
                       attributes: [
-                          'video_learning_library_vls_id'
+                          'video_learning_library_vls_id',
                           'subject', 
                           'description', 
                           'topic', 
