@@ -145,7 +145,7 @@ async function list(params,user){
     }
   }
 
-  let allCount      = await StudentQuery.count()
+  let allCount      = await StudentQuery.count({ where: whereCondition })
   //end pagination
   let studentQuery  = await StudentQuery.findAll({  
                       limit:limit,

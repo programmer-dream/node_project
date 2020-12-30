@@ -63,7 +63,7 @@ async function list(params){
   let limit         = 10;
   let offset        = 0;
   let search        = '';
-  if(!level.includes(params.level) ) throw 'level must be Basic,Intermediate or Expert'
+  if(params.level && !level.includes(params.level) ) throw 'level must be Basic,Intermediate or Expert'
 
   if(params.search)
     search = params.search
@@ -100,7 +100,7 @@ async function list(params){
      whereCondition.tags = { [Op.like]: `%`+tag+`%` }
   }
 
-  let total = await VideoLearningLibrary.count()
+  let total = await VideoLearningLibrary.count({ where: whereCondition })
 
   let learningLibrary  = await VideoLearningLibrary.findAll({  
                       limit:limit,
