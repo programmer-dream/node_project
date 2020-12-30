@@ -39,6 +39,9 @@ module.exports = (sequelize, Sequelize) => {
       tags: {
         type: Sequelize.STRING
       },
+      cover_photo: {
+        type: Sequelize.STRING
+      },
       likes: {
         type: Sequelize.STRING
       },
