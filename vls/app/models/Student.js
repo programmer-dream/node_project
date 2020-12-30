@@ -78,6 +78,15 @@ module.exports = (sequelize, Sequelize) => {
       },
       spare5: {
         type: Sequelize.STRING
+      },
+      class_id: {
+        type: Sequelize.INTEGER
+      },
+      section_id: {
+        type: Sequelize.INTEGER
+      },
+      school_id: {
+        type: Sequelize.INTEGER
       } 
   },{
     tableName: 'students',
