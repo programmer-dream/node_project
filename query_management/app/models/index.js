@@ -69,7 +69,7 @@ db.Student = require("../../../vls/app/models/Student.js")(sequelize, Sequelize)
 db.Branch = require("../../../vls/app/models/Branch.js")(sequelize, Sequelize);
 
 db.StudentQuery.belongsTo(db.Student,{foreignKey:'student_vls_id',as:'postedBy'})
-db.StudentQuery.belongsTo(db.Employee,{foreignKey:'faculty_vls_id',as:'asignedTo'})
+db.StudentQuery.belongsTo(db.Employee,{foreignKey:'faculty_vls_id',as:'respondedBy'})
 db.Ratings.belongsTo(db.Student,{foreignKey:'user_vls_id',as:'ratingBy'})
 db.Ratings.belongsTo(db.Student,{foreignKey:'user_vls_id',as:'likeBy'})
 

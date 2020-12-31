@@ -13,7 +13,6 @@ router.post("/create",[
     check('school_vls_id','School_vls_id field is required.').not().isEmpty(),
     check('faculty_vls_id','Faculty_vls_id field is required.').not().isEmpty()
     ],createQuery);
-router.post("/assignQuery",assignQuery);
 router.post("/response",queryResponse);
 
 //Get 
@@ -73,12 +72,6 @@ function viewQuery(req, res, next) {
 function deleteQuery(req, res, next) {
     queryController.deleteQuery(req.params.id)
         .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while deleting query' }))
-        .catch(err => next(err));
-}
-// Function for assing query
-function assignQuery(req, res, next) {
-    queryController.assignQuery(req.body)
-        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while assinging query' }))
         .catch(err => next(err));
 }
 // Function for assing query

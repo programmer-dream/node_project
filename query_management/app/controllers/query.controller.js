@@ -19,7 +19,6 @@ module.exports = {
   update,
   view,
   deleteQuery,
-  assignQuery,
   listSubject,
   queryResponse,
   getRatingLikes,
@@ -55,11 +54,11 @@ async function view(id){
     include: [{ 
                     model:Student,
                     as:'postedBy',
-                    attributes: ['student_vls_id','name', 'photo']
+                    attributes: ['student_vls_id']
                   },
                   { 
                     model:Employee,
-                    as:'asignedTo',
+                    as:'respondedBy',
                     attributes: ['faculty_vls_id','name', 'photo']
                   }]
     })           
@@ -158,11 +157,11 @@ async function list(params,user){
                                 { 
                                   model:Student,
                                   as:'postedBy',
-                                  attributes: ['student_vls_id','name', 'photo']
+                                  attributes: ['student_vls_id']
                                 },
                                 { 
                                   model:Employee,
-                                  as:'asignedTo',
+                                  as:'respondedBy',
                                   attributes: ['faculty_vls_id','name', 'photo']
                                 }
                               ],
@@ -253,28 +252,6 @@ async function deleteQuery(id) {
 
 
 /**
- * API for delete query
- */
-async function assignQuery(body) {
-  let queryVlsId   = body.queryVlsId
-  let facultyVlsId = body.facultyVlsId
-
-  if(!facultyVlsId) throw 'facultyVlsId is required'
-  if(!queryVlsId)   throw   'queryVlsId is required'
-
-  updateField = { faculty_vls_id:facultyVlsId }
-  let num = await StudentQuery.update(updateField,{
-                       where:{ query_vls_id : queryVlsId }
-                    });
-
-  if(num != 1) throw 'Query not found'
-
-  return { success:true, message:"Query assigned successfully!"};
-  
-};
-
-
-/**
  * API for get today's date
  */
 function formatDate() {
@@ -327,30 +304,16 @@ async function queryResponse(body, user){
   if(!body.response) throw'response is required'
 
   try{
-    let queryId               = body.queryId
-    let updateField           = {}
-    updateField.response      = body.response
-    updateField.response_date = formatDate()
+    let queryId                 = body.queryId
+    let updateField             = {}
+    updateField.response        = body.response
+    updateField.response_date   = formatDate()
+    updateField.faculty_vls_id  =  user.userVlsId
 
-    let query  = await StudentQuery.findOne({
-                    where:{query_vls_id:queryId, faculty_vls_id: user.userVlsId},
-                    attributes: ['query_vls_id'],
-                  });
-
-    if(!query) throw new Error('Query not found with this user')
-
-    //return updateField
-    let comment = await StudentQuery.findOne({
-      where : {query_vls_id : queryId}
-    })
-
-    if(comment.is_comment) 
-      throw new Error('Response could not be updated because student already commented')
 
     let num = await StudentQuery.update(updateField,{
                        where:{
-                              query_vls_id : queryId,
-                              faculty_vls_id: user.userVlsId
+                              query_vls_id : queryId
                              }
                     });
   
