@@ -7,18 +7,16 @@ variables:
 
 #This command is run before actual stages start running
 before_script:
-  - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )' 
+  - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+  - set -e
+  - mkdir -p ~/.ssh
+  - touch ~/.ssh/config
+  - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" >> ~/.ssh/config 
 #  - npm install
 
 #This declares the pipeline stages  
 stages:
-  - test
   - deploy
-
-test:
-  stage: test
-  script:
-    - echo "Running deployement node to server"
 
 deployToAWS:
   only:
