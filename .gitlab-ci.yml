@@ -7,7 +7,7 @@ variables:
 
 #This command is run before actual stages start running
 before_script:
-#  - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+  - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
 #  - npm install
 
 #This declares the pipeline stages  
@@ -27,7 +27,7 @@ deployToAWS:
   script:
     - eval $(ssh-agent -s)
     - echo "${AWS_SECRET_ACCESS_KEY}" | tr -d '\r' | ssh-add - > /dev/null
-    - ssh -i ${AWS_SECRET_ACCESS_KEY} ubuntu@ec2-54-172-182-54.compute-1.amazonaws.com
+    - ssh -i ${AWS_SECRET_ACCESS_KEY} ubuntu@ec2-54-172-182-54.compute-1.amazonaws.com -v
     - cd vls_backend/
     - git pull origin master
     - npx sequelize-cli db:migrate
