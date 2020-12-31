@@ -1,0 +1,35 @@
+image: node:15.4.0
+
+#AWS access keys stored as secret variables 
+variables:
+  AWS_SECRET_ACCESS_KEY: $Private_Key
+
+
+#This command is run before actual stages start running
+before_script:
+#  - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+#  - npm install
+
+#This declares the pipeline stages  
+stages:
+  - test
+  - deploy
+
+test:
+  stage: test
+  script:
+    - echo "Running deployement node to server"
+
+deployToAWS:
+  only:
+    - master
+  stage: deploy
+  script:
+    - eval $(ssh-agent -s)
+    - echo "${AWS_SECRET_ACCESS_KEY}" | tr -d '\r' | ssh-add - > /dev/null
+    - ssh -i ${AWS_SECRET_ACCESS_KEY} ubuntu@ec2-54-172-182-54.compute-1.amazonaws.com
+    - cd vls_backend/
+    - git pull origin master
+    - npx sequelize-cli db:migrate
+    - yarn install
+    - pm2 restart 0  
