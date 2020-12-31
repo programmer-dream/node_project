@@ -25,7 +25,7 @@ deployToAWS:
     - master
   stage: deploy
   script:
-    - ssh ubuntu@ec2-54-172-182-54.compute-1.amazonaws.com " ls &&  cd /home/ubuntu/vls_backend/ && ls &&git pull origin master && sequelize-cli db:migrate && yarn install && pm2 restart 0  && exit"
+    - ssh ubuntu@ec2-54-172-182-54.compute-1.amazonaws.com " ls &&  cd /home/ubuntu/vls_backend/ && ls &&git pull origin master && yarn install && pm2 restart 0  && sequelize-cli db:migrate&& exit"
     # - cd /home/ubuntu/vls_backend/
     # - ls
 #    - git pull origin master
