@@ -10,10 +10,10 @@ router.post("/create",[
     check('classID','classID field is required.').not().isEmpty()
     ],attendanceCreate);
 
-router.post("/updateLeaveReason",[
+router.post("/addLeaveReason",[
     check('student_id','student_id field is required.').not().isEmpty(),
     check('reason','reason field is required.').not().isEmpty(),
-    ],updateLeaveReason);
+    ],addLeaveReason);
 
 //Put
 router.put("/update",[
@@ -22,12 +22,16 @@ router.put("/update",[
     check('date','date field is required.').not().isEmpty()
     ],attendanceUpdate);
 
+router.put("/updateLeaveReason/:id",[
+    check('student_id','student_id field is required.').not().isEmpty(),
+    check('reason','reason field is required.').not().isEmpty(),
+    ],updateLeaveReason);
 
 //Get
 router.get("/classList",classList);
 router.get("/studentList",studentList);
 router.get("/listForTeacher",listForTeacher);
-router.get("/listForParent",listForParent);
+router.get("/listAttendance",listForParent);
 router.get("/listParentChildren",listParentChildren);
 
 
@@ -59,7 +63,13 @@ function studentList(req, res, next) {
         .then(list => list ? res.json(list) : res.status(400).json({ status: "error", message: 'Issue while listing classes' }))
         .catch(err => next(err));
 }
-// update leave reason
+// add leave reason
+function addLeaveReason(req, res, next) {
+    attendaceController.addLeaveReason(req , req.user)
+        .then(list => list ? res.json(list) : res.status(400).json({ status: "error", message: 'Issue while listing classes' }))
+        .catch(err => next(err));
+}
+// add leave reason
 function updateLeaveReason(req, res, next) {
     attendaceController.updateLeaveReason(req , req.user)
         .then(list => list ? res.json(list) : res.status(400).json({ status: "error", message: 'Issue while listing classes' }))

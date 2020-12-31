@@ -18,10 +18,11 @@ module.exports = {
   update,
   classList,
   studentList,
-  updateLeaveReason,
+  addLeaveReason,
   listForTeacher,
   listForParent,
-  listParentChildren
+  listParentChildren,
+  updateLeaveReason
 };
 
 
@@ -264,7 +265,7 @@ function getDate(type) {
 /**
  * API for updateLeaveReason 
  */
-async function updateLeaveReason(req, user){
+async function addLeaveReason(req, user){
 	if(user.role !='guardian') 
 		throw 'Unauthorised User'
 
@@ -289,7 +290,7 @@ async function updateLeaveReason(req, user){
 	let studentAbsent = await StudentAbsent.create(reasonData)
 	if(!studentAbsent) throw 'Leave reason not updated'
 
-	return { success: true, message: "Student leave reason updated successfully", data:studentAbsent};
+	return { success: true, message: "Student leave reason added successfully", data:studentAbsent};
 };
 
 
@@ -500,4 +501,34 @@ async function listParentChildren(params, user){
 							]
 					});
     return { success: true, message: "List children", data:students }
+};
+
+
+/**
+ * API for update leave reason
+ */
+async function updateLeaveReason(req, user){
+	if(user.role !='guardian') 
+		throw 'Unauthorised User'
+	let id       = req.params.id
+	const errors = validationResult(req);
+	if(errors.array().length) throw errors.array()
+	
+	//return student
+	let reasonData = {
+		student_id : req.body.student_id,
+		modified_by: user.userVlsId,
+		parent_id  : user.userVlsId,
+		reason     : req.body.reason,
+		date_of_absent  : moment()
+	}
+
+	let studentAbsent = await StudentAbsent.findOne({
+		where:{id:id}
+	})
+
+	if(!studentAbsent) throw 'Leave reason record not found'
+		studentAbsent.update(reasonData)
+
+	return { success: true, message: "Student leave reason updated successfully", data:studentAbsent};
 };
