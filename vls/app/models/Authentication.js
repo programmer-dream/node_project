@@ -34,6 +34,12 @@ module.exports = (sequelize, Sequelize) => {
     },
     forget_pwd_otp: {
       type: Sequelize.STRING
+    },
+    branch_vls_id: {
+      type: Sequelize.INTEGER
+    },
+    school_id: {
+      type: Sequelize.INTEGER
     }
   },{
     tableName: 'users',
