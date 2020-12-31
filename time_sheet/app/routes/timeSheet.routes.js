@@ -11,7 +11,8 @@ router.post("/create",[
     ],create);
 
 //Get 
-router.get("/list",list);
+router.get("/teacher/view",teacherView);
+router.get("/parent/view",parentView);
 
 //Put
 router.put("/update",[
@@ -22,21 +23,27 @@ router.put("/update",[
 
 module.exports = router;
 
-// Function for create query details
+// Function for create timesheet details
 function create(req, res, next) {
     timeSheetController.create(req)
-        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while creating comment' }))
+        .then(timesheet => timesheet ? res.json(timesheet) : res.status(400).json({ status: "error", message: 'Error while creating timesheet' }))
         .catch(err => next(err));
 }
-// Function for list query details
-function list(req, res, next) {
-    timeSheetController.list(req.query)
-        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while listing comment' }))
+// Function for teacher timesheet details
+function teacherView(req, res, next) {
+    timeSheetController.teacherView(req.query, req.user)
+        .then(timesheet => timesheet ? res.json(timesheet) : res.status(400).json({ status: "error", message: 'Error while listing timesheet' }))
         .catch(err => next(err));
 }
-// Function for update query details
+// Function for parent timesheet details
+function parentView(req, res, next) {
+    timeSheetController.parentView(req.query, req.user)
+        .then(timesheet => timesheet ? res.json(timesheet) : res.status(400).json({ status: "error", message: 'Error while listing timesheet' }))
+        .catch(err => next(err));
+}
+// Function for update timesheet details
 function update(req, res, next) {
     timeSheetController.update(req)
-        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while updating comment' }))
+        .then(timesheet => timesheet ? res.json(timesheet) : res.status(400).json({ status: "error", message: 'Error while updating timesheet' }))
         .catch(err => next(err));
 }

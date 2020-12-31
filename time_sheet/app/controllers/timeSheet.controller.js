@@ -6,13 +6,15 @@ const path = require('path')
 const Routine     = db.Routine;
 const User        = db.Authentication;
 const AcademicYear= db.AcademicYear;
+const Subject     = db.Subject;
 
 const sequelize = db.sequelize;
 const bcrypt = require("bcryptjs");
 
 module.exports = {
   create,
-  list,
+  teacherView,
+  parentView,
   update
 };
 
@@ -26,13 +28,13 @@ async function create(req){
 
   if(req.user.role != 'teacher' || req.user.role != 'principle') throw 'Unauthorized User'
   let timetable = req.body.timetable
-  let timeData = []
+  let timeData  = []
 
-  user = await User.findByPk(req.user.id)
+  user          = await User.findByPk(req.user.id)
 
-  academicYear = await AcademicYear.findOne({
-    where:{school_id:user.school_id}
-  })
+  academicYear  = await AcademicYear.findOne({
+                    where:{school_id:user.school_id}
+                  })
 
   if(!academicYear) throw 'Academic year not found'
   
@@ -45,7 +47,7 @@ async function create(req){
         if(!timetable.end_time)   throw 'end_time required'
         if(!timetable.room_no)   throw 'room_no required'
         if(!timetable.status)
-            status = 0
+            status     = 0
         if(timetable.section_id)
             section_id = timetable.section_id
         let body = {
@@ -67,89 +69,105 @@ async function create(req){
   )
   let routine = await Routine.bulkCreate(timeData);
   return { success: true, message: "Time sheet created successfully", data:routine }
-
 };
 
 
 /**
- * API for list query according to school and student
+ * API for teacher view
  */
-async function list(params){
-  let level        = ['Basic','Intermediate','Expert'];
-  let orderBy       = 'desc';
-  let tag           = '';
-  let limit         = 10;
-  let offset        = 0;
-  let search        = '';
-  let schoolVlsId   = params.schoolVlsId
-  let branchVlsId   = params.branchVlsId
+async function teacherView(params , user){
+    if(!params.class_id) throw 'class_id is required'
+      
+    let whereCondition  = {
+                            teacher_id : user.userVlsId, 
+                            class_id   : params.class_id
+                          }
+    if(params.section_id)
+        whereCondition.section_id = params.section_id
 
-  if(!schoolVlsId) throw 'schoolVlsId is required'
-  if(!branchVlsId) throw 'branchVlsId is required'
-  if(params.level && !level.includes(params.level) ) throw 'level must be Basic,Intermediate or Expert'
-
-  if(params.search)
-    search = params.search
-
-  let whereCondition = {
-      [Op.or]:{
-                description: { 
-                  [Op.like]: `%`+search+`%`
-                },
-              topic : { 
-                [Op.like]: `%`+search+`%` 
-              }
-           }
-    };
-  //start pagination
-  if(params.size)
-     limit = parseInt(params.size)
-  if(params.page)
-      offset = 0 + (parseInt(params.page) - 1) * limit
-  //end pagination
-  whereCondition.branch_vls_id = branchVlsId
-  whereCondition.school_vls_id = schoolVlsId
-  //status 
-  if(params.level){
-    level = []
-    level.push(params.level)
-    whereCondition.recommended_student_level = { [Op.in]: level }
-  }
-
-  //orderBy 
-  if(params.orderBy)
-     orderBy = params.orderBy
-
-  //search tag
-  if(params.tag){
-     tag = params.tag
-     whereCondition.tags = { [Op.like]: `%`+tag+`%` }
-  }
-
-  let total = await LearningLibrary.count({ where: whereCondition })
-
-  let learningLibrary  = await LearningLibrary.findAll({  
-                      limit:limit,
-                      offset:offset,
-                      where: whereCondition,
-                      order: [
-                              ['learning_library_vls_id', orderBy]
-                      ],
+    let timesheet = await Routine.findAll({
+                    where:whereCondition,
+                    attributes: ['day',
+                               'start_time',
+                               'end_time',
+                               'room_no'
+                               ],
+                    include: [{ 
+                      model:Subject,
+                      as:'subject',
                       attributes: [
-                          'learning_library_vls_id',
-                          'subject', 
-                          'description', 
-                          'topic', 
-                          'subject', 
-                          'URL',
-                          'recommended_student_level',
-                          'tags',
-                          'cover_photo'
-                        ]
-                      });
+                                  'subject_vls_id',
+                                  'name'
+                                ]
+                  }]
+                })
 
-  return { success: true, message: "All Learning library data", total:total, data:learningLibrary }
+    let daysData = {}
 
+    await Promise.all(
+      timesheet.map(async timesheet => {
+          let day = {
+            start_time   : timesheet.start_time,
+            end_time     : timesheet.end_time,
+            room_no      : timesheet.room_no,
+            subject_name : timesheet.subject.name
+          }
+
+          if(!daysData[timesheet.day])
+            daysData[timesheet.day] = []
+
+          daysData[timesheet.day].push(day)
+      })
+    )
+  return { success: true, message: "List teacher timesheet", data:daysData }
+};
+
+
+/**
+ * API for parent view
+ */
+async function parentView(params , user){
+  if(!params.class_id) throw 'class_id is required'
+      let whereCondition  = {
+                              class_id   : params.class_id
+                            }
+    if(params.section_id)
+        whereCondition.section_id = params.section_id
+      
+    let timesheet = await Routine.findAll({
+                    where:whereCondition,
+                    attributes: ['day',
+                                 'start_time',
+                                 'end_time',
+                                 'room_no'
+                                 ],
+                    include: [{ 
+                      model:Subject,
+                      as:'subject',
+                      attributes: [
+                                    'subject_vls_id',
+                                    'name'
+                                  ]
+                    }]
+                  })
+
+    let daysData = {}
+    await Promise.all(
+      timesheet.map(async timesheet => {
+          let day = {
+            start_time   : timesheet.start_time,
+            end_time     : timesheet.end_time,
+            room_no      : timesheet.room_no,
+            subject_name : timesheet.subject.name
+          }
+
+          if(!daysData[timesheet.day])
+            daysData[timesheet.day] = []
+
+          daysData[timesheet.day].push(day)
+      })
+    )
+  return { success: true, message: "List parent timesheet", data:daysData }
 };
 
 
@@ -160,14 +178,14 @@ async function update(req){
   const errors = validationResult(req);
   if(errors.array().length) throw errors.array()
   let timetable = req.body.timetable
-  let timeData = []
+  let timeData  = []
 
-  user = await User.findByPk(req.user.id)
+  user          = await User.findByPk(req.user.id)
 
-  academicYear = await AcademicYear.findOne({
-    where:{school_id : user.school_id}
-  })
-  let num = await Routine.destroy({
+  academicYear  = await AcademicYear.findOne({
+                    where:{school_id : user.school_id}
+                  })
+  let num       = await Routine.destroy({
                           where:{
                             branch_vls_id : user.branch_vls_id,
                             school_vls_id : user.school_id,
@@ -186,7 +204,7 @@ async function update(req){
         if(!timetable.end_time)   throw 'end_time required'
         if(!timetable.room_no)   throw 'room_no required'
         if(!timetable.status)
-            status = 0
+            status     = 0
         if(timetable.section_id)
             section_id = timetable.section_id
         let body = {
@@ -208,5 +226,4 @@ async function update(req){
   )
   let routine = await Routine.bulkCreate(timeData);
   return { success: true, message: "Time sheet updated successfully", data:routine }
-
 };

@@ -68,5 +68,11 @@ db.Student = require("../../../vls/app/models/Student.js")(sequelize, Sequelize)
 db.Employee = require("../../../vls/app/models/Employee.js")(sequelize, Sequelize);
 db.Authentication = require("../../../vls/app/models/Authentication.js")(sequelize, Sequelize);
 db.AcademicYear = require("../../../student_attendance/app/models/AcademicYear.js")(sequelize, Sequelize);
+db.Guardian = require("../../../vls/app/models/Guardian.js")(sequelize, Sequelize);
 db.Routine = require("./Routine.js")(sequelize, Sequelize);
+db.Subject = require("./Subject.js")(sequelize, Sequelize);
+
+//Relation
+db.Routine.belongsTo(db.Subject,{foreignKey:'subject_id',as:'subject'})
+
 module.exports = db;
