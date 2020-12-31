@@ -6,8 +6,19 @@
 
 ``` bash
 # install dependencies
+
+#install yarn by apt-get if there is any issue with nvm
+https://stackoverflow.com/questions/46013544/yarn-install-command-error-no-such-file-or-directory-install
+
+#steps to install yarn
+curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+sudo apt-get update
+sudo apt-get install yarn -y
+
+# All the things should be installed with the help of yarn
+
 yarn #This should be for initial folder.
-npm install #This should be for individual folders
 
 Create Database
 Change DB settings in config/database.js

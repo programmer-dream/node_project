@@ -13,8 +13,7 @@ before_script:
   - echo "${AWS_SECRET_ACCESS_KEY}" | tr -d '\r' | ssh-add - > /dev/null
   - mkdir -p ~/.ssh
   - touch ~/.ssh/config
-  - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" >> ~/.ssh/config 
-  # - ssh ubuntu@ec2-54-172-182-54.compute-1.amazonaws.com
+  - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" >> ~/.ssh/config
 
 #This declares the pipeline stages  
 stages:
@@ -25,10 +24,4 @@ deployToAWS:
     - master
   stage: deploy
   script:
-    - ssh ubuntu@ec2-54-172-182-54.compute-1.amazonaws.com " cd /home/ubuntu/vls_backend/ &&git pull origin master && yarn install --ignore-engines && pm2 restart 0  && sequelize-cli db:migrate&& exit"
-    # - cd /home/ubuntu/vls_backend/
-    # - ls
-#    - git pull origin master
-#    - npx sequelize-cli db:migrate
-#    - yarn install
-#    - pm2 restart 0  
+    - ssh ubuntu@ec2-54-172-182-54.compute-1.amazonaws.com " cd /home/ubuntu/vls_backend/ &&git pull origin master && sequelize-cli db:migrate && yarn install --ignore-engines && pm2 restart 0 && exit"
