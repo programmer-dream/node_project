@@ -3,7 +3,9 @@ const db = require("../models");
 const Op = db.Sequelize.Op;
 const Sequelize = db.Sequelize;
 const path = require('path')
-const Routine         = db.Routine;
+const Routine     = db.Routine;
+const User        = db.Authentication;
+const AcademicYear= db.AcademicYear;
 
 const sequelize = db.sequelize;
 const bcrypt = require("bcryptjs");
@@ -11,10 +13,7 @@ const bcrypt = require("bcryptjs");
 module.exports = {
   create,
   list,
-  update,
-  view,
-  deleteLibrary,
-  getRatingLikes
+  update
 };
 
 
@@ -25,23 +24,50 @@ async function create(req){
   const errors = validationResult(req);
   if(errors.array().length) throw errors.array()
 
-   //return req.body
-  req.body.section_id = 0
-  req.body.teacher_id = 1
-  req.body.academic_year_id = 1
-  let routine = await Routine.create(req.body);
+  if(req.user.role != 'teacher' || req.user.role != 'principle') throw 'Unauthorized User'
+  let timetable = req.body.timetable
+  let timeData = []
 
-  return { success: true, message: "Learning library created successfully", data:routine }
+  user = await User.findByPk(req.user.id)
 
-};
+  academicYear = await AcademicYear.findOne({
+    where:{school_id:user.school_id}
+  })
 
+  if(!academicYear) throw 'Academic year not found'
+  
+  await Promise.all(
+    timetable.map(async timetable => {
+        let status     = 1
+        let section_id = 0
+        if(!timetable.subject_id) throw 'subject_id required'
+        if(!timetable.start_time) throw 'start_time required'
+        if(!timetable.end_time)   throw 'end_time required'
+        if(!timetable.room_no)   throw 'room_no required'
+        if(!timetable.status)
+            status = 0
+        if(timetable.section_id)
+            section_id = timetable.section_id
+        let body = {
+              day              : req.body.day,
+              class_id         : req.body.class_id,
+              school_vls_id    : user.school_id,
+              branch_vls_id    : user.branch_vls_id,
+              teacher_id       : user.user_vls_id,
+              academic_year_id : academicYear.id,
+              section_id       : section_id,
+              room_no          : timetable.room_no, 
+              status           : status,
+              subject_id       : timetable.subject_id,
+              start_time       : timetable.start_time,
+              end_time         : timetable.end_time
+          }
+        timeData.push(body)
+    })
+  )
+  let routine = await Routine.bulkCreate(timeData);
+  return { success: true, message: "Time sheet created successfully", data:routine }
 
-/**
- * API for view query
- */
-async function view(id){
-  let learningLibrary    = await LearningLibrary.findByPk(id)      
-  return { success: true, message: "Learning library details", data:learningLibrary }
 };
 
 
@@ -131,104 +157,56 @@ async function list(params){
  * API for query update 
  */
 async function update(req){
-  //start validation 
   const errors = validationResult(req);
   if(errors.array().length) throw errors.array()
+  let timetable = req.body.timetable
+  let timeData = []
 
-  //end validation
-  let id = req.params.id
-  if(!req.files.file) throw 'Please attach a file'
+  user = await User.findByPk(req.user.id)
 
-  req.body.URL           = req.body.uplodedPath + req.files.file[0].filename;
-  req.body.document_type = path.extname(req.files.file[0].originalname);
-  req.body.document_size = req.files.file[0].size; 
+  academicYear = await AcademicYear.findOne({
+    where:{school_id : user.school_id}
+  })
+  let num = await Routine.destroy({
+                          where:{
+                            branch_vls_id : user.branch_vls_id,
+                            school_vls_id : user.school_id,
+                            class_id      : req.body.class_id,
+                            day           : req.body.day
+                          }
+                        });
+  if(!academicYear) throw 'Academic year not found'
 
-  if(req.files.coverPhoto){
-    req.body.cover_photo = req.body.uplodedPath + req.files.coverPhoto[0].filename;
-  } 
-
-  if(req.body.tags)
-    req.body.tags = JSON.stringify(req.body.tags)
-
-  let num = await LearningLibrary.update(req.body,{
-                         where:{ learning_library_vls_id : id }
-                      });
-
-  if(!num) throw 'Learning library not updated'
-  
-  let query = await LearningLibrary.findByPk(id)
-     
-  return { success: true, message: "Learning library updated successfully", data: query }
-
-};
-
-
-/**
- * API for delete query
- */
-async function deleteLibrary(id) {
-  let num = await LearningLibrary.destroy({
-                where: { learning_library_vls_id: id }
-              })
-
-  if(num != 1) throw 'Learning library not found'
-  
-  return { success:true, message:"Learning library deleted successfully!"}
-  
-};
-
-
-/**
- * API for get today's date
- */
-function formatDate() {
-  var d = new Date(),
-  month = '' + (d.getMonth() + 1),
-    day = '' + d.getDate(),
-   year = d.getFullYear();
-
-  if (month.length < 2) 
-      month = '0' + month;
-  if (day.length < 2) 
-      day = '0' + day;
-  return [year, month, day].join('-');
-}
-
-/**
- * API for get rating and likes for learning library
- */
-async function getRatingLikes(id, user) {
-  try{
-    let avg = null
-    //get like count
-    let like  = await Ratings.count({
-      where:{likes:1,learning_library_vls_id:id}
+  await Promise.all(
+    timetable.map(async timetable => {
+        let status     = 1
+        let section_id = 0
+        if(!timetable.subject_id) throw 'subject_id required'
+        if(!timetable.start_time) throw 'start_time required'
+        if(!timetable.end_time)   throw 'end_time required'
+        if(!timetable.room_no)   throw 'room_no required'
+        if(!timetable.status)
+            status = 0
+        if(timetable.section_id)
+            section_id = timetable.section_id
+        let body = {
+              day              : req.body.day,
+              class_id         : req.body.class_id,
+              school_vls_id    : user.school_id,
+              branch_vls_id    : user.branch_vls_id,
+              teacher_id       : user.user_vls_id,
+              academic_year_id : academicYear.id,
+              section_id       : section_id,
+              room_no          : timetable.room_no, 
+              status           : status,
+              subject_id       : timetable.subject_id,
+              start_time       : timetable.start_time,
+              end_time         : timetable.end_time
+          }
+        timeData.push(body)
     })
+  )
+  let routine = await Routine.bulkCreate(timeData);
+  return { success: true, message: "Time sheet updated successfully", data:routine }
 
-    //get rating avg
-    let ratings = await Ratings.findOne({
-      attributes: [
-                    [ Sequelize.fn('SUM', Sequelize.col('ratings')), 'total_ratings' ],
-                    [ Sequelize.fn('COUNT', Sequelize.col('ratings')), 'total_count' ]
-                  ],
-      where:{learning_library_vls_id:id},
-      group:['learning_library_vls_id']
-    })
-
-    if(ratings){
-    //get rating & likes
-      let ratingData = ratings.toJSON();
-        avg          = parseInt(ratingData.total_ratings) / ratingData.total_count
-    } 
-
-    userRating  = await Ratings.findOne({
-      attributes: ['ratings','likes'],
-      where:{learning_library_vls_id:id,user_vls_id:user.userVlsId}
-    })
-
-    return { success:true, message:"Rating & like data",like:like,avg:avg,data:userRating}
-
-  }catch(err){
-    throw err.message;
-  }
 };

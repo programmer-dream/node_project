@@ -9,13 +9,15 @@
     "start:library": "yarn workspace learning_library start",
     "start:video_library": "yarn workspace video_learning_library start",
     "start:time_sheet": "yarn workspace time_sheet start",
-    "start": "concurrently --kill-others-on-fail \"yarn start:vls\" \"yarn start:query\" \"yarn start:library\" \"yarn start:video_library\" \"yarn start:time_sheet\"",
+    "start:attendance": "yarn workspace student_attendance start",
+    "start": "concurrently --kill-others-on-fail \"yarn start:vls\" \"yarn start:query\" \"yarn start:library\" \"yarn start:video_library\" \"yarn start:attendance\" \"yarn start:time_sheet\"",
     "dev:vls": "yarn workspace vls dev",
     "dev:query": "yarn workspace query_management dev",
     "dev:library": "yarn workspace learning_library dev",
     "dev:video_library": "yarn workspace video_learning_library dev",
     "dev:time_sheet": "yarn workspace time_sheet dev",
-    "dev": "concurrently --kill-others-on-fail \"yarn dev:vls\" \"yarn dev:query\" \"yarn dev:library\" \"yarn dev:video_library\" \"yarn dev:time_sheet\" "
+    "dev:attendance": "yarn workspace student_attendance dev",
+    "dev": "concurrently --kill-others-on-fail \"yarn dev:vls\" \"yarn dev:query\" \"yarn dev:library\" \"yarn dev:video_library\" \"yarn dev:attendance\" \"yarn dev:time_sheet\""
   },
   "keywords": [],
   "author": "",
@@ -26,7 +28,8 @@
     "query_management",
     "learning_library",
     "video_learning_library",
-    "time_sheet"
+    "time_sheet",
+    "student_attendance"
   ],
   "dependencies": {
     "concurrently": "^5.3.0",

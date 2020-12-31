@@ -61,12 +61,16 @@ sequelize.authenticate()
 	}
 );
 
-
-db.SchoolDetails = require("../../../vls/app/models/School.js")(sequelize, Sequelize);
-db.Branch = require("../../../vls/app/models/Branch.js")(sequelize, Sequelize);
-db.Student = require("../../../vls/app/models/Student.js")(sequelize, Sequelize);
 db.Employee = require("../../../vls/app/models/Employee.js")(sequelize, Sequelize);
+db.Student = require("../../../vls/app/models/Student.js")(sequelize, Sequelize);
+db.Branch = require("../../../vls/app/models/Branch.js")(sequelize, Sequelize);
+db.StudentAttendance = require("./StudentAttendance.js")(sequelize, Sequelize);
+db.Classes = require("./Classes.js")(sequelize, Sequelize);
+db.Section = require("./Section.js")(sequelize, Sequelize);
+db.AcademicYear = require("./AcademicYear.js")(sequelize, Sequelize);
 db.Authentication = require("../../../vls/app/models/Authentication.js")(sequelize, Sequelize);
-db.AcademicYear = require("../../../student_attendance/app/models/AcademicYear.js")(sequelize, Sequelize);
-db.Routine = require("./Routine.js")(sequelize, Sequelize);
+db.StudentAbsent = require("./StudentAbsent.js")(sequelize, Sequelize);
+//relatons
+db.Classes.hasMany(db.Section,{foreignKey:'class_id',as:'sections'})
+
 module.exports = db;
