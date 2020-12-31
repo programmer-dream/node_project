@@ -8,12 +8,14 @@
     "start:query": "yarn workspace query_management start",
     "start:library": "yarn workspace learning_library start",
     "start:video_library": "yarn workspace video_learning_library start",
-    "start": "concurrently --kill-others-on-fail \"yarn start:vls\" \"yarn start:query\" \"yarn start:library\" \"yarn start:video_library\"",
+    "start:time_sheet": "yarn workspace time_sheet start",
+    "start": "concurrently --kill-others-on-fail \"yarn start:vls\" \"yarn start:query\" \"yarn start:library\" \"yarn start:video_library\" \"yarn start:time_sheet\"",
     "dev:vls": "yarn workspace vls dev",
     "dev:query": "yarn workspace query_management dev",
     "dev:library": "yarn workspace learning_library dev",
     "dev:video_library": "yarn workspace video_learning_library dev",
-    "dev": "concurrently --kill-others-on-fail \"yarn dev:vls\" \"yarn dev:query\" \"yarn dev:library\" \"yarn dev:video_library\" "
+    "dev:time_sheet": "yarn workspace time_sheet dev",
+    "dev": "concurrently --kill-others-on-fail \"yarn dev:vls\" \"yarn dev:query\" \"yarn dev:library\" \"yarn dev:video_library\" \"yarn dev:time_sheet\" "
   },
   "keywords": [],
   "author": "",
@@ -23,7 +25,8 @@
     "vls",
     "query_management",
     "learning_library",
-    "video_learning_library"
+    "video_learning_library",
+    "time_sheet"
   ],
   "dependencies": {
     "concurrently": "^5.3.0",
