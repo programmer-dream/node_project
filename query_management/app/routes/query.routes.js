@@ -10,8 +10,7 @@ router.post("/create",[
     check('description','Description field is required.').not().isEmpty(),
     check('branch_vls_id','Branch_vls_id field is required.').not().isEmpty(),
     check('student_vls_id','Student_vls_id field is required.').not().isEmpty(),
-    check('school_vls_id','School_vls_id field is required.').not().isEmpty(),
-    check('faculty_vls_id','Faculty_vls_id field is required.').not().isEmpty()
+    check('school_vls_id','School_vls_id field is required.').not().isEmpty()
     ],createQuery);
 router.post("/response",queryResponse);
 
@@ -31,8 +30,7 @@ router.put("/update/:id",[
     check('description','Description field is required.').not().isEmpty(),
     check('branch_vls_id','Branch_vls_id field is required.').not().isEmpty(),
     check('student_vls_id','Student_vls_id field is required.').not().isEmpty(),
-    check('school_vls_id','School_vls_id field is required.').not().isEmpty(),
-    check('faculty_vls_id','Faculty_vls_id field is required.').not().isEmpty()
+    check('school_vls_id','School_vls_id field is required.').not().isEmpty()
     ],updateQuery);
 router.put("/statusUpdate/:id",statusUpdate);
 
