@@ -21,6 +21,7 @@ router.get("/listFaculty/branch/:id",listFaculty);
 router.get("/listSubject/branch/:id",listSubject);
 router.get("/getRatingLikes/:id",getRatingLikes);
 router.get("/canResponse/:id",canResponse);
+router.get("/dashboardCount",dashboardCount);
 //Delete
 router.delete("/delete/:id",deleteQuery);
 
@@ -101,5 +102,11 @@ function statusUpdate(req, res, next) {
 function canResponse(req, res, next) {
     queryController.canResponse(req.params.id , req.user)
         .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while checking user can response' }))
+        .catch(err => next(err));
+}
+// Function for query count's
+function dashboardCount(req, res, next) {
+    queryController.dashboardCount( req.user )
+        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while getting query counts' }))
         .catch(err => next(err));
 }

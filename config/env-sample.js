@@ -8,6 +8,7 @@ module.exports = {
   email_password: '',//gmail option
   host:'smtp.gmail.com',
   videos_path:"./uploads/videos",
+  videos_cover_photo:"/videos/cover_photo",
   pdf_path:"./uploads"
   port:587,
   senderEmail:'',

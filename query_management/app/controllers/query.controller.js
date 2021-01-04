@@ -26,7 +26,8 @@ module.exports = {
   queryResponse,
   getRatingLikes,
   statusUpdate,
-  canResponse
+  canResponse,
+  dashboardCount
 };
 
 
@@ -451,7 +452,6 @@ async function canResponse(id, user) {
 
     let subject = await Subject.findOne({
                      where:{
-                            class_id     : class_id,
                             teacher_id   : user.userVlsId,
                             subject_vls_id : subject_id
                            },
@@ -463,4 +463,155 @@ async function canResponse(id, user) {
     }
 
     return { success : false, message:"User can not respond to this query"}
+};
+
+
+/**
+ * API for query dashboard
+ */
+async function dashboardCount(user) {
+  // if(user.role != 'student' && user.role != 'teacher') 
+  //       throw 'Unauthorised User'
+  let statusArray = ['Open', 'Inprogress', 'Closed']
+  let queryCount = {}
+
+  if(user.role == 'student'){
+    queryCount = await studentCount(user.userVlsId, statusArray)
+
+  }else{
+
+    let classes = await Classes.findAll({
+                         where:{
+                                teacher_id   : user.userVlsId
+                               },
+                          attributes: ['class_vls_id']   
+                      });
+
+    let sections = await Section.findAll({
+                     where:{
+                            teacher_id   : user.userVlsId
+                           },
+                      attributes: ['class_id']   
+                  });
+
+    if(classes || sections){
+      let allClasses = []
+        classes.map(singleClass => {
+          allClasses.push(singleClass.class_vls_id)
+        })
+
+       sections.map(section => {
+          allClasses.push(section.class_id)
+        })
+
+      allClasses = allClasses.filter(function(elem, pos) {
+                return allClasses.indexOf(elem) == pos;
+            })
+
+      await Promise.all(allClasses);
+
+      queryCount = await teacherCount(allClasses, statusArray)
+    }else{
+
+      let sectionSubject = await Subject.findOne({
+                             where:{
+                                    teacher_id   : user.userVlsId,
+                                    subject_vls_id : subject_id
+                                   },
+                              attributes: ['subject_vls_id']   
+                          })
+
+      let allSubjects = []
+      
+      await Promise.all(
+        sectionSubject.map( async subject => {
+          allSubjects.push(subject.subject_vls_id)
+        })
+      )
+
+      queryCount = await subjectCount(allSubjects, statusArray, user.userVlsId)
+    }
+
+  } 
+  
+  
+  let queryCountObj = {
+    new: queryCount.Open,
+    answered: queryCount.Inprogress,
+    resolved: queryCount.Closed
+  }
+
+  return { success   : true , message  : "Dashboard query count", data : queryCountObj }
+};
+
+/**
+ * function for get student query count
+ */
+async function studentCount(student_id, statusArray){
+  let statusOb = {}
+  await Promise.all(
+    statusArray.map(async status =>{
+      let whereCondition = {
+                      query_status : status,
+                      student_vls_id: student_id
+                    }
+      statusOb[status] = await getQueryCount(whereCondition)
+    })
+  );
+
+  return statusOb
+
+};
+
+/**
+ * function for get teacher query count
+ */
+async function teacherCount(allClasses, statusArray){
+  let statusOb = {}
+  await Promise.all(
+    statusArray.map(async status =>{
+      let whereCondition = {
+                      query_status : status,
+                      class_vls_id : {
+                        [Op.in]: allClasses
+                      }
+                     }
+      statusOb[status] = await getQueryCount(whereCondition)
+    })
+  );
+
+  return statusOb
+    
+};
+
+/**
+ * function for get subject teacher query count
+ */
+async function subjectCount(allSubjects, statusArray, userID){
+  let statusOb = {}
+  statusArray.shift();
+  await Promise.all(
+    statusArray.map(async status =>{
+      let whereCondition = {
+                      query_status : status,
+                      faculty_vls_id : userID,
+                      subject_id   : {
+                        [Op.in]: allSubjects
+                      }
+                     }
+      statusOb[status] = await getQueryCount(whereCondition)
+    })
+  );
+
+  return statusOb
+};
+
+/**
+ * function for get query count
+ */
+async function getQueryCount(whereCondition){
+
+  let queryCount = await StudentQuery.count({ where: whereCondition });
+
+  return queryCount
 };
