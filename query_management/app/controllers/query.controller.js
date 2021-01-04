@@ -479,20 +479,36 @@ async function dashboardCount(user) {
     queryCount = await studentCount(user.userVlsId, statusArray)
 
   }else{
+
     let classes = await Classes.findAll({
                          where:{
                                 teacher_id   : user.userVlsId
                                },
                           attributes: ['class_vls_id']   
-                      })
-    if(classes){
+                      });
+
+    let sections = await Section.findAll({
+                     where:{
+                            teacher_id   : user.userVlsId
+                           },
+                      attributes: ['class_id']   
+                  });
+
+    if(classes || sections){
       let allClasses = []
-      await Promise.all(
-        classes.map( async singleClass => {
-          //console.log(singleClass, 'test' )
+        classes.map(singleClass => {
           allClasses.push(singleClass.class_vls_id)
         })
-      )
+
+       sections.map(section => {
+          allClasses.push(section.class_id)
+        })
+
+      allClasses = allClasses.filter(function(elem, pos) {
+                return allClasses.indexOf(elem) == pos;
+            })
+
+      await Promise.all(allClasses);
 
       queryCount = await teacherCount(allClasses, statusArray)
     }else{
@@ -506,12 +522,13 @@ async function dashboardCount(user) {
                           })
 
       let allSubjects = []
+      
       await Promise.all(
         sectionSubject.map( async subject => {
-          //console.log(singleClass, 'test' )
           allSubjects.push(subject.subject_vls_id)
         })
       )
+
       queryCount = await subjectCount(allSubjects, statusArray, user.userVlsId)
     }
 
