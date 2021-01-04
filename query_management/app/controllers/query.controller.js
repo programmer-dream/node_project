@@ -231,12 +231,6 @@ async function update(req){
     where : {query_vls_id : id}
   })
   if(isResponsed.response) throw 'Query could not be updated because  faculty already responded'
-    
-  let user = req.user
-  if(user.role == 'student'){
-    let student = await Student.findByPk(user.userVlsId)
-    req.body.class_vls_id = student.class_id
-  }
 
   req.body.query_status  = 'open'
   req.body.query_date    = formatDate() 
