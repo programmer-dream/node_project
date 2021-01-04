@@ -26,7 +26,8 @@ module.exports = {
   queryResponse,
   getRatingLikes,
   statusUpdate,
-  canResponse
+  canResponse,
+  dashboardCount
 };
 
 
@@ -464,3 +465,68 @@ async function canResponse(id, user) {
 
     return { success : false, message:"User can not respond to this query"}
 };
+
+
+/**
+ * API for check can response
+ */
+async function dashboardCount(user) {
+  // if(user.role != 'student' && user.role != 'teacher') 
+  //       throw 'Unauthorised User'
+
+  let allClasses = []
+
+  if(user.role == 'student'){
+    await studentCount(student_id)
+
+  }else{ 
+    let classes = await Classes.findAll({
+                         where:{
+                                teacher_id   : user.userVlsId
+                               },
+                          attributes: ['class_vls_id']   
+                      })
+    await Promise.all(
+      classes.map( async singleClass => {
+        //console.log(singleClass, 'test' )
+        allClasses.push(singleClass.class_vls_id)
+      })
+    )
+  } 
+  
+  
+
+  return { success   : true , 
+            message  : "Dashboard count",
+            newCount : newCount,
+            answered : answered,
+            resolved : resolved
+          }
+}
+async function studentCount(student_id){
+  let newCount = await StudentQuery.count({
+                       where:{
+                              query_status : 'open',
+                              student_vls_id : student_id
+                             }
+                    });
+  let answered = await StudentQuery.count({
+                       where:{
+                              query_status : 'Inprogress',
+                              student_vls_id : student_id
+                             }
+                    });
+  let resolved = await StudentQuery.count({
+                       where:{
+                              query_status : 'Closed',
+                              student_vls_id : student_id
+                             }
+                    });
+  return {newCount : newCount, answered: answered, resolved : resolved}
+}
+async function teacherCount(){
+  
+}
+async function subjectCount(){
+  
+}
