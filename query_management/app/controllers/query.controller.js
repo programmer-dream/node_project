@@ -319,6 +319,7 @@ async function queryResponse(body, user){
     let queryId                 = body.queryId
     let updateField             = {}
     updateField.response        = body.response
+    updateField.query_status    = 'Inprogress'
     updateField.response_date   = formatDate()
     updateField.faculty_vls_id  =  user.userVlsId
 
@@ -392,7 +393,7 @@ async function statusUpdate(id, user) {
     let userId = user.userVlsId
     let query = await StudentQuery.findOne({
                        where:{
-                              query_vls_id : userId,
+                              student_vls_id : userId,
                               query_vls_id : id
                              }
                     });
