@@ -164,13 +164,17 @@ async function list(params,user){
                                   model:Employee,
                                   as:'respondedBy',
                                   attributes: ['faculty_vls_id','name', 'photo']
+                                },
+                                { 
+                                  model:Subject,
+                                  as:'subject',
+                                  attributes: ['subject_vls_id','name']
                                 }
                               ],
                       attributes: [
                                     'query_vls_id', 
                                     'query_date', 
                                     'query_status', 
-                                    'subject', 
                                     'description',
                                     'tags',
                                     'topic',
@@ -319,10 +323,14 @@ async function queryResponse(body, user){
                               query_vls_id : queryId
                              }
                     });
+  let respondedBy = await Employee.findOne({
+    where : {faculty_vls_id:user.userVlsId},
+    attributes: ['faculty_vls_id','name','photo']
+  });
   
   if(num != 1) throw 'Query not found'
   
-  return { success: true, message: "Response updated successfully" };
+  return { success: true, message: "Response updated successfully" ,respondedBy:respondedBy};
   
   }catch(err){
     throw err.message

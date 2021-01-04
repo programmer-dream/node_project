@@ -74,5 +74,6 @@ db.StudentQuery.belongsTo(db.Employee,{foreignKey:'faculty_vls_id',as:'responded
 db.Ratings.belongsTo(db.Student,{foreignKey:'user_vls_id',as:'ratingBy'})
 db.Ratings.belongsTo(db.Student,{foreignKey:'user_vls_id',as:'likeBy'})
 db.Branch.hasMany(db.Subject,{foreignKey:'branch_vls_id',as:'subject'})
+db.StudentQuery.belongsTo(db.Subject,{foreignKey:'subject_id',as:'subject'})
 
 module.exports = db;
