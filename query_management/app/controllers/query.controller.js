@@ -93,7 +93,7 @@ async function list(params,user){
   let limit   = 10
   let offset  = 0
   let search  = '';
-  let status  = ['open','closed'];
+  let status  = ['Open', 'Inprogress', 'Closed'];
   let orderBy = 'desc';
   let tag     = '';
   let faculty = [];
