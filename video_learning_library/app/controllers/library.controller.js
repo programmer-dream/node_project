@@ -42,7 +42,7 @@ async function create(req){
 
   let learningLibrary = await VideoLearningLibrary.create(req.body);
 
-  return { success: true, message: "Learning library created successfully", data:learningLibrary }
+  return { success: true, message: "Video Learning library created successfully", data:learningLibrary }
 
 };
 
@@ -52,7 +52,7 @@ async function create(req){
  */
 async function view(id){
   let learningLibrary = await VideoLearningLibrary.findByPk(id)      
-  return { success: true, message: "Learning library details", data:learningLibrary };
+  return { success: true, message: "Video Learning library details", data:learningLibrary };
 };
 
 
@@ -125,7 +125,7 @@ async function list(params){
                         ]
                       });
 
-  return { success: true, message: "All Learning library data", total:total, data:learningLibrary }
+  return { success: true, message: "All Video Learning library data", total:total, data:learningLibrary }
 };
 
 
@@ -164,7 +164,7 @@ async function update(req){
   
   let query = await VideoLearningLibrary.findByPk(id)
      
-  return { success: true, message: "Learning library updated successfully", data: query }
+  return { success: true, message: "Video Learning library updated successfully", data: query }
 
 };
 
@@ -180,7 +180,7 @@ async function deleteLibrary(id) {
   if(num != 1) 
     throw 'Learning library not found'
 
-  return { success:true, message:"Learning library deleted successfully!"};
+  return { success:true, message:"Video Learning library deleted successfully!"};
   
 };
 
