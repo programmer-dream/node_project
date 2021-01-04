@@ -512,7 +512,7 @@ async function dashboardCount(user) {
           allSubjects.push(subject.subject_vls_id)
         })
       )
-      queryCount = await subjectCount(allSubjects, statusArray)
+      queryCount = await subjectCount(allSubjects, statusArray, user.userVlsId)
     }
 
   } 
@@ -570,12 +570,13 @@ async function teacherCount(allClasses, statusArray){
 /**
  * function for get subject teacher query count
  */
-async function subjectCount(allSubjects, statusArray){
+async function subjectCount(allSubjects, statusArray, userID){
   let statusOb = {}
   await Promise.all(
     statusArray.map(async status =>{
       let whereCondition = {
                       query_status : status,
+                      faculty_vls_id : userID,
                       subject_id   : {
                         [Op.in]: allSubjects
                       }
