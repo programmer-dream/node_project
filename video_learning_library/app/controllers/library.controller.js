@@ -34,7 +34,7 @@ async function create(req){
   req.body.video_size   = req.files.file[0].size;
 
   if(req.files.coverPhoto){
-    req.body.cover_photo = req.body.uplodedPath + req.files.coverPhoto[0].filename;
+    req.body.cover_photo = req.body.uplodedPath +'/'+req.files.coverPhoto[0].filename;
   }
 
   if(req.body.tags)

@@ -37,7 +37,12 @@ module.exports = {
 async function create(req){
   const errors = validationResult(req);
   if(errors.array().length) throw errors.array()
+  let user = req.user
 
+  if(user.role == 'student'){
+    let student = await Student.findByPk(user.userVlsId)
+    req.body.class_vls_id = student.class_id
+  }
   req.body.query_status   = 'open'
   req.body.query_date     = formatDate() 
 
