@@ -313,7 +313,8 @@ async function queryResponse(body, user){
   if(!body.queryId) throw 'QueryId is required'
   if(!body.response) throw'response is required'
 
-  await canResponse(body.queryId, user)
+  let canResponse = await canResponse(body.queryId, user)
+  if(!canResponse.success) throw "User can not add/update to this query"
 
   try{
     let queryId                 = body.queryId
@@ -423,7 +424,6 @@ async function canResponse(id, user) {
     //return query
     let class_id    = query.class_vls_id
     let subject_id  = query.subject_id
-    let isResponsed = false
 
     let classes = await Classes.findOne({
                        where:{
@@ -433,7 +433,6 @@ async function canResponse(id, user) {
                         attributes: ['class_vls_id']   
                     })
     if(classes){
-      isResponsed = true
       return { success : true, message:"User can response"}
     }
 
@@ -446,7 +445,6 @@ async function canResponse(id, user) {
                   })
 
     if(section){
-      isResponsed = true
       return { success : true, message:"User can response"}
     }
 
@@ -460,9 +458,8 @@ async function canResponse(id, user) {
                   })
 
     if(subject){
-      isResponsed = true
       return { success : true, message:"User can response"}
     }
 
-    throw "User can not respond to this query."
+    return { success : false, message:"User can not respond to this query"}
 };
