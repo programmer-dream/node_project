@@ -499,7 +499,7 @@ async function dashboardCount(user) {
                       attributes: ['class_id']   
                   });
 
-    if(classes || sections){
+    if(classes.length > 0 || sections.length > 0){
       let allClasses = []
         classes.map(singleClass => {
           allClasses.push(singleClass.class_vls_id)
@@ -526,7 +526,7 @@ async function dashboardCount(user) {
                           })
 
       let allSubjects = []
-
+      
       await Promise.all(
         sectionSubject.map( async subject => {
           allSubjects.push(subject.subject_vls_id)
