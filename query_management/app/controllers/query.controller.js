@@ -8,6 +8,7 @@ const Employee = db.Employee;
 const Branch = db.Branch;
 const Student = db.Student;
 const Ratings = db.Ratings;
+const Subject = db.Subject;
 
 const sequelize = db.sequelize;
 const bcrypt = require("bcryptjs");
@@ -163,13 +164,17 @@ async function list(params,user){
                                   model:Employee,
                                   as:'respondedBy',
                                   attributes: ['faculty_vls_id','name', 'photo']
+                                },
+                                { 
+                                  model:Subject,
+                                  as:'subject',
+                                  attributes: ['subject_vls_id','name']
                                 }
                               ],
                       attributes: [
                                     'query_vls_id', 
                                     'query_date', 
                                     'query_status', 
-                                    'subject', 
                                     'description',
                                     'tags',
                                     'topic',
@@ -279,15 +284,17 @@ async function listSubject(params){
 
   try{
     let branchVlsId = params.id
-    let employee  = await Branch.findOne({
+    let branch  = await Branch.findOne({
                     where:{branch_vls_id:branchVlsId},
-                    attributes: ['subjects'],
+                    attributes: ['branch_vls_id'],
+                    include: [{ 
+                        model:Subject,
+                        as:'subject',
+                        attributes: ['subject_vls_id','name']
+                      }]
                   });
-
-    let subjects = employee.toJSON()
-    subjectListing = JSON.parse(subjects.subjects)
-
-    return { success: true, message: "list subject data", data:subjectListing }
+    let subjects =  branch.subject
+    return { success: true, message: "list subject data", data:subjects }
 
   }catch(err){
     throw err.message
@@ -316,10 +323,14 @@ async function queryResponse(body, user){
                               query_vls_id : queryId
                              }
                     });
+  let respondedBy = await Employee.findOne({
+    where : {faculty_vls_id:user.userVlsId},
+    attributes: ['faculty_vls_id','name','photo']
+  });
   
   if(num != 1) throw 'Query not found'
   
-  return { success: true, message: "Response updated successfully" };
+  return { success: true, message: "Response updated successfully" ,respondedBy:respondedBy};
   
   }catch(err){
     throw err.message

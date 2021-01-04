@@ -29,9 +29,9 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.ENUM('open','Inprogress','Closed','Rejected')
       },
       topic: {
-        type: Sequelize.STRING
+        type: Sequelize.INTEGER
       },
-      subject: {
+      subject_id: {
         type: Sequelize.STRING
       },
       query_level: {
