@@ -519,8 +519,8 @@ async function dashboardCount(user) {
   
   
   let queryCountObj = {
-    new: queryCount.Open
-    answered: queryCount.Inprogress
+    new: queryCount.Open,
+    answered: queryCount.Inprogress,
     resolved: queryCount.Closed
   }
 
@@ -572,6 +572,7 @@ async function teacherCount(allClasses, statusArray){
  */
 async function subjectCount(allSubjects, statusArray, userID){
   let statusOb = {}
+  statusArray.shift();
   await Promise.all(
     statusArray.map(async status =>{
       let whereCondition = {
