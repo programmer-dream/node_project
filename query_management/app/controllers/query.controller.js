@@ -8,6 +8,7 @@ const Employee = db.Employee;
 const Branch = db.Branch;
 const Student = db.Student;
 const Ratings = db.Ratings;
+const Subject = db.Subject;
 
 const sequelize = db.sequelize;
 const bcrypt = require("bcryptjs");
@@ -279,15 +280,17 @@ async function listSubject(params){
 
   try{
     let branchVlsId = params.id
-    let employee  = await Branch.findOne({
+    let branch  = await Branch.findOne({
                     where:{branch_vls_id:branchVlsId},
-                    attributes: ['subjects'],
+                    attributes: ['branch_vls_id'],
+                    include: [{ 
+                        model:Subject,
+                        as:'subject',
+                        attributes: ['subject_vls_id','name']
+                      }]
                   });
-
-    let subjects = employee.toJSON()
-    subjectListing = JSON.parse(subjects.subjects)
-
-    return { success: true, message: "list subject data", data:subjectListing }
+    let subjects =  branch.subject
+    return { success: true, message: "list subject data", data:subjects }
 
   }catch(err){
     throw err.message
