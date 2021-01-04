@@ -8,6 +8,9 @@ const Employee = db.Employee;
 const Branch = db.Branch;
 const Student = db.Student;
 const Ratings = db.Ratings;
+const Subject = db.Subject;
+const Classes = db.Classes;
+const Section = db.Section;
 
 const sequelize = db.sequelize;
 const bcrypt = require("bcryptjs");
@@ -22,7 +25,8 @@ module.exports = {
   listSubject,
   queryResponse,
   getRatingLikes,
-  statusUpdate
+  statusUpdate,
+  canResponse
 };
 
 
@@ -163,13 +167,17 @@ async function list(params,user){
                                   model:Employee,
                                   as:'respondedBy',
                                   attributes: ['faculty_vls_id','name', 'photo']
+                                },
+                                { 
+                                  model:Subject,
+                                  as:'subject',
+                                  attributes: ['subject_vls_id','name']
                                 }
                               ],
                       attributes: [
                                     'query_vls_id', 
                                     'query_date', 
                                     'query_status', 
-                                    'subject', 
                                     'description',
                                     'tags',
                                     'topic',
@@ -279,15 +287,17 @@ async function listSubject(params){
 
   try{
     let branchVlsId = params.id
-    let employee  = await Branch.findOne({
+    let branch  = await Branch.findOne({
                     where:{branch_vls_id:branchVlsId},
-                    attributes: ['subjects'],
+                    attributes: ['branch_vls_id'],
+                    include: [{ 
+                        model:Subject,
+                        as:'subject',
+                        attributes: ['subject_vls_id','name']
+                      }]
                   });
-
-    let subjects = employee.toJSON()
-    subjectListing = JSON.parse(subjects.subjects)
-
-    return { success: true, message: "list subject data", data:subjectListing }
+    let subjects =  branch.subject
+    return { success: true, message: "list subject data", data:subjects }
 
   }catch(err){
     throw err.message
@@ -303,6 +313,8 @@ async function queryResponse(body, user){
   if(!body.queryId) throw 'QueryId is required'
   if(!body.response) throw'response is required'
 
+  await canResponse(body.queryId, user)
+
   try{
     let queryId                 = body.queryId
     let updateField             = {}
@@ -316,10 +328,14 @@ async function queryResponse(body, user){
                               query_vls_id : queryId
                              }
                     });
+  let respondedBy = await Employee.findOne({
+    where : {faculty_vls_id:user.userVlsId},
+    attributes: ['faculty_vls_id','name','photo']
+  });
   
   if(num != 1) throw 'Query not found'
   
-  return { success: true, message: "Response updated successfully" };
+  return { success: true, message: "Response updated successfully" ,respondedBy:respondedBy};
   
   }catch(err){
     throw err.message
@@ -392,4 +408,61 @@ async function statusUpdate(id, user) {
   }catch(err){
     throw err.message
   }
+};
+
+/**
+ * API for check can response
+ */
+async function canResponse(id, user) {
+    let query = await StudentQuery.findOne({
+                       where:{
+                              query_vls_id : id
+                             },
+                      attributes: ['class_vls_id','faculty_vls_id','subject_id']
+                    });
+    //return query
+    let class_id    = query.class_vls_id
+    let subject_id  = query.subject_id
+    let isResponsed = false
+
+    let classes = await Classes.findOne({
+                       where:{
+                              class_vls_id : class_id,
+                              teacher_id   : user.userVlsId
+                             },
+                        attributes: ['class_vls_id']   
+                    })
+    if(classes){
+      isResponsed = true
+      return { success : true, message:"User can response"}
+    }
+
+    let section = await Section.findOne({
+                     where:{
+                            class_id     : class_id,
+                            teacher_id   : user.userVlsId
+                           },
+                      attributes: ['id']   
+                  })
+
+    if(section){
+      isResponsed = true
+      return { success : true, message:"User can response"}
+    }
+
+    let subject = await Subject.findOne({
+                     where:{
+                            class_id     : class_id,
+                            teacher_id   : user.userVlsId,
+                            subject_vls_id : subject_id
+                           },
+                      attributes: ['subject_vls_id']   
+                  })
+
+    if(subject){
+      isResponsed = true
+      return { success : true, message:"User can response"}
+    }
+
+    throw "User can not respond to this query."
 };

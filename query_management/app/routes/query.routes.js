@@ -5,7 +5,7 @@ const { check } = require('express-validator');
 
 //Post
 router.post("/create",[
-    check('subject','Subject field is required.').not().isEmpty(),
+    check('subject_id','subject_id field is required.').not().isEmpty(),
     check('topic','Topic field is required.').not().isEmpty(),
     check('description','Description field is required.').not().isEmpty(),
     check('branch_vls_id','Branch_vls_id field is required.').not().isEmpty(),
@@ -20,12 +20,13 @@ router.get("/list",queryList);
 router.get("/listFaculty/branch/:id",listFaculty);
 router.get("/listSubject/branch/:id",listSubject);
 router.get("/getRatingLikes/:id",getRatingLikes);
+router.get("/canResponse/:id",canResponse);
 //Delete
 router.delete("/delete/:id",deleteQuery);
 
 //Put
 router.put("/update/:id",[
-    check('subject','Subject field is required.').not().isEmpty(),
+    check('subject_id','subject_id field is required.').not().isEmpty(),
     check('topic','Topic field is required.').not().isEmpty(),
     check('description','Description field is required.').not().isEmpty(),
     check('branch_vls_id','Branch_vls_id field is required.').not().isEmpty(),
@@ -94,5 +95,11 @@ function getRatingLikes(req, res, next) {
 function statusUpdate(req, res, next) {
     queryController.statusUpdate(req.params.id , req.user)
         .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while getting query like & ratting' }))
+        .catch(err => next(err));
+}
+// Function for user can response
+function canResponse(req, res, next) {
+    queryController.canResponse(req.params.id , req.user)
+        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while checking user can response' }))
         .catch(err => next(err));
 }
