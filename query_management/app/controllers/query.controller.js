@@ -513,16 +513,15 @@ async function dashboardCount(user) {
       queryCount = await teacherCount(allClasses, statusArray)
     }else{
 
-      let sectionSubject = await Subject.findOne({
+      let sectionSubject = await Subject.findAll({
                              where:{
-                                    teacher_id   : user.userVlsId,
-                                    subject_vls_id : subject_id
+                                    teacher_id   : user.userVlsId
                                    },
                               attributes: ['subject_vls_id']   
                           })
 
       let allSubjects = []
-      
+
       await Promise.all(
         sectionSubject.map( async subject => {
           allSubjects.push(subject.subject_vls_id)
