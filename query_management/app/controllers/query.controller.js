@@ -452,7 +452,6 @@ async function canResponse(id, user) {
 
     let subject = await Subject.findOne({
                      where:{
-                            class_id     : class_id,
                             teacher_id   : user.userVlsId,
                             subject_vls_id : subject_id
                            },
@@ -468,65 +467,132 @@ async function canResponse(id, user) {
 
 
 /**
- * API for check can response
+ * API for query dashboard
  */
 async function dashboardCount(user) {
   // if(user.role != 'student' && user.role != 'teacher') 
   //       throw 'Unauthorised User'
-
-  let allClasses = []
+  let statusArray = ['Open', 'Inprogress', 'Closed']
+  let queryCount = {}
 
   if(user.role == 'student'){
-    await studentCount(student_id)
+    queryCount = await studentCount(user.userVlsId, statusArray)
 
-  }else{ 
+  }else{
     let classes = await Classes.findAll({
                          where:{
                                 teacher_id   : user.userVlsId
                                },
                           attributes: ['class_vls_id']   
                       })
-    await Promise.all(
-      classes.map( async singleClass => {
-        //console.log(singleClass, 'test' )
-        allClasses.push(singleClass.class_vls_id)
-      })
-    )
+    if(classes){
+      let allClasses = []
+      await Promise.all(
+        classes.map( async singleClass => {
+          //console.log(singleClass, 'test' )
+          allClasses.push(singleClass.class_vls_id)
+        })
+      )
+
+      queryCount = await teacherCount(allClasses, statusArray)
+    }else{
+
+      let sectionSubject = await Subject.findOne({
+                             where:{
+                                    teacher_id   : user.userVlsId,
+                                    subject_vls_id : subject_id
+                                   },
+                              attributes: ['subject_vls_id']   
+                          })
+
+      let allSubjects = []
+      await Promise.all(
+        sectionSubject.map( async subject => {
+          //console.log(singleClass, 'test' )
+          allSubjects.push(subject.subject_vls_id)
+        })
+      )
+      queryCount = await subjectCount(allSubjects, statusArray)
+    }
+
   } 
   
   
+  let queryCountObj = {
+    new: queryCount.Open
+    answered: queryCount.Inprogress
+    resolved: queryCount.Closed
+  }
 
-  return { success   : true , 
-            message  : "Dashboard count",
-            newCount : newCount,
-            answered : answered,
-            resolved : resolved
-          }
-}
-async function studentCount(student_id){
-  let newCount = await StudentQuery.count({
-                       where:{
-                              query_status : 'open',
-                              student_vls_id : student_id
-                             }
-                    });
-  let answered = await StudentQuery.count({
-                       where:{
-                              query_status : 'Inprogress',
-                              student_vls_id : student_id
-                             }
-                    });
-  let resolved = await StudentQuery.count({
-                       where:{
-                              query_status : 'Closed',
-                              student_vls_id : student_id
-                             }
-                    });
-  return {newCount : newCount, answered: answered, resolved : resolved}
-}
-async function teacherCount(){
-  
-}
-async function subjectCount(){
-  
-}
+  return { success   : true , message  : "Dashboard query count", data : queryCountObj }
+};
+
+/**
+ * function for get student query count
+ */
+async function studentCount(student_id, statusArray){
+  let statusOb = {}
+  await Promise.all(
+    statusArray.map(async status =>{
+      let whereCondition = {
+                      query_status : status,
+                      student_vls_id: student_id
+                    }
+      statusOb[status] = await getQueryCount(whereCondition)
+    })
+  );
+
+  return statusOb
+
+};
+
+/**
+ * function for get teacher query count
+ */
+async function teacherCount(allClasses, statusArray){
+  let statusOb = {}
+  await Promise.all(
+    statusArray.map(async status =>{
+      let whereCondition = {
+                      query_status : status,
+                      class_vls_id : {
+                        [Op.in]: allClasses
+                      }
+                     }
+      statusOb[status] = await getQueryCount(whereCondition)
+    })
+  );
+
+  return statusOb
+    
+};
+
+/**
+ * function for get subject teacher query count
+ */
+async function subjectCount(allSubjects, statusArray){
+  let statusOb = {}
+  await Promise.all(
+    statusArray.map(async status =>{
+      let whereCondition = {
+                      query_status : status,
+                      subject_id   : {
+                        [Op.in]: allSubjects
+                      }
+                     }
+      statusOb[status] = await getQueryCount(whereCondition)
+    })
+  );
+
+  return statusOb
+};
+
+/**
+ * function for get query count
+ */
+async function getQueryCount(whereCondition){
+
+  let queryCount = await StudentQuery.count({ where: whereCondition });
+
+  return queryCount
+};
