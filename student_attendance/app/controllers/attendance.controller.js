@@ -268,13 +268,14 @@ function getDate(type) {
 async function addLeaveReason(req, user){
 	if(user.role !='guardian') 
 		throw 'Unauthorised User'
-
+	
 	const errors = validationResult(req);
 	if(errors.array().length) throw errors.array()
 	//return req.body
 	let student = await Student.findOne({
 				where : {student_vls_id : req.body.student_id}
 			});
+	let date_of_absent = moment(req.body.dateOfAbsent).format('YYYY-MM-DD')
 	//return student
 	let reasonData = {
 		student_id : req.body.student_id,
@@ -284,7 +285,7 @@ async function addLeaveReason(req, user){
 		modified_by: 0,
 		parent_id  : user.userVlsId,
 		reason     : req.body.reason,
-		date_of_absent  : moment()
+		date_of_absent  : date_of_absent
 	}
 
 	let studentAbsent = await StudentAbsent.create(reasonData)
@@ -513,14 +514,15 @@ async function updateLeaveReason(req, user){
 	let id       = req.params.id
 	const errors = validationResult(req);
 	if(errors.array().length) throw errors.array()
-	
+
+	let date_of_absent = moment(req.body.dateOfAbsent).format('YYYY-MM-DD')
 	//return student
 	let reasonData = {
 		student_id : req.body.student_id,
 		modified_by: user.userVlsId,
 		parent_id  : user.userVlsId,
 		reason     : req.body.reason,
-		date_of_absent  : moment()
+		date_of_absent  : date_of_absent
 	}
 
 	let studentAbsent = await StudentAbsent.findOne({
