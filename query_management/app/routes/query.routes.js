@@ -22,6 +22,7 @@ router.get("/listSubject/branch/:id",listSubject);
 router.get("/getRatingLikes/:id",getRatingLikes);
 router.get("/canResponse/:id",canResponse);
 router.get("/dashboardCount",dashboardCount);
+router.get("/teacherQueryList",teacherQueryList);
 //Delete
 router.delete("/delete/:id",deleteQuery);
 
@@ -108,5 +109,11 @@ function canResponse(req, res, next) {
 function dashboardCount(req, res, next) {
     queryController.dashboardCount( req.user )
         .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while getting query counts' }))
+        .catch(err => next(err));
+}
+// Function for list query for subject teacher
+function teacherQueryList(req, res, next) {
+    queryController.teacherQueryList( req.user , req.query)
+        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while getting list of subject teacher' }))
         .catch(err => next(err));
 }

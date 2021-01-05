@@ -27,7 +27,8 @@ module.exports = {
   getRatingLikes,
   statusUpdate,
   canResponse,
-  dashboardCount
+  dashboardCount,
+  teacherQueryList
 };
 
 
@@ -37,7 +38,12 @@ module.exports = {
 async function create(req){
   const errors = validationResult(req);
   if(errors.array().length) throw errors.array()
+  let user = req.user
 
+  if(user.role == 'student'){
+    let student = await Student.findByPk(user.userVlsId)
+    req.body.class_vls_id = student.class_id
+  }
   req.body.query_status   = 'open'
   req.body.query_date     = formatDate() 
 
@@ -88,7 +94,7 @@ async function list(params,user){
   let limit   = 10
   let offset  = 0
   let search  = '';
-  let status  = ['open','closed'];
+  let status  = ['Open', 'Inprogress', 'Closed'];
   let orderBy = 'desc';
   let tag     = '';
   let faculty = [];
@@ -494,7 +500,7 @@ async function dashboardCount(user) {
                       attributes: ['class_id']   
                   });
 
-    if(classes || sections){
+    if(classes.length > 0 || sections.length > 0){
       let allClasses = []
         classes.map(singleClass => {
           allClasses.push(singleClass.class_vls_id)
@@ -513,16 +519,15 @@ async function dashboardCount(user) {
       queryCount = await teacherCount(allClasses, statusArray)
     }else{
 
-      let sectionSubject = await Subject.findOne({
+      let sectionSubject = await Subject.findAll({
                              where:{
-                                    teacher_id   : user.userVlsId,
-                                    subject_vls_id : subject_id
+                                    teacher_id   : user.userVlsId
                                    },
                               attributes: ['subject_vls_id']   
                           })
 
       let allSubjects = []
-      
+
       await Promise.all(
         sectionSubject.map( async subject => {
           allSubjects.push(subject.subject_vls_id)
@@ -614,4 +619,41 @@ async function getQueryCount(whereCondition){
   let queryCount = await StudentQuery.count({ where: whereCondition });
 
   return queryCount
+};
+
+/**
+ * function for list query for subject teacher
+ */
+async function teacherQueryList(user , params){
+    let limit   = 10
+    let offset  = 0
+    let orderBy = 'asc';
+
+    if(params.size)
+       limit = parseInt(params.size)
+    if(params.page)
+        offset = 0 + (parseInt(params.page) - 1) * limit
+
+    let subjects = await Subject.findAll({
+                           where:{
+                                  teacher_id   : user.userVlsId
+                                 },
+                            attributes: ['subject_vls_id']
+                              
+                        }).then(subject => subject.map(subject => subject.subject_vls_id));
+    let allQuery = null
+    if(subjects.length > 0){
+      allQuery = await StudentQuery.findAll({ 
+          limit:limit,
+          offset:offset,
+          order: [
+                    ['query_vls_id', orderBy]
+                 ],
+          where: { 
+              subject_id : { [Op.in] : subjects }
+          }
+      });
+      
+    }
+    return { success : false, message : "Query list", data : allQuery }
 };
