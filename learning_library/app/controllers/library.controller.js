@@ -76,10 +76,7 @@ async function list(params){
 
   if(params.search)
     search = params.search
-  //search tag
-  if(params.tag)
-    tag = params.tag
-
+  
   let whereCondition = {
       [Op.or]:{
                 description: { 
@@ -89,7 +86,7 @@ async function list(params){
                 [Op.like]: `%`+search+`%` 
               },
               tags : { 
-                [Op.like]: `%`+tag+`%` 
+                [Op.like]: `%`+search+`%` 
               }
            }
     };
