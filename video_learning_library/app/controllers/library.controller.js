@@ -78,6 +78,9 @@ async function list(params){
                 },
               topic : { 
                 [Op.like]: `%`+search+`%` 
+              },
+              tags : { 
+                [Op.like]: `%`+search+`%` 
               }
            }
     };
@@ -96,12 +99,6 @@ async function list(params){
   //orderBy 
   if(params.orderBy)
      orderBy = params.orderBy
-
-  //search tag
-  if(params.tag){
-     tag = params.tag
-     whereCondition.tags = { [Op.like]: `%`+tag+`%` }
-  }
 
   let total = await VideoLearningLibrary.count({ where: whereCondition })
 
