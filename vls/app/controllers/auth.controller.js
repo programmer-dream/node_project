@@ -96,8 +96,8 @@ async function getById(id) {
 /**
  * API for reset password for login user's
  */
-async function resetPassword(body, userId) {
-
+async function resetPassword(body, userId, user) {
+  return role
   if (!body.oldPassword) throw 'Enter old password'
   if (!body.password) throw 'Enter password'
   if (!body.confirmPassword) throw 'Enter confirm password'
@@ -106,6 +106,7 @@ async function resetPassword(body, userId) {
     throw "Password and confirm password does not matched"
 
   let auth = await Authentication.findByPk(userId);
+  let response = await CheckpasswordCriteria(body.password, user)
 
   if(!auth) throw 'User not found'
 
@@ -404,4 +405,31 @@ async function userStatus(user, body) {
             })
 
    return {status: "success", message:'Status updated successfully' };
+}
+
+/**
+ * API for check for password
+ */
+async function CheckpasswordCriteria(password, user) {
+    let finalErr = []
+    if(password.length < 8)
+        finalErr.push('password should be at least 8 characters')
+      let isNum = /[0-9]/;
+      let err = /[0-9]/.test(password)
+          if(!err)
+            finalErr.push('password should be at least 1 number') 
+
+      err = /[A-Z]/.test(password)
+        if(!err)
+          finalErr.push('password should be at least 1 Upper characters') 
+
+      err = /[a-z]/.test(password)
+        if(!err)
+          finalErr.push('password should be at least 1 lower characters')
+      if(user.role != 'student') {
+        err = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.\/?]/.test(password)
+          if(!err)
+            finalErr.push('password should be at least 1 special characters') 
+      }
+    return finalErr
 }
