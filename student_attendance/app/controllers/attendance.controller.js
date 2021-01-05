@@ -447,17 +447,23 @@ async function listForParent(params, user){
 	let offset  	= 0
 	let whereCondtion 	= {}
 
-	if(!params.class_id) throw 'Class_id is required'
-    	whereCondtion.class_id = params.class_id
+	if(user.role == 'student'){
+		let student = await Student.findByPk(user.userVlsId)
+		whereCondtion.class_id = student.class_id
+		whereCondtion.student_id = student.student_vls_id
+	}else{
+		if(!params.class_id)   throw 'Class_id is required'
+		if(!params.student_id) throw 'Student_id is required'
+
+		whereCondtion.class_id     = params.class_id
+		whereCondtion.student_id   = params.student_id
+	}
 
     if(!params.school_id) throw 'School_id is required'
     	whereCondtion.school_id = params.school_id
 
     if(!params.branch_id) throw 'Branch_id is required'
     	whereCondtion.branch_vls_id = params.branch_id
-
-    if(!params.student_id) throw 'Student_id is required'
-    	whereCondtion.student_id = params.student_id
 
 	if(params.size)
     	limit = parseInt(params.size)
