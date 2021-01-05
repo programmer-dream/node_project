@@ -206,9 +206,12 @@ async function classList(params){
  */
 async function studentList(params){
 	let orderBy 		= 'desc'
-	let limit   		= 10
+	let limit   		= 100
 	let offset  		= 0
 	let whereCondtion 	= {}
+
+	if(!params.class_id) throw 'class_id is required'
+    if(!params.branch_vls_id) throw 'branch_vls_id is required'
 
 	if(params.size)
     	limit = parseInt(params.size)
@@ -268,13 +271,14 @@ function getDate(type) {
 async function addLeaveReason(req, user){
 	if(user.role !='guardian') 
 		throw 'Unauthorised User'
-
+	
 	const errors = validationResult(req);
 	if(errors.array().length) throw errors.array()
 	//return req.body
 	let student = await Student.findOne({
 				where : {student_vls_id : req.body.student_id}
 			});
+	let date_of_absent = moment(req.body.dateOfAbsent).format('YYYY-MM-DD')
 	//return student
 	let reasonData = {
 		student_id : req.body.student_id,
@@ -284,7 +288,7 @@ async function addLeaveReason(req, user){
 		modified_by: 0,
 		parent_id  : user.userVlsId,
 		reason     : req.body.reason,
-		date_of_absent  : moment()
+		date_of_absent  : date_of_absent
 	}
 
 	let studentAbsent = await StudentAbsent.create(reasonData)
@@ -323,9 +327,20 @@ async function listForTeacher(params, user){
     	whereCondtion.section_id = params.section_id
     if(params.student_id)
     	whereCondtion.student_id = params.student_id
-    if(params.month)
+    if(params.month){
     	whereCondtion.month = params.month
+    }else{
+    	let currentMonth 	=  moment().format('MMMM');
+    	whereCondtion.month = currentMonth
+    }
 
+    if(params.year){
+    	whereCondtion.year 	= params.year
+    }else{
+    	let currentYear		= moment().format('YYYY');
+    	whereCondtion.year 	= currentYear
+    }
+    
     let attendenceQuery = {  
 	                  limit : limit,
 	                  offset: offset,
@@ -355,12 +370,24 @@ async function listForTeacher(params, user){
 	// return attendance
 	let attendanceArray = await daysArray(attendance)
 
-  	return { success: true, message: "attendance list", data:attendanceArray }
+	if(params.student_id || params.day)
+		return { 
+					success: true, 
+					message: "attendance list", 
+					presentCount: attendanceArray.presentCount, 
+					absentCount: attendanceArray.absentCount,
+					data: attendanceArray.student 
+				}
+
+  	return { success: true, message: "attendance list", data: attendanceArray.student }
 };
 
 
 async function daysArray(attendance){
 	let studentFinal = []
+	let presentCount = 0
+	let absentCount  = 0
+
 	await Promise.all(
 		attendance.map(async student => {
 			let studentdata = []
@@ -372,6 +399,8 @@ async function daysArray(attendance){
 					let reason = null
 
 					if(student['day_'+i] == 'A'){
+						absentCount +=1
+
 						let absent_date = student.year +"-"+moment().month(student.month).format("M")+"-"+i
 						let date = sequelize.escape(`%${absent_date}%`)
 						let absent = await StudentAbsent.findOne({
@@ -384,6 +413,8 @@ async function daysArray(attendance){
 									})
 						if(absent)
 							reason = absent.reason
+					}else if(student['day_'+i] == 'P'){
+						presentCount += 1
 					}
 					 	
 					let dayData = {
@@ -403,7 +434,7 @@ async function daysArray(attendance){
 			studentFinal.push(student)
 		})
 	)
-	return studentFinal
+	return { student:studentFinal, presentCount, absentCount }
 }
 
 
@@ -438,8 +469,19 @@ async function listForParent(params, user){
     if(params.section_id )
     	whereCondtion.section_id = params.section_id
     
-    if(params.month)
-    	whereCondtion.month = params.month
+    if(params.year){
+    	whereCondtion.year 	= params.year
+    }else{
+    	let currentYear		= moment().format('YYYY');
+    	whereCondtion.year 	= currentYear
+    }
+
+    if(params.year){
+    	whereCondtion.year 	= params.year
+    }else{
+    	let currentYear		= moment().format('YYYY');
+    	whereCondtion.year 	= currentYear
+    }
 
     let attendenceQuery = {  
 	                  limit : limit,
@@ -470,7 +512,13 @@ async function listForParent(params, user){
 	// return attendance
 	let attendanceArray = await daysArray(attendance)
 
-  	return { success: true, message: "attendance list", data:attendanceArray }
+  	return { 
+				success: true, 
+				message: "attendance list", 
+				presentCount: attendanceArray.presentCount, 
+				absentCount: attendanceArray.absentCount,
+				data: attendanceArray.student 
+			}
 };
 
 
@@ -513,14 +561,15 @@ async function updateLeaveReason(req, user){
 	let id       = req.params.id
 	const errors = validationResult(req);
 	if(errors.array().length) throw errors.array()
-	
+
+	let date_of_absent = moment(req.body.dateOfAbsent).format('YYYY-MM-DD')
 	//return student
 	let reasonData = {
 		student_id : req.body.student_id,
 		modified_by: user.userVlsId,
 		parent_id  : user.userVlsId,
 		reason     : req.body.reason,
-		date_of_absent  : moment()
+		date_of_absent  : date_of_absent
 	}
 
 	let studentAbsent = await StudentAbsent.findOne({

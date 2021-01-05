@@ -13,6 +13,7 @@ router.post("/create",[
 router.post("/addLeaveReason",[
     check('student_id','student_id field is required.').not().isEmpty(),
     check('reason','reason field is required.').not().isEmpty(),
+    check('dateOfAbsent','dateOfAbsent field is required.').not().isEmpty()
     ],addLeaveReason);
 
 //Put
@@ -25,6 +26,7 @@ router.put("/update",[
 router.put("/updateLeaveReason/:id",[
     check('student_id','student_id field is required.').not().isEmpty(),
     check('reason','reason field is required.').not().isEmpty(),
+    check('dateOfAbsent','dateOfAbsent field is required.').not().isEmpty()
     ],updateLeaveReason);
 
 //Get
