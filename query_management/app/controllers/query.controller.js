@@ -27,7 +27,8 @@ module.exports = {
   getRatingLikes,
   statusUpdate,
   canResponse,
-  dashboardCount
+  dashboardCount,
+  teacherQueryList
 };
 
 
@@ -526,7 +527,7 @@ async function dashboardCount(user) {
                           })
 
       let allSubjects = []
-      
+
       await Promise.all(
         sectionSubject.map( async subject => {
           allSubjects.push(subject.subject_vls_id)
@@ -618,4 +619,41 @@ async function getQueryCount(whereCondition){
   let queryCount = await StudentQuery.count({ where: whereCondition });
 
   return queryCount
+};
+
+/**
+ * function for list query for subject teacher
+ */
+async function teacherQueryList(user , params){
+    let limit   = 10
+    let offset  = 0
+    let orderBy = 'asc';
+
+    if(params.size)
+       limit = parseInt(params.size)
+    if(params.page)
+        offset = 0 + (parseInt(params.page) - 1) * limit
+
+    let subjects = await Subject.findAll({
+                           where:{
+                                  teacher_id   : user.userVlsId
+                                 },
+                            attributes: ['subject_vls_id']
+                              
+                        }).then(subject => subject.map(subject => subject.subject_vls_id));
+    let allQuery = null
+    if(subjects.length > 0){
+      allQuery = await StudentQuery.findAll({ 
+          limit:limit,
+          offset:offset,
+          order: [
+                    ['query_vls_id', orderBy]
+                 ],
+          where: { 
+              subject_id : { [Op.in] : subjects }
+          }
+      });
+      
+    }
+    return { success : false, message : "Query list", data : allQuery }
 };
