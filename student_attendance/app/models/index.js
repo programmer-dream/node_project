@@ -72,5 +72,6 @@ db.Authentication = require("../../../vls/app/models/Authentication.js")(sequeli
 db.StudentAbsent = require("./StudentAbsent.js")(sequelize, Sequelize);
 //relatons
 db.Classes.hasMany(db.Section,{foreignKey:'class_id',as:'sections'})
+db.StudentAttendance.belongsTo(db.Student,{foreignKey:'student_id',as:'student'})
 
 module.exports = db;

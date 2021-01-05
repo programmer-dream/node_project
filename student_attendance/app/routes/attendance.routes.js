@@ -5,8 +5,8 @@ const { check } = require('express-validator');
 
 //Post
 router.post("/create",[
-    check('present','present field is required.').not().isEmpty(),
-    check('absent','absent field is required.').not().isEmpty(),
+    check('present','present field is required.').not(),
+    check('absent','absent field is required.').not(),
     check('classID','classID field is required.').not().isEmpty()
     ],attendanceCreate);
 
