@@ -106,8 +106,10 @@ async function resetPassword(body, userId, user) {
     throw "Password and confirm password does not matched"
 
   let auth = await Authentication.findByPk(userId);
-  let response = await CheckpasswordCriteria(body.password, user)
+  let response = await checkPasswordCriteria(body.password, user, auth.name)
 
+  if(response.isError) throw response.error
+  
   if(!auth) throw 'User not found'
 
   // Match old password
@@ -410,8 +412,9 @@ async function userStatus(user, body) {
 /**
  * API for check for password
  */
-async function CheckpasswordCriteria(password, user) {
+async function checkPasswordCriteria(password, user,name) {
     let finalErr = []
+    let isError = false
     if(password.length < 8)
         finalErr.push('password should be at least 8 characters')
       let isNum = /[0-9]/;
@@ -430,6 +433,12 @@ async function CheckpasswordCriteria(password, user) {
         err = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.\/?]/.test(password)
           if(!err)
             finalErr.push('password should be at least 1 special characters') 
+        err = password.include(name)
+        if(!err)
+            finalErr.push('password should not contain name')
       }
-    return finalErr
+      if(finalErr.length)
+        isError = true
+
+    return {isError : isError, error: finalErr}
 }
