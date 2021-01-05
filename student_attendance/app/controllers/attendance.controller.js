@@ -348,6 +348,11 @@ async function listForTeacher(params, user){
 	                  order : [
 	                          ['attendance_vls_id', orderBy]
 	                  ],
+	                  include: [{ 
+                              model:Student,
+                              as:'student',
+                              attributes: ['name','photo']
+                            }]
 	                }
     if(params.day){
     	let attributes = ['attendance_vls_id', 'branch_vls_id', 'student_id','academic_year_id','class_id','section_id','school_id','month','year','created_by','modified_by']
@@ -360,7 +365,12 @@ async function listForTeacher(params, user){
 	                  order : [
 	                          ['attendance_vls_id', orderBy]
 	                  ],
-	                  attributes:attributes
+	                  attributes:attributes,
+	                  include: [{ 
+                              model:Student,
+                              as:'student',
+                              attributes: ['name','photo']
+                            }]
 	                  }
     }
     
@@ -496,6 +506,11 @@ async function listForParent(params, user){
 	                  order : [
 	                          ['attendance_vls_id', orderBy]
 	                  ],
+	                  include: [{ 
+                              model:Student,
+                              as:'student',
+                              attributes: ['name','photo']
+                            }]
 	                }
     if(params.day){
     	let attributes = ['attendance_vls_id', 'branch_vls_id', 'student_id','academic_year_id','class_id','section_id','school_id','month','year','created_by','modified_by']
@@ -508,7 +523,12 @@ async function listForParent(params, user){
 	                  order : [
 	                          ['attendance_vls_id', orderBy]
 	                  ],
-	                  attributes:attributes
+	                  attributes:attributes,
+	                  include: [{ 
+                              model:Student,
+                              as:'student',
+                              attributes: ['name','photo']
+                            }]
 	                  }
     }
     
