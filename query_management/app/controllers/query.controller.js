@@ -107,6 +107,10 @@ async function list(params,user){
   if(params.search) 
     search = params.search
 
+  //search tag
+  if(params.tag)
+     tag = params.tag
+
   let whereCondition = {
       [Op.or]:{
                 description: { 
@@ -114,13 +118,16 @@ async function list(params,user){
                 },
               topic : { 
                 [Op.like]: `%`+search+`%` 
+              },
+              tags : { 
+                [Op.like]: `%`+tag+`%` 
               }
            }
     };
 
   whereCondition.branch_vls_id = branchVlsId
   whereCondition.school_vls_id = schoolVlsId
-
+  console.log(whereCondition)
 
   //status 
   if(params.status){
@@ -133,11 +140,6 @@ async function list(params,user){
   if(params.orderBy)
      orderBy = params.orderBy
 
-  //search tag
-  if(params.tag){
-     tag = params.tag
-     whereCondition.tags = { [Op.like]: `%`+tag+`%` }
-  }
 
   //search faculity  
   if(params.facultyVlsId)
