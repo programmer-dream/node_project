@@ -53,7 +53,7 @@ function create(req, res, next) {
 }
 // Function for list query details
 function list(req, res, next) {
-    libraryController.list(req.query)
+    libraryController.list(req.query, req.user)
         .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while listing comment' }))
         .catch(err => next(err));
 }

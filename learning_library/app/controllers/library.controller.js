@@ -60,7 +60,8 @@ async function view(id){
 /**
  * API for list query according to school and student
  */
-async function list(params){
+async function list(params, user){
+  //return user
   let level        = ['Basic','Intermediate','Expert'];
   let orderBy       = 'desc';
   let tag           = '';
@@ -130,8 +131,21 @@ async function list(params){
                           'cover_photo'
                         ]
                       });
-
-  return { success: true, message: "All Learning library data", total:total, data:learningLibrary }
+  await Promise.all(
+    learningLibrary.map(async item => {
+        data = await getRatingLikes(item.learning_library_vls_id, user)
+        item.ratings = {
+            like      : data.like,
+            avg       : data.avg,
+            user_data : data.data
+          }
+    })
+  )
+  return { success : true,
+           message : "All Learning library data", 
+           total : total, 
+           data : learningLibrary
+         }
 
 };
 
@@ -208,7 +222,8 @@ function formatDate() {
  */
 async function getRatingLikes(id, user) {
   try{
-    let avg = null
+    let avg = 0
+    let whereCondition = {}
     //get like count
     let like  = await Ratings.count({
       where:{likes:1,learning_library_vls_id:id}
@@ -229,10 +244,14 @@ async function getRatingLikes(id, user) {
       let ratingData = ratings.toJSON();
         avg          = parseInt(ratingData.total_ratings) / ratingData.total_count
     } 
+      whereCondition.learning_library_vls_id = id
+
+    if(user)
+      whereCondition.user_vls_id = user.userVlsId
 
     userRating  = await Ratings.findOne({
-      attributes: ['ratings','likes'],
-      where:{learning_library_vls_id:id,user_vls_id:user.userVlsId}
+      attributes : ['ratings','likes'],
+      where : whereCondition
     })
 
     return { success:true, message:"Rating & like data",like:like,avg:avg,data:userRating}
