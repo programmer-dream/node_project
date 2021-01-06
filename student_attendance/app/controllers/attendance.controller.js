@@ -309,7 +309,7 @@ async function listForTeacher(params, user){
 	let limit   	= 10
 	let offset  	= 0
 	let whereCondtion 	= {}
-
+	
 	if(!params.class_id) throw 'Class_id is required'
     	whereCondtion.class_id = params.class_id
 
@@ -331,7 +331,7 @@ async function listForTeacher(params, user){
     if(params.student_id)
     	whereCondtion.student_id = params.student_id
     if(params.month){
-    	whereCondtion.month = params.month
+    	whereCondtion.month = moment(params.month, 'M').format('MMMM')
     }else{
     	let currentMonth 	=  moment().format('MMMM');
     	whereCondtion.month = currentMonth
@@ -494,11 +494,11 @@ async function listForParent(params, user){
     if(params.section_id )
     	whereCondtion.section_id = params.section_id
     
-    if(params.year){
-    	whereCondtion.year 	= params.year
+    if(params.month){
+    	whereCondtion.month = moment(params.month, 'M').format('MMMM')
     }else{
-    	let currentYear		= moment().format('YYYY');
-    	whereCondtion.year 	= currentYear
+    	let currentMonth 	=  moment().format('MMMM');
+    	whereCondtion.month = currentMonth
     }
 
     if(params.year){
@@ -694,7 +694,7 @@ async function dashboardAttendanceCount(user){
                            },
                       attributes: ['id','class_id']   
                   });
-	
+
 	//return sections
 	if(sections.length){
 		await Promise.all(
