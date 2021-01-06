@@ -424,7 +424,7 @@ async function daysArray(attendance, checkForParentStudent = false){
 										})
 							if(absent)
 								reason = absent
-							
+
 						}else if(student['day_'+i] == 'P'){
 							presentCount += 1
 						}
@@ -447,8 +447,8 @@ async function daysArray(attendance, checkForParentStudent = false){
 			studentFinal.push(student)
 		})
 	)
-
-	if(checkForParentStudent && studentFinal.length < 2) studentFinal = studentFinal[0]
+	
+	if(checkForParentStudent && studentFinal.length > 0 && studentFinal.length < 2) studentFinal = studentFinal[0]
 
 	return { student:studentFinal, presentCount, absentCount }
 }
@@ -504,7 +504,7 @@ async function listForParent(params, user){
     	let currentYear		= moment().format('YYYY');
     	whereCondtion.year 	= currentYear
     }
-    console.log(params, "params")
+
     let attendenceQuery = {  
 	                  limit : limit,
 	                  offset: offset,
@@ -543,7 +543,7 @@ async function listForParent(params, user){
 	// return attendance
 	let checkForParentStudent = true
 	let attendanceArray = await daysArray(attendance, checkForParentStudent)
-
+	console.log(attendanceArray, "attendanceArray")
   	return { 
 				success: true, 
 				message: "attendance list", 
@@ -558,8 +558,9 @@ async function listForParent(params, user){
  * API for list parent children
  */
 async function listParentChildren(params, user){
-	// if(user.role !='guardian') 
-	// 	throw 'Unauthorised User'
+	if(user.role !='guardian') 
+		throw 'Unauthorised User'
+
 	let whereCondtion = {}
 	
 	if(!params.branch_id) throw 'branch_id is required'
