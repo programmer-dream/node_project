@@ -341,7 +341,7 @@ async function listForTeacher(params, user){
     	whereCondtion.year 	= currentYear
     }
     
-    let attendenceQuery = { 
+    let attendenceQuery = {  
 	                  limit : limit,
 	                  offset: offset,
 	                  where : whereCondtion,
@@ -393,63 +393,62 @@ async function listForTeacher(params, user){
 };
 
 
-async function daysArray(attendance){
+async function daysArray(attendance, checkForParentStudent = false){
 	let studentFinal = []
 	let presentCount = 0
 	let absentCount  = 0
-
+	let currentDay = moment().format('D')
 	await Promise.all(
 		attendance.map(async student => {
 			let studentdata = []
 			student = student.toJSON()
-			let currentDay = moment().format('D');
 
 			for(var i = 1; i<=31; i++){
-				if(student.hasOwnProperty('day_'+i) && i <= currentDay){
-					let status = student['day_'+i]
-					let reason = null
+				if(student.hasOwnProperty('day_'+i) ){
+					if(i <= currentDay){
+						let status = student['day_'+i]
+						let reason = null
 
-					if(student['day_'+i] == 'A'){
-						absentCount +=1
+						if(student['day_'+i] == 'A'){
+							absentCount +=1
 
-						let absent_date = student.year +"-"+moment().month(student.month).format("M")+"-"+i
-						let date = sequelize.escape(`%${absent_date}%`)
-						let absent = await StudentAbsent.findOne({
-										where:{
-											student_id:student.student_id,
-											date_of_absent:{ 
-							                  [Op.like]: sequelize.literal(`${date}`)
-							                }
-										}
-									})
-						if(absent)
-							reason = absent.reason
-					}else if(student['day_'+i] == 'P'){
-						presentCount += 1
+							let absent_date = student.year +"-"+moment().month(student.month).format("M")+"-"+i
+							let date = sequelize.escape(`%${absent_date}%`)
+							let absent = await StudentAbsent.findOne({
+											where:{
+												student_id:student.student_id,
+												date_of_absent:{ 
+								                  [Op.like]: sequelize.literal(`${date}`)
+								                }
+											}
+										})
+							if(absent)
+								reason = absent
+							
+						}else if(student['day_'+i] == 'P'){
+							presentCount += 1
+						}
+						 	
+						let dayData = {
+							day: i,
+							status:status,
+							reason: reason
+							
+						}
+
+						studentdata.push(dayData)
 					}
-					 	
-					let dayData = {
-						day: i,
-						status:status,
-						reason: reason
-						
-					}
-
 					delete student['day_'+i]
-
-					studentdata.push(dayData)
 				}
 			}
 
-			if(student.days.length > 0 && student.days.length < 2)
-				 student.days = student.days[0]
+			(studentdata.length > 1) ? student.days = studentdata : student.days = studentdata[0]
 
 			studentFinal.push(student)
 		})
 	)
 
-	if(studentFinal.length > 0 && studentFinal.length < 2)
-		studentFinal = studentFinal[0]
+	if(checkForParentStudent && studentFinal.length < 2) studentFinal = studentFinal[0]
 
 	return { student:studentFinal, presentCount, absentCount }
 }
@@ -505,7 +504,7 @@ async function listForParent(params, user){
     	let currentYear		= moment().format('YYYY');
     	whereCondtion.year 	= currentYear
     }
-
+    console.log(params, "params")
     let attendenceQuery = {  
 	                  limit : limit,
 	                  offset: offset,
@@ -541,9 +540,9 @@ async function listForParent(params, user){
     
     //return whereCondtion
 	let attendance  = await StudentAttendance.findAll(attendenceQuery);
-
 	// return attendance
-	let attendanceArray = await daysArray(attendance)
+	let checkForParentStudent = true
+	let attendanceArray = await daysArray(attendance, checkForParentStudent)
 
   	return { 
 				success: true, 
