@@ -341,7 +341,7 @@ async function listForTeacher(params, user){
     	whereCondtion.year 	= currentYear
     }
     
-    let attendenceQuery = {  
+    let attendenceQuery = { 
 	                  limit : limit,
 	                  offset: offset,
 	                  where : whereCondtion,
@@ -402,9 +402,10 @@ async function daysArray(attendance){
 		attendance.map(async student => {
 			let studentdata = []
 			student = student.toJSON()
+			let currentDay = moment().format('D');
 
 			for(var i = 1; i<=31; i++){
-				if(student.hasOwnProperty('day_'+i) ){
+				if(student.hasOwnProperty('day_'+i) && i <= currentDay){
 					let status = student['day_'+i]
 					let reason = null
 
@@ -439,11 +440,17 @@ async function daysArray(attendance){
 					studentdata.push(dayData)
 				}
 			}
-			student.days = studentdata
+
+			if(student.days.length > 0 && student.days.length < 2)
+				 student.days = student.days[0]
 
 			studentFinal.push(student)
 		})
 	)
+
+	if(studentFinal.length > 0 && studentFinal.length < 2)
+		studentFinal = studentFinal[0]
+
 	return { student:studentFinal, presentCount, absentCount }
 }
 
