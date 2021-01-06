@@ -423,7 +423,8 @@ async function daysArray(attendance, checkForParentStudent = false){
 											}
 										})
 							if(absent)
-								reason = absent.reason
+								reason = absent
+							
 						}else if(student['day_'+i] == 'P'){
 							presentCount += 1
 						}
