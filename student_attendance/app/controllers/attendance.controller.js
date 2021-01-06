@@ -413,17 +413,18 @@ async function daysArray(attendance, checkForParentStudent = false){
 							absentCount +=1
 
 							let absent_date = student.year +"-"+moment().month(student.month).format("M")+"-"+i
-							let date = sequelize.escape(`%${absent_date}%`)
+
 							let absent = await StudentAbsent.findOne({
 											where:{
 												student_id:student.student_id,
 												date_of_absent:{ 
-								                  [Op.like]: sequelize.literal(`${date}`)
+								                  [Op.between]: [absent_date, absent_date]
 								                }
-											}
+											},
+											attributes:['id', 'reason', 'date_of_absent']
 										})
 							if(absent)
-								reason = absent
+								reason = absent.toJSON()
 
 						}else if(student['day_'+i] == 'P'){
 							presentCount += 1
@@ -447,7 +448,7 @@ async function daysArray(attendance, checkForParentStudent = false){
 			studentFinal.push(student)
 		})
 	)
-	
+
 	if(checkForParentStudent && studentFinal.length > 0 && studentFinal.length < 2) studentFinal = studentFinal[0]
 
 	return { student:studentFinal, presentCount, absentCount }
@@ -543,7 +544,7 @@ async function listForParent(params, user){
 	// return attendance
 	let checkForParentStudent = true
 	let attendanceArray = await daysArray(attendance, checkForParentStudent)
-	console.log(attendanceArray, "attendanceArray")
+	
   	return { 
 				success: true, 
 				message: "attendance list", 
