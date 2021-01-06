@@ -97,7 +97,7 @@ async function getById(id) {
  * API for reset password for login user's
  */
 async function resetPassword(body, userId, user) {
-  return role
+  
   if (!body.oldPassword) throw 'Enter old password'
   if (!body.password) throw 'Enter password'
   if (!body.confirmPassword) throw 'Enter confirm password'
@@ -107,7 +107,6 @@ async function resetPassword(body, userId, user) {
 
   let auth = await Authentication.findByPk(userId);
   let response = await checkPasswordCriteria(body.password, user, auth.name)
-
   if(response.isError) throw response.error
   
   if(!auth) throw 'User not found'
@@ -298,7 +297,7 @@ function forgetToken(length) {
 /**
  * API for udate user password with link
  */
-async function updatePasswordWithForgetPwd(body) {
+async function updatePasswordWithForgetPwd(body , reqUser) {
   let token = body.token
   let newPassword = body.newPassword
   let isTrue;
@@ -311,6 +310,9 @@ async function updatePasswordWithForgetPwd(body) {
   let allPwd  = JSON.parse(user.old_passwords)
   //encrypt new password
   let updatedPassword = bcrypt.hashSync(newPassword, 8)
+
+  let response = await checkPasswordCriteria(body.password, reqUser, user.name)
+  if(response.isError) throw response.error
 
   allPwd.forEach(function (item, index){
       isTrue = bcrypt.compareSync(newPassword, item)
@@ -412,7 +414,7 @@ async function userStatus(user, body) {
 /**
  * API for check for password
  */
-async function checkPasswordCriteria(password, user,name) {
+async function checkPasswordCriteria(password, user, name) {
     let finalErr = []
     let isError = false
     if(password.length < 8)
@@ -424,19 +426,21 @@ async function checkPasswordCriteria(password, user,name) {
 
       err = /[A-Z]/.test(password)
         if(!err)
-          finalErr.push('password should be at least 1 Upper characters') 
+          finalErr.push('password should be at least 1 upper case characters') 
 
       err = /[a-z]/.test(password)
         if(!err)
-          finalErr.push('password should be at least 1 lower characters')
+          finalErr.push('password should be at least 1 lower case characters')
+
       if(user.role != 'student') {
         err = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.\/?]/.test(password)
           if(!err)
             finalErr.push('password should be at least 1 special characters') 
-        err = password.include(name)
-        if(!err)
+        err = password.includes('student')
+        if(err)
             finalErr.push('password should not contain name')
       }
+      
       if(finalErr.length)
         isError = true
 
