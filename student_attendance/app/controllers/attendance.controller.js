@@ -11,6 +11,7 @@ const Student = db.Student;
 const AcademicYear = db.AcademicYear;
 const Authentication = db.Authentication;
 const StudentAbsent = db.StudentAbsent;
+const Subject 		= db.Subject;
 
 
 module.exports = {
@@ -22,7 +23,9 @@ module.exports = {
   listForTeacher,
   listForParent,
   listParentChildren,
-  updateLeaveReason
+  updateLeaveReason,
+  teacherClasses,
+  dashboardAttendanceCount
 };
 
 
@@ -612,4 +615,114 @@ async function updateLeaveReason(req, user){
 		studentAbsent.update(reasonData)
 
 	return { success: true, message: "Student leave reason updated successfully", data:studentAbsent};
+};
+
+
+/**
+ * API for list teacher Classes
+ */
+async function teacherClasses(user){
+	if(user.role !='teacher') 
+		throw 'Unauthorised User'
+	let allClasses = []
+	let classes = await Classes.findAll({
+                         where:{
+                                teacher_id   : user.userVlsId
+                               },
+                          attributes: ['class_vls_id']   
+                      });
+    let sections = await Section.findAll({
+                     where:{
+                            teacher_id   : user.userVlsId
+                           },
+                      attributes: ['class_id']   
+                  });
+   
+    if(classes.length > 0 || sections.length > 0){
+        classes.map(singleClass => {
+          allClasses.push(singleClass.class_vls_id)
+        })
+
+       sections.map(section => {
+          allClasses.push(section.class_id)
+        })
+
+      allClasses = allClasses.filter(function(elem, pos) {
+                return allClasses.indexOf(elem) == pos;
+            })
+      await Promise.all(allClasses);
+  	}else{
+  		let sectionClass = await Subject.findAll({
+                             where:{
+                                    teacher_id   : user.userVlsId
+                                   },
+                              attributes: ['class_id']   
+                          })
+
+      	await Promise.all(
+	        sectionClass.map( async subject => {
+	          allClasses.push(subject.class_id)
+	        })
+      	)
+  	}
+
+  	let classSecton = await Classes.findAll({
+  		where:{
+  			class_vls_id : { [Op.in] : allClasses }
+  		},
+  		include: [{ 
+                  model:Section,
+                  as:'sections',
+                  attributes: ['id','name']
+                }]
+  	})
+  	
+	return { success: true, message: "List classes & sections" ,data:classSecton};
+};
+
+
+/**
+ * API for count dashboard attendance 
+ */
+async function dashboardAttendanceCount(user){
+	// if(user.role !='teacher') 
+	// 	throw 'Unauthorised User'
+	let allAttendance = []
+	let sections   = await Section.findAll({
+                     where:{
+                            teacher_id   : user.userVlsId
+                           },
+                      attributes: ['id','class_id']   
+                  });
+	
+	//return sections
+	if(sections.length){
+		await Promise.all(
+		sections.map(async section => {
+			let attendances  = await StudentAttendance.findAll({
+				where: {
+					class_id   : section.class_id,
+					section_id : section.id
+				}
+			})
+			 	if(attendances.length){
+			 		attendances.map(async attendance => {
+				 		//allAttendance.push(attendance)
+				 		for(var i = 1; i<=31; i++){
+
+				 		}
+			 		})
+				}
+			}
+		  )
+		)
+		//return allAttendance
+		// if(attendance){
+		// 	let attendanceArray = await daysArray(attendance, true)
+		// 	return attendanceArray
+		// }
+	}else{
+
+	}
+	return 'end'
 };
