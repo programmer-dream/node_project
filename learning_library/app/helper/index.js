@@ -15,8 +15,8 @@ let storage = multer.diskStorage({
   let uplodedPath;
   let schoolVlsId = req.body.school_vls_id
   let branchVlsId = req.body.branch_vls_id
-  if(!schoolVlsId) cb("schoolVlsId is requeried")
-  if(!branchVlsId) cb("branchVlsId is requeried")
+  if(!schoolVlsId) cb("schoolVlsId is required")
+  if(!branchVlsId) cb("branchVlsId is required")
 
   let school  = await SchoolDetails.findOne({
           where:{school_vls_id:schoolVlsId}
