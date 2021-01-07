@@ -143,15 +143,17 @@ async function update(req){
   const errors = validationResult(req);
   if(errors.array().length) throw errors.array()
 
-  if(!req.files.file) throw 'Please attach a file'
-
-  //end validation
   let id = req.params.id
-  
-  req.body.URL          = "/videos/" + req.files.file[0].filename;
-  req.body.video_format = path.extname(req.files.file[0].originalname);
-  req.body.video_size   = req.files.file[0].size; 
 
+  let videoLibrary = await VideoLearningLibrary.findByPk(id)
+
+  if(!videoLibrary) throw 'Video Learning library not found'
+
+  if(req.files.file){
+    req.body.URL          = "/videos/" + req.files.file[0].filename;
+    req.body.video_format = path.extname(req.files.file[0].originalname);
+    req.body.video_size   = req.files.file[0].size; 
+  }
   if(req.files.coverPhoto){
     req.body.cover_photo = req.body.uplodedPath + req.files.coverPhoto[0].filename;
   }
@@ -166,11 +168,11 @@ async function update(req){
               });
 
   if(!num) 
-    throw 'Learning library not updated'
+    throw 'Video Learning library not updated'
   
-  let query = await VideoLearningLibrary.findByPk(id)
+    videoLibrary = await VideoLearningLibrary.findByPk(id)
      
-  return { success: true, message: "Video Learning library updated successfully", data: query }
+  return { success: true, message: "Video Learning library updated successfully", data: videoLibrary }
 
 };
 

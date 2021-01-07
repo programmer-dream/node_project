@@ -159,13 +159,16 @@ async function update(req){
   if(errors.array().length) throw errors.array()
 
   //end validation
-  let id = req.params.id
-  if(!req.files.file) throw 'Please attach a file'
+  let id      = req.params.id
+  let library = await LearningLibrary.findByPk(id)
 
-  req.body.URL           = req.body.uplodedPath + req.files.file[0].filename;
-  req.body.document_type = path.extname(req.files.file[0].originalname);
-  req.body.document_size = req.files.file[0].size; 
+  if(!library) throw 'Learning library not found'
 
+  if(req.files.file){
+    req.body.URL           = req.body.uplodedPath + req.files.file[0].filename;
+    req.body.document_type = path.extname(req.files.file[0].originalname);
+    req.body.document_size = req.files.file[0].size; 
+  }
   if(req.files.coverPhoto){
     req.body.cover_photo = req.body.uplodedPath + req.files.coverPhoto[0].filename;
   } 
