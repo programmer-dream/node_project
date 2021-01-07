@@ -641,12 +641,24 @@ async function teacherClasses(user){
                   });
    
     if(classes.length > 0 || sections.length > 0){
+        let subjectClasses = await Subject.findAll({
+                             where:{
+                                    teacher_id   : user.userVlsId
+                                   },
+                              attributes: ['class_id']   
+                          });
+
+      let allClasses = []
         classes.map(singleClass => {
           allClasses.push(singleClass.class_vls_id)
         })
 
        sections.map(section => {
           allClasses.push(section.class_id)
+        })
+
+       subjectClasses.map(subjectClass => {
+          allClasses.push(subjectClass.class_id)
         })
 
       allClasses = allClasses.filter(function(elem, pos) {
