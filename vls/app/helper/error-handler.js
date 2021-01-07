@@ -2,6 +2,13 @@
 module.exports = errorHandler;
 
 function errorHandler(err, req, res, next) {
+
+    if (err instanceof ReferenceError) {
+        console.log(err, "err err err err")
+        // custom application error
+        return res.status(400).json({ status: "error", message: "ReferenceError" });
+    }
+
     if (typeof (err) === 'string') {
         // custom application error
         return res.status(400).json({ status: "error", message: err });
@@ -11,7 +18,7 @@ function errorHandler(err, req, res, next) {
         // custom application error
         return res.status(400).json({ status: "error", message: err });
     }
-    
+
     if (err.name === 'ValidationError') {
         // mongoose validation error
         return res.status(400).json({ status: "error", message: err.message });

@@ -318,8 +318,8 @@ async function queryResponse(body, user){
   if(!body.queryId) throw 'QueryId is required'
   if(!body.response) throw'response is required'
 
-  let canResponse = await canResponse(body.queryId, user)
-  if(!canResponse.success) throw "User can not add/update to this query"
+  let canResponses = await canResponse(body.queryId, user)
+  if(!canResponses.success) throw "User can not add/update to this query"
 
   try{
     let queryId                 = body.queryId
@@ -499,6 +499,13 @@ async function dashboardCount(user) {
                   });
 
     if(classes.length > 0 || sections.length > 0){
+      let subjectClasses = await Subject.findAll({
+                             where:{
+                                    teacher_id   : user.userVlsId
+                                   },
+                              attributes: ['class_id']   
+                          });
+
       let allClasses = []
         classes.map(singleClass => {
           allClasses.push(singleClass.class_vls_id)
@@ -506,6 +513,10 @@ async function dashboardCount(user) {
 
        sections.map(section => {
           allClasses.push(section.class_id)
+        })
+
+       subjectClasses.map(subjectClass => {
+          allClasses.push(subjectClass.class_id)
         })
 
       allClasses = allClasses.filter(function(elem, pos) {
