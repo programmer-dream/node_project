@@ -702,6 +702,8 @@ async function dashboardAttendanceCount(user){
 	// if(user.role !='teacher') 
 	// 	throw 'Unauthorised User'
 	let allAttendance = []
+	let presentCount  = 0
+	let absentCount   = 0
 	let sections   = await Section.findAll({
                      where:{
                             teacher_id   : user.userVlsId
@@ -713,30 +715,56 @@ async function dashboardAttendanceCount(user){
 	if(sections.length){
 		await Promise.all(
 		sections.map(async section => {
-			let attendances  = await StudentAttendance.findAll({
-				where: {
-					class_id   : section.class_id,
-					section_id : section.id
-				}
-			})
+				let attendances  = await StudentAttendance.findAll({
+					where: {
+						class_id   : section.class_id,
+						section_id : section.id
+					}
+				})
 			 	if(attendances.length){
 			 		attendances.map(async attendance => {
-				 		//allAttendance.push(attendance)
 				 		for(var i = 1; i<=31; i++){
-
+				 			if(attendance['day_'+i] =='P'){
+				 				presentCount++
+				 			}else if(attendance['day_'+i] =='A'){
+				 				absentCount++
+				 			}
 				 		}
 			 		})
 				}
 			}
 		  )
 		)
-		//return allAttendance
-		// if(attendance){
-		// 	let attendanceArray = await daysArray(attendance, true)
-		// 	return attendanceArray
-		// }
 	}else{
-
+		let classes   = await Classes.findAll({
+                     	where:{
+                            teacher_id   : user.userVlsId
+                           },
+                      attributes: ['class_vls_id']   
+                  });
+		//return classes
+		await Promise.all(
+			classes.map(async singleClass => {
+				let attendances  = await StudentAttendance.findAll({
+					where: {
+						class_id   : singleClass.class_vls_id,
+					}
+				})
+			 	if(attendances.length){
+			 		attendances.map(async attendance => {
+				 		for(var i = 1; i<=31; i++){
+				 			if(attendance['day_'+i] =='P'){
+				 				presentCount++
+				 			}else if(attendance['day_'+i] =='A'){
+				 				absentCount++
+				 			}
+				 		}
+			 		})
+				}
+			}
+		  )
+		)
 	}
-	return 'end'
+	let data = {present : presentCount, absent : absentCount }
+	return { success: true, message: "present & absent count" ,data : data};
 };
