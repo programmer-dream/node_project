@@ -12,6 +12,7 @@ const AcademicYear = db.AcademicYear;
 const Authentication = db.Authentication;
 const StudentAbsent = db.StudentAbsent;
 const Subject 		= db.Subject;
+const Guardian 		= db.Guardian;
 
 
 module.exports = {
@@ -242,9 +243,13 @@ async function studentList(params){
 				                  'section_id',
 				                  'name',
 				                  'phone',
-				                  'mother_name',
-				                  'mother_name'
-			                  ]
+				                  'photo'
+			                  ],
+			                  include: [{ 
+	                              model:Guardian,
+	                              as:'parent',
+	                              attributes: ['name','photo']
+	                            }]
 			            });
   return { success: true, message: "Student list", data:classes };
 };
