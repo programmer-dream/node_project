@@ -5,9 +5,16 @@ const Sequelize = db.Sequelize;
 const path = require('path')
 const VideoLearningLibrary = db.VideoLearningLibrary;
 const Ratings         = db.Ratings;
+const ThumbnailGenerator = require('fs-thumbnail');
+const thumbGen = new ThumbnailGenerator({
+    verbose: true, // Whether to print out warning/errors
+    size: [500, 300], // Default size, either a single number of an array of two numbers - [width, height].
+    quality: 70, // Default quality, between 1 and 100
+});
 
 const sequelize = db.sequelize;
 const bcrypt = require("bcryptjs");
+const config = require("../../../config/env.js");
 
 module.exports = {
   create,
@@ -33,8 +40,18 @@ async function create(req){
   req.body.video_format = path.extname(req.files.file[0].originalname);
   req.body.video_size   = req.files.file[0].size;
 
-  if(req.files.coverPhoto){
-    req.body.cover_photo = req.body.uplodedPath +'/'+req.files.coverPhoto[0].filename;
+  let videos_path =  config.videos_path
+  let img_path    = videos_path+ '/cover_photo/'+ Date.now()+'cover_photo.png';
+
+  let thumbnailPath = await thumbGen.getThumbnail({
+      path: req.files.file[0].path,
+      output: img_path,
+      size: 300, // You can override the default size per thumbnail
+      quality: 70, // You can override the default quality per thumbnail
+    });
+
+  if(thumbnailPath){
+    req.body.cover_photo = img_path.replace('./uploads', '');
   }
 
   if(req.body.tags)
@@ -153,9 +170,18 @@ async function update(req){
     req.body.URL          = "/videos/" + req.files.file[0].filename;
     req.body.video_format = path.extname(req.files.file[0].originalname);
     req.body.video_size   = req.files.file[0].size; 
-  }
-  if(req.files.coverPhoto){
-    req.body.cover_photo = req.body.uplodedPath +'/'+ req.files.coverPhoto[0].filename;
+
+    let videos_path =  config.videos_path
+    let img_path    = videos_path+ '/cover_photo/'+ Date.now()+'cover_photo.png';
+
+    let thumbnailPath = await thumbGen.getThumbnail({
+        path: req.files.file[0].path,
+        output: img_path,
+        size: 300, // You can override the default size per thumbnail
+        quality: 70, // You can override the default quality per thumbnail
+      });
+
+    req.body.cover_photo = img_path.replace('./uploads', '');
   }
 
   if(req.body.tags)
