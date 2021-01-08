@@ -96,8 +96,8 @@ async function getById(id) {
 /**
  * API for reset password for login user's
  */
-async function resetPassword(body, userId) {
-
+async function resetPassword(body, user) {
+  
   if (!body.oldPassword) throw 'Enter old password'
   if (!body.password) throw 'Enter password'
   if (!body.confirmPassword) throw 'Enter confirm password'
@@ -105,8 +105,10 @@ async function resetPassword(body, userId) {
   if (body.password !== body.confirmPassword) 
     throw "Password and confirm password does not matched"
 
-  let auth = await Authentication.findByPk(userId);
-
+  let auth = await Authentication.findByPk(user.id);
+  let response = await checkPasswordCriteria(body.password, user.role, auth.name)
+  if(response.isError) throw response.error
+  
   if(!auth) throw 'User not found'
 
   // Match old password
@@ -138,7 +140,7 @@ async function resetPassword(body, userId) {
       old_passwords:JSON.stringify(allPwd)
     },
     {
-      where: { auth_vls_id:  userId }
+      where: { auth_vls_id:  user.id }
     })
 
     return { status: "success",message: 'password updated successfully' }
@@ -300,7 +302,12 @@ async function updatePasswordWithForgetPwd(body) {
   let newPassword = body.newPassword
   let isTrue;
   let user = await Authentication.findOne({
-                      where:{ forget_pwd_token: token }
+                      where:{ forget_pwd_token: token },
+                      include: [{ 
+                              model:Role,
+                              as:'roles',
+                              attributes: ['id','name', 'slug']
+                            }]
                     });
 
   if(!user) throw 'link has been expired'
@@ -308,6 +315,9 @@ async function updatePasswordWithForgetPwd(body) {
   let allPwd  = JSON.parse(user.old_passwords)
   //encrypt new password
   let updatedPassword = bcrypt.hashSync(newPassword, 8)
+
+  let response = await checkPasswordCriteria(body.password, user.roles.slug, user.name)
+  if(response.isError) throw response.error
 
   allPwd.forEach(function (item, index){
       isTrue = bcrypt.compareSync(newPassword, item)
@@ -404,4 +414,40 @@ async function userStatus(user, body) {
             })
 
    return {status: "success", message:'Status updated successfully' };
+}
+
+/**
+ * API for check for password
+ */
+async function checkPasswordCriteria(password, role, name) {
+    let finalErr = []
+    let isError = false
+    if(password.length < 8)
+        finalErr.push('password should be at least 8 characters')
+      let isNum = /[0-9]/;
+      let err = /[0-9]/.test(password)
+          if(!err)
+            finalErr.push('password should be at least 1 number') 
+
+      err = /[A-Z]/.test(password)
+        if(!err)
+          finalErr.push('password should be at least 1 upper case characters') 
+
+      err = /[a-z]/.test(password)
+        if(!err)
+          finalErr.push('password should be at least 1 lower case characters')
+
+      if(role != 'student') {
+        err = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.\/?]/.test(password)
+          if(!err)
+            finalErr.push('password should be at least 1 special characters') 
+        err = password.includes('student')
+        if(err)
+            finalErr.push('password should not contain name')
+      }
+      
+      if(finalErr.length)
+        isError = true
+
+    return {isError : isError, error: finalErr}
 }

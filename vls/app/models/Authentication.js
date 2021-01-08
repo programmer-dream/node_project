@@ -40,6 +40,9 @@ module.exports = (sequelize, Sequelize) => {
     },
     school_id: {
       type: Sequelize.INTEGER
+    },
+    name: {
+      type: Sequelize.INTEGER
     }
   },{
     tableName: 'users',
