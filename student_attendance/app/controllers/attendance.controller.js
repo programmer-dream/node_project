@@ -419,7 +419,7 @@ async function daysArray(attendance, checkForParentStudent = false, checkConditi
 
 			for(var i = 1; i<=31; i++){
 				if(student.hasOwnProperty('day_'+i) ){
-					if(checkCondition && i <= currentDay){
+					(checkCondition) ? if(i <= currentDay){ : ""
 						let status = student['day_'+i]
 						let reason = null
 
@@ -452,7 +452,9 @@ async function daysArray(attendance, checkForParentStudent = false, checkConditi
 						}
 
 						studentdata.push(dayData)
-					}
+
+					(checkCondition) ? } : ""
+					
 					delete student['day_'+i]
 				}
 			}
