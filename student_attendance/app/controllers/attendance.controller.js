@@ -230,7 +230,7 @@ async function studentList(params){
     if(params.branch_vls_id)
        whereCondtion.branch_vls_id = params.branch_vls_id
 
-	let classes  = await Student.findAll({  
+	let students  = await Student.findAll({  
 			                  limit:limit,
 			                  offset:offset,
 			                  where:whereCondtion,
@@ -239,10 +239,13 @@ async function studentList(params){
 			                  ],
 			                  attributes: [
 				                  'student_vls_id',
+				                  'branch_vls_id',
 				                  'class_id',
 				                  'section_id',
 				                  'name',
 				                  'phone',
+				                  'father_name',
+				                  'mother_name',
 				                  'photo'
 			                  ],
 			                  include: [{ 
@@ -251,8 +254,48 @@ async function studentList(params){
 	                              attributes: ['name','photo']
 	                            }]
 			            });
-  return { success: true, message: "Student list", data:classes };
+
+	let mergeStudentsAttendence = await mergeStudentAttendence(students)
+
+  	return { success: true, message: "Student list", data:mergeStudentsAttendence };
 };
+
+
+async function mergeStudentAttendence(students){
+	let currentDay = "day_"+moment().format('D')
+	let currentYear		= moment().format('YYYY')
+	let currentMonth 	=  moment().format('MMMM')
+	let studentAttendanceArray = []
+	 await Promise.all(
+		students.map(async student => {
+			student = student.toJSON()
+			let attributes = [currentDay]
+			whereCondtion = {
+				student_id 		: student.student_vls_id,
+				class_id 		: student.class_id,
+				branch_vls_id	: student.branch_vls_id,
+				year			: currentYear,
+				month			: currentMonth,
+			}
+	    
+		    //return whereCondtion
+			let attendance  = await StudentAttendance.findOne({  
+				                  where : whereCondtion,
+				                  attributes:attributes
+				                  });
+
+			let currentDayAttendance = null
+			if(attendance){
+				attendance = attendance.toJSON()
+				currentDayAttendance = attendance[currentDay]
+			}
+			student.attendance = currentDayAttendance
+			studentAttendanceArray.push(student)
+		})
+	);
+	 
+	return studentAttendanceArray
+}
 
 function getDate(type) {
 	let date ;
