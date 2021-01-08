@@ -7,6 +7,7 @@ const Routine     = db.Routine;
 const User        = db.Authentication;
 const AcademicYear= db.AcademicYear;
 const Subject     = db.Subject;
+const Student     = db.Student;
 
 const sequelize = db.sequelize;
 const bcrypt = require("bcryptjs");
@@ -26,7 +27,7 @@ async function create(req){
   const errors = validationResult(req);
   if(errors.array().length) throw errors.array()
 
-  if(req.user.role != 'teacher' || req.user.role != 'principle') throw 'Unauthorized User'
+  //if(req.user.role != 'teacher' || req.user.role != 'principle') throw 'Unauthorized User'
   let timetable = req.body.timetable
   let timeData  = []
 
@@ -127,10 +128,15 @@ async function teacherView(params , user){
  * API for parent view
  */
 async function parentView(params , user){
-  if(!params.class_id) throw 'class_id is required'
-      let whereCondition  = {
-                              class_id   : params.class_id
-                            }
+  let whereCondition = {}
+
+  if(user.role == 'student'){
+    let student = await Student.findByPk(user.userVlsId)
+        whereCondition.class_id   = student.class_id
+  }else{
+    if(!params.class_id) throw 'class_id is required'
+      whereCondition.class_id   = params.class_id 
+  }
     if(params.section_id)
         whereCondition.section_id = params.section_id
       

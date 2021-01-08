@@ -1,6 +1,6 @@
 module.exports = (sequelize, Sequelize) => {
   const Routine = sequelize.define("routines", {
-    branch_timesheet_id: {
+    timesheet_id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
