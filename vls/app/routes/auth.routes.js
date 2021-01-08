@@ -40,7 +40,7 @@ function forgetPassword(req, res, next) {
 
 // update password if forgot token match
 function updatePasswordWithForgetPwd(req, res, next) {
-      authController.updatePasswordWithForgetPwd(req.body, req.user)
+      authController.updatePasswordWithForgetPwd(req.body)
           .then(user => user ? res.json(user) : res.status(400).json({ status: "error", message: 'Link has been expired' }))
           .catch(err => next(err));
 

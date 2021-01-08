@@ -106,7 +106,7 @@ async function resetPassword(body, userId, user) {
     throw "Password and confirm password does not matched"
 
   let auth = await Authentication.findByPk(userId);
-  let response = await checkPasswordCriteria(body.password, user, auth.name)
+  let response = await checkPasswordCriteria(body.password, user.role, auth.name)
   if(response.isError) throw response.error
   
   if(!auth) throw 'User not found'
@@ -297,12 +297,17 @@ function forgetToken(length) {
 /**
  * API for udate user password with link
  */
-async function updatePasswordWithForgetPwd(body , reqUser) {
+async function updatePasswordWithForgetPwd(body) {
   let token = body.token
   let newPassword = body.newPassword
   let isTrue;
   let user = await Authentication.findOne({
-                      where:{ forget_pwd_token: token }
+                      where:{ forget_pwd_token: token },
+                      include: [{ 
+                              model:Role,
+                              as:'roles',
+                              attributes: ['id','name', 'slug']
+                            }]
                     });
 
   if(!user) throw 'link has been expired'
@@ -311,7 +316,7 @@ async function updatePasswordWithForgetPwd(body , reqUser) {
   //encrypt new password
   let updatedPassword = bcrypt.hashSync(newPassword, 8)
 
-  let response = await checkPasswordCriteria(body.password, reqUser, user.name)
+  let response = await checkPasswordCriteria(body.password, user.roles.slug, user.name)
   if(response.isError) throw response.error
 
   allPwd.forEach(function (item, index){
@@ -414,7 +419,7 @@ async function userStatus(user, body) {
 /**
  * API for check for password
  */
-async function checkPasswordCriteria(password, user, name) {
+async function checkPasswordCriteria(password, role, name) {
     let finalErr = []
     let isError = false
     if(password.length < 8)
@@ -432,7 +437,7 @@ async function checkPasswordCriteria(password, user, name) {
         if(!err)
           finalErr.push('password should be at least 1 lower case characters')
 
-      if(user.role != 'student') {
+      if(role != 'student') {
         err = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.\/?]/.test(password)
           if(!err)
             finalErr.push('password should be at least 1 special characters') 
