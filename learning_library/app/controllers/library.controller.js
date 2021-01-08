@@ -172,8 +172,10 @@ async function update(req){
     req.body.document_type = path.extname(req.files.file[0].originalname);
     req.body.document_size = req.files.file[0].size; 
   }
-  if(req.files.coverPhoto){
-    req.body.cover_photo = req.body.uplodedPath + req.files.coverPhoto[0].filename;
+  let cover_path = await makePdfImage(req,req.body.uplodedPath)
+
+  if(cover_path){
+    req.body.cover_photo = cover_path;
   } 
 
   if(req.body.tags)

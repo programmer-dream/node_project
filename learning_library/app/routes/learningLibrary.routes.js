@@ -8,8 +8,6 @@ const upload  = helper.upload;
 router.post("/create",[
     upload.fields([{
         name:'file',maxCount:1
-    },{
-        name:'coverPhoto',maxCount:1
     }]),
     check('school_vls_id','School_vls_id field is required.').not().isEmpty(),
     check('branch_vls_id','Branch_vls_id field is required.').not().isEmpty(),
@@ -31,8 +29,6 @@ router.delete("/delete/:id",deleteLibrary);
 router.put("/update/:id",[
     upload.fields([{
         name:'file',maxCount:1
-    },{
-        name:'coverPhoto',maxCount:1
     }]),
     check('school_vls_id','School_vls_id field is required.').not().isEmpty(),
     check('branch_vls_id','Branch_vls_id field is required.').not().isEmpty(),
