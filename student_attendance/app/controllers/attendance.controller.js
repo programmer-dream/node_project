@@ -708,7 +708,6 @@ async function teacherClasses(user){
                               attributes: ['class_id']   
                           });
 
-      let allClasses = []
         classes.map(singleClass => {
           allClasses.push(singleClass.class_vls_id)
         })
@@ -759,8 +758,8 @@ async function teacherClasses(user){
  * API for count dashboard attendance 
  */
 async function dashboardAttendanceCount(user){
-	// if(user.role !='teacher') 
-	// 	throw 'Unauthorised User'
+	if(user.role !='teacher') 
+		throw 'Unauthorised User'
 	let allAttendance = []
 	let presentCount  = 0
 	let absentCount   = 0
