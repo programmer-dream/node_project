@@ -96,7 +96,7 @@ async function getById(id) {
 /**
  * API for reset password for login user's
  */
-async function resetPassword(body, userId, user) {
+async function resetPassword(body, user) {
   
   if (!body.oldPassword) throw 'Enter old password'
   if (!body.password) throw 'Enter password'
@@ -105,7 +105,7 @@ async function resetPassword(body, userId, user) {
   if (body.password !== body.confirmPassword) 
     throw "Password and confirm password does not matched"
 
-  let auth = await Authentication.findByPk(userId);
+  let auth = await Authentication.findByPk(user.id);
   let response = await checkPasswordCriteria(body.password, user.role, auth.name)
   if(response.isError) throw response.error
   
@@ -140,7 +140,7 @@ async function resetPassword(body, userId, user) {
       old_passwords:JSON.stringify(allPwd)
     },
     {
-      where: { auth_vls_id:  userId }
+      where: { auth_vls_id:  user.id }
     })
 
     return { status: "success",message: 'password updated successfully' }

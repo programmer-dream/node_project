@@ -24,7 +24,7 @@ function authenticate(req, res, next) {
 
 // Function for reset password
 function resetPassword(req, res, next) {
-      authController.resetPassword(req.body, req.user.id , req.user )
+      authController.resetPassword(req.body, req.user)
           .then(user => user ? res.json(user) : res.status(400).json({ status: "error", message: 'Email not found' }))
           .catch(err => next(err));
 
