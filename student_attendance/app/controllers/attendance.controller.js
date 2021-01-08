@@ -386,11 +386,12 @@ async function listForTeacher(params, user){
 	let attendance  = await StudentAttendance.findAll(attendenceQuery);
 
 	// return attendance
-	let checkCondition = false
 	let checkForParentStudent = false
+	let checkCondition = false
 	if(moment(params.month, 'M').format('MMMM') == moment().format('MMMM')){
 		checkCondition = true
 	}
+
 	let attendanceArray = await daysArray(attendance, checkForParentStudent, checkCondition)
 
 	if(params.student_id || params.day)
@@ -556,10 +557,11 @@ async function listForParent(params, user){
 	let attendance  = await StudentAttendance.findAll(attendenceQuery);
 	// return attendance
 	let checkForParentStudent = true
-	let checkForParentStudent = false
+	let checkCondition = false
 	if(moment(params.month, 'M').format('MMMM') == moment().format('MMMM')){
 		checkCondition = true
 	}
+
 	let attendanceArray = await daysArray(attendance, checkForParentStudent, checkCondition)
 	
   	return { 
