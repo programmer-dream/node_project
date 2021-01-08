@@ -42,7 +42,17 @@ let storage = multer.diskStorage({
     cb(null, file.fieldname + Date.now()+path.extname(file.originalname))
   }
 })
-let upload = multer({ storage: storage })
+
+/* defined filter */
+const fileFilter = (req, file, cb) => {
+  if (path.extname(file.originalname) === '.pdf') {
+    cb(null, true);
+  } else {
+    cb("File format should be PDF"); // if validation failed then generate error
+  }
+};
+
+let upload = multer({ storage: storage, fileFilter: fileFilter })
 
 helper.upload = upload;
 module.exports = helper;

@@ -1,10 +1,12 @@
 const { validationResult } = require('express-validator');
 const db = require("../models");
+const gm = require("gm");
 const Op = db.Sequelize.Op;
 const Sequelize = db.Sequelize;
 const path = require('path')
 const LearningLibrary = db.LearningLibrary;
 const Ratings         = db.Ratings;
+const config = require("../../../config/env.js");
 
 const sequelize = db.sequelize;
 const bcrypt = require("bcryptjs");
@@ -27,15 +29,16 @@ async function create(req){
   if(errors.array().length) throw errors.array()
 
    //return true
-
+  // return req.body
   if(!req.files.file) throw 'Please attach a file'
 
   req.body.URL           = req.body.uplodedPath + req.files.file[0].filename;
   req.body.document_type = path.extname(req.files.file[0].originalname);
   req.body.document_size = req.files.file[0].size; 
+  let cover_path = await makePdfImage(req,req.body.uplodedPath)
 
-  if(req.files.coverPhoto){
-    req.body.cover_photo = req.body.uplodedPath + req.files.coverPhoto[0].filename;
+  if(cover_path){
+    req.body.cover_photo = cover_path;
   }
 
   if(req.body.tags)
@@ -169,8 +172,10 @@ async function update(req){
     req.body.document_type = path.extname(req.files.file[0].originalname);
     req.body.document_size = req.files.file[0].size; 
   }
-  if(req.files.coverPhoto){
-    req.body.cover_photo = req.body.uplodedPath + req.files.coverPhoto[0].filename;
+  let cover_path = await makePdfImage(req,req.body.uplodedPath)
+
+  if(cover_path){
+    req.body.cover_photo = cover_path;
   } 
 
   if(req.body.tags)
@@ -263,3 +268,23 @@ async function getRatingLikes(id, user) {
     throw err.message;
   }
 };
+
+async function makePdfImage(req, path){
+    let image = Date.now()+'cover_photo.jpg';
+    let pathToFile =  "./"+req.files.file[0].path
+
+    let pathToSnapshot = config.pdf_path + path+ image;
+
+      gm(pathToFile).thumb(300, // Width
+                            300, // Height
+                            pathToSnapshot, // Output file name
+                            100, // Quality from 0 to 100
+        function (error, stdout, stderr, command) {
+            if (!error) {
+              console.log("done")
+            }else{
+              console.log(error);
+            }
+        });
+     return path+image
+}
