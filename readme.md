@@ -14,7 +14,12 @@ https://stackoverflow.com/questions/46013544/yarn-install-command-error-no-such-
 curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
 echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
 sudo apt-get update
+sudo apt-get install imagemagick
+sudo apt-get install graphicsmagick
 sudo apt-get install yarn -y
+
+#For install extension in mac
+brew install imagemagick graphicsmagick
 
 # All the things should be installed with the help of yarn
 

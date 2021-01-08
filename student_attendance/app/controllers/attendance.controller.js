@@ -386,7 +386,12 @@ async function listForTeacher(params, user){
 	let attendance  = await StudentAttendance.findAll(attendenceQuery);
 
 	// return attendance
-	let attendanceArray = await daysArray(attendance)
+	let checkCondition = false
+	let checkForParentStudent = false
+	if(moment(params.month, 'M').format('MMMM') == moment().format('MMMM')){
+		checkCondition = true
+	}
+	let attendanceArray = await daysArray(attendance, checkForParentStudent, checkCondition)
 
 	if(params.student_id || params.day)
 		return { 
@@ -401,7 +406,7 @@ async function listForTeacher(params, user){
 };
 
 
-async function daysArray(attendance, checkForParentStudent = false){
+async function daysArray(attendance, checkForParentStudent = false, checkCondition){
 	let studentFinal = []
 	let presentCount = 0
 	let absentCount  = 0
@@ -413,7 +418,7 @@ async function daysArray(attendance, checkForParentStudent = false){
 
 			for(var i = 1; i<=31; i++){
 				if(student.hasOwnProperty('day_'+i) ){
-					if(i <= currentDay){
+					if(checkCondition && i <= currentDay){
 						let status = student['day_'+i]
 						let reason = null
 
@@ -551,7 +556,11 @@ async function listForParent(params, user){
 	let attendance  = await StudentAttendance.findAll(attendenceQuery);
 	// return attendance
 	let checkForParentStudent = true
-	let attendanceArray = await daysArray(attendance, checkForParentStudent)
+	let checkForParentStudent = false
+	if(moment(params.month, 'M').format('MMMM') == moment().format('MMMM')){
+		checkCondition = true
+	}
+	let attendanceArray = await daysArray(attendance, checkForParentStudent, checkCondition)
 	
   	return { 
 				success: true, 
