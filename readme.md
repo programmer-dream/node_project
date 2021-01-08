@@ -16,10 +16,12 @@ echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/source
 sudo apt-get update
 sudo apt-get install imagemagick
 sudo apt-get install graphicsmagick
+sudo apt-get install ffmpeg
 sudo apt-get install yarn -y
 
 #For install extension in mac
 brew install imagemagick graphicsmagick
+brew install ffmpeg
 
 # All the things should be installed with the help of yarn
 

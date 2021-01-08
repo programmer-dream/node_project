@@ -9,6 +9,12 @@ function errorHandler(err, req, res, next) {
         return res.status(400).json({ status: "error", message: "ReferenceError" });
     }
 
+    if (err instanceof TypeError) {
+        console.log(err, "TypeError")
+        // custom application error
+        return res.status(400).json({ status: "error", message: "ReferenceError" });
+    }
+
     if (typeof (err) === 'string') {
         // custom application error
         return res.status(400).json({ status: "error", message: err });
