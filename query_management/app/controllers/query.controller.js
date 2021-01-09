@@ -176,7 +176,7 @@ async function list(params,user){
                                 { 
                                   model:Subject,
                                   as:'subject',
-                                  attributes: ['subject_vls_id','name']
+                                  attributes: ['subject_vls_id','name','code']
                                 }
                               ],
                       attributes: [
@@ -298,7 +298,7 @@ async function listSubject(params){
                     include: [{ 
                         model:Subject,
                         as:'subject',
-                        attributes: ['subject_vls_id','name']
+                        attributes: ['subject_vls_id','name','code']
                       }]
                   });
     let subjects =  branch.subject
@@ -431,6 +431,14 @@ async function canResponse(id, user) {
     let class_id    = query.class_vls_id
     let subject_id  = query.subject_id
 
+    let subjects_code = await Subject.findAll({
+                           where:{
+                                  teacher_id   : user.userVlsId
+                                 },
+                            attributes: ['code']
+                              
+                        }).then(subject => subject.map(subject => subject.code));
+
     let classes = await Classes.findOne({
                        where:{
                               class_vls_id : class_id,
@@ -457,7 +465,7 @@ async function canResponse(id, user) {
     let subject = await Subject.findOne({
                      where:{
                             teacher_id   : user.userVlsId,
-                            subject_vls_id : subject_id
+                            code   : {[Op.in]: subjects_code}
                            },
                       attributes: ['subject_vls_id']   
                   })
@@ -497,7 +505,7 @@ async function dashboardCount(user) {
                            },
                       attributes: ['class_id']   
                   });
-
+    //return sections
     if(classes.length > 0 || sections.length > 0){
       let subjectClasses = await Subject.findAll({
                              where:{
@@ -527,16 +535,21 @@ async function dashboardCount(user) {
 
       queryCount = await teacherCount(allClasses, statusArray)
     }else{
-
+      let subjects_code = await Subject.findAll({
+                           where:{
+                                  teacher_id   : user.userVlsId
+                                 },
+                            attributes: ['code']
+                              
+                        }).then(subject => subject.map(subject => subject.code));
       let sectionSubject = await Subject.findAll({
                              where:{
-                                    teacher_id   : user.userVlsId
+                                    code   : {[Op.in]: subjects_code}
                                    },
                               attributes: ['subject_vls_id']   
                           })
 
       let allSubjects = []
-
       await Promise.all(
         sectionSubject.map( async subject => {
           allSubjects.push(subject.subject_vls_id)
@@ -637,15 +650,22 @@ async function teacherQueryList(user , params){
     let limit   = 10
     let offset  = 0
     let orderBy = 'asc';
-
+    //return user
     if(params.size)
        limit = parseInt(params.size)
     if(params.page)
         offset = 0 + (parseInt(params.page) - 1) * limit
 
-    let subjects = await Subject.findAll({
+    let subjects_code = await Subject.findAll({
                            where:{
                                   teacher_id   : user.userVlsId
+                                 },
+                            attributes: ['code']
+                              
+                        }).then(subject => subject.map(subject => subject.code));
+    let subjects = await Subject.findAll({
+                           where:{
+                                  code : { [Op.in] :  subjects_code}
                                  },
                             attributes: ['subject_vls_id']
                               
@@ -660,7 +680,12 @@ async function teacherQueryList(user , params){
                  ],
           where: { 
               subject_id : { [Op.in] : subjects }
-          }
+          },
+          include: [{ 
+                        model:Subject,
+                        as:'subject',
+                        attributes: ['name','code']
+                      }]
       });
       
     }
