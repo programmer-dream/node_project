@@ -1,5 +1,6 @@
 const { validationResult } = require('express-validator');
 const db = require("../models");
+const moment = require("moment");
 const Op = db.Sequelize.Op;
 const Sequelize = db.Sequelize;
 const path = require('path')
@@ -47,12 +48,19 @@ async function create(req){
         if(!timetable.start_time) throw 'start_time required'
         if(!timetable.end_time)   throw 'end_time required'
         if(!timetable.room_no)   throw 'room_no required'
+        if(timetable.start_time === timetable.end_time )   throw 'Start and end timings are same'
+
+        let start = moment(timetable.start_time,'hh:mm')
+        let end   = moment(timetable.end_time,'hh:mm')
+        if(start.isAfter(end))
+          throw 'end_time is must be greater then start time'
+
         if(!timetable.status)
             status     = 0
         if(timetable.section_id)
             section_id = timetable.section_id
         let body = {
-              day              : req.body.day,
+              day              : moment(req.body.day, 'd').format('dddd'),
               class_id         : req.body.class_id,
               school_vls_id    : user.school_id,
               branch_vls_id    : user.branch_vls_id,
@@ -65,9 +73,13 @@ async function create(req){
               start_time       : timetable.start_time,
               end_time         : timetable.end_time
           }
-        timeData.push(body)
+          
+          await getScheduleData(user.school_id, req.body.class_id, section_id, timetable.subject_id, timetable.start_time, timetable.end_time ,'Monday')
+
+            timeData.push(body)
     })
   )
+  
   let routine = await Routine.bulkCreate(timeData);
   return { success: true, message: "Time sheet created successfully", data:routine }
 };
@@ -233,3 +245,34 @@ async function update(req){
   let routine = await Routine.bulkCreate(timeData);
   return { success: true, message: "Time sheet updated successfully", data:routine }
 };
+
+
+/**
+ * method to check if schedule exist
+ */
+async function getScheduleData(school_id, class_id, section_id, subject_id, start_time, end_time, day){
+ 
+  let routines = await Routine.findAll({
+    where : {
+              class_id       : class_id,
+              section_id     : section_id,
+              school_vls_id  : school_id,
+              day            : day
+          }
+  })
+
+   await Promise.all(
+      routines.map(async routine => {
+      if(routine.start_time === start_time)
+         throw 'Timings are overlapping'
+    
+      let time       = moment(start_time, 'hh:mm')
+      let beforeTime = moment(routine.start_time, 'hh:mm')
+      let afterTime  = moment(routine.end_time, 'hh:mm')
+      if (time.isBetween(beforeTime, afterTime)) 
+          throw 'Timings are overlapping'
+    })
+  )
+  
+  return true
+}

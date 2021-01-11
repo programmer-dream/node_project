@@ -31,10 +31,10 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.STRING
       },
       start_time: {
-        type: Sequelize.STRING
+        type: Sequelize.TIME
       },
       end_time: {
-        type: Sequelize.STRING
+        type: Sequelize.TIME
       },
       room_no: {
         type: Sequelize.INTEGER
