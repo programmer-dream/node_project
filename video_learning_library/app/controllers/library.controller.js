@@ -5,9 +5,16 @@ const Sequelize = db.Sequelize;
 const path = require('path')
 const VideoLearningLibrary = db.VideoLearningLibrary;
 const Ratings         = db.Ratings;
+const ThumbnailGenerator = require('fs-thumbnail');
+const thumbGen = new ThumbnailGenerator({
+    verbose: true, // Whether to print out warning/errors
+    size: [500, 300], // Default size, either a single number of an array of two numbers - [width, height].
+    quality: 70, // Default quality, between 1 and 100
+});
 
 const sequelize = db.sequelize;
 const bcrypt = require("bcryptjs");
+const config = require("../../../config/env.js");
 
 module.exports = {
   create,
@@ -33,8 +40,18 @@ async function create(req){
   req.body.video_format = path.extname(req.files.file[0].originalname);
   req.body.video_size   = req.files.file[0].size;
 
-  if(req.files.coverPhoto){
-    req.body.cover_photo = req.body.uplodedPath +'/'+req.files.coverPhoto[0].filename;
+  let videos_path =  config.videos_path
+  let img_path    = videos_path+ '/cover_photo/'+ Date.now()+'cover_photo.png';
+
+  let thumbnailPath = await thumbGen.getThumbnail({
+      path: req.files.file[0].path,
+      output: img_path,
+      size: 300, // You can override the default size per thumbnail
+      quality: 70, // You can override the default quality per thumbnail
+    });
+
+  if(thumbnailPath){
+    req.body.cover_photo = img_path.replace('./uploads', '');
   }
 
   if(req.body.tags)
@@ -143,17 +160,28 @@ async function update(req){
   const errors = validationResult(req);
   if(errors.array().length) throw errors.array()
 
-  if(!req.files.file) throw 'Please attach a file'
-
-  //end validation
   let id = req.params.id
-  
-  req.body.URL          = "/videos/" + req.files.file[0].filename;
-  req.body.video_format = path.extname(req.files.file[0].originalname);
-  req.body.video_size   = req.files.file[0].size; 
 
-  if(req.files.coverPhoto){
-    req.body.cover_photo = req.body.uplodedPath + req.files.coverPhoto[0].filename;
+  let videoLibrary = await VideoLearningLibrary.findByPk(id)
+
+  if(!videoLibrary) throw 'Video Learning library not found'
+
+  if(req.files.file){
+    req.body.URL          = "/videos/" + req.files.file[0].filename;
+    req.body.video_format = path.extname(req.files.file[0].originalname);
+    req.body.video_size   = req.files.file[0].size; 
+
+    let videos_path =  config.videos_path
+    let img_path    = videos_path+ '/cover_photo/'+ Date.now()+'cover_photo.png';
+
+    let thumbnailPath = await thumbGen.getThumbnail({
+        path: req.files.file[0].path,
+        output: img_path,
+        size: 300, // You can override the default size per thumbnail
+        quality: 70, // You can override the default quality per thumbnail
+      });
+
+    req.body.cover_photo = img_path.replace('./uploads', '');
   }
 
   if(req.body.tags)
@@ -166,11 +194,11 @@ async function update(req){
               });
 
   if(!num) 
-    throw 'Learning library not updated'
+    throw 'Video Learning library not updated'
   
-  let query = await VideoLearningLibrary.findByPk(id)
+    videoLibrary = await VideoLearningLibrary.findByPk(id)
      
-  return { success: true, message: "Video Learning library updated successfully", data: query }
+  return { success: true, message: "Video Learning library updated successfully", data: videoLibrary }
 
 };
 

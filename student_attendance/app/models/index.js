@@ -64,14 +64,18 @@ sequelize.authenticate()
 db.Employee = require("../../../vls/app/models/Employee.js")(sequelize, Sequelize);
 db.Student = require("../../../vls/app/models/Student.js")(sequelize, Sequelize);
 db.Branch = require("../../../vls/app/models/Branch.js")(sequelize, Sequelize);
+db.Guardian = require("../../../vls/app/models/Guardian.js")(sequelize, Sequelize);
 db.StudentAttendance = require("./StudentAttendance.js")(sequelize, Sequelize);
 db.Classes = require("./Classes.js")(sequelize, Sequelize);
 db.Section = require("./Section.js")(sequelize, Sequelize);
 db.AcademicYear = require("./AcademicYear.js")(sequelize, Sequelize);
 db.Authentication = require("../../../vls/app/models/Authentication.js")(sequelize, Sequelize);
 db.StudentAbsent = require("./StudentAbsent.js")(sequelize, Sequelize);
+db.Subject = require("../../../query_management/app/models/Subject.js")(sequelize, Sequelize);
+
 //relatons
 db.Classes.hasMany(db.Section,{foreignKey:'class_id',as:'sections'})
 db.StudentAttendance.belongsTo(db.Student,{foreignKey:'student_id',as:'student'})
+db.Student.belongsTo(db.Guardian,{foreignKey:'parent_vls_id',as:'parent'})
 
 module.exports = db;

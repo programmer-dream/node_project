@@ -11,6 +11,8 @@ const Student = db.Student;
 const AcademicYear = db.AcademicYear;
 const Authentication = db.Authentication;
 const StudentAbsent = db.StudentAbsent;
+const Subject 		= db.Subject;
+const Guardian 		= db.Guardian;
 
 
 module.exports = {
@@ -22,7 +24,9 @@ module.exports = {
   listForTeacher,
   listForParent,
   listParentChildren,
-  updateLeaveReason
+  updateLeaveReason,
+  teacherClasses,
+  dashboardAttendanceCount
 };
 
 
@@ -226,7 +230,7 @@ async function studentList(params){
     if(params.branch_vls_id)
        whereCondtion.branch_vls_id = params.branch_vls_id
 
-	let classes  = await Student.findAll({  
+	let students  = await Student.findAll({  
 			                  limit:limit,
 			                  offset:offset,
 			                  where:whereCondtion,
@@ -235,16 +239,63 @@ async function studentList(params){
 			                  ],
 			                  attributes: [
 				                  'student_vls_id',
+				                  'branch_vls_id',
 				                  'class_id',
 				                  'section_id',
 				                  'name',
 				                  'phone',
+				                  'father_name',
 				                  'mother_name',
-				                  'mother_name'
-			                  ]
+				                  'photo'
+			                  ],
+			                  include: [{ 
+	                              model:Guardian,
+	                              as:'parent',
+	                              attributes: ['name','photo']
+	                            }]
 			            });
-  return { success: true, message: "Student list", data:classes };
+
+	let mergeStudentsAttendence = await mergeStudentAttendence(students)
+
+  	return { success: true, message: "Student list", data:mergeStudentsAttendence };
 };
+
+
+async function mergeStudentAttendence(students){
+	let currentDay = "day_"+moment().format('D')
+	let currentYear		= moment().format('YYYY')
+	let currentMonth 	=  moment().format('MMMM')
+	let studentAttendanceArray = []
+	 await Promise.all(
+		students.map(async student => {
+			student = student.toJSON()
+			let attributes = [currentDay]
+			whereCondtion = {
+				student_id 		: student.student_vls_id,
+				class_id 		: student.class_id,
+				branch_vls_id	: student.branch_vls_id,
+				year			: currentYear,
+				month			: currentMonth,
+			}
+	    
+		    //return whereCondtion
+			let attendance  = await StudentAttendance.findOne({  
+				                  where : whereCondtion,
+				                  attributes:attributes
+				                  });
+
+			let currentDayAttendance = null
+			if(attendance){
+				attendance = attendance.toJSON()
+				currentDayAttendance = attendance[currentDay]
+			}
+			student.attendance = currentDayAttendance
+			studentAttendanceArray.push(student)
+		})
+	);
+	 
+	return studentAttendanceArray
+}
 
 function getDate(type) {
 	let date ;
@@ -306,7 +357,7 @@ async function listForTeacher(params, user){
 	let limit   	= 10
 	let offset  	= 0
 	let whereCondtion 	= {}
-
+	
 	if(!params.class_id) throw 'Class_id is required'
     	whereCondtion.class_id = params.class_id
 
@@ -328,7 +379,7 @@ async function listForTeacher(params, user){
     if(params.student_id)
     	whereCondtion.student_id = params.student_id
     if(params.month){
-    	whereCondtion.month = params.month
+    	whereCondtion.month = moment(params.month, 'M').format('MMMM')
     }else{
     	let currentMonth 	=  moment().format('MMMM');
     	whereCondtion.month = currentMonth
@@ -378,7 +429,13 @@ async function listForTeacher(params, user){
 	let attendance  = await StudentAttendance.findAll(attendenceQuery);
 
 	// return attendance
-	let attendanceArray = await daysArray(attendance)
+	let checkForParentStudent = false
+	let checkCondition = false
+	if(moment(params.month, 'M').format('MMMM') == moment().format('MMMM')){
+		checkCondition = true
+	}
+
+	let attendanceArray = await daysArray(attendance, checkForParentStudent, checkCondition)
 
 	if(params.student_id || params.day)
 		return { 
@@ -393,7 +450,7 @@ async function listForTeacher(params, user){
 };
 
 
-async function daysArray(attendance, checkForParentStudent = false){
+async function daysArray(attendance, checkForParentStudent = false, checkCondition){
 	let studentFinal = []
 	let presentCount = 0
 	let absentCount  = 0
@@ -405,6 +462,7 @@ async function daysArray(attendance, checkForParentStudent = false){
 
 			for(var i = 1; i<=31; i++){
 				if(student.hasOwnProperty('day_'+i) ){
+					currentDay = (checkCondition) ?  currentDay : 31
 					if(i <= currentDay){
 						let status = student['day_'+i]
 						let reason = null
@@ -413,18 +471,19 @@ async function daysArray(attendance, checkForParentStudent = false){
 							absentCount +=1
 
 							let absent_date = student.year +"-"+moment().month(student.month).format("M")+"-"+i
-							let date = sequelize.escape(`%${absent_date}%`)
+
 							let absent = await StudentAbsent.findOne({
 											where:{
 												student_id:student.student_id,
 												date_of_absent:{ 
-								                  [Op.like]: sequelize.literal(`${date}`)
+								                  [Op.between]: [absent_date, absent_date]
 								                }
-											}
+											},
+											attributes:['id', 'reason', 'date_of_absent']
 										})
 							if(absent)
-								reason = absent
-							
+								reason = absent.toJSON()
+
 						}else if(student['day_'+i] == 'P'){
 							presentCount += 1
 						}
@@ -448,7 +507,7 @@ async function daysArray(attendance, checkForParentStudent = false){
 		})
 	)
 
-	if(checkForParentStudent && studentFinal.length < 2) studentFinal = studentFinal[0]
+	if(checkForParentStudent && studentFinal.length > 0 && studentFinal.length < 2) studentFinal = studentFinal[0]
 
 	return { student:studentFinal, presentCount, absentCount }
 }
@@ -491,11 +550,11 @@ async function listForParent(params, user){
     if(params.section_id )
     	whereCondtion.section_id = params.section_id
     
-    if(params.year){
-    	whereCondtion.year 	= params.year
+    if(params.month){
+    	whereCondtion.month = moment(params.month, 'M').format('MMMM')
     }else{
-    	let currentYear		= moment().format('YYYY');
-    	whereCondtion.year 	= currentYear
+    	let currentMonth 	=  moment().format('MMMM');
+    	whereCondtion.month = currentMonth
     }
 
     if(params.year){
@@ -504,7 +563,7 @@ async function listForParent(params, user){
     	let currentYear		= moment().format('YYYY');
     	whereCondtion.year 	= currentYear
     }
-    console.log(params, "params")
+
     let attendenceQuery = {  
 	                  limit : limit,
 	                  offset: offset,
@@ -542,8 +601,13 @@ async function listForParent(params, user){
 	let attendance  = await StudentAttendance.findAll(attendenceQuery);
 	// return attendance
 	let checkForParentStudent = true
-	let attendanceArray = await daysArray(attendance, checkForParentStudent)
+	let checkCondition = false
+	if(moment(params.month, 'M').format('MMMM') == moment().format('MMMM')){
+		checkCondition = true
+	}
 
+	let attendanceArray = await daysArray(attendance, checkForParentStudent, checkCondition)
+	
   	return { 
 				success: true, 
 				message: "attendance list", 
@@ -558,8 +622,9 @@ async function listForParent(params, user){
  * API for list parent children
  */
 async function listParentChildren(params, user){
-	// if(user.role !='guardian') 
-	// 	throw 'Unauthorised User'
+	if(user.role !='guardian') 
+		throw 'Unauthorised User'
+
 	let whereCondtion = {}
 	
 	if(!params.branch_id) throw 'branch_id is required'
@@ -612,4 +677,154 @@ async function updateLeaveReason(req, user){
 		studentAbsent.update(reasonData)
 
 	return { success: true, message: "Student leave reason updated successfully", data:studentAbsent};
+};
+
+
+/**
+ * API for list teacher Classes
+ */
+async function teacherClasses(user){
+	if(user.role !='teacher') 
+		throw 'Unauthorised User'
+	let allClasses = []
+	let classes = await Classes.findAll({
+                         where:{
+                                teacher_id   : user.userVlsId
+                               },
+                          attributes: ['class_vls_id']   
+                      });
+    let sections = await Section.findAll({
+                     where:{
+                            teacher_id   : user.userVlsId
+                           },
+                      attributes: ['class_id']   
+                  });
+   
+    if(classes.length > 0 || sections.length > 0){
+        let subjectClasses = await Subject.findAll({
+                             where:{
+                                    teacher_id   : user.userVlsId
+                                   },
+                              attributes: ['class_id']   
+                          });
+
+      let allClasses = []
+        classes.map(singleClass => {
+          allClasses.push(singleClass.class_vls_id)
+        })
+
+       sections.map(section => {
+          allClasses.push(section.class_id)
+        })
+
+       subjectClasses.map(subjectClass => {
+          allClasses.push(subjectClass.class_id)
+        })
+
+      allClasses = allClasses.filter(function(elem, pos) {
+                return allClasses.indexOf(elem) == pos;
+            })
+      await Promise.all(allClasses);
+  	}else{
+  		let sectionClass = await Subject.findAll({
+                             where:{
+                                    teacher_id   : user.userVlsId
+                                   },
+                              attributes: ['class_id']   
+                          })
+
+      	await Promise.all(
+	        sectionClass.map( async subject => {
+	          allClasses.push(subject.class_id)
+	        })
+      	)
+  	}
+
+  	let classSecton = await Classes.findAll({
+  		where:{
+  			class_vls_id : { [Op.in] : allClasses }
+  		},
+  		include: [{ 
+                  model:Section,
+                  as:'sections',
+                  attributes: ['id','name']
+                }]
+  	})
+  	
+	return { success: true, message: "List classes & sections" ,data:classSecton};
+};
+
+
+/**
+ * API for count dashboard attendance 
+ */
+async function dashboardAttendanceCount(user){
+	// if(user.role !='teacher') 
+	// 	throw 'Unauthorised User'
+	let allAttendance = []
+	let presentCount  = 0
+	let absentCount   = 0
+	let sections   = await Section.findAll({
+                     where:{
+                            teacher_id   : user.userVlsId
+                           },
+                      attributes: ['id','class_id']   
+                  });
+
+	//return sections
+	if(sections.length){
+		await Promise.all(
+		sections.map(async section => {
+				let attendances  = await StudentAttendance.findAll({
+					where: {
+						class_id   : section.class_id,
+						section_id : section.id
+					}
+				})
+			 	if(attendances.length){
+			 		attendances.map(async attendance => {
+				 		for(var i = 1; i<=31; i++){
+				 			if(attendance['day_'+i] =='P'){
+				 				presentCount++
+				 			}else if(attendance['day_'+i] =='A'){
+				 				absentCount++
+				 			}
+				 		}
+			 		})
+				}
+			}
+		  )
+		)
+	}else{
+		let classes   = await Classes.findAll({
+                     	where:{
+                            teacher_id   : user.userVlsId
+                           },
+                      attributes: ['class_vls_id']   
+                  });
+		//return classes
+		await Promise.all(
+			classes.map(async singleClass => {
+				let attendances  = await StudentAttendance.findAll({
+					where: {
+						class_id   : singleClass.class_vls_id,
+					}
+				})
+			 	if(attendances.length){
+			 		attendances.map(async attendance => {
+				 		for(var i = 1; i<=31; i++){
+				 			if(attendance['day_'+i] =='P'){
+				 				presentCount++
+				 			}else if(attendance['day_'+i] =='A'){
+				 				absentCount++
+				 			}
+				 		}
+			 		})
+				}
+			}
+		  )
+		)
+	}
+	let data = {present : presentCount, absent : absentCount }
+	return { success: true, message: "present & absent count" ,data : data};
 };

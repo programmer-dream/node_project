@@ -12,15 +12,10 @@ let storage = multer.diskStorage({
   destination: async function (req, file, cb) {
 
     let dirpath = config.videos_path
-    if(file.fieldname == 'coverPhoto')
-        dirpath  = "./uploads/"+config.videos_cover_photo
 
   	if( !fs.existsSync(dirpath) ){
   	    fs.mkdirSync(dirpath, { recursive: true })
   	}
-
-    if(file.fieldname == 'coverPhoto')
-      req.body.uplodedPath = config.videos_cover_photo
     cb(null, dirpath)
   },
 

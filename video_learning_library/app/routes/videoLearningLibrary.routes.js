@@ -32,11 +32,11 @@ router.put("/update/:id",[
     },{
         name:'coverPhoto',maxCount:1
     }]),
-    check('subject','Subject field is required.').not().isEmpty(),
-    check('topic','Topic field is required.').not().isEmpty(),
-    check('description','Description field is required.').not().isEmpty(),
-    check('recommended_student_level','Recommended_student_level field is required.').not().isEmpty(),
-    check('tags','Tags field is required.').not().isEmpty()
+    check('subject','Subject field is required.').optional().notEmpty(),
+    check('topic','Topic field is required.').optional().notEmpty(),
+    check('description','Description field is required.').optional().notEmpty(),
+    check('recommended_student_level','Recommended_student_level field is required.').optional().notEmpty(),
+    check('tags','Tags field is required.').optional().notEmpty()
     ],update);
 
 module.exports = router;

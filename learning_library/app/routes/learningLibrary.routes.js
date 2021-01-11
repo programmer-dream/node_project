@@ -8,8 +8,6 @@ const upload  = helper.upload;
 router.post("/create",[
     upload.fields([{
         name:'file',maxCount:1
-    },{
-        name:'coverPhoto',maxCount:1
     }]),
     check('school_vls_id','School_vls_id field is required.').not().isEmpty(),
     check('branch_vls_id','Branch_vls_id field is required.').not().isEmpty(),
@@ -31,16 +29,14 @@ router.delete("/delete/:id",deleteLibrary);
 router.put("/update/:id",[
     upload.fields([{
         name:'file',maxCount:1
-    },{
-        name:'coverPhoto',maxCount:1
     }]),
     check('school_vls_id','School_vls_id field is required.').not().isEmpty(),
     check('branch_vls_id','Branch_vls_id field is required.').not().isEmpty(),
-    check('subject','Subject field is required.').not().isEmpty(),
-    check('topic','Topic field is required.').not().isEmpty(),
-    check('description','Description field is required.').not().isEmpty(),
-    check('recommended_student_level','Recommended_student_level field is required.').not().isEmpty(),
-    check('tags','Tags field is required.').not().isEmpty()
+    check('subject','Subject field is required.').optional().notEmpty(),
+    check('topic','Topic field is required.').optional().notEmpty(),
+    check('description','Description field is required.').optional().notEmpty(),
+    check('recommended_student_level','Recommended_student_level field is required.').optional().notEmpty(),
+    check('tags','Tags field is required.').optional().notEmpty()
     ],update);
 
 module.exports = router;
