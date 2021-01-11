@@ -30,6 +30,8 @@ async function create(req){
 
   //if(req.user.role != 'teacher' || req.user.role != 'principle') throw 'Unauthorized User'
   let timetable = req.body.timetable
+  let timings   = await checkEnterTimings(timetable)
+  return 'out'
   let timeData  = []
 
   user          = await User.findByPk(req.user.id)
@@ -73,13 +75,13 @@ async function create(req){
               start_time       : timetable.start_time,
               end_time         : timetable.end_time
           }
-          
-          await getScheduleData(user.school_id, req.body.class_id, section_id, timetable.subject_id, timetable.start_time, timetable.end_time ,'Monday')
+         
+          await getScheduleData(user.school_id, req.body.class_id, section_id, timetable.subject_id, timetable.start_time, timetable.end_time ,body.day)
 
             timeData.push(body)
     })
   )
-  
+  return 'done'
   let routine = await Routine.bulkCreate(timeData);
   return { success: true, message: "Time sheet created successfully", data:routine }
 };
@@ -90,7 +92,7 @@ async function create(req){
  */
 async function teacherView(params , user){
     if(!params.class_id) throw 'class_id is required'
-      
+    //return user
     let whereCondition  = {
                             teacher_id : user.userVlsId, 
                             class_id   : params.class_id
@@ -258,21 +260,43 @@ async function getScheduleData(school_id, class_id, section_id, subject_id, star
               section_id     : section_id,
               school_vls_id  : school_id,
               day            : day
-          }
+          },
+          attributes: ['subject_id','start_time','end_time']
   })
-
    await Promise.all(
       routines.map(async routine => {
       if(routine.start_time === start_time)
-         throw 'Timings are overlapping'
+         throw `subject_id ${routine.subject_id} timings are overlapping with subject_id ${subject_id}`
     
       let time       = moment(start_time, 'hh:mm')
       let beforeTime = moment(routine.start_time, 'hh:mm')
       let afterTime  = moment(routine.end_time, 'hh:mm')
+      
       if (time.isBetween(beforeTime, afterTime)) 
-          throw 'Timings are overlapping'
+          throw `subject_id ${routine.subject_id} timings are overlapping with subject_id ${subject_id}`  
     })
   )
   
   return true
+}
+
+async function checkEnterTimings(timetable){
+  let length = timetable.length
+  await Promise.all(
+      timetable.map(async (routine, index) => {
+        for(let i = 0; i < length; i++ ){
+          if (timetable[index] != timetable[i]) {
+            if(timetable[index].start_time === timetable[i].start_time)
+              throw `subject_id ${timetable[index].subject_id} timings are overlapping with subject_id ${timetable[i].subject_id}`
+            
+            let time       = moment(timetable[index].start_time, 'hh:mm')
+            let beforeTime = moment(timetable[i].start_time, 'hh:mm')
+            let afterTime  = moment(timetable[i].end_time, 'hh:mm')
+            
+            if (time.isBetween(beforeTime, afterTime)) 
+                throw `subject_id ${timetable[index].subject_id} timings are overlapping with subject_id ${timetable[i].subject_id}`
+          }
+        }
+    })
+  )
 }
