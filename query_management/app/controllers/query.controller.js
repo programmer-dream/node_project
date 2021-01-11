@@ -431,14 +431,15 @@ async function canResponse(id, user) {
     let class_id    = query.class_vls_id
     let subject_id  = query.subject_id
 
-    let subjects_code = await Subject.findAll({
+    let subjects = await Subject.findOne({
                            where:{
-                                  teacher_id   : user.userVlsId
+                                  subject_vls_id   : subject_id
                                  },
                             attributes: ['code']
                               
-                        }).then(subject => subject.map(subject => subject.code));
+                        });
 
+    let subjects_code = subjects.code
     let classes = await Classes.findOne({
                        where:{
                               class_vls_id : class_id,
@@ -465,11 +466,11 @@ async function canResponse(id, user) {
     let subject = await Subject.findOne({
                      where:{
                             teacher_id   : user.userVlsId,
-                            code   : {[Op.in]: subjects_code}
+                            code   : subjects_code
                            },
                       attributes: ['subject_vls_id']   
                   })
-
+    
     if(subject){
       return { success : true, message:"User can response"}
     }
