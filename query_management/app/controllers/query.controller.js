@@ -299,7 +299,8 @@ async function listSubject(params){
                         model:Subject,
                         as:'subject',
                         attributes: ['subject_vls_id','name','code']
-                      }]
+                      }],
+                      group: ['subject.code']
                   });
     let subjects =  branch.subject
     return { success: true, message: "list subject data", data:subjects }
