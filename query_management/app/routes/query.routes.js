@@ -18,7 +18,7 @@ router.post("/response",queryResponse);
 router.get("/view/:id",viewQuery);
 router.get("/list",queryList);
 router.get("/listFaculty/branch/:id",listFaculty);
-router.get("/listSubject/branch/:id",listSubject);
+router.get("/listSubject/",listSubject);
 router.get("/getRatingLikes/:id",getRatingLikes);
 router.get("/canResponse/:id",canResponse);
 router.get("/dashboardCount",dashboardCount);
@@ -77,7 +77,7 @@ function deleteQuery(req, res, next) {
 }
 // Function for assing query
 function listSubject(req, res, next) {
-    queryController.listSubject(req.params, req.user)
+    queryController.listSubject(req.query, req.user)
         .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while listing subject' }))
         .catch(err => next(err));
 }
