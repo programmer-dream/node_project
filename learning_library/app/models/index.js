@@ -68,4 +68,10 @@ db.Branch = require("../../../vls/app/models/Branch.js")(sequelize, Sequelize);
 db.Student = require("../../../vls/app/models/Student.js")(sequelize, Sequelize);
 db.Employee = require("../../../vls/app/models/Employee.js")(sequelize, Sequelize);
 db.LibraryComment = require("./LibraryComment.js")(sequelize, Sequelize);
+db.SubjectList = require("../../../query_management/app/models/SubjectList.js")(sequelize, Sequelize);
+
+
+//relations
+db.LearningLibrary.belongsTo(db.SubjectList,{foreignKey:'subject_code',targetKey:'code',as:'subjectList'})
+
 module.exports = db;

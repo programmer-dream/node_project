@@ -48,6 +48,9 @@ module.exports = (sequelize, Sequelize) => {
       reply_vls_id: {
         type: Sequelize.STRING
       },
+      subject_code: {
+        type: Sequelize.STRING
+      },
       created_at: {
         allowNull: false,
         type: Sequelize.DATE
