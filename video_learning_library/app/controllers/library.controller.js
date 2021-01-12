@@ -7,6 +7,7 @@ const VideoLearningLibrary = db.VideoLearningLibrary;
 const Ratings              = db.Ratings;
 const ThumbnailGenerator   = require('fs-thumbnail');
 const SubjectList          = db.SubjectList;
+const Authentication       = db.Authentication;
 const thumbGen = new ThumbnailGenerator({
     verbose: true, // Whether to print out warning/errors
     size: [500, 300], // Default size, either a single number of an array of two numbers - [width, height].
@@ -68,7 +69,11 @@ async function create(req){
 /**
  * API for view query
  */
-async function view(id){
+async function view(id, user){
+  let user_detail = await Authentication.findByPk(user.id)
+  let branchId    = user_detail.branch_vls_id
+  
+  let isSubjectExist = false
   let learningLibrary = await VideoLearningLibrary.findOne({
     where : {video_learning_library_vls_id : id},
     include: [{ 
@@ -76,8 +81,19 @@ async function view(id){
                 as:'subjectList',
                 attributes: ['id','subject_name','code']
             }]
-  })      
-  return { success: true, message: "Video Learning library details", data:learningLibrary };
+  })
+  branchSubjects = await SubjectList.findAll({
+                    where: {branch_vls_id : branchId },
+                    attributes: ['id','subject_name','code']
+                  })
+  await Promise.all(
+    branchSubjects.map(async subject => {
+          if(learningLibrary.subjectList.subject_name.toLowerCase() == subject.subject_name.toLowerCase())
+            isSubjectExist = true
+    })
+  )
+  //return branchSubjects     
+  return { success: true, message: "Video Learning library details",subjectExist: isSubjectExist, data:learningLibrary };
 };
 
 
