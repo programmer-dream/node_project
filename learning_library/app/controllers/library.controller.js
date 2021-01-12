@@ -6,6 +6,7 @@ const Sequelize = db.Sequelize;
 const path = require('path')
 const LearningLibrary = db.LearningLibrary;
 const Ratings         = db.Ratings;
+const SubjectList     = db.SubjectList;
 const config = require("../../../config/env.js");
 
 const sequelize = db.sequelize;
@@ -55,7 +56,14 @@ async function create(req){
  * API for view query
  */
 async function view(id){
-  let learningLibrary    = await LearningLibrary.findByPk(id)      
+  let learningLibrary    = await LearningLibrary.findOne({
+    where : {learning_library_vls_id : id},
+    include: [{ 
+                model:SubjectList,
+                as:'subjectList',
+                attributes: ['id','subject_name','code']
+            }]
+  })      
   return { success: true, message: "Learning library details", data:learningLibrary }
 };
 
@@ -127,12 +135,17 @@ async function list(params, user){
                           'subject', 
                           'description', 
                           'topic', 
-                          'subject', 
+                          'subject_code', 
                           'URL',
                           'recommended_student_level',
                           'tags',
                           'cover_photo'
-                        ]
+                        ],
+                      include: [{ 
+                          model:SubjectList,
+                          as:'subjectList',
+                          attributes: ['id','subject_name','code']
+                      }]
                       });
   await Promise.all(
     learningLibrary.map(async item => {

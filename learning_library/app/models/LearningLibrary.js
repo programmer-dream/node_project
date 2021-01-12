@@ -55,6 +55,9 @@ module.exports = (sequelize, Sequelize) => {
       },
       cover_photo: {
         type: Sequelize.BOOLEAN
+      },
+      subject_code: {
+        type: Sequelize.STRING
       }
   },{
     tableName: 'learning_library',
