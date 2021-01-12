@@ -462,7 +462,7 @@ async function canResponse(id, user) {
                             teacher_id   : user.userVlsId,
                             code         : subject_code
                            },
-                      attributes: ['subject_vls_id']   
+                      attributes: ['code']   
                   })
     
     if(subject){
@@ -537,12 +537,6 @@ async function dashboardCount(user) {
                             attributes: ['code']
                               
                         }).then(subject => subject.map(subject => subject.code));
-      // let sectionSubject = await Subject.findAll({
-      //                        where:{
-      //                               code   : {[Op.in]: subjects_code}
-      //                              },
-      //                         attributes: ['subject_vls_id']   
-      //                     })
 
       let allCode = []
       await Promise.all(
