@@ -11,6 +11,7 @@ const Ratings = db.Ratings;
 const Subject = db.Subject;
 const Classes = db.Classes;
 const Section = db.Section;
+const SubjectList = db.SubjectList;
 
 const sequelize = db.sequelize;
 const bcrypt = require("bcryptjs");
@@ -174,9 +175,9 @@ async function list(params,user){
                                   attributes: ['faculty_vls_id','name', 'photo']
                                 },
                                 { 
-                                  model:Subject,
-                                  as:'subject',
-                                  attributes: ['subject_vls_id','name','code']
+                                  model:SubjectList,
+                                  as:'subjectList',
+                                  attributes: ['id','subject_name','code']
                                 }
                               ],
                       attributes: [
@@ -190,7 +191,8 @@ async function list(params,user){
                                     'student_vls_id',
                                     'response',
                                     'response_date',
-                                    'is_comment'
+                                    'is_comment',
+                                    'subject_code'
                                   ]
                       });
   return { success: true, message: "All query data", total : allCount ,data:studentQuery }
@@ -225,15 +227,16 @@ async function update(req){
   let id       = req.params.id
   const errors = validationResult(req);
   if(errors.array().length) throw errors.array()
-  //return 'test'
+  
   let isResponsed = await StudentQuery.findOne({
     where : {query_vls_id : id}
   })
+  
   if(isResponsed.response) throw 'Query could not be updated because  faculty already responded'
 
   req.body.query_status  = 'open'
   req.body.query_date    = formatDate() 
-
+  
   if(req.body.tags)
     req.body.tags        = JSON.stringify(req.body.tags)
   let num                = await StudentQuery.update(req.body,{
@@ -296,13 +299,12 @@ async function listSubject(params){
                     where:{branch_vls_id:branchVlsId},
                     attributes: ['branch_vls_id'],
                     include: [{ 
-                        model:Subject,
-                        as:'subject',
-                        attributes: ['subject_vls_id','name','code']
-                      }],
-                      group: ['subject.code']
+                        model:SubjectList,
+                        as:'subjectList',
+                        attributes: ['id','subject_name','code']
+                      }]  
                   });
-    let subjects =  branch.subject
+    let subjects =  branch.subjectList
     return { success: true, message: "list subject data", data:subjects }
 
   }catch(err){
@@ -426,21 +428,12 @@ async function canResponse(id, user) {
                        where:{
                               query_vls_id : id
                              },
-                      attributes: ['class_vls_id','faculty_vls_id','subject_id']
+                      attributes: ['class_vls_id','faculty_vls_id','subject_code']
                     });
-    //return query
-    let class_id    = query.class_vls_id
-    let subject_id  = query.subject_id
+    
+    let class_id      = query.class_vls_id
+    let subject_code  = query.subject_code
 
-    let subjects = await Subject.findOne({
-                           where:{
-                                  subject_vls_id   : subject_id
-                                 },
-                            attributes: ['code']
-                              
-                        });
-
-    let subjects_code = subjects.code
     let classes = await Classes.findOne({
                        where:{
                               class_vls_id : class_id,
@@ -467,7 +460,7 @@ async function canResponse(id, user) {
     let subject = await Subject.findOne({
                      where:{
                             teacher_id   : user.userVlsId,
-                            code   : subjects_code
+                            code         : subject_code
                            },
                       attributes: ['subject_vls_id']   
                   })
@@ -544,21 +537,21 @@ async function dashboardCount(user) {
                             attributes: ['code']
                               
                         }).then(subject => subject.map(subject => subject.code));
-      let sectionSubject = await Subject.findAll({
-                             where:{
-                                    code   : {[Op.in]: subjects_code}
-                                   },
-                              attributes: ['subject_vls_id']   
-                          })
+      // let sectionSubject = await Subject.findAll({
+      //                        where:{
+      //                               code   : {[Op.in]: subjects_code}
+      //                              },
+      //                         attributes: ['subject_vls_id']   
+      //                     })
 
-      let allSubjects = []
+      let allCode = []
       await Promise.all(
         sectionSubject.map( async subject => {
-          allSubjects.push(subject.subject_vls_id)
+          allCode.push(subject.code)
         })
       )
 
-      queryCount = await subjectCount(allSubjects, statusArray, user.userVlsId)
+      queryCount = await subjectCount(allCode, statusArray, user.userVlsId)
     }
 
   } 
@@ -616,7 +609,7 @@ async function teacherCount(allClasses, statusArray){
 /**
  * function for get subject teacher query count
  */
-async function subjectCount(allSubjects, statusArray, userID){
+async function subjectCount(allCode, statusArray, userID){
   let statusOb = {}
   statusArray.shift();
   await Promise.all(
@@ -624,8 +617,8 @@ async function subjectCount(allSubjects, statusArray, userID){
       let whereCondition = {
                       query_status : status,
                       faculty_vls_id : userID,
-                      subject_id   : {
-                        [Op.in]: allSubjects
+                      code   : {
+                        [Op.in]: allCode
                       }
                      }
       statusOb[status] = await getQueryCount(whereCondition)
@@ -665,15 +658,9 @@ async function teacherQueryList(user , params){
                             attributes: ['code']
                               
                         }).then(subject => subject.map(subject => subject.code));
-    let subjects = await Subject.findAll({
-                           where:{
-                                  code : { [Op.in] :  subjects_code}
-                                 },
-                            attributes: ['subject_vls_id']
-                              
-                        }).then(subject => subject.map(subject => subject.subject_vls_id));
+
     let allQuery = null
-    if(subjects.length > 0){
+    if(subjects_code.length > 0){
       allQuery = await StudentQuery.findAll({ 
           limit:limit,
           offset:offset,
@@ -681,12 +668,12 @@ async function teacherQueryList(user , params){
                     ['query_vls_id', orderBy]
                  ],
           where: { 
-              subject_id : { [Op.in] : subjects }
+              subject_code : { [Op.in] : subjects_code }
           },
           include: [{ 
-                        model:Subject,
-                        as:'subject',
-                        attributes: ['name','code']
+                        model:SubjectList,
+                        as:'subjectList',
+                        attributes: ['id','subject_name','code']
                       }]
       });
       
