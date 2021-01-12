@@ -5,7 +5,7 @@ const { check } = require('express-validator');
 
 //Post
 router.post("/create",[
-    check('subject_id','subject_id field is required.').not().isEmpty(),
+    check('subject_code','subject_code field is required.').not().isEmpty(),
     check('topic','Topic field is required.').not().isEmpty(),
     check('description','Description field is required.').not().isEmpty(),
     check('branch_vls_id','Branch_vls_id field is required.').not().isEmpty(),
@@ -28,7 +28,7 @@ router.delete("/delete/:id",deleteQuery);
 
 //Put
 router.put("/update/:id",[
-    check('subject_id','subject_id field is required.').not().isEmpty(),
+    check('subject_code','subject_code field is required.').not().isEmpty(),
     check('topic','Topic field is required.').not().isEmpty(),
     check('description','Description field is required.').not().isEmpty(),
     check('branch_vls_id','Branch_vls_id field is required.').not().isEmpty(),

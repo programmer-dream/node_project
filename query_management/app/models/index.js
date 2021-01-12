@@ -70,14 +70,16 @@ db.Branch = require("../../../vls/app/models/Branch.js")(sequelize, Sequelize);
 db.Subject = require("./Subject.js")(sequelize, Sequelize);
 db.Classes = require("../../../student_attendance/app/models/Classes.js")(sequelize, Sequelize);
 db.Section = require("../../../student_attendance/app/models/Section.js")(sequelize, Sequelize);
+db.SubjectList = require("./SubjectList.js")(sequelize, Sequelize);
 
 db.StudentQuery.belongsTo(db.Student,{foreignKey:'student_vls_id',as:'postedBy'})
 db.StudentQuery.belongsTo(db.Employee,{foreignKey:'faculty_vls_id',as:'respondedBy'})
 db.Ratings.belongsTo(db.Student,{foreignKey:'user_vls_id',as:'ratingBy'})
 db.Ratings.belongsTo(db.Student,{foreignKey:'user_vls_id',as:'likeBy'})
 db.Branch.hasMany(db.Subject,{foreignKey:'branch_vls_id',as:'subject'})
-db.StudentQuery.belongsTo(db.Subject,{foreignKey:'subject_id',as:'subject'})
+db.StudentQuery.belongsTo(db.SubjectList,{foreignKey:'subject_code',targetKey:'code',as:'subjectList'})
+db.StudentQuery.belongsTo(db.Subject,{foreignKey:'subject_code',targetKey:'code',as:'subject'})
 db.StudentQuery.belongsTo(db.Classes,{foreignKey:'class_vls_id',as:'class'})
 db.StudentQuery.belongsTo(db.Employee,{foreignKey:'faculty_vls_id',as:'faculty'})
-
+db.Branch.hasMany(db.SubjectList,{foreignKey:'branch_vls_id',as:'subjectList'})
 module.exports = db;

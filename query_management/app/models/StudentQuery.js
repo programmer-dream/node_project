@@ -31,7 +31,7 @@ module.exports = (sequelize, Sequelize) => {
       topic: {
         type: Sequelize.INTEGER
       },
-      subject_id: {
+      subject_code: {
         type: Sequelize.STRING
       },
       query_level: {
