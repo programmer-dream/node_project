@@ -93,14 +93,23 @@ async function create(req){
  */
 async function teacherView(params , user){
     if(!params.class_id) throw 'class_id is required'
+    let sectionCondtion = ''
     //return user
     let whereCondition  = {
-                            teacher_id : user.userVlsId, 
                             class_id   : params.class_id
                           }
-    if(params.section_id)
+    if(params.section_id){
         whereCondition.section_id = params.section_id
+          sectionCondtion = " AND section_id = "+params.section_id
+      }
 
+    let stime = await sequelize.query("SELECT DISTINCT(start_time) FROM routines WHERE class_id = "+params.class_id+sectionCondtion+"  ORDER BY cast(REPLACE(start_time,':','') as unsigned) ASC LIMIT 1",{ type: Sequelize.QueryTypes.SELECT });
+
+    let etime = await sequelize.query("SELECT DISTINCT(end_time) FROM routines WHERE class_id = "+params.class_id+sectionCondtion+"  ORDER BY cast(REPLACE(end_time,':','') as unsigned) DESC LIMIT 1",{ type: Sequelize.QueryTypes.SELECT });
+
+    let start_time = stime[0].start_time 
+    let end_time   = etime[0].end_time 
+    
     let timesheet = await Routine.findAll({
                     where:whereCondition,
                     attributes: ['day',
@@ -135,7 +144,7 @@ async function teacherView(params , user){
           daysData[timesheet.day].push(day)
       })
     )
-  return { success: true, message: "List teacher timesheet", data:daysData }
+  return { success: true, message: "List teacher timesheet", start_time : start_time, end_time : end_time, data:daysData }
 };
 
 
@@ -144,17 +153,29 @@ async function teacherView(params , user){
  */
 async function parentView(params , user){
   let whereCondition = {}
+  let sectionCondtion = ''
 
   if(user.role == 'student'){
     let student = await Student.findByPk(user.userVlsId)
         whereCondition.class_id   = student.class_id
+        params.class_id = student.class_id
   }else{
     if(!params.class_id) throw 'class_id is required'
       whereCondition.class_id   = params.class_id 
   }
-    if(params.section_id)
-        whereCondition.section_id = params.section_id
-      
+
+  if(params.section_id){
+      whereCondition.section_id = params.section_id
+      sectionCondtion = " AND section_id = "+params.section_id
+  }
+
+  let stime = await sequelize.query("SELECT DISTINCT(start_time) FROM routines WHERE class_id = "+params.class_id+sectionCondtion+"  ORDER BY cast(REPLACE(start_time,':','') as unsigned) ASC LIMIT 1",{ type: Sequelize.QueryTypes.SELECT });
+
+  let etime = await sequelize.query("SELECT DISTINCT(end_time) FROM routines WHERE class_id = "+params.class_id+sectionCondtion+"  ORDER BY cast(REPLACE(end_time,':','') as unsigned) DESC LIMIT 1",{ type: Sequelize.QueryTypes.SELECT });
+
+    let start_time = stime[0].start_time 
+    let end_time   = etime[0].end_time 
+
     let timesheet = await Routine.findAll({
                     where:whereCondition,
                     attributes: ['day',
@@ -188,7 +209,7 @@ async function parentView(params , user){
           daysData[timesheet.day].push(day)
       })
     )
-  return { success: true, message: "List parent timesheet", data:daysData }
+  return { success: true, message: "List parent timesheet", start_time:start_time, end_time: end_time ,data:daysData }
 };
 
 
