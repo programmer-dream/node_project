@@ -77,7 +77,7 @@ function deleteQuery(req, res, next) {
 }
 // Function for assing query
 function listSubject(req, res, next) {
-    queryController.listSubject(req.params)
+    queryController.listSubject(req.params, req.user)
         .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while listing subject' }))
         .catch(err => next(err));
 }

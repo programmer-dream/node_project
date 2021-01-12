@@ -290,15 +290,15 @@ function formatDate() {
 /**
  * API for get today's date
  */
-async function listSubject(params){
-  // if(!params.id) throw 'branch id is required'
+async function listSubject(params, user){
+   if(!params.id && user.role != "super-admin") throw 'branch id is required'
 
   try{
 
     let wherecondition = { branch_vls_id: { $eq: null } }
     if(params.id)
       wherecondition = {branch_vls_id:params.id}
-    
+
     let subjects  = await SubjectList.findAll({
                         where:wherecondition,
                         attributes: ['id','subject_name','code']
