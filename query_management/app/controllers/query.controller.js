@@ -291,20 +291,19 @@ function formatDate() {
  * API for get today's date
  */
 async function listSubject(params){
-  if(!params.id) throw 'branch id is required'
+  // if(!params.id) throw 'branch id is required'
 
   try{
-    let branchVlsId = params.id
-    let branch  = await Branch.findOne({
-                    where:{branch_vls_id:branchVlsId},
-                    attributes: ['branch_vls_id'],
-                    include: [{ 
-                        model:SubjectList,
-                        as:'subjectList',
+
+    let wherecondition = { branch_vls_id: { $eq: null } }
+    if(params.id)
+      wherecondition = {branch_vls_id:params.id}
+    
+    let subjects  = await SubjectList.findAll({
+                        where:wherecondition,
                         attributes: ['id','subject_name','code']
-                      }]  
-                  });
-    let subjects =  branch.subjectList
+                      });
+
     return { success: true, message: "list subject data", data:subjects }
 
   }catch(err){
