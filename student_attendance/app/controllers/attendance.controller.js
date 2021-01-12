@@ -708,7 +708,6 @@ async function teacherClasses(user){
                               attributes: ['class_id']   
                           });
 
-      let allClasses = []
         classes.map(singleClass => {
           allClasses.push(singleClass.class_vls_id)
         })
@@ -759,72 +758,84 @@ async function teacherClasses(user){
  * API for count dashboard attendance 
  */
 async function dashboardAttendanceCount(user){
-	// if(user.role !='teacher') 
-	// 	throw 'Unauthorised User'
-	let allAttendance = []
-	let presentCount  = 0
-	let absentCount   = 0
-	let sections   = await Section.findAll({
-                     where:{
-                            teacher_id   : user.userVlsId
-                           },
-                      attributes: ['id','class_id']   
-                  });
-
-	//return sections
-	if(sections.length){
-		await Promise.all(
-		sections.map(async section => {
-				let attendances  = await StudentAttendance.findAll({
+	if(user.role !='teacher') 
+		throw 'Unauthorised User'
+	let currentYear   = moment().format('YYYY');
+	let currentMonth  = moment().format('MMMM');
+	
+	let classList 	  = await teacherClasses(user)
+		classList     = classList.data
+	let newData       = []
+	await Promise.all(
+		classList.map(async singleClass => {
+			singleClass = singleClass.toJSON()
+			if(singleClass.sections.length){
+				let sections = singleClass.sections
+				await Promise.all(
+					sections.map(async (section , index) => {
+						let data = await sectionWiseAttendance(singleClass.class_vls_id, section.id,currentYear, currentMonth)
+						singleClass.sections[index].attendance = data
+					})
+				)
+				newData.push(singleClass)
+			}else{
+				let data = await classWiseAttendance(singleClass.class_vls_id, currentYear, currentMonth)
+				singleClass.attendance = data
+				newData.push(singleClass)
+			}
+		})
+	)
+	
+	return { success: true, message: "present & absent count" ,data : newData};
+};
+async function sectionWiseAttendance(class_id, section_id, currentYear, currentMonth){
+	let presentCount = 0
+	let absentCount  = 0
+	let attendances  = await StudentAttendance.findAll({
 					where: {
-						class_id   : section.class_id,
-						section_id : section.id
+						class_id   : class_id,
+						section_id : section_id,
+						year : currentYear,
+						month : currentMonth
 					}
 				})
-			 	if(attendances.length){
-			 		attendances.map(async attendance => {
-				 		for(var i = 1; i<=31; i++){
-				 			if(attendance['day_'+i] =='P'){
-				 				presentCount++
-				 			}else if(attendance['day_'+i] =='A'){
-				 				absentCount++
-				 			}
-				 		}
-			 		})
-				}
-			}
-		  )
-		)
-	}else{
-		let classes   = await Classes.findAll({
-                     	where:{
-                            teacher_id   : user.userVlsId
-                           },
-                      attributes: ['class_vls_id']   
-                  });
-		//return classes
+	if(attendances.length){
 		await Promise.all(
-			classes.map(async singleClass => {
-				let attendances  = await StudentAttendance.findAll({
-					where: {
-						class_id   : singleClass.class_vls_id,
-					}
-				})
-			 	if(attendances.length){
-			 		attendances.map(async attendance => {
-				 		for(var i = 1; i<=31; i++){
-				 			if(attendance['day_'+i] =='P'){
-				 				presentCount++
-				 			}else if(attendance['day_'+i] =='A'){
-				 				absentCount++
-				 			}
-				 		}
-			 		})
-				}
-			}
-		  )
+			attendances.map(async attendance => {
+		 		for(var i = 1; i<=31; i++){
+		 			if(attendance['day_'+i] =='P'){
+		 				presentCount++
+		 			}else if(attendance['day_'+i] =='A'){
+		 				absentCount++
+		 			}
+		 		}
+	 		})
 		)
 	}
-	let data = {present : presentCount, absent : absentCount }
-	return { success: true, message: "present & absent count" ,data : data};
-};
+	return { present : presentCount, absent : absentCount}
+}
+async function classWiseAttendance(class_id, currentYear, currentMonth){
+	let presentCount = 0
+	let absentCount  = 0
+	let attendances  = await StudentAttendance.findAll({
+				where: {
+					class_id   : class_id,
+					year : currentYear,
+					month : currentMonth
+				}
+			})
+	if(attendances.length){
+		await Promise.all(
+			attendances.map(async attendance => {
+		 		for(var i = 1; i<=31; i++){
+		 			if(attendance['day_'+i] =='P'){
+		 				presentCount++
+		 			}else if(attendance['day_'+i] =='A'){
+		 				absentCount++
+		 			}
+		 		}
+	 		})	
+		)
+	}
+	return { present : presentCount, absent : absentCount}
+}
