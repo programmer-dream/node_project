@@ -91,9 +91,13 @@ async function view(id, user){
           if(learningLibrary.subjectList.subject_name.toLowerCase() == subject.subject_name.toLowerCase())
             isSubjectExist = true
     })
-  )
+  );
+
+  if(learningLibrary)
+      learningLibrary.isSubjectExist = isSubjectExist
+
   //return branchSubjects     
-  return { success: true, message: "Video Learning library details",subjectExist: isSubjectExist, data:learningLibrary };
+  return { success: true, message: "Video Learning library details", data:learningLibrary };
 };
 
 
