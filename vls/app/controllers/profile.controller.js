@@ -4,9 +4,12 @@ const db = require("../models");
 const Student = db.Student;
 const Guardian = db.Guardian;
 const Employee = db.Employee;
+const Branch = db.Branch;
+const Authentication = db.Authentication;
 
 module.exports = {
-  profile
+  profile,
+  listBranch
 };
 
 async function profile(user){
@@ -40,4 +43,31 @@ async function profile(user){
   }
 
   return { success: true, message: "profie data", data : userPorfile};
+};
+
+
+
+/**
+ * API for get list branch for school
+ */
+async function listBranch(user){
+
+  if(user.role != "school-admin") throw 'Unauthorised user'
+  let userData = await Authentication.findOne({ where: { user_name: user.userId } });
+  
+  try{
+
+    let wherecondition = { school_vls_id: userData.school_id }
+
+    console.log(wherecondition)
+    let Branchs  = await Branch.findAll({
+                        where:wherecondition,
+                        attributes: ['branch_vls_id','branch_name','address']
+                      });
+
+    return { success: true, message: "list branch data", data:Branchs }
+
+  }catch(err){
+    throw err.message
+  }
 };

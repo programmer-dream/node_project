@@ -75,25 +75,25 @@ function deleteQuery(req, res, next) {
         .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while deleting query' }))
         .catch(err => next(err));
 }
-// Function for assing query
+// Function for list subjects 
 function listSubject(req, res, next) {
     queryController.listSubject(req.query, req.user)
         .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while listing subject' }))
         .catch(err => next(err));
 }
-// Function for assing query
+// Function for add reponse to query
 function queryResponse(req, res, next) {
     queryController.queryResponse(req.body, req.user)
         .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while updating query response' }))
         .catch(err => next(err));
 }
-// Function for assing query
+// Function for get rating and likes for query
 function getRatingLikes(req, res, next) {
     queryController.getRatingLikes(req.params.id , req.user)
         .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while getting query like & ratting' }))
         .catch(err => next(err));
 }
-// Function for assing query
+// Function for status update query
 function statusUpdate(req, res, next) {
     queryController.statusUpdate(req.params.id , req.user)
         .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while getting query like & ratting' }))

@@ -288,7 +288,7 @@ function formatDate() {
 
 
 /**
- * API for get today's date
+ * API for get list subjects
  */
 async function listSubject(params, user){
 
