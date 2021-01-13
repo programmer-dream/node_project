@@ -93,8 +93,10 @@ async function view(id, user){
     })
   );
 
-  if(learningLibrary)
+  if(learningLibrary){
+      learningLibrary = learningLibrary.toJSON()
       learningLibrary.isSubjectExist = isSubjectExist
+    }
 
   //return branchSubjects     
   return { success: true, message: "Video Learning library details", data:learningLibrary };
