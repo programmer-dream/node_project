@@ -81,21 +81,25 @@ async function view(id, user){
                 as:'subjectList',
                 attributes: ['id','subject_name','code']
             }]
-  })
-  branchSubjects = await SubjectList.findAll({
-                    where: {branch_vls_id : branchId },
-                    attributes: ['id','subject_name','code']
-                  })
-  await Promise.all(
-    branchSubjects.map(async subject => {
-          if(learningLibrary.subjectList.subject_name.toLowerCase() == subject.subject_name.toLowerCase())
-            isSubjectExist = true
-    })
-  );
-
+  });
+  // return learningLibrary
   if(learningLibrary){
       learningLibrary = learningLibrary.toJSON()
+      if(learningLibrary.subjectList){
+        let branchSubjects = await SubjectList.findAll({
+                          where: {branch_vls_id : branchId },
+                          attributes: ['id','subject_name','code']
+                        });
+
+        await Promise.all(
+          branchSubjects.map(async subject => {
+                if(learningLibrary.subjectList.subject_name.toLowerCase() == subject.subject_name.toLowerCase())
+                  isSubjectExist = true
+          })
+        );
+      }
       learningLibrary.isSubjectExist = isSubjectExist
+
     }
 
   //return branchSubjects     
