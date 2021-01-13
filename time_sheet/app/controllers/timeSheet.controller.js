@@ -145,7 +145,9 @@ async function teacherView(params , user){
             start_time   : timesheet.start_time,
             end_time     : timesheet.end_time,
             room_no      : timesheet.room_no,
-            subject_name : timesheet.subject.name
+            subject_name : timesheet.subject.name,
+            teacher_name : timesheet.teacher.name,
+            teacher_photo: timesheet.teacher.photo,
           }
 
           if(!daysData[timesheet.day])
@@ -219,7 +221,9 @@ async function parentView(params , user){
             start_time   : timesheet.start_time,
             end_time     : timesheet.end_time,
             room_no      : timesheet.room_no,
-            subject_name : timesheet.subject.name
+            subject_name : timesheet.subject.name,
+            teacher_name : timesheet.teacher.name,
+            teacher_photo: timesheet.teacher.photo,
           }
 
           if(!daysData[timesheet.day])
