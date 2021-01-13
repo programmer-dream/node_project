@@ -12,6 +12,7 @@ const Subject = db.Subject;
 const Classes = db.Classes;
 const Section = db.Section;
 const SubjectList = db.SubjectList;
+const Users = db.Users;
 
 const sequelize = db.sequelize;
 const bcrypt = require("bcryptjs");
@@ -485,7 +486,7 @@ async function dashboardCount(user) {
   if(user.role == 'student'){
     queryCount = await studentCount(user.userVlsId, statusArray)
 
-  }else{
+  }else if(user.role == 'teacher'){
 
     let classes = await Classes.findAll({
                          where:{
@@ -548,7 +549,24 @@ async function dashboardCount(user) {
       queryCount = await subjectCount(allCode, statusArray, user.userVlsId)
     }
 
-  } 
+  }else{
+
+      let userData = await Users.findOne({ where: { user_name: user.userId } });
+
+      let classes = await Classes.findAll({
+                         where:{ branch_vls_id   : userData.branch_vls_id },
+                          attributes: ['class_vls_id']   
+                      });
+
+      let allClasses = []
+        classes.map(singleClass => {
+          allClasses.push(singleClass.class_vls_id)
+        })
+
+      await Promise.all(allClasses);
+
+      queryCount = await teacherCount(allClasses, statusArray)
+  }
   
   
   let queryCountObj = {

@@ -67,6 +67,7 @@ db.Ratings = require("./Ratings.js")(sequelize, Sequelize);
 db.Employee = require("../../../vls/app/models/Employee.js")(sequelize, Sequelize);
 db.Student = require("../../../vls/app/models/Student.js")(sequelize, Sequelize);
 db.Branch = require("../../../vls/app/models/Branch.js")(sequelize, Sequelize);
+db.Users = require("../../../vls/app/models/Authentication.js")(sequelize, Sequelize);
 db.Subject = require("./Subject.js")(sequelize, Sequelize);
 db.Classes = require("../../../student_attendance/app/models/Classes.js")(sequelize, Sequelize);
 db.Section = require("../../../student_attendance/app/models/Section.js")(sequelize, Sequelize);
