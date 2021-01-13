@@ -46,6 +46,7 @@ async function create(req){
   await Promise.all(
     timetable.map(async timetable => {
         let status     = 1
+        let room_no     = 1
         let section_id = 0
         if(!timetable.subject_code) throw 'subject_code required'
         if(!timetable.start_time) throw 'start_time required'
@@ -63,15 +64,18 @@ async function create(req){
         if(timetable.section_id)
             section_id = timetable.section_id
 
+          if(timetable.room_no)
+            room_no = timetable.room_no
+
         let body = {
               day              : moment(req.body.day, 'd').format('dddd'),
               class_id         : req.body.class_id,
               school_vls_id    : user.school_id,
               branch_vls_id    : user.branch_vls_id,
-              teacher_id       : user.user_vls_id,
+              teacher_id       : timetable.teacher_id,
               academic_year_id : academicYear.id,
               section_id       : section_id,
-              room_no          : timetable.room_no, 
+              room_no          : room_no, 
               status           : status,
               subject_code     : timetable.subject_code,
               start_time       : timetable.start_time,
