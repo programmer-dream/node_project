@@ -74,5 +74,6 @@ db.Subject = require("./Subject.js")(sequelize, Sequelize);
 
 //Relation
 db.Routine.belongsTo(db.Subject,{foreignKey:'subject_id',as:'subject'})
+db.Routine.belongsTo(db.Employee,{foreignKey:'teacher_id',as:'teacher'})
 
 module.exports = db;

@@ -9,6 +9,7 @@ const User        = db.Authentication;
 const AcademicYear= db.AcademicYear;
 const Subject     = db.Subject;
 const Student     = db.Student;
+const Employee     = db.Employee;
 
 const sequelize = db.sequelize;
 const bcrypt = require("bcryptjs");
@@ -126,13 +127,14 @@ async function teacherView(params , user){
                                'room_no'
                                ],
                     include: [{ 
-                      model:Subject,
-                      as:'subject',
-                      attributes: [
-                                  'subject_vls_id',
-                                  'name'
-                                ]
-                  }]
+                        model:Subject,
+                        as:'subject',
+                        attributes: [ 'subject_vls_id', 'name' ]
+                      },{ 
+                        model:Employee,
+                        as:'teacher',
+                        attributes: [ 'faculty_vls_id', 'name', 'photo' ]
+                      }]
                 })
 
     let daysData = {}
@@ -200,13 +202,14 @@ async function parentView(params , user){
                                  'room_no'
                                  ],
                     include: [{ 
-                      model:Subject,
-                      as:'subject',
-                      attributes: [
-                                    'subject_vls_id',
-                                    'name'
-                                  ]
-                    }]
+                        model:Subject,
+                        as:'subject',
+                        attributes: [ 'subject_vls_id', 'name' ]
+                      },{ 
+                        model:Employee,
+                        as:'teacher',
+                        attributes: [ 'faculty_vls_id', 'name', 'photo' ]
+                      }]
                   })
 
     let daysData = {}

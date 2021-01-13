@@ -788,6 +788,8 @@ async function dashboardAttendanceCount(user){
 	
 	return { success: true, message: "present & absent count" ,data : newData};
 };
+
+
 async function sectionWiseAttendance(class_id, section_id, currentYear, currentMonth){
 	let presentCount = 0
 	let absentCount  = 0
@@ -814,6 +816,8 @@ async function sectionWiseAttendance(class_id, section_id, currentYear, currentM
 	}
 	return { present : presentCount, absent : absentCount}
 }
+
+
 async function classWiseAttendance(class_id, currentYear, currentMonth){
 	let presentCount = 0
 	let absentCount  = 0
