@@ -107,8 +107,16 @@ async function teacherView(params , user){
 
     let etime = await sequelize.query("SELECT DISTINCT(end_time) FROM routines WHERE class_id = "+params.class_id+sectionCondtion+"  ORDER BY cast(REPLACE(end_time,':','') as unsigned) DESC LIMIT 1",{ type: Sequelize.QueryTypes.SELECT });
 
-    let start_time = stime[0].start_time 
-    let end_time   = etime[0].end_time 
+    let start_time  = ""
+    let end_time    = ""
+
+    if(stime && stime[0]){
+      start_time = stime[0].start_time
+    }
+
+    if(etime && etime[0]){
+      end_time   = etime[0].end_time
+    } 
     
     let timesheet = await Routine.findAll({
                     where:whereCondition,
@@ -173,8 +181,16 @@ async function parentView(params , user){
 
   let etime = await sequelize.query("SELECT DISTINCT(end_time) FROM routines WHERE class_id = "+params.class_id+sectionCondtion+"  ORDER BY cast(REPLACE(end_time,':','') as unsigned) DESC LIMIT 1",{ type: Sequelize.QueryTypes.SELECT });
 
-    let start_time = stime[0].start_time 
-    let end_time   = etime[0].end_time 
+    let start_time  = ""
+    let end_time    = ""
+
+    if(stime && stime[0]){
+      start_time = stime[0].start_time
+    }
+
+    if(etime && etime[0]){
+      end_time   = etime[0].end_time
+    } 
 
     let timesheet = await Routine.findAll({
                     where:whereCondition,
