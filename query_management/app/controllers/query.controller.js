@@ -482,6 +482,7 @@ async function dashboardCount(user) {
   //       throw 'Unauthorised User'
   let statusArray = ['Open', 'Inprogress', 'Closed']
   let queryCount = {}
+  let userData = await Users.findOne({ where: { user_name: user.userId } });
 
   if(user.role == 'student'){
     queryCount = await studentCount(user.userVlsId, statusArray)
@@ -549,22 +550,13 @@ async function dashboardCount(user) {
       queryCount = await subjectCount(allCode, statusArray, user.userVlsId)
     }
 
+  }else if(user.role == "school-admin"){
+
+      let allClasses = await schoolQueryClasses(userData.school_id)
+      queryCount = await teacherCount(allClasses, statusArray)
+
   }else{
-
-      let userData = await Users.findOne({ where: { user_name: user.userId } });
-
-      let classes = await Classes.findAll({
-                         where:{ branch_vls_id   : userData.branch_vls_id },
-                          attributes: ['class_vls_id']   
-                      });
-
-      let allClasses = []
-        classes.map(singleClass => {
-          allClasses.push(singleClass.class_vls_id)
-        })
-
-      await Promise.all(allClasses);
-
+      let allClasses = await branchQueryClasses(userData.branch_vls_id)
       queryCount = await teacherCount(allClasses, statusArray)
   }
   
@@ -577,6 +569,61 @@ async function dashboardCount(user) {
 
   return { success   : true , message  : "Dashboard query count", data : queryCountObj }
 };
+
+
+/**
+ * function for get school Classes
+ */
+async function schoolQueryClasses(school_id){
+    let wherecondition = { school_vls_id: school_id }
+    let branches  = await Branch.findAll({
+                          where:wherecondition,
+                          attributes: ['branch_vls_id']
+                        });
+
+    let branchIds = []
+          branches.map(branch => {
+            branchIds.push(branch.branch_vls_id)
+          })
+    await Promise.all(branchIds);
+      let classes = await Classes.findAll({
+                           where:{ branch_vls_id : {
+                                    [Op.in]: branchIds
+                                  }
+                                },
+                            attributes: ['class_vls_id']   
+                        });
+
+        let allClasses = []
+          classes.map(singleClass => {
+            allClasses.push(singleClass.class_vls_id)
+          })
+
+      await Promise.all(allClasses);
+
+      return allClasses
+}
+
+/**
+ * function for get branch for Classes
+ */
+async function branchQueryClasses(branch_vls_id){
+
+    let classes = await Classes.findAll({
+                         where:{ branch_vls_id   : branch_vls_id },
+                          attributes: ['class_vls_id']   
+                      });
+
+      let allClasses = []
+        classes.map(singleClass => {
+          allClasses.push(singleClass.class_vls_id)
+        })
+
+      await Promise.all(allClasses);
+
+      return allClasses
+}
+
 
 /**
  * function for get student query count

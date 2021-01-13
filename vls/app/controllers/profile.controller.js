@@ -54,12 +54,11 @@ async function listBranch(user){
 
   if(user.role != "school-admin") throw 'Unauthorised user'
   let userData = await Authentication.findOne({ where: { user_name: user.userId } });
-  
+
   try{
 
     let wherecondition = { school_vls_id: userData.school_id }
-
-    console.log(wherecondition)
+    
     let Branchs  = await Branch.findAll({
                         where:wherecondition,
                         attributes: ['branch_vls_id','branch_name','address']
