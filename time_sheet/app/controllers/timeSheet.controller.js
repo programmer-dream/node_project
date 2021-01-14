@@ -9,7 +9,8 @@ const User        = db.Authentication;
 const AcademicYear= db.AcademicYear;
 const Subject     = db.Subject;
 const Student     = db.Student;
-const Employee     = db.Employee;
+const Employee    = db.Employee;
+const SubjectList = db.SubjectList;
 
 const sequelize = db.sequelize;
 const bcrypt = require("bcryptjs");
@@ -132,9 +133,9 @@ async function teacherView(params , user){
                                  'room_no'
                                ],
                     include: [{ 
-                        model:Subject,
-                        as:'subject',
-                        attributes: [ 'subject_vls_id', 'name' ]
+                        model:SubjectList,
+                        as:'subjectList',
+                        attributes: [ 'id','code','subject_name' ]
                       },{ 
                         model:Employee,
                         as:'teacher',
@@ -143,15 +144,15 @@ async function teacherView(params , user){
                 })
 
     let daysData = {}
-
+    
     await Promise.all(
       timesheet.map(async timesheet => {
           let day = {
-            timesheet_id :timesheet.timesheet_id,
+            timesheet_id : timesheet.timesheet_id,
             start_time   : timesheet.start_time,
             end_time     : timesheet.end_time,
             room_no      : timesheet.room_no,
-            subject_name : timesheet.subject.name,
+            subject_name : timesheet.subjectList.name,
             teacher_name : timesheet.teacher.name,
             teacher_photo: timesheet.teacher.photo,
           }
@@ -211,16 +212,16 @@ async function parentView(params , user){
                                  'room_no'
                                  ],
                     include: [{ 
-                        model:Subject,
-                        as:'subject',
-                        attributes: [ 'subject_vls_id', 'name' ]
+                        model:SubjectList,
+                        as:'subjectList',
+                        attributes: [ 'id','code','subject_name' ]
                       },{ 
                         model:Employee,
                         as:'teacher',
                         attributes: [ 'faculty_vls_id', 'name', 'photo' ]
                       }]
                   })
-
+    
     let daysData = {}
     await Promise.all(
       timesheet.map(async timesheet => {
@@ -229,7 +230,7 @@ async function parentView(params , user){
             start_time   : timesheet.start_time,
             end_time     : timesheet.end_time,
             room_no      : timesheet.room_no,
-            subject_name : timesheet.subject.name,
+            subject_name : timesheet.subjectList.name,
             teacher_name : timesheet.teacher.name,
             teacher_photo: timesheet.teacher.photo,
           }
