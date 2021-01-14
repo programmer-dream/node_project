@@ -186,9 +186,6 @@ async function classList(params){
 	let classes  = await Classes.findAll({  
 	                  limit:limit,
 	                  offset:offset,
-	                  order: [
-	                          ['class_vls_id', orderBy]
-	                  ],
 	                  attributes: ['class_vls_id',
 	                  			   'name',
 	                  			   'teacher_id',
@@ -199,7 +196,11 @@ async function classList(params){
                               model:Section,
                               as:'sections',
                               attributes: ['id','name']
-                            }]
+                            }],
+                      order: [
+	                          ['class_vls_id', orderBy],
+	                          [Section, 'id', 'asc']
+	                  ]
 	                  });
   return { success: true, message: "Class list", data:classes };
 };
