@@ -504,12 +504,6 @@ async function dashboardCount(user) {
                   });
     //return sections
     if(classes.length > 0 || sections.length > 0){
-      let subjectClasses = await Subject.findAll({
-                             where:{
-                                    teacher_id   : user.userVlsId
-                                   },
-                              attributes: ['class_id']   
-                          });
 
       let allClasses = []
         classes.map(singleClass => {
@@ -520,10 +514,6 @@ async function dashboardCount(user) {
           allClasses.push(section.class_id)
         })
 
-       subjectClasses.map(subjectClass => {
-          allClasses.push(subjectClass.class_id)
-        })
-
       allClasses = allClasses.filter(function(elem, pos) {
                 return allClasses.indexOf(elem) == pos;
             })
@@ -531,6 +521,21 @@ async function dashboardCount(user) {
       await Promise.all(allClasses);
 
       queryCount = await teacherCount(allClasses, statusArray)
+
+      let subjects_code = await Subject.findAll({
+                           where:{
+                                  teacher_id   : user.userVlsId
+                                 },
+                            attributes: ['code']
+                              
+                        }).then(subject => subject.map(subject => subject.code));
+
+      let subjectQueryCount = await subjectCount(subjects_code, statusArray)
+
+      queryCount.Open         += subjectQueryCount.Open
+      queryCount.Inprogress   += subjectQueryCount.Inprogress
+      queryCount.Closed       += subjectQueryCount.Closed
+
     }else{
       let subjects_code = await Subject.findAll({
                            where:{
@@ -540,14 +545,7 @@ async function dashboardCount(user) {
                               
                         }).then(subject => subject.map(subject => subject.code));
 
-      let allCode = []
-      await Promise.all(
-        sectionSubject.map( async subject => {
-          allCode.push(subject.code)
-        })
-      )
-
-      queryCount = await subjectCount(allCode, statusArray, user.userVlsId)
+      queryCount = await subjectCount(subjects_code, statusArray)
     }
 
   }else if(user.role == "school-admin"){
@@ -668,15 +666,15 @@ async function teacherCount(allClasses, statusArray){
 /**
  * function for get subject teacher query count
  */
-async function subjectCount(allCode, statusArray, userID){
+async function subjectCount(allCode, statusArray){
   let statusOb = {}
-  statusArray.shift();
+  // statusArray.shift();
+
   await Promise.all(
     statusArray.map(async status =>{
       let whereCondition = {
                       query_status : status,
-                      faculty_vls_id : userID,
-                      code   : {
+                      subject_code   : {
                         [Op.in]: allCode
                       }
                      }
