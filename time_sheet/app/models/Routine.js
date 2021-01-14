@@ -41,6 +41,9 @@ module.exports = (sequelize, Sequelize) => {
       },
       status: {
         type: Sequelize.TINYINT(1)
+      },
+      subject_code: {
+        type: Sequelize.STRING
       }
   },{
       tableName: 'routines',
