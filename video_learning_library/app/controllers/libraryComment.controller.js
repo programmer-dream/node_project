@@ -25,7 +25,8 @@ async function create(req){
   try{
     req.body.user_vls_id = req.user.userVlsId
     req.body.user_type   = req.user.role  
-
+    let commentWithUser  = {}
+    
     let createdComment     = await VideoLibraryComment.create(req.body);
     if(createdComment){
         let id   = req.body.video_learning_library_vls_id;
@@ -34,8 +35,21 @@ async function create(req){
                              video_learning_library_vls_id : id
                           }
                     });
+      if(req.user.role === 'student'){  
+          user  = await Student.findByPk(createdComment.user_vls_id)
+      }else{
+          user  = await Employee.findByPk(createdComment.user_vls_id)
+      }
+
+      if(user || user != null){
+        user = {'name': user.name, 'photo': user.photo }
+      }
+
     }
-    return { success: true, message: "Comment created successfully", data:createdComment }
+    commentWithUser = createdComment.toJSON()
+    commentWithUser.user = user
+
+    return { success: true, message: "Comment created successfully", data:commentWithUser }
   }catch(err){
     throw err.message
   }
@@ -145,7 +159,8 @@ async function update(req){
 
   req.body.user_vls_id = req.user.userVlsId
   req.body.user_type   = req.user.role
-
+  let commentWithUser  = {}
+  
   let num = await VideoLibraryComment.update(req.body,{
                            where:{ id: id }
                        });
@@ -154,8 +169,23 @@ async function update(req){
     throw 'Comment not updated'
   
   let comment = await VideoLibraryComment.findByPk(id)
-     
-  return { success: true, message: "Comment updated successfully", data: comment }
+
+  if(comment){
+      if(req.user.role === 'student'){
+          user  = await Student.findByPk(comment.user_vls_id)
+      }else{
+          user  = await Employee.findByPk(comment.user_vls_id)
+      }
+
+      if(user || user != null){
+        user = {'name': user.name, 'photo': user.photo }
+      }
+
+      commentWithUser = comment.toJSON()
+      commentWithUser.user = user
+
+  }
+  return { success: true, message: "Comment updated successfully", data: commentWithUser }
 
 };
 
