@@ -15,10 +15,13 @@ router.get("/teacher/view",teacherView);
 router.get("/parent/view",parentView);
 
 //Put
-router.put("/update",[
+router.put("/update/:id",[
     check('class_id','class_id field is required.').not().isEmpty(),
     check('day','day field is required.').not().isEmpty(),
-    check('timetable','timetable field is required.').not().isEmpty()
+    check('subject_code','subject_code field is required.').not().isEmpty(),
+    check('room_no','room_no field is required.').not().isEmpty(),
+    check('start_time','start_time field is required.').not().isEmpty(),
+    check('end_time','end_time field is required.').not().isEmpty(),
     ],update);
 
 module.exports = router;
