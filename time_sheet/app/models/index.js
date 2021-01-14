@@ -71,9 +71,9 @@ db.AcademicYear = require("../../../student_attendance/app/models/AcademicYear.j
 db.Guardian = require("../../../vls/app/models/Guardian.js")(sequelize, Sequelize);
 db.Routine = require("./Routine.js")(sequelize, Sequelize);
 db.Subject = require("./Subject.js")(sequelize, Sequelize);
-
+db.SubjectList = require("../../../query_management/app/models/SubjectList.js")(sequelize, Sequelize);
 //Relation
-db.Routine.belongsTo(db.Subject,{foreignKey:'subject_id',as:'subject'})
+db.Routine.belongsTo(db.SubjectList,{foreignKey:'subject_code',targetKey:'code',as:'subjectList'})
 db.Routine.belongsTo(db.Employee,{foreignKey:'teacher_id',as:'teacher'})
 
 module.exports = db;
