@@ -41,7 +41,7 @@ async function create(req){
           user  = await Employee.findByPk(createdComment.user_vls_id)
       }
 
-      if(user || user != null){
+      if(user && user != null){
         user = {'name': user.name, 'photo': user.photo }
       }
 
@@ -160,7 +160,7 @@ async function update(req){
   req.body.user_vls_id = req.user.userVlsId
   req.body.user_type   = req.user.role
   let commentWithUser  = {}
-  
+
   let num = await VideoLibraryComment.update(req.body,{
                            where:{ id: id }
                        });
@@ -177,7 +177,7 @@ async function update(req){
           user  = await Employee.findByPk(comment.user_vls_id)
       }
 
-      if(user || user != null){
+      if(user && user != null){
         user = {'name': user.name, 'photo': user.photo }
       }
 
