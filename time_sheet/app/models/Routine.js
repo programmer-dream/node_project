@@ -18,9 +18,6 @@ module.exports = (sequelize, Sequelize) => {
       section_id: {
         type: Sequelize.INTEGER
       },
-      subject_id: {
-        type: Sequelize.INTEGER
-      },
       teacher_id: {
         type: Sequelize.INTEGER
       },
