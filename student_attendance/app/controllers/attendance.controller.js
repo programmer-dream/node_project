@@ -758,34 +758,25 @@ async function teacherClasses(user){
  * API for count dashboard attendance 
  */
 async function dashboardAttendanceCount(user){
-	if(user.role !='teacher') 
-		throw 'Unauthorised User'
+
 	let currentYear   = moment().format('YYYY');
 	let currentMonth  = moment().format('MMMM');
-	
-	let classList 	  = await teacherClasses(user)
-		classList     = classList.data
+	let student       = {}
 	let newData       = []
-	await Promise.all(
-		classList.map(async singleClass => {
-			singleClass = singleClass.toJSON()
-			if(singleClass.sections.length){
-				let sections = singleClass.sections
-				await Promise.all(
-					sections.map(async (section , index) => {
-						let data = await sectionWiseAttendance(singleClass.class_vls_id, section.id,currentYear, currentMonth)
-						singleClass.sections[index].attendance = data
-					})
-				)
-				newData.push(singleClass)
-			}else{
-				let data = await classWiseAttendance(singleClass.class_vls_id, currentYear, currentMonth)
-				singleClass.attendance = data
-				newData.push(singleClass)
-			}
-		})
-	)
-	
+	let attendances   = {}
+	if(user.role =='teacher'){
+		let classList = await teacherClasses(user)
+			classList = classList.data
+
+		newData	= await teacherCount(classList,currentYear,currentMonth)
+	}else if(user.role =='student'){
+		newData	= await studentCount(user, currentYear, currentMonth)
+	}else if(user.role =='principal' || user.role =='school-admin' ){
+		newData	= await classAttendanceCount(user, currentYear, currentMonth)
+	}else if(user.role =='admin'){
+		newData	= await classAttendanceCount(user, currentYear, currentMonth, true )
+	}
+
 	return { success: true, message: "present & absent count" ,data : newData};
 };
 
@@ -842,4 +833,115 @@ async function classWiseAttendance(class_id, currentYear, currentMonth){
 		)
 	}
 	return { present : presentCount, absent : absentCount}
+}
+
+
+/**
+ * API for teacher count dashboard attendance 
+ */
+async function teacherCount(classList, currentYear, currentMonth){
+	let newData = []
+	
+	await Promise.all(
+			classList.map(async singleClass => {
+				singleClass = singleClass.toJSON()
+				if(singleClass.sections.length){
+					let sections = singleClass.sections
+					await Promise.all(
+						sections.map(async (section , index) => {
+							let data = await sectionWiseAttendance(singleClass.class_vls_id, section.id,currentYear, currentMonth)
+							singleClass.sections[index].attendance = data
+						})
+					)
+					newData.push(singleClass)
+				}else{
+					let data = await classWiseAttendance(singleClass.class_vls_id, currentYear, currentMonth)
+					singleClass.attendance = data
+					newData.push(singleClass)
+				}
+			})
+		)
+	return newData
+}
+
+
+/**
+ * API for studentcount dashboard attendance 
+ */
+async function studentCount(user, currentYear, currentMonth){
+	let presentCount = 0
+	let absentCount  = 0
+	student = await Student.findOne({
+					where : {student_vls_id:user.userVlsId},
+					attributes :['class_id','student_vls_id']
+			  })
+
+	attendances  = await StudentAttendance.findAll({
+			where: {
+				class_id   : student.class_id,
+				year 	   : currentYear,
+				month      : currentMonth,
+				student_id : student.student_vls_id
+			}
+		})
+	
+	if(attendances.length){
+		await Promise.all(
+			attendances.map(async attendance => {
+		 		for(var i = 1; i<=31; i++){
+		 			if(attendance['day_'+i] =='P'){
+		 				presentCount++
+		 			}else if(attendance['day_'+i] =='A'){
+		 				absentCount++
+		 			}
+		 		}
+	 		})	
+		)
+	}
+	return {present : presentCount, absent : absentCount}
+}
+
+
+/**
+ * API for principal count dashboard attendance 
+ */
+async function classAttendanceCount(user,currentYear, currentMonth,branchId = null){
+	let newData = []
+		   user = await Authentication.findOne({
+					where:{auth_vls_id: user.id},
+					attributes: ['school_id', 'branch_vls_id']
+				})
+	let whereCondtion = { school_id : user.school_id }
+
+	if(branchId)
+		whereCondtion.branch_vls_id = user.branch_vls_id
+
+	let classSecton = await Classes.findAll({
+  		where:whereCondtion,
+  		include: [{ 
+                  model:Section,
+                  as:'sections',
+                  attributes: ['id','name']
+                }]
+  	})
+  	await Promise.all(
+			classSecton.map(async singleClass => {
+				singleClass = singleClass.toJSON()
+				if(singleClass.sections.length){
+					let sections = singleClass.sections
+					await Promise.all(
+						sections.map(async (section , index) => {
+							let data = await sectionWiseAttendance(singleClass.class_vls_id, section.id,currentYear, currentMonth)
+							singleClass.sections[index].attendance = data
+						})
+					)
+					newData.push(singleClass)
+				}else{
+					let data = await classWiseAttendance(singleClass.class_vls_id, currentYear, currentMonth)
+					singleClass.attendance = data
+					newData.push(singleClass)
+				}
+			})
+		)
+	return newData
 }
