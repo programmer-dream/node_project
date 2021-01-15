@@ -36,10 +36,15 @@ async function create(req){
   req.body.URL           = req.body.uplodedPath + req.files.file[0].filename;
   req.body.document_type = path.extname(req.files.file[0].originalname);
   req.body.document_size = req.files.file[0].size; 
-  let cover_path = await makePdfImage(req,req.body.uplodedPath)
-  console.log(cover_path, "cover_path")
-  if(cover_path){
-    req.body.cover_photo = cover_path;
+
+  let cover_path_pic = new Promise((resolve, reject) => {
+        let cover_path = makePdfImage(req,req.body.uplodedPath)
+        setTimeout(resolve, 2500, cover_path);
+      });
+  let cover_path = await Promise.all([cover_path_pic])
+
+  if(cover_path && cover_path.length > 0){
+    req.body.cover_photo = cover_path[0];
   }
 
   if(req.body.tags)
@@ -185,10 +190,14 @@ async function update(req){
     req.body.document_type = path.extname(req.files.file[0].originalname);
     req.body.document_size = req.files.file[0].size; 
 
-    let cover_path = await makePdfImage(req,req.body.uplodedPath)
+    let cover_path_pic = new Promise((resolve, reject) => {
+        let cover_path = makePdfImage(req,req.body.uplodedPath)
+        setTimeout(resolve, 2500, cover_path);
+      });
+    let cover_path = await Promise.all([cover_path_pic])
 
-    if(cover_path){
-      req.body.cover_photo = cover_path;
+    if(cover_path && cover_path.length > 0){
+      req.body.cover_photo = cover_path[0];
     }
   }
 
@@ -288,7 +297,6 @@ async function makePdfImage(req, path){
     let pathToFile =  "./"+req.files.file[0].path
 
     let pathToSnapshot = config.pdf_path + path+ image;
-    console.log(pathToSnapshot, pathToFile, "pathToFilepathToFilepathToFile")
       gm(pathToFile).thumb(300, // Width
                             300, // Height
                             pathToSnapshot, // Output file name

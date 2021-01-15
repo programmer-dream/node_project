@@ -161,6 +161,7 @@ async function teacherView(params , user){
             subject_name : timesheet.subjectList.subject_name,
             teacher_name : timesheet.teacher.name,
             teacher_photo: timesheet.teacher.photo,
+            faculty_vls_id: timesheet.teacher.faculty_vls_id,
           }
 
           if(!daysData[timesheet.day])
@@ -245,6 +246,7 @@ async function parentView(params , user){
             subject_name : timesheet.subjectList.subject_name,
             teacher_name : timesheet.teacher.name,
             teacher_photo: timesheet.teacher.photo,
+            faculty_vls_id: timesheet.teacher.faculty_vls_id,
           }
 
           if(!daysData[timesheet.day])
