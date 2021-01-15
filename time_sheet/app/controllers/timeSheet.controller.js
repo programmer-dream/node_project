@@ -19,7 +19,8 @@ module.exports = {
   create,
   teacherView,
   parentView,
-  update
+  update,
+  deleteTimetable
 };
 
 
@@ -302,6 +303,23 @@ async function update(req){
       routine   = await Routine.findByPk(id);
 
   return { success: true, message: "Time sheet updated successfully", data:routine }
+};
+
+/**
+ * API for time table delete 
+ */
+async function deleteTimetable(timetableId, user){
+
+  let userData   = await User.findByPk(user.id)
+  let id         = timetableId
+
+  let num = await Routine.destroy({
+      where: { timesheet_id: timetableId }
+    })
+
+  if(num != 1) throw 'Not found'
+
+  return { success: true, message: "Time sheet delete successfully" }
 };
 
 
