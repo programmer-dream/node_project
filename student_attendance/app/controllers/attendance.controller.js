@@ -771,9 +771,19 @@ async function dashboardAttendanceCount(user){
 
 		newData	= await teacherCount(classList,currentYear,currentMonth)
 	}else if(user.role =='student'){
-		newData	= await studentCount(user, currentYear, currentMonth)
-	}else if( user.role =='school-admin' ){
-		newData	= await classAttendanceCount(user, currentYear, currentMonth)
+		newData	= await studentCount(user.userVlsId, currentYear, currentMonth)
+	}else if( user.role =='parent' ){
+		let studentIds = await Student.findAll({
+									where: { parent_vls_id: user.userVlsId },
+									attributes: ['student_vls_id']
+								})
+
+		studentIds.map(studentId => {
+			let studentData	= await studentCount(studentId.student_vls_id, currentYear, currentMonth)
+			newData.push(studentData)
+		})
+		await Promise.all(newData)
+
 	}else if(user.role =='branch-admin' || user.role =='principal' ){
 		newData	= await classAttendanceCount(user, currentYear, currentMonth, true )
 	}
@@ -869,11 +879,11 @@ async function teacherCount(classList, currentYear, currentMonth){
 /**
  * API for studentcount dashboard attendance 
  */
-async function studentCount(user, currentYear, currentMonth){
+async function studentCount(userId, currentYear, currentMonth){
 	let presentCount = 0
 	let absentCount  = 0
 	student = await Student.findOne({
-					where : {student_vls_id:user.userVlsId},
+					where : {student_vls_id:userId},
 					attributes :['class_id','student_vls_id']
 			  })
 
