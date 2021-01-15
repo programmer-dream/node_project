@@ -290,12 +290,7 @@ async function makePdfImage(req, path){
     let pathToSnapshot = config.pdf_path + path+ image;
     const pdfBuffer = fs.createReadStream(pathToFile);
     let promiseObj = new Promise((resolve, reject) => {
-      pdf( pdfBuffer, {
-          compress: {
-            type: 'JPEG',  //default
-            quality: 70    //default
-          }
-        })
+      pdf( pdfBuffer )
         .then(data /*is a buffer*/ => {
             data.pipe( fs.createWriteStream(pathToSnapshot) )
             console.log("done")
