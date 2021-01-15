@@ -158,7 +158,7 @@ async function teacherView(params , user){
             section_id   : timesheet.section_id,
             subject_id   : timesheet.subjectList.id,
             subject_code : timesheet.subjectList.code,
-            subject_name : timesheet.subjectList.name,
+            subject_name : timesheet.subjectList.subject_name,
             teacher_name : timesheet.teacher.name,
             teacher_photo: timesheet.teacher.photo,
           }
@@ -242,7 +242,7 @@ async function parentView(params , user){
             section_id   : timesheet.section_id,
             subject_id   : timesheet.subjectList.id,
             subject_code : timesheet.subjectList.code,
-            subject_name : timesheet.subjectList.name,
+            subject_name : timesheet.subjectList.subject_name,
             teacher_name : timesheet.teacher.name,
             teacher_photo: timesheet.teacher.photo,
           }
