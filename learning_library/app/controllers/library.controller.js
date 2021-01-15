@@ -285,7 +285,7 @@ async function getRatingLikes(id, user) {
 };
 
 async function makePdfImage(req, path){
-    let image = Date.now()+'cover_photo.png';
+    let image = Date.now()+'cover_photo.jpg';
     let pathToFile =  "./"+req.files.file[0].path
     let pathToSnapshot = config.pdf_path + path+ image;
     const pdfBuffer = fs.readFileSync(pathToFile);
