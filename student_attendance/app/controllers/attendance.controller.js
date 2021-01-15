@@ -772,9 +772,9 @@ async function dashboardAttendanceCount(user){
 		newData	= await teacherCount(classList,currentYear,currentMonth)
 	}else if(user.role =='student'){
 		newData	= await studentCount(user, currentYear, currentMonth)
-	}else if(user.role =='principal' || user.role =='school-admin' ){
+	}else if( user.role =='school-admin' ){
 		newData	= await classAttendanceCount(user, currentYear, currentMonth)
-	}else if(user.role =='admin'){
+	}else if(user.role =='branch-admin' || user.role =='principal' ){
 		newData	= await classAttendanceCount(user, currentYear, currentMonth, true )
 	}
 
@@ -925,6 +925,7 @@ async function classAttendanceCount(user,currentYear, currentMonth,branchId = nu
                   attributes: ['id','name']
                 }]
   	})
+  	//return classSecton
   	await Promise.all(
 			classSecton.map(async singleClass => {
 				singleClass = singleClass.toJSON()
@@ -938,6 +939,7 @@ async function classAttendanceCount(user,currentYear, currentMonth,branchId = nu
 					)
 					newData.push(singleClass)
 				}else{
+					delete singleClass.sections
 					let data = await classWiseAttendance(singleClass.class_vls_id, currentYear, currentMonth)
 					singleClass.attendance = data
 					newData.push(singleClass)
