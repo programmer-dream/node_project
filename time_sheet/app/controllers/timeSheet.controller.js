@@ -130,7 +130,9 @@ async function teacherView(params , user){
                                  'day',
                                  'start_time',
                                  'end_time',
-                                 'room_no'
+                                 'room_no',
+                                 'class_id',
+                                 'section_id'
                                ],
                     include: [{ 
                         model:SubjectList,
@@ -152,6 +154,10 @@ async function teacherView(params , user){
             start_time   : timesheet.start_time,
             end_time     : timesheet.end_time,
             room_no      : timesheet.room_no,
+            class_id     : timesheet.class_id,
+            section_id   : timesheet.section_id,
+            subject_id   : timesheet.subjectList.id,
+            subject_code : timesheet.subjectList.code,
             subject_name : timesheet.subjectList.name,
             teacher_name : timesheet.teacher.name,
             teacher_photo: timesheet.teacher.photo,
@@ -209,7 +215,9 @@ async function parentView(params , user){
                                  'day',
                                  'start_time',
                                  'end_time',
-                                 'room_no'
+                                 'room_no',
+                                 'class_id',
+                                 'section_id'
                                  ],
                     include: [{ 
                         model:SubjectList,
@@ -230,6 +238,10 @@ async function parentView(params , user){
             start_time   : timesheet.start_time,
             end_time     : timesheet.end_time,
             room_no      : timesheet.room_no,
+            class_id     : timesheet.class_id,
+            section_id   : timesheet.section_id,
+            subject_id   : timesheet.subjectList.id,
+            subject_code : timesheet.subjectList.code,
             subject_name : timesheet.subjectList.name,
             teacher_name : timesheet.teacher.name,
             teacher_photo: timesheet.teacher.photo,
