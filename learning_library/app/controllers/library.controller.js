@@ -1,9 +1,10 @@
 const { validationResult } = require('express-validator');
 const db = require("../models");
-const gm = require("gm");
 const Op = db.Sequelize.Op;
 const Sequelize = db.Sequelize;
 const path = require('path')
+const fs = require('fs')
+const pdf = require('pdf-thumbnail');
 const LearningLibrary = db.LearningLibrary;
 const Ratings         = db.Ratings;
 const SubjectList     = db.SubjectList;
@@ -36,15 +37,10 @@ async function create(req){
   req.body.URL           = req.body.uplodedPath + req.files.file[0].filename;
   req.body.document_type = path.extname(req.files.file[0].originalname);
   req.body.document_size = req.files.file[0].size; 
-
-  let cover_path_pic = new Promise((resolve, reject) => {
-        let cover_path = makePdfImage(req,req.body.uplodedPath)
-        setTimeout(resolve, 2500, cover_path);
-      });
-  let cover_path = await Promise.all([cover_path_pic])
-
-  if(cover_path && cover_path.length > 0){
-    req.body.cover_photo = cover_path[0];
+  let cover_path = await makePdfImage(req,req.body.uplodedPath)
+  
+  if(cover_path){
+    req.body.cover_photo = cover_path;
   }
 
   if(req.body.tags)
@@ -190,14 +186,10 @@ async function update(req){
     req.body.document_type = path.extname(req.files.file[0].originalname);
     req.body.document_size = req.files.file[0].size; 
 
-    let cover_path_pic = new Promise((resolve, reject) => {
-        let cover_path = makePdfImage(req,req.body.uplodedPath)
-        setTimeout(resolve, 2500, cover_path);
-      });
-    let cover_path = await Promise.all([cover_path_pic])
+    let cover_path = await makePdfImage(req,req.body.uplodedPath)
 
-    if(cover_path && cover_path.length > 0){
-      req.body.cover_photo = cover_path[0];
+    if(cover_path){
+      req.body.cover_photo = cover_path;
     }
   }
 
@@ -295,18 +287,23 @@ async function getRatingLikes(id, user) {
 async function makePdfImage(req, path){
     let image = Date.now()+'cover_photo.png';
     let pathToFile =  "./"+req.files.file[0].path
-
     let pathToSnapshot = config.pdf_path + path+ image;
-      gm(pathToFile).thumb(300, // Width
-                            300, // Height
-                            pathToSnapshot, // Output file name
-                            100, // Quality from 0 to 100
-        function (error, stdout, stderr, command) {
-            if (!error) {
-              console.log("done")
-            }else{
-              console.log(error);
-            }
-        });
-     return path+image
+    const pdfBuffer = fs.readFileSync(pathToFile);
+    let promiseObj = new Promise((resolve, reject) => {
+      pdf( pdfBuffer, {
+          compress: {
+            type: 'JPEG',  //default
+            quality: 70    //default
+          }
+        })
+        .then(data /*is a buffer*/ => {
+            data.pipe( fs.createWriteStream(pathToSnapshot) )
+            console.log("done")
+            return resolve()
+        })
+        .catch(err => { console.log(err, "err"); return reject(err) })
+    });
+    await Promise.all([promiseObj])
+
+    return path+image
 }
