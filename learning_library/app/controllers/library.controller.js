@@ -37,7 +37,7 @@ async function create(req){
   req.body.document_type = path.extname(req.files.file[0].originalname);
   req.body.document_size = req.files.file[0].size; 
   let cover_path = await makePdfImage(req,req.body.uplodedPath)
-
+  console.log(cover_path, "cover_path")
   if(cover_path){
     req.body.cover_photo = cover_path;
   }
@@ -284,11 +284,11 @@ async function getRatingLikes(id, user) {
 };
 
 async function makePdfImage(req, path){
-    let image = Date.now()+'cover_photo.jpg';
+    let image = Date.now()+'cover_photo.png';
     let pathToFile =  "./"+req.files.file[0].path
 
     let pathToSnapshot = config.pdf_path + path+ image;
-
+    console.log(pathToSnapshot, pathToFile, "pathToFilepathToFilepathToFile")
       gm(pathToFile).thumb(300, // Width
                             300, // Height
                             pathToSnapshot, // Output file name
