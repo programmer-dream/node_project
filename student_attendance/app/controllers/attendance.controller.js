@@ -772,17 +772,22 @@ async function dashboardAttendanceCount(user){
 		newData	= await teacherCount(classList,currentYear,currentMonth)
 	}else if(user.role =='student'){
 		newData	= await studentCount(user.userVlsId, currentYear, currentMonth)
-	}else if( user.role =='parent' ){
-		let studentIds = await Student.findAll({
+	}else if( user.role == 'guardian' ){
+		let studentDetails = await Student.findAll({
 									where: { parent_vls_id: user.userVlsId },
-									attributes: ['student_vls_id']
+									attributes: ['student_vls_id', 'name', 'email']
 								})
-
-		studentIds.map(async studentId => {
-			let studentData	= await studentCount(studentId.student_vls_id, currentYear, currentMonth)
-			newData.push(studentData)
-		})
-		await Promise.all(newData)
+		// return studentIds
+		await Promise.all(
+			studentDetails.map(async studentDetail => {
+				let studentData	= await studentCount(studentDetail.student_vls_id, currentYear, currentMonth)
+				studentData.student_vls_id = studentDetail.student_vls_id
+				studentData.name = studentDetail.name
+				studentData.email = studentDetail.email
+				newData.push(studentData)
+			})
+		);
+		
 
 	}else if(user.role =='branch-admin' || user.role =='principal' ){
 		newData	= await classAttendanceCount(user, currentYear, currentMonth, true )
