@@ -778,7 +778,7 @@ async function dashboardAttendanceCount(user){
 									attributes: ['student_vls_id']
 								})
 
-		studentIds.map(studentId => {
+		studentIds.map(async studentId => {
 			let studentData	= await studentCount(studentId.student_vls_id, currentYear, currentMonth)
 			newData.push(studentData)
 		})
