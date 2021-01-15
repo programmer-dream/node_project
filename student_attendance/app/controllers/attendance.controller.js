@@ -762,6 +762,7 @@ async function dashboardAttendanceCount(user){
 
 	let currentYear   = moment().format('YYYY');
 	let currentMonth  = moment().format('MMMM');
+	let currentDay    = moment().format('D');
 	let student       = {}
 	let newData       = []
 	let attendances   = {}
@@ -769,9 +770,9 @@ async function dashboardAttendanceCount(user){
 		let classList = await teacherClasses(user)
 			classList = classList.data
 
-		newData	= await teacherCount(classList,currentYear,currentMonth)
+		newData	= await teacherCount(classList,currentYear,currentMonth, currentDay)
 	}else if(user.role =='student'){
-		newData	= await studentCount(user.userVlsId, currentYear, currentMonth)
+		newData	= await studentCount(user.userVlsId, currentYear, currentMonth, currentDay)
 	}else if( user.role == 'guardian' ){
 		let studentDetails = await Student.findAll({
 									where: { parent_vls_id: user.userVlsId },
@@ -780,24 +781,24 @@ async function dashboardAttendanceCount(user){
 		// return studentIds
 		await Promise.all(
 			studentDetails.map(async studentDetail => {
-				let studentData	= await studentCount(studentDetail.student_vls_id, currentYear, currentMonth)
+				let studentData	= await studentCount(studentDetail.student_vls_id, currentYear, currentMonth, currentDay)
 				studentData.student_vls_id = studentDetail.student_vls_id
 				studentData.name = studentDetail.name
 				studentData.email = studentDetail.email
 				newData.push(studentData)
 			})
 		);
-		
+
 
 	}else if(user.role =='branch-admin' || user.role =='principal' ){
-		newData	= await classAttendanceCount(user, currentYear, currentMonth, true )
+		newData	= await classAttendanceCount(user, currentYear, currentMonth, currentDay, true )
 	}
 
 	return { success: true, message: "present & absent count" ,data : newData};
 };
 
 
-async function sectionWiseAttendance(class_id, section_id, currentYear, currentMonth){
+async function sectionWiseAttendance(class_id, section_id, currentYear, currentMonth, currentDay){
 	let presentCount = 0
 	let absentCount  = 0
 	let attendances  = await StudentAttendance.findAll({
@@ -811,7 +812,7 @@ async function sectionWiseAttendance(class_id, section_id, currentYear, currentM
 	if(attendances.length){
 		await Promise.all(
 			attendances.map(async attendance => {
-		 		for(var i = 1; i<=31; i++){
+		 		for(var i = 1; i<=currentDay; i++){
 		 			if(attendance['day_'+i] =='P'){
 		 				presentCount++
 		 			}else if(attendance['day_'+i] =='A'){
@@ -825,7 +826,7 @@ async function sectionWiseAttendance(class_id, section_id, currentYear, currentM
 }
 
 
-async function classWiseAttendance(class_id, currentYear, currentMonth){
+async function classWiseAttendance(class_id, currentYear, currentMonth, currentDay){
 	let presentCount = 0
 	let absentCount  = 0
 	let attendances  = await StudentAttendance.findAll({
@@ -838,7 +839,7 @@ async function classWiseAttendance(class_id, currentYear, currentMonth){
 	if(attendances.length){
 		await Promise.all(
 			attendances.map(async attendance => {
-		 		for(var i = 1; i<=31; i++){
+		 		for(var i = 1; i<=currentDay; i++){
 		 			if(attendance['day_'+i] =='P'){
 		 				presentCount++
 		 			}else if(attendance['day_'+i] =='A'){
@@ -855,7 +856,7 @@ async function classWiseAttendance(class_id, currentYear, currentMonth){
 /**
  * API for teacher count dashboard attendance 
  */
-async function teacherCount(classList, currentYear, currentMonth){
+async function teacherCount(classList, currentYear, currentMonth, currentDay){
 	let newData = []
 	
 	await Promise.all(
@@ -865,13 +866,13 @@ async function teacherCount(classList, currentYear, currentMonth){
 					let sections = singleClass.sections
 					await Promise.all(
 						sections.map(async (section , index) => {
-							let data = await sectionWiseAttendance(singleClass.class_vls_id, section.id,currentYear, currentMonth)
+							let data = await sectionWiseAttendance(singleClass.class_vls_id, section.id,currentYear, currentMonth, currentDay)
 							singleClass.sections[index].attendance = data
 						})
 					)
 					newData.push(singleClass)
 				}else{
-					let data = await classWiseAttendance(singleClass.class_vls_id, currentYear, currentMonth)
+					let data = await classWiseAttendance(singleClass.class_vls_id, currentYear, currentMonth, currentDay)
 					singleClass.attendance = data
 					newData.push(singleClass)
 				}
@@ -884,7 +885,7 @@ async function teacherCount(classList, currentYear, currentMonth){
 /**
  * API for studentcount dashboard attendance 
  */
-async function studentCount(userId, currentYear, currentMonth){
+async function studentCount(userId, currentYear, currentMonth, currentDay){
 	let presentCount = 0
 	let absentCount  = 0
 	student = await Student.findOne({
@@ -904,7 +905,7 @@ async function studentCount(userId, currentYear, currentMonth){
 	if(attendances.length){
 		await Promise.all(
 			attendances.map(async attendance => {
-		 		for(var i = 1; i<=31; i++){
+		 		for(var i = 1; i<=currentDay; i++){
 		 			if(attendance['day_'+i] =='P'){
 		 				presentCount++
 		 			}else if(attendance['day_'+i] =='A'){
@@ -921,7 +922,7 @@ async function studentCount(userId, currentYear, currentMonth){
 /**
  * API for principal count dashboard attendance 
  */
-async function classAttendanceCount(user,currentYear, currentMonth,branchId = null){
+async function classAttendanceCount(user,currentYear, currentMonth, currentDay, branchId = null){
 	let newData = []
 		   user = await Authentication.findOne({
 					where:{auth_vls_id: user.id},
@@ -948,14 +949,14 @@ async function classAttendanceCount(user,currentYear, currentMonth,branchId = nu
 					let sections = singleClass.sections
 					await Promise.all(
 						sections.map(async (section , index) => {
-							let data = await sectionWiseAttendance(singleClass.class_vls_id, section.id,currentYear, currentMonth)
+							let data = await sectionWiseAttendance(singleClass.class_vls_id, section.id,currentYear, currentMonth, currentDay)
 							singleClass.sections[index].attendance = data
 						})
 					)
 					newData.push(singleClass)
 				}else{
 					delete singleClass.sections
-					let data = await classWiseAttendance(singleClass.class_vls_id, currentYear, currentMonth)
+					let data = await classWiseAttendance(singleClass.class_vls_id, currentYear, currentMonth, currentDay)
 					singleClass.attendance = data
 					newData.push(singleClass)
 				}
