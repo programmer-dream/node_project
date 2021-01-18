@@ -4,12 +4,12 @@ const Op = db.Sequelize.Op;
 const Sequelize = db.Sequelize;
 const path = require('path')
 const fs = require('fs')
-const pdf = require('pdf-thumbnail');
+//const pdf = require('pdf-thumbnail');
 const LearningLibrary = db.LearningLibrary;
 const Ratings         = db.Ratings;
 const SubjectList     = db.SubjectList;
 const config = require("../../../config/env.js");
-
+const { PDFNet } = require('@pdftron/pdfnet-node');
 const sequelize = db.sequelize;
 const bcrypt = require("bcryptjs");
 
@@ -285,20 +285,17 @@ async function getRatingLikes(id, user) {
 };
 
 async function makePdfImage(req, path){
-    let image = Date.now()+'cover_photo.jpg';
+    let image = Date.now()+'cover_photo.png';
     let pathToFile =  "./"+req.files.file[0].path
     let pathToSnapshot = config.pdf_path + path+ image;
-    const pdfBuffer = fs.createReadStream(pathToFile);
-    let promiseObj = new Promise((resolve, reject) => {
-      pdf( pdfBuffer )
-        .then(data /*is a buffer*/ => {
-            data.pipe( fs.createWriteStream(pathToSnapshot) )
-            console.log("done")
-            return resolve()
-        })
-        .catch(err => { console.log(err, "err"); return reject(err) })
-    });
-    await Promise.all([promiseObj])
+
+    await PDFNet.initialize();
+    const doc = await PDFNet.PDFDoc.createFromFilePath(pathToFile)
+    
+    await doc.initSecurityHandler()
+    const pdfDraw = await PDFNet.PDFDraw.create(92)
+    const currPage = await doc.getPage(1)
+    await pdfDraw.export(currPage, pathToSnapshot, 'PNG')
 
     return path+image
 }
