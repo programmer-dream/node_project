@@ -5,6 +5,7 @@ const Student = db.Student;
 const Guardian = db.Guardian;
 const Employee = db.Employee;
 const Branch = db.Branch;
+const SchoolDetails = db.SchoolDetails;
 const Authentication = db.Authentication;
 
 module.exports = {
@@ -20,7 +21,17 @@ async function profile(user){
 
   	let student = await Student.findOne({ 
                     attributes: ['name', 'phone', 'email', 'present_address', 'photo'],
-                    where: { student_vls_id: user.userVlsId }
+                    where: { student_vls_id: user.userVlsId },
+                    include: [{ 
+                              model:Branch,
+                              as:'branchDetailsStudent',
+                              attributes: ['branch_vls_id','branch_name', 'address'],
+                              include:[{ 
+                                model:SchoolDetails,
+                                as:'schoolDetails',
+                                attributes: ['school_vls_id','school_name', 'address']
+                              }]
+                            }]
                     })
   	 userPorfile = student.toJSON();
 
@@ -28,7 +39,17 @@ async function profile(user){
 
   	let guardian = await Guardian.findOne({ 
                     attributes: ['name', 'phone', 'email', 'present_address', 'photo'],
-                    where: { parent_vls_id: user.userVlsId }
+                    where: { parent_vls_id: user.userVlsId },
+                    include: [{ 
+                              model:Branch,
+                              as:'branchDetailsGuardian',
+                              attributes: ['branch_vls_id','branch_name', 'address'],
+                              include:[{ 
+                                model:SchoolDetails,
+                                as:'schoolDetails',
+                                attributes: ['school_vls_id','school_name', 'address']
+                              }]
+                            }]
                     })
   	userPorfile = guardian.toJSON();
 
@@ -36,7 +57,17 @@ async function profile(user){
 
   	let employee = await Employee.findOne({ 
                     attributes: ['name', 'phone', 'email', 'present_address', 'photo'],
-                    where: { faculty_vls_id: user.userVlsId }
+                    where: { faculty_vls_id: user.userVlsId },
+                    include: [{ 
+                              model:Branch,
+                              as:'branchDetails',
+                              attributes: ['branch_vls_id','branch_name', 'address'],
+                              include:[{ 
+                                model:SchoolDetails,
+                                as:'schoolDetails',
+                                attributes: ['school_vls_id','school_name', 'address']
+                              }]
+                            }]
                     })
   	userPorfile = employee.toJSON();
 
@@ -58,7 +89,7 @@ async function listBranch(user){
   try{
 
     let wherecondition = { school_vls_id: userData.school_id }
-    
+
     let Branchs  = await Branch.findAll({
                         where:wherecondition,
                         attributes: ['branch_vls_id','branch_name','address']

@@ -74,6 +74,11 @@ db.Authentication.belongsTo(db.Role,{foreignKey:'role_id',as:'roles'})
 db.Authentication.belongsTo(db.SchoolDetails,{foreignKey:'school_id',as:'school'})
 db.Authentication.belongsTo(db.Branch,{foreignKey:'branch_vls_id',as:'branch'})
 db.Authentication.hasOne(db.UserSetting,{foreignKey:'user_settings_vls_id',as:'userSetting'})
+
+db.Employee.belongsTo(db.Branch,{foreignKey:'branch_vls_id',as:'branchDetails'})
+db.Guardian.belongsTo(db.Branch,{foreignKey:'branch_vls_id',as:'branchDetailsGuardian'})
+db.Student.belongsTo(db.Branch,{foreignKey:'branch_vls_id',as:'branchDetailsStudent'})
+db.Branch.belongsTo(db.SchoolDetails,{foreignKey:'school_vls_id',as:'schoolDetails'})
 //db.Role.belongsTo(db.Authentication,{foreignKey:'role_id',as:'roles'})
 module.exports = db;
 
