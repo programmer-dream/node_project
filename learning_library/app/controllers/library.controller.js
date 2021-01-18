@@ -293,7 +293,7 @@ async function makePdfImage(req, path){
     const doc = await PDFNet.PDFDoc.createFromFilePath(pathToFile)
     
     await doc.initSecurityHandler()
-    const pdfDraw = await PDFNet.PDFDraw.create(92)
+    const pdfDraw = await PDFNet.PDFDraw.create(42)
     const currPage = await doc.getPage(1)
     await pdfDraw.export(currPage, pathToSnapshot, 'PNG')
 
