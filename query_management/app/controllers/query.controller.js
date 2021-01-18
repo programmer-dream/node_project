@@ -397,19 +397,23 @@ async function getRatingLikes(id, user) {
  * API for status update query
  */
 async function statusUpdate(id, user) {
-  if(user.role != 'student') throw 'unauthorised user'
+  //if(user.role != 'student') throw 'unauthorised user'
+  let whereCondition = { query_vls_id : id }
+  let status = "Rejected"
+  
+  if(user.role != 'student'){
+    whereCondition = { student_vls_id : userId, query_vls_id : id }
+    status = "Closed"
+  }
 
   try{
     let userId = user.userVlsId
     let query = await StudentQuery.findOne({
-                       where:{
-                              student_vls_id : userId,
-                              query_vls_id : id
-                             }
+                       where: whereCondition
                     });
 
     if(query){
-      query.update({query_status:'Closed'})
+      query.update({query_status: status})
     }else{
       throw new Error('Query not found')
     }
