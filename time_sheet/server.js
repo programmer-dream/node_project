@@ -32,6 +32,7 @@ app.get("/",function(req, res){
 
 // api routes
 app.use('/timeSheet', require('./app/routes/timeSheet.routes'));
+app.use('/meeting', require('./app/routes/meeting.routes'));
 
 
 // global error handler

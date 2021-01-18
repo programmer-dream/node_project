@@ -71,6 +71,7 @@ db.AcademicYear = require("../../../student_attendance/app/models/AcademicYear.j
 db.Guardian = require("../../../vls/app/models/Guardian.js")(sequelize, Sequelize);
 db.Routine = require("./Routine.js")(sequelize, Sequelize);
 db.Subject = require("./Subject.js")(sequelize, Sequelize);
+db.Meeting = require("./Meeting.js")(sequelize, Sequelize);
 db.ExamSchedule = require("./ExamSchedule.js")(sequelize, Sequelize);
 db.Exam = require("./Exam.js")(sequelize, Sequelize);
 db.SubjectList = require("../../../query_management/app/models/SubjectList.js")(sequelize, Sequelize);
