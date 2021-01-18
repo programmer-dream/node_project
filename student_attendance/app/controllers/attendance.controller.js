@@ -801,13 +801,16 @@ async function dashboardAttendanceCount(user){
 async function sectionWiseAttendance(class_id, section_id, currentYear, currentMonth, currentDay){
 	let presentCount = 0
 	let absentCount  = 0
+	let attributes = []
+	attributes.push('day_'+currentDay)
 	let attendances  = await StudentAttendance.findAll({
 					where: {
 						class_id   : class_id,
 						section_id : section_id,
 						year : currentYear,
 						month : currentMonth
-					}
+					},
+					attributes:attributes
 				})
 	if(attendances.length){
 		await Promise.all(
@@ -827,12 +830,15 @@ async function sectionWiseAttendance(class_id, section_id, currentYear, currentM
 async function classWiseAttendance(class_id, currentYear, currentMonth, currentDay){
 	let presentCount = 0
 	let absentCount  = 0
+	let attributes = []
+	attributes.push('day_'+currentDay)
 	let attendances  = await StudentAttendance.findAll({
 				where: {
 					class_id   : class_id,
 					year : currentYear,
 					month : currentMonth
-				}
+				},
+				attributes:attributes
 			})
 	if(attendances.length){
 		await Promise.all(
