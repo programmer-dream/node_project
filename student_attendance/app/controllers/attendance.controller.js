@@ -770,7 +770,7 @@ async function dashboardAttendanceCount(user){
 		let classList = await teacherClasses(user)
 			classList = classList.data
 
-		newData	= await teacherCount(classList,currentYear,currentMonth, currentDay)
+		newData	= await teacherCount(classList, currentYear, currentMonth, currentDay)
 	}else if(user.role =='student'){
 		newData	= await studentCount(user.userVlsId, currentYear, currentMonth, currentDay)
 	}else if( user.role == 'guardian' ){
@@ -812,13 +812,11 @@ async function sectionWiseAttendance(class_id, section_id, currentYear, currentM
 	if(attendances.length){
 		await Promise.all(
 			attendances.map(async attendance => {
-		 		for(var i = 1; i<=currentDay; i++){
-		 			if(attendance['day_'+i] =='P'){
-		 				presentCount++
-		 			}else if(attendance['day_'+i] =='A'){
-		 				absentCount++
-		 			}
-		 		}
+	 			if(attendance['day_'+currentDay] =='P'){
+	 				presentCount++
+	 			}else if(attendance['day_'+currentDay] =='A'){
+	 				absentCount++
+	 			}
 	 		})
 		)
 	}
@@ -839,13 +837,11 @@ async function classWiseAttendance(class_id, currentYear, currentMonth, currentD
 	if(attendances.length){
 		await Promise.all(
 			attendances.map(async attendance => {
-		 		for(var i = 1; i<=currentDay; i++){
-		 			if(attendance['day_'+i] =='P'){
-		 				presentCount++
-		 			}else if(attendance['day_'+i] =='A'){
-		 				absentCount++
-		 			}
-		 		}
+	 			if(attendance['day_'+currentDay] =='P'){
+	 				presentCount++
+	 			}else if(attendance['day_'+currentDay] =='A'){
+	 				absentCount++
+	 			}
 	 		})	
 		)
 	}
