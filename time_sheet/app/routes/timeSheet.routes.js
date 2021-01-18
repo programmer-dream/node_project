@@ -13,6 +13,7 @@ router.post("/create",[
 //Get 
 router.get("/teacher/view",teacherView);
 router.get("/parent/view",parentView);
+router.get("/examSchedule",getExamSchedule);
 
 //Put
 router.put("/update/:id",[
@@ -61,5 +62,12 @@ function update(req, res, next) {
 function deleteTimetable(req, res, next) {
     timeSheetController.deleteTimetable(req.params.id, req.user)
         .then(timesheet => timesheet ? res.json(timesheet) : res.status(400).json({ status: "error", message: 'Error while deleting timesheet' }))
+        .catch(err => next(err));
+}
+
+// Function for getting exam schedule
+function getExamSchedule(req, res, next) {
+    timeSheetController.getExamSchedule(req.user , req.query)
+        .then(timesheet => timesheet ? res.json(timesheet) : res.status(400).json({ status: "error", message: 'Error while getting exam schedule' }))
         .catch(err => next(err));
 }

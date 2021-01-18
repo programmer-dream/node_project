@@ -11,6 +11,8 @@ const Subject     = db.Subject;
 const Student     = db.Student;
 const Employee    = db.Employee;
 const SubjectList = db.SubjectList;
+const ExamSchedule = db.ExamSchedule;
+const Exam         = db.Exam;
 
 const sequelize = db.sequelize;
 const bcrypt = require("bcryptjs");
@@ -20,7 +22,8 @@ module.exports = {
   teacherView,
   parentView,
   update,
-  deleteTimetable
+  deleteTimetable,
+  getExamSchedule
 };
 
 
@@ -387,3 +390,40 @@ async function checkEnterTimings(timetable){
   )
 }
 
+
+/**
+ * API for time get exam schedule 
+ */
+async function getExamSchedule(user, params){
+  let userDetails = await User.findByPk(user.id)
+  let school_id   = userDetails.school_id
+  let whereCondition = { school_id : school_id }
+
+  if(user.role == 'student'){
+    let student =  await Student.findByPk(user.userVlsId)
+    if(student)
+      whereCondition.class_id = student.class_id
+
+  }else{
+    if(!params.class_id ) throw 'class_id is required'
+       whereCondition.class_id = params.class_id
+  }
+  
+  let examSchedule   = await ExamSchedule.findAll({
+                        where:whereCondition,
+                          include: [{ 
+                                      model:Exam,
+                                      as:'exam',
+                                      attributes: [ 'test_id',
+                                                    'test_type',
+                                                    'title','note',
+                                                    'status']
+                                    },{ 
+                                      model:SubjectList,
+                                      as:'subject',
+                                      attributes: [ 'subject_name']
+                                    }]
+  })
+  
+  return { success: true, message: "Exam Schedule", data : examSchedule}
+};
