@@ -400,9 +400,9 @@ async function statusUpdate(id, user) {
   //if(user.role != 'student') throw 'unauthorised user'
   let whereCondition = { query_vls_id : id }
   let status = "Rejected"
-  
+
   if(user.role != 'student'){
-    whereCondition = { student_vls_id : userId, query_vls_id : id }
+    whereCondition = { student_vls_id : user.userVlsId, query_vls_id : id }
     status = "Closed"
   }
 
