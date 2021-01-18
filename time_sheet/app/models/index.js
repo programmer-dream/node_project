@@ -81,5 +81,6 @@ db.Routine.belongsTo(db.SubjectList,{foreignKey:'subject_code',targetKey:'code',
 db.ExamSchedule.belongsTo(db.SubjectList,{foreignKey:'subject_code',targetKey:'code',as:'subject'})
 db.Routine.belongsTo(db.Employee,{foreignKey:'teacher_id',as:'teacher'})
 db.ExamSchedule.belongsTo(db.Exam,{foreignKey:'exam_vls_id',as:'exam'})
+db.Student.belongsTo(db.Guardian,{foreignKey:'parent_vls_id',as:'parent'})
 
 module.exports = db;
