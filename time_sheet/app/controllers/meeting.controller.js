@@ -56,7 +56,7 @@ async function create(req){
  */
 async function list(user){
   let whereCondition = {}
-  if(user.role == 'principal' || req.user.role == 'branch-admin'){
+  if(user.role == 'principal' || user.role == 'branch-admin'){
     whereCondition.meeting_author_vls_id = user.userVlsId
   }else{
     whereCondition.attendee_vls_id       = user.userVlsId
