@@ -95,13 +95,21 @@ async function list(user){
 async function listParent(params ,user){
   if(!params.class_id) throw 'class_id is required'
 
-  let class_id = params.class_id
+  let userData           = await User.findByPk(user.id)
+  let class_id           = params.class_id
+  
+  let whereCondition     = {
+      school_id     : userData.school_id,
+      branch_vls_id : userData.branch_vls_id,
+      class_id      : class_id
+  }
+
   let student  = await Student.findAll({
-				  	where:{ class_id : class_id },
+				  	where : whereCondition,
 				  	include: [{ 
-	                        model:Guardian,
-	                        as:'parent'
-	                      }]
+                        model:Guardian,
+                        as:'parent'
+                      }]
 				  })
 
   return { success: true, message: "listing parent", data: student }
