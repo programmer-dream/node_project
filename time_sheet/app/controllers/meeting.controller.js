@@ -10,6 +10,7 @@ const Meeting    = db.Meeting;
 const Student    = db.Student;
 const Guardian   = db.Guardian;
 const sequelize  = db.sequelize;
+const Routine    = db.Routine;
 const bcrypt     = require("bcryptjs");
 
 module.exports = {
@@ -32,15 +33,30 @@ async function create(req){
 
   if(req.user.role != 'principal' && req.user.role != 'branch-admin') throw 'Unauthorized User'
 
-    req.body.originator_type = 'principal'
-
+      req.body.originator_type = 'principal'
     if(req.user.role == 'branch-admin') 
        req.body.originator_type    = 'branch_admin'
 
+    let reqDate = moment(req.body.date + ' '+req.body.time)
+    if (moment() > reqDate) {
+        throw "we can't create a meeting in past date time"
+    }
+
+    if(req.body.attendee_type =='teacher'){
+      let teacher_id = req.body.attendee_vls_id
+      let day        = moment(req.body.date).format('dddd')
+      let start_time = req.body.time
+      let duration   = req.body.duration
+      let end_time   = moment(start_time,'HH:mm').add(duration, 'minutes').format('HH:mm')
+      await checkTeacherTimings(teacher_id, day, start_time, duration, end_time)
+    }
+    await checkMeetingTimings(reqDate)
+    
     req.body.meeting_author_vls_id = req.user.userVlsId
   	let user 		         = await User.findByPk(req.user.id)
   	req.body.school_id 	 = user.school_id
   	req.body.branch_id 	 = user.branch_vls_id
+
   	let meetingData      = req.body
   	
   	let meeting 		     = await Meeting.create(meetingData)
@@ -198,4 +214,64 @@ async function attendMeeting(meetingId,body){
     meetingData  = await Meeting.findByPk(meetingId)
 
   return { success: true, message: "Meeting status updated successfully",data:meetingData }
+};
+
+
+/**
+ * API for teacher timings for class  
+ */
+async function checkTeacherTimings(teacher_id, day, start_time, duration, end_time){
+
+    let routines = await Routine.findAll({
+                  where : {teacher_id : teacher_id,
+                           day        : day
+                          },
+                        attributes: ['start_time','end_time']
+                })
+    await Promise.all(
+      routines.map(async routine => {
+        if(routine.start_time == start_time)
+           throw 'Your metting time is confict with other metting'
+      
+        let time       = moment(start_time, 'hh:mm')
+        let time2      = moment(end_time, 'hh:mm')
+        let beforeTime = moment(routine.start_time, 'hh:mm')
+        let afterTime  = moment(routine.end_time, 'hh:mm')
+        
+        if(start_time == routine.start_time || 
+           end_time   == routine.end_time || 
+           end_time   == routine.start_time)
+          throw 'Your metting time is confict with teacher class schedule'
+        
+        if (time.isBetween(beforeTime, afterTime)) 
+            throw 'Your metting start time is confict with teacher class schedule'
+
+        if (time2.isBetween(beforeTime, afterTime)) 
+            throw 'Your metting end time is confict with teacher class schedule'
+      })
+    )
+};
+
+/**
+ * API for metting timings for class  
+ */
+async function checkMeetingTimings(reqDate){
+    let allMeeting = await Meeting.findAll({
+      attributes: ['date','time','duration']
+    })
+
+    await Promise.all(
+      allMeeting.map(async meeting => {
+          let date      = moment(meeting.date).format('YYYY-MM-DD')
+          let duration  = meeting.duration
+          let startTime = date + ' '+meeting.time
+          let endTime   = moment(startTime).add(duration, 'minutes').format('YYYY-MM-DD HH:mm')
+          
+          if (reqDate.isSame(startTime))
+              throw 'Metting start time is confict with other metting'
+          if (reqDate.isBetween(startTime, endTime))
+              throw 'Your metting time is confict with other metting'
+
+      })
+    )
 };
