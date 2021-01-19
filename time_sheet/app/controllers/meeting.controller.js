@@ -51,7 +51,7 @@ async function create(req){
       await checkTeacherTimings(teacher_id, day, start_time, duration, end_time)
     }
     await checkMeetingTimings(reqDate)
-    
+
     req.body.meeting_author_vls_id = req.user.userVlsId
   	let user 		         = await User.findByPk(req.user.id)
   	req.body.school_id 	 = user.school_id
@@ -163,6 +163,22 @@ async function update(req){
     if(req.user.role == 'branch-admin') 
        req.body.originator_type    = 'branch_admin'
 
+    //check start
+    let reqDate = moment(req.body.date + ' '+req.body.time)
+    if (moment() > reqDate) {
+        throw "we can't create a meeting in past date time"
+    }
+
+    if(req.body.attendee_type =='teacher'){
+      let teacher_id = req.body.attendee_vls_id
+      let day        = moment(req.body.date).format('dddd')
+      let start_time = req.body.time
+      let duration   = req.body.duration
+      let end_time   = moment(start_time,'HH:mm').add(duration, 'minutes').format('HH:mm')
+      await checkTeacherTimings(teacher_id, day, start_time, duration, end_time)
+    }
+    await checkMeetingTimings(reqDate , req.body.duration, req.params.id)
+    //check end
     req.body.meeting_author_vls_id = req.user.userVlsId
   	let user 		         = await User.findByPk(req.user.id)
   	req.body.school_id 	 = user.school_id
@@ -255,8 +271,15 @@ async function checkTeacherTimings(teacher_id, day, start_time, duration, end_ti
 /**
  * API for metting timings for class  
  */
-async function checkMeetingTimings(reqDate){
+async function checkMeetingTimings(reqDate ,reqDuration, id=null){
+    let whereCondition = {}
+
+    if(id){
+      whereCondition.id =  { [Op.ne]: id }
+    }
+
     let allMeeting = await Meeting.findAll({
+      where : whereCondition,
       attributes: ['date','time','duration']
     })
 
@@ -266,12 +289,16 @@ async function checkMeetingTimings(reqDate){
           let duration  = meeting.duration
           let startTime = date + ' '+meeting.time
           let endTime   = moment(startTime).add(duration, 'minutes').format('YYYY-MM-DD HH:mm')
+          let endMoment = moment(reqDate).add(reqDuration, 'minutes').format('YYYY-MM-DD HH:mm')
+             endMoment = moment(endMoment)
           
           if (reqDate.isSame(startTime))
               throw 'Metting start time is confict with other metting'
           if (reqDate.isBetween(startTime, endTime))
               throw 'Your metting time is confict with other metting'
 
+          if (endMoment.isBetween(startTime, endTime))
+              throw 'Your metting time is confict with other metting'
       })
     )
 };
