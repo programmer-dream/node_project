@@ -176,14 +176,19 @@ async function classList(params){
 	let orderBy = 'desc'
 	let limit   = 10
 	let offset  = 0
-
+	let whereCondtion = {}
 	if(params.size)
     	limit = parseInt(params.size)
   	if(params.page)
     	offset = 0 + (parseInt(params.page) - 1) * limit
     if(params.orderBy && params.orderBy == 'asc')
     	orderBy = 'asc'
+
+    if(params.branch_vls_id)
+    	whereCondtion.branch_vls_id = params.branch_vls_id
+
 	let classes  = await Classes.findAll({  
+					  where:whereCondtion,
 	                  limit:limit,
 	                  offset:offset,
 	                  attributes: ['class_vls_id',
