@@ -82,5 +82,6 @@ db.ExamSchedule.belongsTo(db.SubjectList,{foreignKey:'subject_code',targetKey:'c
 db.Routine.belongsTo(db.Employee,{foreignKey:'teacher_id',as:'teacher'})
 db.ExamSchedule.belongsTo(db.Exam,{foreignKey:'exam_vls_id',as:'exam'})
 db.Student.belongsTo(db.Guardian,{foreignKey:'parent_vls_id',as:'parent'})
+db.Meeting.belongsTo(db.Employee,{foreignKey:'meeting_author_vls_id',as:'addedBy'})
 
 module.exports = db;

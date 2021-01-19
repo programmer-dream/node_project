@@ -20,7 +20,8 @@ module.exports = (sequelize, Sequelize) => {
         },
         originator_type: {
           allowNull: false,
-          type: Sequelize.ENUM('principal')
+          type: Sequelize.ENUM('principal','branch_admin'),
+          defaultValue: 'principal'
         },
         attendee_vls_id: {
           allowNull: false,
@@ -31,11 +32,11 @@ module.exports = (sequelize, Sequelize) => {
           type: Sequelize.ENUM('parent','teacher')
         },
         attendee_status: {
+          type: Sequelize.ENUM('open','accept','reject'),
           allowNull: false,
-          type: Sequelize.STRING
+          defaultValue: 'open'
         },
         attendee_remarks: {
-          allowNull: false,
           type: Sequelize.STRING
         },
         meeting_title: {
@@ -76,7 +77,8 @@ module.exports = (sequelize, Sequelize) => {
         },
         duration_type: {
           allowNull: false,
-          type: Sequelize.ENUM('min','hour')
+          type: Sequelize.ENUM('min','hour'),
+          defaultValue: 'min'
         }
   },{
       tableName: 'meetings',

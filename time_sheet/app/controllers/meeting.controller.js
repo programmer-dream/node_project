@@ -18,7 +18,8 @@ module.exports = {
   update,
   list,
   deleteMeeting,
-  listParent
+  listParent,
+  attendMeeting
 };
 
 
@@ -29,14 +30,20 @@ async function create(req){
   const errors = validationResult(req);
   if(errors.array().length) throw errors.array()
 
-  if(req.user.role != 'principal') throw 'Unauthorized User'
+  if(req.user.role != 'principal' && req.user.role != 'branch-admin') throw 'Unauthorized User'
 
-  	let user 		     = await User.findByPk(req.user.id)
+    req.body.originator_type = 'principal'
+
+    if(req.user.role == 'branch-admin') 
+       req.body.originator_type    = 'branch_admin'
+
+    req.body.meeting_author_vls_id = req.user.userVlsId
+  	let user 		         = await User.findByPk(req.user.id)
   	req.body.school_id 	 = user.school_id
   	req.body.branch_id 	 = user.branch_vls_id
   	let meetingData      = req.body
   	
-  	let meeting 		 = await Meeting.create(meetingData)
+  	let meeting 		     = await Meeting.create(meetingData)
 
   	if(!meeting) throw 'meeting not created'
 
@@ -48,9 +55,37 @@ async function create(req){
  * API for list meetings
  */
 async function list(user){
-  let meetings = await Meeting.findAll()
+  let whereCondition = {}
+  if(user.role == 'principal' || req.user.role == 'branch-admin'){
+    whereCondition.meeting_author_vls_id = user.userVlsId
+  }else{
+    whereCondition.attendee_vls_id       = user.userVlsId
+  }
 
-  return { success: true, message: "Meeting listing", data:meetings }
+  let meetings = await Meeting.findAll({
+    where:whereCondition,
+    include: [{ 
+                model:Employee,
+                as:'addedBy'
+              }]
+  })
+
+  let mettingWithUser = []
+  await Promise.all(
+    meetings.map(async meeting => {
+       let meetingData = meeting.toJSON()
+       let userData   = {}
+      if(meeting.attendee_type == 'parent') {
+        userData = await Guardian.findByPk(meeting.attendee_vls_id)
+      }else{
+        userData = await Employee.findByPk(meeting.attendee_vls_id)
+      }
+      meetingData.meetingUser = userData
+      mettingWithUser.push(meetingData)
+    })
+  )
+
+  return { success: true, message: "Meeting listing", data:mettingWithUser }
 };
 
 
@@ -77,7 +112,13 @@ async function listParent(params ,user){
  * API for meeting view
  */
 async function view(params , user){
-  let meeting = await Meeting.findByPk(params.id)
+  let meeting = await Meeting.findOne({
+    where : {id:params.id},
+    include: [{ 
+                model:Employee,
+                as:'addedBy'
+              }]
+  })
 
   if(!meeting) throw 'Meeting not found'
 
@@ -92,9 +133,14 @@ async function update(req){
   const errors = validationResult(req);
   if(errors.array().length) throw errors.array()
 
-  if(req.user.role != 'principal') throw 'Unauthorized User'
+  if(req.user.role != 'principal' && req.user.role != 'branch-admin') throw 'Unauthorized User'
 
-  	let user 		     = await User.findByPk(req.user.id)
+    req.body.originator_type = 'principal'
+    if(req.user.role == 'branch-admin') 
+       req.body.originator_type    = 'branch_admin'
+
+    req.body.meeting_author_vls_id = req.user.userVlsId
+  	let user 		         = await User.findByPk(req.user.id)
   	req.body.school_id 	 = user.school_id
   	req.body.branch_id 	 = user.branch_vls_id
   	let meetingData      = req.body
@@ -102,9 +148,10 @@ async function update(req){
   	let meeting          = await Meeting.update(meetingData,{
 						  		where : { id:req.params.id }
 						  	})
-  	if(!meeting) throw 'meeting not updated'
+  	if(!meeting[0]) throw 'meeting not updated'
+      meetingData  = await Meeting.findByPk(req.params.id)
 
-  	return { success: true, message: "Meeting updated successfully", data:meeting }
+  	return { success: true, message: "Meeting updated successfully", data:meetingData }
 };
 
 
@@ -118,4 +165,29 @@ async function deleteMeeting(meetingId, user){
 
   if(!meeting) throw 'Meeting Not found'
   return { success: true, message: "Meeting deleted successfully" }
+};
+
+
+/**
+ * API for meeting delete 
+ */
+async function attendMeeting(meetingId,body){
+  if(!body.attendee_status) throw 'attendee_status is required'
+  if(body.attendee_status == 'reject' && !body.attendee_remarks) 
+  		throw 'attendee_remarks is required'
+
+  let meetingData = {
+  	attendee_status  : body.attendee_status,
+  	attendee_remarks : body.attendee_remarks
+  } 
+  return meetingData
+  let meeting  = await Meeting.update(body,{
+        				    where: { id: meetingId }
+        				  })
+
+  if(!meeting[0]) throw 'Meeting Not found'
+
+    meetingData  = await Meeting.findByPk(meetingId)
+
+  return { success: true, message: "Meeting status updated successfully",data:meetingData }
 };
