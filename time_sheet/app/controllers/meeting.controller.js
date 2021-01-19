@@ -255,8 +255,7 @@ async function checkTeacherTimings(teacher_id, day, start_time, duration, end_ti
         let afterTime  = moment(routine.end_time, 'hh:mm')
         
         if(start_time == routine.start_time || 
-           end_time   == routine.end_time || 
-           end_time   == routine.start_time)
+           end_time   == routine.end_time )
           throw 'Your metting time is confict with teacher class schedule'
         
         if (time.isBetween(beforeTime, afterTime)) 
