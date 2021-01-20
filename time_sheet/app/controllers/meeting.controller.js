@@ -78,9 +78,8 @@ async function list(user){
 
   }else{
     let attendee_type = 'parent'
-    if(user.role == 'teacher'){
-      attendee_type = 'teacher'
-    }
+    if(user.role == 'teacher')
+        attendee_type = 'teacher'
 
     whereCondition.attendee_vls_id  = user.userVlsId
     whereCondition.attendee_type    = attendee_type
