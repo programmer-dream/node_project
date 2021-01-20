@@ -253,7 +253,7 @@ async function checkTeacherTimings(teacher_id, day, start_time, duration, end_ti
     await Promise.all(
       routines.map(async routine => {
         if(routine.start_time == start_time)
-           throw 'Your metting time is confict with other metting'
+           throw 'Your metting time is confict with teacher class schedule'
       
         let time       = moment(start_time, 'hh:mm')
         let time2      = moment(end_time, 'hh:mm')
@@ -282,7 +282,8 @@ async function checkMeetingTimings(reqDate ,reqDuration, id=null){
     if(id){
       whereCondition.id =  { [Op.ne]: id }
     }
-
+    whereCondition.attendee_status =  { [Op.ne]: 'reject' }
+    
     let allMeeting = await Meeting.findAll({
       where : whereCondition,
       attributes: ['date','time','duration']
