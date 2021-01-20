@@ -283,7 +283,7 @@ async function checkMeetingTimings(reqDate ,reqDuration, id=null){
       whereCondition.id =  { [Op.ne]: id }
     }
     whereCondition.attendee_status =  { [Op.ne]: 'reject' }
-    
+
     let allMeeting = await Meeting.findAll({
       where : whereCondition,
       attributes: ['date','time','duration']
@@ -300,10 +300,17 @@ async function checkMeetingTimings(reqDate ,reqDuration, id=null){
           
           if (reqDate.isSame(startTime))
               throw 'Metting start time is confict with other metting'
+          
           if (reqDate.isBetween(startTime, endTime))
               throw 'Your metting time is confict with other metting'
 
           if (endMoment.isBetween(startTime, endTime))
+              throw 'Your metting time is confict with other metting'
+
+          if (startTime.isBetween(reqDate, endMoment))
+              throw 'Your metting time is confict with other metting'
+
+          if (endTime.isBetween(reqDate, endMoment))
               throw 'Your metting time is confict with other metting'
       })
     )
