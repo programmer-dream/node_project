@@ -73,7 +73,7 @@ async function create(req){
 async function list(user){
   let whereCondition = {}
   if(user.role == 'principal' || user.role == 'branch-admin'){
-    let userData = await User.findByPk(req.user.id)
+    let userData = await User.findByPk(user.id)
     whereCondition.branch_id = userData.branch_vls_id
 
   }else{
