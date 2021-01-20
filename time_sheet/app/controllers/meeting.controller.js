@@ -297,7 +297,9 @@ async function checkMeetingTimings(reqDate ,reqDuration, id=null){
           let startTime = moment(date + ' '+meeting.time)
           let endTime   = moment(startTime).add(duration, 'minutes').format('YYYY-MM-DD HH:mm')
           let endMoment = moment(reqDate).add(reqDuration, 'minutes').format('YYYY-MM-DD HH:mm')
-             endMoment = moment(endMoment)
+          
+           endMoment = moment(endMoment)
+           endTime = moment(endTime)
           
           if (reqDate.isSame(startTime))
               throw 'Metting start time is confict with other metting'
