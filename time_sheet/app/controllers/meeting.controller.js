@@ -73,7 +73,9 @@ async function create(req){
 async function list(user){
   let whereCondition = {}
   if(user.role == 'principal' || user.role == 'branch-admin'){
-    whereCondition.meeting_author_vls_id = user.userVlsId
+    let userData = await User.findByPk(req.user.id)
+    whereCondition.branch_id = userData.branch_vls_id
+
   }else{
     let attendee_type = 'parent'
     if(user.role == 'teacher'){
