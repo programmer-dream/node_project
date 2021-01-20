@@ -59,7 +59,13 @@ async function list(user){
   if(user.role == 'principal' || user.role == 'branch-admin'){
     whereCondition.meeting_author_vls_id = user.userVlsId
   }else{
-    whereCondition.attendee_vls_id       = user.userVlsId
+    let attendee_type = 'parent'
+    if(user.role == 'teacher'){
+      attendee_type = 'teacher'
+    }
+
+    whereCondition.attendee_vls_id  = user.userVlsId
+    whereCondition.attendee_type    = user.attendee_type
   }
 
   let meetings = await Meeting.findAll({
