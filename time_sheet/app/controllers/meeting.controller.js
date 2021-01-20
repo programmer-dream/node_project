@@ -73,9 +73,16 @@ async function create(req){
 async function list(user){
   let whereCondition = {}
   if(user.role == 'principal' || user.role == 'branch-admin'){
-    whereCondition.meeting_author_vls_id = user.userVlsId
+    let userData = await User.findByPk(user.id)
+    whereCondition.branch_id = userData.branch_vls_id
+
   }else{
-    whereCondition.attendee_vls_id       = user.userVlsId
+    let attendee_type = 'parent'
+    if(user.role == 'teacher')
+        attendee_type = 'teacher'
+
+    whereCondition.attendee_vls_id  = user.userVlsId
+    whereCondition.attendee_type    = attendee_type
   }
 
   let meetings = await Meeting.findAll({
@@ -247,7 +254,7 @@ async function checkTeacherTimings(teacher_id, day, start_time, duration, end_ti
     await Promise.all(
       routines.map(async routine => {
         if(routine.start_time == start_time)
-           throw 'Your metting time is confict with other metting'
+           throw 'Your metting time is confict with teacher class schedule'
       
         let time       = moment(start_time, 'hh:mm')
         let time2      = moment(end_time, 'hh:mm')
@@ -276,6 +283,7 @@ async function checkMeetingTimings(reqDate ,reqDuration, id=null){
     if(id){
       whereCondition.id =  { [Op.ne]: id }
     }
+    whereCondition.attendee_status =  { [Op.ne]: 'reject' }
 
     let allMeeting = await Meeting.findAll({
       where : whereCondition,
@@ -293,10 +301,17 @@ async function checkMeetingTimings(reqDate ,reqDuration, id=null){
           
           if (reqDate.isSame(startTime))
               throw 'Metting start time is confict with other metting'
+          
           if (reqDate.isBetween(startTime, endTime))
               throw 'Your metting time is confict with other metting'
 
           if (endMoment.isBetween(startTime, endTime))
+              throw 'Your metting time is confict with other metting'
+
+          if (startTime.isBetween(reqDate, endMoment))
+              throw 'Your metting time is confict with other metting'
+
+          if (endTime.isBetween(reqDate, endMoment))
               throw 'Your metting time is confict with other metting'
       })
     )
