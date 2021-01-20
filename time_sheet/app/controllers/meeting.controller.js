@@ -81,7 +81,7 @@ async function list(user){
     }
 
     whereCondition.attendee_vls_id  = user.userVlsId
-    whereCondition.attendee_type    = user.attendee_type
+    whereCondition.attendee_type    = attendee_type
   }
 
   let meetings = await Meeting.findAll({
