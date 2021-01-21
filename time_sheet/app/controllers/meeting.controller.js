@@ -75,6 +75,9 @@ async function list(user){
   if(user.role == 'principal' || user.role == 'branch-admin'){
     let userData = await User.findByPk(user.id)
     whereCondition.branch_id = userData.branch_vls_id
+    whereCondition.originator_type = 'principal'
+    if(user.role == 'branch-admin')
+        whereCondition.originator_type = 'branch_admin'
 
   }else{
     let attendee_type = 'parent'
