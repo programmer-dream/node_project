@@ -227,7 +227,7 @@ async function attendMeeting(meetingId,body){
   	attendee_status  : body.attendee_status,
   	attendee_remarks : body.attendee_remarks
   } 
-  return meetingData
+  
   let meeting  = await Meeting.update(body,{
         				    where: { id: meetingId }
         				  })
