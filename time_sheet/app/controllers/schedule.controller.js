@@ -28,12 +28,28 @@ async function currentSchedule(user){
   let id        = user.userVlsId
   let branch_id = userData.branch_vls_id
   let today     = moment().format('YYYY-MM-DD')
-  
+
   let timeTable = await getTimetable(id, today, branch_id, user)
   let meetings  = await getMeeting(id, today, branch_id, user)
+  let schedules = timeTable.concat(meetings)
 
-  let schedule  =  {time_table: timeTable, meetings: meetings}
-  return { success: true, message: "Today's schedule", data:schedule }
+  let allSchedules = []
+  await Promise.all(
+      schedules.map(async schedule => {
+        let currSchedule  = schedule.toJSON()
+        if(currSchedule.timesheet_id){
+          currSchedule.type = 'time_table'
+        }else{
+          currSchedule.type = 'meeting'
+          currSchedule.end_time = moment(currSchedule.start_time,'HH:mm').add(currSchedule.duration,'minutes').format("HH:mm")
+        }
+        allSchedules.push(currSchedule)
+        
+      })
+  )
+  
+  let newArr = allSchedules.sort( compare );
+  return { success: true, message: "Today's schedule", data:allSchedules }
 };
 
 
@@ -88,7 +104,7 @@ async function getTimetable(id, today, branch_id, user){
   }else{
     timeTable = await Routine.findAll({
         where :whereCondition,
-        attributes: ['timesheet_id','start_time','end_time','room_no'],
+        attributes: ['timesheet_id','start_time','end_time','room_no','title'],
         include: [{ 
                     model:SubjectList,
                     as:'subjectList',
@@ -140,7 +156,21 @@ async function getMeeting(id, today, branch_id, user){
 
     let meetings = Meeting.findAll({
       where :whereCondition,
-      attributes: ['meeting_title','time','duration','meeting_mode','meeting_location']
+      attributes: [['meeting_title','title'],
+                   ['time','start_time'],
+                   'duration','meeting_mode','meeting_location']
     })
     return meetings
 }
+
+function compare( a, b ) {
+    let aStart = moment(a.start_time,'HH:mm')
+    let bStart   = moment(b.start_time,'HH:mm')
+    if ( aStart.isBefore(bStart) ){
+      return -1;
+    }
+    if ( aStart.isAfter(bStart) ){
+      return 1;
+    }
+    return 0;
+  }

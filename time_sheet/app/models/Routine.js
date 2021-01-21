@@ -41,6 +41,12 @@ module.exports = (sequelize, Sequelize) => {
       },
       subject_code: {
         type: Sequelize.STRING
+      },
+      title: {
+        type: Sequelize.VIRTUAL,
+        get () {
+          return this.getDataValue('subjectList').subject_name
+        }
       }
   },{
       tableName: 'routines',
