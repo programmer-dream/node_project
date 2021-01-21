@@ -207,7 +207,10 @@ async function getExamSchedule(id, today, branch_id,user){
 /**
  * API for get current day time table schedule
  */
-async function getExamDates(id, branch_id, date){
+async function getExamDates(id, branch_id, date, role){
+  if(role != 'student')
+      return false
+
   let whereCondition = { 
                           Branch_vls_id : branch_id
                        }
