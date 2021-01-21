@@ -102,7 +102,7 @@ async function getTimetable(id, today, branch_id, user){
                 },{ 
                   model:Employee,
                   as:'teacher',
-                  attributes: ['name']
+                  attributes: ['name','photo']
                 }]
   })
    
@@ -133,18 +133,7 @@ async function getMeeting(id, today, branch_id, user){
             whereCondition.meeting_author_vls_id = id
         break;
       case 'student':
-            student = await Student.findOne({
-              where : {
-                        student_vls_id : id
-                      },
-              include: [{ 
-                model:Guardian,
-                as:'parent',
-                attributes: ['parent_vls_id']
-              }]
-            })
-            whereCondition.attendee_vls_id = student.parent.parent_vls_id
-            whereCondition.attendee_type = 'parent'
+            return []
         break;
       case 'guardian':
             whereCondition.attendee_vls_id = id
