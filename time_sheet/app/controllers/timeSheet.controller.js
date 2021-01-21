@@ -151,21 +151,41 @@ async function teacherView(params , user){
 
     let daysData = {}
     
+
     await Promise.all(
       timesheet.map(async timesheet => {
+          let subject_id      = ""
+          let subject_code    = ""
+          let subject_name    = ""
+          let teacher_name    = ""
+          let teacher_photo   = ""
+          let faculty_vls_id  = ""
+          
+          if(timesheet.subjectList){
+            subject_id   = timesheet.subjectList.id
+            subject_code = timesheet.subjectList.code
+            subject_name = timesheet.subjectList.subject_name
+          }
+
+          if(timesheet.teacher){
+            teacher_name    = timesheet.teacher.name
+            teacher_photo   = timesheet.teacher.photo
+            faculty_vls_id  = timesheet.teacher.faculty_vls_id
+          }
+
           let day = {
-            timesheet_id : timesheet.timesheet_id,
-            start_time   : timesheet.start_time,
-            end_time     : timesheet.end_time,
-            room_no      : timesheet.room_no,
-            class_id     : timesheet.class_id,
-            section_id   : timesheet.section_id,
-            subject_id   : timesheet.subjectList.id,
-            subject_code : timesheet.subjectList.code,
-            subject_name : timesheet.subjectList.subject_name,
-            teacher_name : timesheet.teacher.name,
-            teacher_photo: timesheet.teacher.photo,
-            faculty_vls_id: timesheet.teacher.faculty_vls_id,
+            timesheet_id  : timesheet.timesheet_id,
+            start_time    : timesheet.start_time,
+            end_time      : timesheet.end_time,
+            room_no       : timesheet.room_no,
+            class_id      : timesheet.class_id,
+            section_id    : timesheet.section_id,
+            subject_id    : subject_id,
+            subject_code  : subject_code,
+            subject_name  : subject_name,
+            teacher_name  : teacher_name,
+            teacher_photo : teacher_photo,
+            faculty_vls_id: faculty_vls_id,
           }
 
           if(!daysData[timesheet.day])
@@ -238,19 +258,38 @@ async function parentView(params , user){
     let daysData = {}
     await Promise.all(
       timesheet.map(async timesheet => {
+          let subject_id      = ""
+          let subject_code    = ""
+          let subject_name    = ""
+          let teacher_name    = ""
+          let teacher_photo   = ""
+          let faculty_vls_id  = ""
+          
+          if(timesheet.subjectList){
+            subject_id   = timesheet.subjectList.id
+            subject_code = timesheet.subjectList.code
+            subject_name = timesheet.subjectList.subject_name
+          }
+
+          if(timesheet.teacher){
+            teacher_name    = timesheet.teacher.name
+            teacher_photo   = timesheet.teacher.photo
+            faculty_vls_id  = timesheet.teacher.faculty_vls_id
+          }
+
           let day = {
-            timesheet_id : timesheet.timesheet_id,
-            start_time   : timesheet.start_time,
-            end_time     : timesheet.end_time,
-            room_no      : timesheet.room_no,
-            class_id     : timesheet.class_id,
-            section_id   : timesheet.section_id,
-            subject_id   : timesheet.subjectList.id,
-            subject_code : timesheet.subjectList.code,
-            subject_name : timesheet.subjectList.subject_name,
-            teacher_name : timesheet.teacher.name,
-            teacher_photo: timesheet.teacher.photo,
-            faculty_vls_id: timesheet.teacher.faculty_vls_id,
+            timesheet_id  : timesheet.timesheet_id,
+            start_time    : timesheet.start_time,
+            end_time      : timesheet.end_time,
+            room_no       : timesheet.room_no,
+            class_id      : timesheet.class_id,
+            section_id    : timesheet.section_id,
+            subject_id    : subject_id,
+            subject_code  : subject_code,
+            subject_name  : subject_name,
+            teacher_name  : teacher_name,
+            teacher_photo : teacher_photo,
+            faculty_vls_id: faculty_vls_id,
           }
 
           if(!daysData[timesheet.day])
