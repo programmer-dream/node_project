@@ -45,7 +45,9 @@ module.exports = (sequelize, Sequelize) => {
       title: {
         type: Sequelize.VIRTUAL,
         get () {
-          return this.getDataValue('subjectList').subject_name
+          if(this.getDataValue('subjectList')){
+            return this.getDataValue('subjectList').subject_name
+          }
         }
       }
   },{
