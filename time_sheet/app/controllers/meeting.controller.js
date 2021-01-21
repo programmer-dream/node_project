@@ -127,6 +127,9 @@ async function listParent(params ,user){
       class_id      : class_id
   }
 
+  if(params.section_id)
+      whereCondition.section_id = params.section_id
+
   let student  = await Student.findAll({
 				  	where : whereCondition,
 				  	include: [{ 
