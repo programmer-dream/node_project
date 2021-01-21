@@ -22,12 +22,14 @@ module.exports = {
 /**
  * API for list meetings
  */
-async function currentSchedule(user){
+async function currentSchedule(user, query){
   let userData  = await User.findByPk(user.id)
   let role      = user.role
   let id        = user.userVlsId
   let branch_id = userData.branch_vls_id
   let today     = moment().format('YYYY-MM-DD')
+  if(query.date)
+      today     = moment(query.date).format('YYYY-MM-DD')
 
   let timeTable = await getTimetable(id, today, branch_id, user)
   let meetings  = await getMeeting(id, today, branch_id, user)
