@@ -86,6 +86,10 @@ async function getTimetable(id, today, branch_id, user){
           student = await Student.findByPk(id)
           whereCondition.class_id = student.class_id
       break;
+    case 'branch-admin':
+    case 'principal':
+          return []
+      break;
   }
   
   timeTable = await Routine.findAll({
@@ -123,6 +127,10 @@ async function getMeeting(id, today, branch_id, user){
       case 'teacher':
             whereCondition.attendee_type = 'teacher'
             whereCondition.attendee_vls_id = id
+        break;
+      case 'branch-admin':
+      case 'principal':
+            whereCondition.meeting_author_vls_id = id
         break;
       case 'student':
             student = await Student.findOne({
