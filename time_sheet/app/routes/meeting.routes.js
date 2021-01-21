@@ -23,8 +23,6 @@ router.get("/listParent",listParent);
 
 //Put
 router.put("/update/:id",[
-    check('attendee_vls_id','attendee_vls_id field is required.').not().isEmpty(),
-    check('attendee_type','attendee_type field is required.').not().isEmpty(),
     check('meeting_title','meeting_title field is required.').not().isEmpty(),
     check('meeting_description','meeting_description field is required.').not().isEmpty(),
     check('meeting_mode','meeting_mode field is required.').not().isEmpty(),
