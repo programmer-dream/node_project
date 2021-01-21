@@ -28,12 +28,25 @@ async function currentSchedule(user, query){
   let id        = user.userVlsId
   let branch_id = userData.branch_vls_id
   let today     = moment().format('YYYY-MM-DD')
+  let meetings  = []
+  let timeTable = []
+
   if(query.date)
       today     = moment(query.date).format('YYYY-MM-DD')
 
-  let timeTable = await getTimetable(id, today, branch_id, user)
-  let meetings  = await getMeeting(id, today, branch_id, user)
-  let schedules = timeTable.concat(meetings)
+  if(user.role != "guardian"){
+    timeTable = await getTimetable(id, today, branch_id, user)
+  }
+
+  if(user.role != "student"){
+     meetings  = await getMeeting(id, today, branch_id, user)
+  }
+
+  let schedules = timeTable
+  if(meetings.length > 0){
+      schedules = schedules.concat(meetings)
+  }
+  
 
   let allSchedules = []
   await Promise.all(
@@ -75,13 +88,8 @@ async function getTimetable(id, today, branch_id, user){
           student = await Student.findByPk(id)
           whereCondition.class_id = student.class_id
       break;
-    case 'guardian':
-          student = await Student.findAll({
-            where :{ parent_vls_id : id},
-            attributes: ['student_vls_id','name','email','parent_vls_id','class_id']
-          })
-      break;
   }
+
   if(Array.isArray(student)) {
     let allChild = []
     await Promise.all(
@@ -135,20 +143,6 @@ async function getMeeting(id, today, branch_id, user){
       case 'teacher':
             whereCondition.attendee_type = 'teacher'
             whereCondition.attendee_vls_id = id
-        break;
-      case 'student':
-            student = await Student.findOne({
-              where : {
-                        student_vls_id : id
-                      },
-              include: [{ 
-                model:Guardian,
-                as:'parent',
-                attributes: ['parent_vls_id']
-              }]
-            })
-            whereCondition.attendee_vls_id = student.parent.parent_vls_id
-            whereCondition.attendee_type = 'parent'
         break;
       case 'guardian':
             whereCondition.attendee_vls_id = id
