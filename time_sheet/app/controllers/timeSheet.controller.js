@@ -53,7 +53,7 @@ async function create(req){
         let status     = 1
         let room_no     = 1
         let section_id = 0
-        if(!timetable.subject_code) throw 'subject_code required'
+        if(timetable.subject_code == null || timetable.subject_code == undefined || timetable.subject_code == "") throw 'subject_code required'
         if(!timetable.start_time) throw 'start_time required'
         if(!timetable.end_time)   throw 'end_time required'
         if(!timetable.room_no)   throw 'room_no required'
