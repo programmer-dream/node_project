@@ -72,7 +72,15 @@ module.exports = (sequelize, Sequelize) => {
         subject_code: {
           allowNull: false,
           type: Sequelize.STRING
-        }
+        },
+        title: {
+          type: Sequelize.VIRTUAL,
+          get () {
+            if(this.getDataValue('subject')){
+              return this.getDataValue('subject').subject_name
+            }
+          }
+      }
   },{
       tableName: 'exam_schedules',
       createdAt: 'created_at',
