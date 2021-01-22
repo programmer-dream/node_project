@@ -13,6 +13,7 @@ const sequelize  = db.sequelize;
 const Assignment = db.Assignment;
 const Classes    = db.Classes;
 const SubjectList= db.SubjectList;
+const StudentAssignment= db.StudentAssignment;
 
 module.exports = {
   create,
@@ -20,7 +21,9 @@ module.exports = {
   update,
   list,
   deleteAssignment,
-  assignToStudents
+  assignToStudents,
+  createStudentAssignment,
+  submitAssignment
 };
 
 
@@ -94,9 +97,50 @@ async function view(params , user){
  * API for assignment list
  */
 async function list(params , user){
+  let assignmentState  = params.assignmentState
+  let class_id         = params.class_id
+  
+  if((user.role == 'branch-admin' || user.role == 'school-admin' || user.role == 'principal') && !class_id) 
+    throw 'class_id is required'
+
+  let userData = await User.findByPk(user.id)
+
+  let currentDate = moment().format('YYYY-MM-DD')
+  let start  = moment(currentDate+" 00:00").format('YYYY-MM-DD HH:MM')
+  let end    = moment(currentDate+" 23:59").format('YYYY-MM-DD HH:MM')
+
+  let whereCodition = {
+    assignment_completion_date:{ [Op.between]: [start, end]}
+  }
+  if(params.section_id)
+    whereCodition.section_id = params.section_id
+
+  if(assignmentState == "past"){
+    whereCodition.assignment_completion_date = { [Op.lt]: start }
+  }else if(assignmentState == "upcoming"){
+    whereCodition.assignment_completion_date = { [Op.gt]: end }
+  }
+  
+  switch (user.role) {
+    case 'teacher':
+        whereCodition.added_by = user.userVlsId
+      break;
+    case 'student':
+        let student = await Student.findByPk(user.userVlsId)
+        if(student.section_id && student.section_id != '') 
+          whereCodition.section_id = student.section_id
+          
+        whereCodition.assignment_class_id = student.class_id
+      break;
+    case 'branch-admin':
+    case 'school-admin':
+    case 'principal':
+      whereCodition.assignment_class_id = class_id
+      break;
+  }
 
   let assignments = await Assignment.findAll({
-    where : {added_by : user.userVlsId},
+    where : whereCodition,
     include: [{ 
                 model:Employee,
                 as:'addedBY',
@@ -111,6 +155,7 @@ async function list(params , user){
                 attributes: ['subject_name']
             }]
   })
+
   let finalAssignment = []
   await Promise.all(
     assignments.map(async assignment => {
@@ -126,7 +171,17 @@ async function list(params , user){
                 })
             assingmentData.students = students
       }
-      finalAssignment.push(assingmentData)
+
+      if(user.role == "student"){
+         if(!Array.isArray(studentIds) ||  studentIds.length < 0 ){
+          finalAssignment.push(assingmentData)
+         }else if(Array.isArray(studentIds) &&  studentIds.length > 0 &&studentIds.includes(user.userVlsId)){
+            finalAssignment.push(assingmentData)
+         }
+      }else{
+        finalAssignment.push(assingmentData)
+      }
+
     })
   )
   return { success: true, message: "Assignment list", data: finalAssignment}
@@ -194,4 +249,68 @@ async function assignToStudents(req){
       assignment  = await Assignment.findByPk(id)
 
   return { success: true, message: "Assignment assigned to student successfully" ,data : assignment}
+};
+
+/**
+ * API for submit student assignment
+ */
+async function createStudentAssignment(req){
+  const errors = validationResult(req);
+  if(errors.array().length) throw errors.array()
+
+    let user = req.user
+    if(user.role != 'student') throw 'unauthorised user'
+
+    let assignmentData =  req.body
+    let userData = await User.findByPk(user.id)
+
+    assignmentData.student_vls_id    = user.userVlsId
+    assignmentData.school_vls_id     = userData.school_id
+    assignmentData.branch_vls_id     = userData.branch_vls_id
+    assignmentData.assignment_status = 'Inprogress'
+    
+    let assignment     = await StudentAssignment.create(assignmentData)
+
+    if(!assignment) throw 'Assignment status not updated'
+
+    return { success: true, message: "Assignment Inprogress successfully", data:assignment }
+};
+
+
+/**
+ * API for create new assignment
+ */
+async function submitAssignment(req){
+  const errors = validationResult(req);
+  if(errors.array().length) throw errors.array()
+
+    let user = req.user
+    if(user.role != 'student') throw 'unauthorised user'
+
+    let studentId = user.userVlsId
+    let assignmentData =  req.body
+    let id = req.params.student_assignment_id
+
+    let assignmentDa  = await StudentAssignment.findByPk(id)
+    let submitDate = moment(assignmentDa.submission_date)
+
+    if(submitDate.isBefore(moment().format('YYYY-MM-DD')))
+        throw "Assignment can't be submitted after submission date"
+    
+    assignmentData.assignment_status = 'Submitted'
+
+    if(req.body.uplodedPath){
+      assignmentData.url  = req.body.uplodedPath + req.files.file[0].filename;
+    }
+    let assignment     = await StudentAssignment.update(assignmentData,
+                            {
+                              where : {
+                                        student_assignment_id : id,
+                                        student_vls_id:studentId
+                                      }
+                            })
+
+    if(!assignment[0]) throw 'Assignment not found'
+
+    return { success: true, message: "Assignment updated successfully"}
 };

@@ -39,7 +39,10 @@ const Sequelize = require("sequelize");
 const sequelize = new Sequelize(DB, user, passowrd, {
   host: host,
   dialect: dialect,
-
+  dialectOptions: {
+        useUTC: false
+    },
+  timezone: "+05:30",
   pool: {
     max: poolMax,
     min: poolMin,
@@ -71,12 +74,14 @@ db.AcademicYear = require("../../../student_attendance/app/models/AcademicYear.j
 db.Guardian = require("../../../vls/app/models/Guardian.js")(sequelize, Sequelize);
 db.SubjectList = require("../../../query_management/app/models/SubjectList.js")(sequelize, Sequelize);
 db.Assignment = require("./Assignment.js")(sequelize, Sequelize);
+db.StudentAssignment = require("./StudentAssignment.js")(sequelize, Sequelize);
 db.Classes = require("../../../student_attendance/app/models/Classes.js")(sequelize, Sequelize);
 
 db.Student.belongsTo(db.Guardian,{foreignKey:'parent_vls_id',as:'parent'})
 db.Assignment.belongsTo(db.Employee,{foreignKey:'added_by',as:'addedBY'})
 db.Assignment.belongsTo(db.Classes,{foreignKey:'assignment_class_id',as:'class'})
 db.Assignment.belongsTo(db.SubjectList,{foreignKey:'subject_code',targetKey:'code',as:'subjectList'})
+db.Assignment.hasMany(db.StudentAssignment,{foreignKey:'assignment_vls_id',as:'studentAssignment'})
 
 
 module.exports = db;
