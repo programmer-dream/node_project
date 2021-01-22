@@ -39,7 +39,10 @@ const Sequelize = require("sequelize");
 const sequelize = new Sequelize(DB, user, passowrd, {
   host: host,
   dialect: dialect,
-
+  dialectOptions: {
+        useUTC: false
+    },
+  timezone: "+05:30",
   pool: {
     max: poolMax,
     min: poolMin,
