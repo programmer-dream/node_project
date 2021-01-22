@@ -12,7 +12,10 @@ router.post("/create",[
     check('assignment_completion_date','assignment_completion_date field is required.').not().isEmpty(),
     check('assignment_type','assignment_type field is required.').not().isEmpty(),
     check('assignment_level','assignment_level field is required.').not().isEmpty(),
-    check('total_marks','total_marks field is required.').not().isEmpty()
+    check('total_marks','total_marks field is required.').not().isEmpty(),
+    check('title','title field is required.').not().isEmpty(),
+    check('description','description field is required.').not().isEmpty(),
+    check('subject_code','subject_code field is required.').not().isEmpty()
     ],create);
 
 //Get 
@@ -27,7 +30,10 @@ router.put("/update/:id",[
     check('assignment_completion_date','assignment_completion_date field is required.').not().isEmpty(),
     check('assignment_type','assignment_type field is required.').not().isEmpty(),
     check('assignment_level','assignment_level field is required.').not().isEmpty(),
-    check('total_marks','total_marks field is required.').not().isEmpty()
+    check('total_marks','total_marks field is required.').not().isEmpty(),
+    check('title','title field is required.').not().isEmpty(),
+    check('description','description field is required.').not().isEmpty(),
+    check('subject_code','subject_code field is required.').not().isEmpty()
     ],update);
 router.put("/assignToStudents/:id",assignToStudents)
 

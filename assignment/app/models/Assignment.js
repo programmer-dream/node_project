@@ -52,6 +52,18 @@ module.exports = (sequelize, Sequelize) => {
           allowNull: false,
           type: Sequelize.STRING
         },
+        subject_code: {
+          allowNull: false,
+          type: Sequelize.STRING
+        },
+        title: {
+          allowNull: false,
+          type: Sequelize.STRING
+        },
+        description: {
+          allowNull: false,
+          type: Sequelize.STRING
+        },
         created_at: {
           allowNull: false,
           type: Sequelize.DATE
