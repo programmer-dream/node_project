@@ -76,5 +76,7 @@ db.Classes = require("../../../student_attendance/app/models/Classes.js")(sequel
 db.Student.belongsTo(db.Guardian,{foreignKey:'parent_vls_id',as:'parent'})
 db.Assignment.belongsTo(db.Employee,{foreignKey:'added_by',as:'addedBY'})
 db.Assignment.belongsTo(db.Classes,{foreignKey:'assignment_class_id',as:'class'})
+db.Assignment.belongsTo(db.SubjectList,{foreignKey:'subject_code',targetKey:'code',as:'subjectList'})
+
 
 module.exports = db;

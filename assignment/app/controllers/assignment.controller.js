@@ -12,6 +12,7 @@ const Guardian   = db.Guardian;
 const sequelize  = db.sequelize;
 const Assignment = db.Assignment;
 const Classes    = db.Classes;
+const SubjectList= db.SubjectList;
 
 module.exports = {
   create,
@@ -62,6 +63,10 @@ async function view(params , user){
                 model:Classes,
                 as:'class',
                 attributes: ['name']
+            },{ 
+                model:SubjectList,
+                as:'subjectList',
+                attributes: ['subject_name']
             }]
   })
 
@@ -86,6 +91,10 @@ async function list(params , user){
                 model:Classes,
                 as:'class',
                 attributes: ['name']
+            },{ 
+                model:SubjectList,
+                as:'subjectList',
+                attributes: ['subject_name']
             }]
   })
 
@@ -152,6 +161,6 @@ async function assignToStudents(req){
 
   if(!assignment) throw 'Assignment Not found'
       assignment  = await Assignment.findByPk(id)
-    
+
   return { success: true, message: "Assignment assigned to student successfully" ,data : assignment}
 };
