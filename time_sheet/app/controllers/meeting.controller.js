@@ -92,21 +92,43 @@ async function list(user){
     where:whereCondition,
     include: [{ 
                 model:Employee,
-                as:'addedBy'
+                as:'addedBy',
+                attributes: ['name','photo']
               }]
   })
-
+  //return meetings
   let mettingWithUser = []
   await Promise.all(
     meetings.map(async meeting => {
        let meetingData = meeting.toJSON()
        let userData   = {}
+       let rejectUser = {}
       if(meeting.attendee_type == 'parent') {
-        userData = await Guardian.findByPk(meeting.attendee_vls_id)
+        userData = await Guardian.findOne({
+          where : {parent_vls_id : meeting.attendee_vls_id},
+          attributes: ['name','photo']
+          })
       }else{
-        userData = await Employee.findByPk(meeting.attendee_vls_id)
+        userData = await Employee.findOne({
+          where : {faculty_vls_id : meeting.attendee_vls_id},
+          attributes: ['name','photo']
+        })
+      }
+      if(meeting.rejected_by){
+        if(meeting.rejected_role == 'parent') {
+          rejectUser = await Guardian.findOne({
+            where : {parent_vls_id : meeting.rejected_by},
+            attributes: ['name','photo']
+          })
+        }else{
+          rejectUser = await Employee.findOne({
+            where : {faculty_vls_id : meeting.rejected_by},
+            attributes: ['name','photo']
+            })
+        }
       }
       meetingData.meetingUser = userData
+      meetingData.rejectUser  = rejectUser
       mettingWithUser.push(meetingData)
     })
   )
@@ -224,17 +246,21 @@ async function deleteMeeting(meetingId, user){
 /**
  * API for meeting delete 
  */
-async function attendMeeting(meetingId,body){
+async function attendMeeting(meetingId, body, user){
   if(!body.attendee_status) throw 'attendee_status is required'
   if(body.attendee_status == 'reject' && !body.attendee_remarks) 
   		throw 'attendee_remarks is required'
 
   let meetingData = {
   	attendee_status  : body.attendee_status,
-  	attendee_remarks : body.attendee_remarks
+  	attendee_remarks : body.attendee_remarks,
   } 
-  
-  let meeting  = await Meeting.update(body,{
+  if(body.attendee_status == 'reject'){
+    meetingData.rejected_by = user.userVlsId
+    meetingData.rejected_role = user.role
+  }
+
+  let meeting  = await Meeting.update(meetingData,{
         				    where: { id: meetingId }
         				  })
 

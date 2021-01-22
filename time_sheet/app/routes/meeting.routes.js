@@ -83,7 +83,7 @@ function deleteMeeting(req, res, next) {
 
 // Function for metting status update
 function attendMeeting(req, res, next) {
-    meetingController.attendMeeting(req.params.id, req.body)
+    meetingController.attendMeeting(req.params.id, req.body, req.user)
         .then(metting => metting ? res.json(metting) : res.status(400).json({ status: "error", message: 'Error while updating meeting' }))
         .catch(err => next(err));
 }

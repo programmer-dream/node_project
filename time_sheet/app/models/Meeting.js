@@ -67,6 +67,12 @@ module.exports = (sequelize, Sequelize) => {
           allowNull: false,
           type: Sequelize.STRING
         },
+        rejected_by: {
+          type: Sequelize.INTEGER
+        },
+        rejected_role: {
+          type: Sequelize.STRING
+        },
         created_at: {
           allowNull: false,
           type: Sequelize.DATE
