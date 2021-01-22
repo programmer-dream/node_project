@@ -73,5 +73,6 @@ db.SubjectList = require("../../../query_management/app/models/SubjectList.js")(
 db.Assignment = require("./Assignment.js")(sequelize, Sequelize);
 
 db.Student.belongsTo(db.Guardian,{foreignKey:'parent_vls_id',as:'parent'})
+db.Assignment.belongsTo(db.Employee,{foreignKey:'added_by',as:'addedBY'})
 
 module.exports = db;

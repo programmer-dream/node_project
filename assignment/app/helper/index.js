@@ -13,6 +13,7 @@ let storage = multer.diskStorage({
 
   let dirpath     = config.pdf_path
   let uplodedPath;
+  
   let schoolVlsId = req.body.school_vls_id
   let branchVlsId = req.body.branch_vls_id
   if(!schoolVlsId) cb("schoolVlsId is requeried")
@@ -29,7 +30,7 @@ let storage = multer.diskStorage({
   })
   var branch_name = branch.branch_name;
   branch_name = branch_name.replace(/\s+/g, '-').toLowerCase();
-  uplodedPath = "/"+school_name+"/"+branch_name+"/learning-library/"
+  uplodedPath = "/"+school_name+"/"+branch_name+"/assignment/"
   dirpath = dirpath + uplodedPath
   req.body.uplodedPath = uplodedPath
   //console.log(dirpath)

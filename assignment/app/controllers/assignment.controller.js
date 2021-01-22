@@ -21,88 +21,84 @@ module.exports = {
 
 
 /**
- * API for create new meeting
+ * API for create new assignment
  */
 async function create(req){
   const errors = validationResult(req);
   if(errors.array().length) throw errors.array()
 
-  if(req.user.role != 'principal' && req.user.role != 'branch-admin') throw 'Unauthorized User'
+    if(!req.files.file) throw 'Please attach a file'
 
-    req.body.originator_type = 'principal'
+    let user = req.user
+    let assignmentData =  req.body
+    assignmentData.added_by  = user.userVlsId
+    assignmentData.user_role = user.role
+    assignmentData.assignment_date = moment()
+    assignmentData.url  = req.body.uplodedPath + req.files.file[0].filename;
+    
+  	let assignment 		 = await Assignment.create(assignmentData)
 
-    if(req.user.role == 'branch-admin') 
-       req.body.originator_type    = 'branch_admin'
+  	if(!assignment) throw 'Assignment not created'
 
-    req.body.meeting_author_vls_id = req.user.userVlsId
-  	let user 		         = await User.findByPk(req.user.id)
-  	req.body.school_id 	 = user.school_id
-  	req.body.branch_id 	 = user.branch_vls_id
-  	let meetingData      = req.body
-  	
-  	let meeting 		     = await Meeting.create(meetingData)
-
-  	if(!meeting) throw 'meeting not created'
-
-  	return { success: true, message: "Meeting created successfully", data:meeting }
+  	return { success: true, message: "Assignment created successfully", data:assignment }
 };
 
 
 /**
- * API for meeting view
+ * API for assignment view
  */
 async function view(params , user){
-  let meeting = await Meeting.findOne({
-    where : {id:params.id},
+  let assignment = await Assignment.findOne({
+    where : {assignment_vls_id:params.id},
     include: [{ 
                 model:Employee,
-                as:'addedBy'
-              }]
+                as:'addedBY',
+                attributes: ['name','photo']
+            }]
   })
 
-  if(!meeting) throw 'Meeting not found'
+  if(!assignment) throw 'Assignment not found'
 
-  return { success: true, message: "Meeting view", data: meeting}
+  return { success: true, message: "Assignment view", data: assignment}
 };
 
 
 /**
- * API for meeting update 
+ * API for assignment update 
  */
 async function update(req){
-  const errors = validationResult(req);
+  	const errors = validationResult(req);
   if(errors.array().length) throw errors.array()
 
-  if(req.user.role != 'principal' && req.user.role != 'branch-admin') throw 'Unauthorized User'
+    let user                 = req.user
+    let assignmentData       = req.body
+    assignmentData.added_by  = user.userVlsId
+    assignmentData.user_role = user.role
+    assignmentData.assignment_completion_date = moment(assignmentData.assignment_completion_date).format('YYYY-MM-DD')
+    if(req.body.uplodedPath){
+      assignmentData.url     = req.body.uplodedPath + req.files.file[0].filename;
+    }
 
-    req.body.originator_type = 'principal'
-    if(req.user.role == 'branch-admin') 
-       req.body.originator_type    = 'branch_admin'
+	 let assignment        = await Assignment.update(assignmentData,{
+              						  where : 
+                                { assignment_vls_id:req.params.id }
+              						  })
+   
+  	if(!assignment[0]) throw 'Assignment not updated'
+       assignment  = await Assignment.findByPk(req.params.id)
 
-    req.body.meeting_author_vls_id = req.user.userVlsId
-  	let user 		         = await User.findByPk(req.user.id)
-  	req.body.school_id 	 = user.school_id
-  	req.body.branch_id 	 = user.branch_vls_id
-  	let meetingData      = req.body
-  	
-  	let meeting          = await Meeting.update(meetingData,{
-						  		where : { id:req.params.id }
-						  	})
-  	if(!meeting[0]) throw 'meeting not updated'
-      meetingData  = await Meeting.findByPk(req.params.id)
-
-  	return { success: true, message: "Meeting updated successfully", data:meetingData }
+  	return { success: true, message: "Assignment updated successfully", data:assignment }
 };
 
 
 /**
- * API for meeting delete 
+ * API for assignment delete 
  */
 async function deleteAssignment(meetingId, user){
-  let meeting  = await Meeting.destroy({
-				    where: { id: meetingId }
+  let assignment  = await Assignment.destroy({
+				    where: { assignment_vls_id: meetingId }
 				  })
 
-  if(!meeting) throw 'Meeting Not found'
-  return { success: true, message: "Meeting deleted successfully" }
+  if(!assignment) throw 'Assignment Not found'
+  return { success: true, message: "Assignment deleted successfully" }
 };

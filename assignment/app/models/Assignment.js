@@ -14,9 +14,8 @@ module.exports = (sequelize, Sequelize) => {
           allowNull: false,
           type: Sequelize.INTEGER
         },
-        student_vls_id: {
-          allowNull: false,
-          type: Sequelize.INTEGER
+        student_vls_ids: {
+          type: Sequelize.TEXT
         },
         assignment_class_id: {
           allowNull: false,
@@ -33,15 +32,19 @@ module.exports = (sequelize, Sequelize) => {
         assignment_type: {
           type: Sequelize.ENUM('online','offline')
         },
-        root_assignment_question_id: {
-          allowNull: false,
-          type: Sequelize.INTEGER
-        },
-        no_of_assignments_submitted: {
+        url: {
           allowNull: false,
           type: Sequelize.STRING
         },
-        no_of_assignments_rejected: {
+        added_by: {
+          allowNull: false,
+          type: Sequelize.INTEGER
+        },
+        total_marks: {
+          allowNull: false,
+          type: Sequelize.STRING
+        },
+        user_role: {
           allowNull: false,
           type: Sequelize.STRING
         },
@@ -58,7 +61,9 @@ module.exports = (sequelize, Sequelize) => {
           type: Sequelize.DATE
         }
   },{
-      tableName: 'assignment'
+      tableName: 'assignment',
+      createdAt: 'created_at',
+      updatedAt: 'updated_at'
     }
   );
   
