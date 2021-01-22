@@ -11,12 +11,15 @@ const Student    = db.Student;
 const Guardian   = db.Guardian;
 const sequelize  = db.sequelize;
 const Assignment = db.Assignment;
+const Classes    = db.Classes;
 
 module.exports = {
   create,
   view,
   update,
-  deleteAssignment
+  list,
+  deleteAssignment,
+  assignToStudents
 };
 
 
@@ -54,12 +57,39 @@ async function view(params , user){
                 model:Employee,
                 as:'addedBY',
                 attributes: ['name','photo']
+            },
+            { 
+                model:Classes,
+                as:'class',
+                attributes: ['name']
             }]
   })
 
   if(!assignment) throw 'Assignment not found'
 
   return { success: true, message: "Assignment view", data: assignment}
+};
+
+
+/**
+ * API for assignment list
+ */
+async function list(params , user){
+
+  let assignment = await Assignment.findAll({
+    where : {added_by : user.userVlsId},
+    include: [{ 
+                model:Employee,
+                as:'addedBY',
+                attributes: ['name','photo']
+            },{ 
+                model:Classes,
+                as:'class',
+                attributes: ['name']
+            }]
+  })
+
+  return { success: true, message: "Assignment list", data: assignment}
 };
 
 
@@ -94,11 +124,34 @@ async function update(req){
 /**
  * API for assignment delete 
  */
-async function deleteAssignment(meetingId, user){
+async function deleteAssignment(assignmentId, user){
   let assignment  = await Assignment.destroy({
-				    where: { assignment_vls_id: meetingId }
+				    where: { assignment_vls_id: assignmentId }
 				  })
 
   if(!assignment) throw 'Assignment Not found'
   return { success: true, message: "Assignment deleted successfully" }
+};
+
+
+/**
+ * API for assignment assign to student  
+ */
+async function assignToStudents(req){
+  let user       = req.user
+  let id         = req.params.id
+  let studentIds = req.body.studentIds
+  if(!req.body.studentIds) throw 'studentIds is required'
+    let arrStr = JSON.stringify(req.body.studentIds)
+    let asingedStudents = { student_vls_ids : arrStr}
+  
+    //return asingedStudents
+    let assignment  = await Assignment.update(asingedStudents,{
+            where: { assignment_vls_id: id }
+          })
+
+  if(!assignment) throw 'Assignment Not found'
+      assignment  = await Assignment.findByPk(id)
+    
+  return { success: true, message: "Assignment assigned to student successfully" ,data : assignment}
 };
