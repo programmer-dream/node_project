@@ -99,7 +99,7 @@ async function view(params , user){
 async function list(params , user){
   let assignmentState  = params.assignmentState
   let class_id         = params.class_id
-  
+
   if((user.role == 'branch-admin' || user.role == 'school-admin' || user.role == 'principal') && !class_id) 
     throw 'class_id is required'
 
@@ -173,6 +173,13 @@ async function list(params , user){
       }
 
       if(user.role == "student"){
+          let studentAssignment = await StudentAssignment.findOne({
+            where : {
+              assignment_vls_id: assingmentData.assignment_vls_id,
+              student_vls_id   : user.userVlsId,
+            }
+          })
+        assingmentData.studentAssignment = studentAssignment
          if(!Array.isArray(studentIds) ||  studentIds.length < 0 ){
           finalAssignment.push(assingmentData)
          }else if(Array.isArray(studentIds) &&  studentIds.length > 0 &&studentIds.includes(user.userVlsId)){
