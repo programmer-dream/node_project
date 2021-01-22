@@ -72,7 +72,21 @@ async function view(params , user){
 
   if(!assignment) throw 'Assignment not found'
 
-  return { success: true, message: "Assignment view", data: assignment}
+    let assingmentData = assignment.toJSON()
+    let studentIds = JSON.parse(assingmentData.student_vls_ids)
+    if(Array.isArray(studentIds) &&  studentIds.length > 0){
+        let  students =  await Student.findAll({
+              where :{ 
+                student_vls_id :{ 
+                  [Op.in]: studentIds }
+                },
+                attributes: ['name','photo']
+            })
+        assingmentData.students = students
+   }
+
+
+  return { success: true, message: "Assignment view", data: assingmentData}
 };
 
 
@@ -81,7 +95,7 @@ async function view(params , user){
  */
 async function list(params , user){
 
-  let assignment = await Assignment.findAll({
+  let assignments = await Assignment.findAll({
     where : {added_by : user.userVlsId},
     include: [{ 
                 model:Employee,
@@ -97,8 +111,25 @@ async function list(params , user){
                 attributes: ['subject_name']
             }]
   })
-
-  return { success: true, message: "Assignment list", data: assignment}
+  let finalAssignment = []
+  await Promise.all(
+    assignments.map(async assignment => {
+        let assingmentData = assignment.toJSON()
+        let studentIds = JSON.parse(assignment.student_vls_ids)
+        if(Array.isArray(studentIds) &&  studentIds.length > 0){
+            let  students =  await Student.findAll({
+                  where :{ 
+                    student_vls_id :{ 
+                      [Op.in]: studentIds }
+                    },
+                    attributes: ['name','photo']
+                })
+            assingmentData.students = students
+      }
+      finalAssignment.push(assingmentData)
+    })
+  )
+  return { success: true, message: "Assignment list", data: finalAssignment}
 };
 
 
