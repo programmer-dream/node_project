@@ -10,6 +10,7 @@ const Meeting    = db.Meeting;
 const Student    = db.Student;
 const Guardian   = db.Guardian;
 const sequelize  = db.sequelize;
+const Routine    = db.Routine;
 const bcrypt     = require("bcryptjs");
 
 module.exports = {
@@ -32,15 +33,30 @@ async function create(req){
 
   if(req.user.role != 'principal' && req.user.role != 'branch-admin') throw 'Unauthorized User'
 
-    req.body.originator_type = 'principal'
-
+      req.body.originator_type = 'principal'
     if(req.user.role == 'branch-admin') 
        req.body.originator_type    = 'branch_admin'
+
+    let reqDate = moment(req.body.date + ' '+req.body.time)
+    if (moment() > reqDate) {
+        throw "we can't create a meeting in past date time"
+    }
+
+    if(req.body.attendee_type =='teacher'){
+      let teacher_id = req.body.attendee_vls_id
+      let day        = moment(req.body.date).format('dddd')
+      let start_time = req.body.time
+      let duration   = req.body.duration
+      let end_time   = moment(start_time,'HH:mm').add(duration, 'minutes').format('HH:mm')
+      await checkTeacherTimings(teacher_id, day, start_time, duration, end_time)
+    }
+    await checkMeetingTimings(reqDate)
 
     req.body.meeting_author_vls_id = req.user.userVlsId
   	let user 		         = await User.findByPk(req.user.id)
   	req.body.school_id 	 = user.school_id
   	req.body.branch_id 	 = user.branch_vls_id
+
   	let meetingData      = req.body
   	
   	let meeting 		     = await Meeting.create(meetingData)
@@ -57,9 +73,19 @@ async function create(req){
 async function list(user){
   let whereCondition = {}
   if(user.role == 'principal' || user.role == 'branch-admin'){
-    whereCondition.meeting_author_vls_id = user.userVlsId
+    let userData = await User.findByPk(user.id)
+    whereCondition.branch_id = userData.branch_vls_id
+    whereCondition.originator_type = 'principal'
+    if(user.role == 'branch-admin')
+        whereCondition.originator_type = 'branch_admin'
+
   }else{
-    whereCondition.attendee_vls_id       = user.userVlsId
+    let attendee_type = 'parent'
+    if(user.role == 'teacher')
+        attendee_type = 'teacher'
+
+    whereCondition.attendee_vls_id  = user.userVlsId
+    whereCondition.attendee_type    = attendee_type
   }
 
   let meetings = await Meeting.findAll({
@@ -104,6 +130,9 @@ async function listParent(params ,user){
       class_id      : class_id
   }
 
+  if(params.section_id)
+      whereCondition.section_id = params.section_id
+
   let student  = await Student.findAll({
 				  	where : whereCondition,
 				  	include: [{ 
@@ -147,6 +176,22 @@ async function update(req){
     if(req.user.role == 'branch-admin') 
        req.body.originator_type    = 'branch_admin'
 
+    //check start
+    let reqDate = moment(req.body.date + ' '+req.body.time)
+    if (moment() > reqDate) {
+        throw "we can't create a meeting in past date time"
+    }
+
+    if(req.body.attendee_type =='teacher'){
+      let teacher_id = req.body.attendee_vls_id
+      let day        = moment(req.body.date).format('dddd')
+      let start_time = req.body.time
+      let duration   = req.body.duration
+      let end_time   = moment(start_time,'HH:mm').add(duration, 'minutes').format('HH:mm')
+      await checkTeacherTimings(teacher_id, day, start_time, duration, end_time)
+    }
+    await checkMeetingTimings(reqDate , req.body.duration, req.params.id)
+    //check end
     req.body.meeting_author_vls_id = req.user.userVlsId
   	let user 		         = await User.findByPk(req.user.id)
   	req.body.school_id 	 = user.school_id
@@ -188,7 +233,7 @@ async function attendMeeting(meetingId,body){
   	attendee_status  : body.attendee_status,
   	attendee_remarks : body.attendee_remarks
   } 
-  return meetingData
+  
   let meeting  = await Meeting.update(body,{
         				    where: { id: meetingId }
         				  })
@@ -198,4 +243,84 @@ async function attendMeeting(meetingId,body){
     meetingData  = await Meeting.findByPk(meetingId)
 
   return { success: true, message: "Meeting status updated successfully",data:meetingData }
+};
+
+
+/**
+ * API for teacher timings for class  
+ */
+async function checkTeacherTimings(teacher_id, day, start_time, duration, end_time){
+
+    let routines = await Routine.findAll({
+                  where : {teacher_id : teacher_id,
+                           day        : day
+                          },
+                        attributes: ['start_time','end_time']
+                })
+    await Promise.all(
+      routines.map(async routine => {
+        if(routine.start_time == start_time)
+           throw 'Your metting time is confict with teacher class schedule'
+      
+        let time       = moment(start_time, 'hh:mm')
+        let time2      = moment(end_time, 'hh:mm')
+        let beforeTime = moment(routine.start_time, 'hh:mm')
+        let afterTime  = moment(routine.end_time, 'hh:mm')
+        
+        if(start_time == routine.start_time || 
+           end_time   == routine.end_time )
+          throw 'Your metting time is confict with teacher class schedule'
+        
+        if (time.isBetween(beforeTime, afterTime)) 
+            throw 'Your metting start time is confict with teacher class schedule'
+
+        if (time2.isBetween(beforeTime, afterTime)) 
+            throw 'Your metting end time is confict with teacher class schedule'
+      })
+    )
+};
+
+/**
+ * API for metting timings for class  
+ */
+async function checkMeetingTimings(reqDate ,reqDuration, id=null){
+    let whereCondition = {}
+
+    if(id){
+      whereCondition.id =  { [Op.ne]: id }
+    }
+    whereCondition.attendee_status =  { [Op.ne]: 'reject' }
+
+    let allMeeting = await Meeting.findAll({
+      where : whereCondition,
+      attributes: ['date','time','duration']
+    })
+
+    await Promise.all(
+      allMeeting.map(async meeting => {
+          let date      = moment(meeting.date).format('YYYY-MM-DD')
+          let duration  = meeting.duration
+          let startTime = moment(date + ' '+meeting.time)
+          let endTime   = moment(startTime).add(duration, 'minutes').format('YYYY-MM-DD HH:mm')
+          let endMoment = moment(reqDate).add(reqDuration, 'minutes').format('YYYY-MM-DD HH:mm')
+          
+           endMoment = moment(endMoment)
+           endTime = moment(endTime)
+          
+          if (reqDate.isSame(startTime))
+              throw 'Metting start time is confict with other metting'
+          
+          if (reqDate.isBetween(startTime, endTime))
+              throw 'Your metting time is confict with other metting'
+
+          if (endMoment.isBetween(startTime, endTime))
+              throw 'Your metting time is confict with other metting'
+
+          if (startTime.isBetween(reqDate, endMoment))
+              throw 'Your metting time is confict with other metting'
+
+          if (endTime.isBetween(reqDate, endMoment))
+              throw 'Your metting time is confict with other metting'
+      })
+    )
 };

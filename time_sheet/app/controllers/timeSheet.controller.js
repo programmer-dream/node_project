@@ -53,7 +53,7 @@ async function create(req){
         let status     = 1
         let room_no     = 1
         let section_id = 0
-        if(!timetable.subject_code) throw 'subject_code required'
+        if(timetable.subject_code == null || timetable.subject_code == undefined || timetable.subject_code == "") throw 'subject_code required'
         if(!timetable.start_time) throw 'start_time required'
         if(!timetable.end_time)   throw 'end_time required'
         if(!timetable.room_no)   throw 'room_no required'
@@ -89,7 +89,7 @@ async function create(req){
          
           await getScheduleData(user.school_id, req.body.class_id, section_id, timetable.subject_code, timetable.start_time, timetable.end_time ,body.day)
 
-            timeData.push(body)
+          timeData.push(body)
     })
   )
   //return 'done'
@@ -151,21 +151,41 @@ async function teacherView(params , user){
 
     let daysData = {}
     
+
     await Promise.all(
       timesheet.map(async timesheet => {
+          let subject_id      = ""
+          let subject_code    = ""
+          let subject_name    = ""
+          let teacher_name    = ""
+          let teacher_photo   = ""
+          let faculty_vls_id  = ""
+          
+          if(timesheet.subjectList){
+            subject_id   = timesheet.subjectList.id
+            subject_code = timesheet.subjectList.code
+            subject_name = timesheet.subjectList.subject_name
+          }
+
+          if(timesheet.teacher){
+            teacher_name    = timesheet.teacher.name
+            teacher_photo   = timesheet.teacher.photo
+            faculty_vls_id  = timesheet.teacher.faculty_vls_id
+          }
+
           let day = {
-            timesheet_id : timesheet.timesheet_id,
-            start_time   : timesheet.start_time,
-            end_time     : timesheet.end_time,
-            room_no      : timesheet.room_no,
-            class_id     : timesheet.class_id,
-            section_id   : timesheet.section_id,
-            subject_id   : timesheet.subjectList.id,
-            subject_code : timesheet.subjectList.code,
-            subject_name : timesheet.subjectList.subject_name,
-            teacher_name : timesheet.teacher.name,
-            teacher_photo: timesheet.teacher.photo,
-            faculty_vls_id: timesheet.teacher.faculty_vls_id,
+            timesheet_id  : timesheet.timesheet_id,
+            start_time    : timesheet.start_time,
+            end_time      : timesheet.end_time,
+            room_no       : timesheet.room_no,
+            class_id      : timesheet.class_id,
+            section_id    : timesheet.section_id,
+            subject_id    : subject_id,
+            subject_code  : subject_code,
+            subject_name  : subject_name,
+            teacher_name  : teacher_name,
+            teacher_photo : teacher_photo,
+            faculty_vls_id: faculty_vls_id,
           }
 
           if(!daysData[timesheet.day])
@@ -238,19 +258,38 @@ async function parentView(params , user){
     let daysData = {}
     await Promise.all(
       timesheet.map(async timesheet => {
+          let subject_id      = ""
+          let subject_code    = ""
+          let subject_name    = ""
+          let teacher_name    = ""
+          let teacher_photo   = ""
+          let faculty_vls_id  = ""
+          
+          if(timesheet.subjectList){
+            subject_id   = timesheet.subjectList.id
+            subject_code = timesheet.subjectList.code
+            subject_name = timesheet.subjectList.subject_name
+          }
+
+          if(timesheet.teacher){
+            teacher_name    = timesheet.teacher.name
+            teacher_photo   = timesheet.teacher.photo
+            faculty_vls_id  = timesheet.teacher.faculty_vls_id
+          }
+
           let day = {
-            timesheet_id : timesheet.timesheet_id,
-            start_time   : timesheet.start_time,
-            end_time     : timesheet.end_time,
-            room_no      : timesheet.room_no,
-            class_id     : timesheet.class_id,
-            section_id   : timesheet.section_id,
-            subject_id   : timesheet.subjectList.id,
-            subject_code : timesheet.subjectList.code,
-            subject_name : timesheet.subjectList.subject_name,
-            teacher_name : timesheet.teacher.name,
-            teacher_photo: timesheet.teacher.photo,
-            faculty_vls_id: timesheet.teacher.faculty_vls_id,
+            timesheet_id  : timesheet.timesheet_id,
+            start_time    : timesheet.start_time,
+            end_time      : timesheet.end_time,
+            room_no       : timesheet.room_no,
+            class_id      : timesheet.class_id,
+            section_id    : timesheet.section_id,
+            subject_id    : subject_id,
+            subject_code  : subject_code,
+            subject_name  : subject_name,
+            teacher_name  : teacher_name,
+            teacher_photo : teacher_photo,
+            faculty_vls_id: faculty_vls_id,
           }
 
           if(!daysData[timesheet.day])
@@ -345,24 +384,29 @@ async function getScheduleData(school_id, class_id, section_id, subject_code, st
           attributes: ['subject_code','start_time','end_time']
   })
    
+   let startTime  = moment(start_time, 'hh:mm')
+   let endTime = moment(end_time, 'hh:mm')
+
    await Promise.all(
       routines.map(async routine => {
-      if(routine.start_time === start_time)
-         throw `subject_code ${routine.subject_code} timings are overlapping with subject_code ${subject_code}`
-    
-      let time       = moment(start_time, 'hh:mm')
-      let beforeTime = moment(routine.start_time, 'hh:mm')
-      let afterTime  = moment(routine.end_time, 'hh:mm')
-      
-      if (time.isBetween(beforeTime, afterTime)) 
-          throw `start_time subject_code ${routine.subject_code} timings are overlapping with subject_code ${subject_code}`
+        let beforeTime = moment(routine.start_time, 'hh:mm')
+        let afterTime  = moment(routine.end_time, 'hh:mm')
 
-      let time2       = moment(end_time, 'hh:mm')
-      let beforeTime2 = moment(routine.start_time, 'hh:mm')
-      let afterTime2  = moment(routine.end_time, 'hh:mm')
-      
-      if (time2.isBetween(beforeTime2, afterTime2)) 
+        if(beforeTime === startTime)
+           throw `subject_code ${routine.subject_code} timings are overlapping with subject_code ${subject_code}`
+        
+        if (startTime.isBetween(beforeTime, afterTime)) 
+            throw `start_time subject_code ${routine.subject_code} timings are overlapping with subject_code ${subject_code}`
+
+        if (endTime.isBetween(beforeTime, afterTime)) 
           throw `end_time subject_code ${routine.subject_code} timings are overlapping with subject_code ${subject_code}`  
+
+        if (beforeTime.isBetween(startTime, endTime)) 
+          throw `Timings are overlapping with other subject`  
+
+        if (afterTime.isBetween(startTime, endTime)) 
+          throw `Timings are overlapping with other subject`  
+
     })
   )
   
