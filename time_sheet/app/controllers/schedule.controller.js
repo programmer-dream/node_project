@@ -31,10 +31,16 @@ async function currentSchedule(user, query){
   let branch_id = userData.branch_vls_id
   let today     = moment().format('YYYY-MM-DD')
   let finalArr  = []
+  let timeTable = []
   if(query.date)
       today     = moment(query.date).format('YYYY-MM-DD')
 
-  let timeTable = await getTimetable(id, today, branch_id, user)
+  //check Api according to date 
+  let getData   = await getExamDates(id, branch_id, today, role)
+  if(getData)
+     timeTable = await getTimetable(id, today, branch_id, user)
+  //check Api according to date
+
   let meetings  = await getMeeting(id, today, branch_id, user)
   let exams     = await getExamSchedule(id, today, branch_id,user)
   
@@ -194,5 +200,41 @@ async function getExamSchedule(id, today, branch_id,user){
                             }]
                  })
     return exams
+  }
+}
+
+
+/**
+ * API for get current day time table schedule
+ */
+async function getExamDates(id, branch_id, date, role){
+  if(role != 'student')
+      return false
+
+  let whereCondition = { 
+                          Branch_vls_id : branch_id
+                       }
+  student = await Student.findByPk(id)
+  whereCondition.class_id = student.class_id
+
+  Dates = await ExamSchedule.findOne({
+    where : whereCondition,
+    attributes: [
+    [Sequelize.fn('max', Sequelize.col('exam_date')), 'max'],
+    [Sequelize.fn('min', Sequelize.col('exam_date')), 'min']],
+    group: ['class_id']
+  })
+  let momentMax = moment(Dates.max).format('YYYY-MM-DD')
+  let momentMin = moment(Dates.min).format('YYYY-MM-DD')
+  let reqDate   = moment(date)
+
+  if(reqDate.isBetween(momentMin,momentMax )){
+    return false
+  }else if(reqDate.isSame(momentMin)){
+    return false
+  }else if(reqDate.isSame(momentMax)){
+    return false
+  }else{
+    return true
   }
 }
