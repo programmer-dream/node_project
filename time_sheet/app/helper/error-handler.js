@@ -28,7 +28,7 @@ function errorHandler(err, req, res, next) {
     if (typeof (err) === 'object') {
         console.log(err, "object")
         // custom application error
-        return res.status(400).json({ status: "error", message: err });
+        return res.status(400).json({ status: "error", message: "Something went wrong" });
     }
 
     if (err.name === 'ValidationError') {
