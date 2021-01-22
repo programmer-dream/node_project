@@ -50,7 +50,7 @@ async function create(req){
       let end_time   = moment(start_time,'HH:mm').add(duration, 'minutes').format('HH:mm')
       await checkTeacherTimings(teacher_id, day, start_time, duration, end_time)
     }
-    await checkMeetingTimings(reqDate)
+    await checkMeetingTimings(reqDate, req.body.duration)
 
     req.body.meeting_author_vls_id = req.user.userVlsId
   	let user 		         = await User.findByPk(req.user.id)
