@@ -3,7 +3,7 @@
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.addColumn('meetings', 'rejected_by', {
-                    type: Sequelize.INTEGER
+                    type: Sequelize.BIGINT
                 });
     await queryInterface.addColumn('meetings', 'rejected_role', {
                     type: Sequelize.STRING
