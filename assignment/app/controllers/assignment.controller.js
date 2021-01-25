@@ -84,11 +84,41 @@ async function view(params , user){
                 student_vls_id :{ 
                   [Op.in]: studentIds }
                 },
-                attributes: ['name','photo']
+                attributes: ['student_vls_id','name','photo']
+            })
+        assingmentData.students = students
+   }else{
+      let whereCodition = { 
+                class_id : assingmentData.assignment_class_id
+                }
+      if(assingmentData.assignment_class_id && assingmentData.assignment_class_id > 1)
+          whereCodition.section_id = assingmentData.section_id
+
+      let students =  await Student.findAll({
+              where : whereCodition,
+                attributes: ['student_vls_id','name','photo']
             })
         assingmentData.students = students
    }
 
+   await Promise.all(
+      assingmentData.students.map( async function (student, index){
+          student = student.toJSON()
+          student.status = "new"
+          let studentAssignment = await StudentAssignment.findOne({
+            where : {
+              assignment_vls_id: assingmentData.assignment_vls_id,
+              student_vls_id   : student.student_vls_id,
+            }
+          })
+
+          if(studentAssignment)
+            student.status = studentAssignment.assignment_status
+
+          student.studentAssignment = studentAssignment
+          assingmentData.students[index] = student
+      })
+   );
 
   return { success: true, message: "Assignment view", data: assingmentData}
 };
