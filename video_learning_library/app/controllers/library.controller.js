@@ -1,9 +1,11 @@
 const { validationResult } = require('express-validator');
+const { validationResult } = require('express-validator');
 const db = require("../models");
 const Op = db.Sequelize.Op;
 const Sequelize = db.Sequelize;
 const path = require('path')
 const VideoLearningLibrary = db.VideoLearningLibrary;
+const VideoLibraryComment = db.VideoLibraryComment;
 const Ratings              = db.Ratings;
 const ThumbnailGenerator   = require('fs-thumbnail');
 const SubjectList          = db.SubjectList;
@@ -24,6 +26,7 @@ module.exports = {
   update,
   view,
   deleteLibrary,
+  deleteMultipleQuery,
   getRatingLikes
 };
 
@@ -253,10 +256,44 @@ async function deleteLibrary(id) {
   if(num != 1) 
     throw 'Learning library not found'
 
+  await Ratings.destroy({
+      where: { video_learning_library_vls_id: id }
+    })
+
+  await VideoLibraryComment.destroy({
+      where: { video_learning_library_vls_id: id }
+    })
+
   return { success:true, message:"Video Learning library deleted successfully!"};
   
 };
 
+
+/**
+ * API for Bulk delete query
+ */
+async function deleteMultipleQuery(body, user) {
+
+  // if(user.role != 'branch-admin') throw "unauthorised user"
+  if(!body.libraryIds || (!Array.isArray(body.libraryIds) || body.libraryIds.length <= 0 ) ) throw "queryIds are requeried"
+
+  let queryIds = body.queryIds
+  
+  await VideoLearningLibrary.destroy({
+      where: { video_learning_library_vls_id: queryIds }
+    })
+
+  await Ratings.destroy({
+      where:{video_learning_library_vls_id: queryIds}
+    })
+
+  await VideoLibraryComment.destroy({
+      where:{video_learning_library_vls_id: queryIds}
+    })
+
+  return { success:true, message:"Video learning library's deleted successfully!"}
+  
+};
 
 /**
  * API for get today's date

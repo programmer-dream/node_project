@@ -24,6 +24,7 @@ router.get("/list",list);
 router.get("/getRatingLikes/:id",getRatingLikes);
 //Delete
 router.delete("/delete/:id",deleteLibrary);
+router.delete("/multipleDelete",deleteMultipleQuery);
 
 //Put
 router.put("/update/:id",[
@@ -68,6 +69,12 @@ function view(req, res, next) {
 // Function for delete query details
 function deleteLibrary(req, res, next) {
     libraryController.deleteLibrary(req.params.id)
+        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while deleting video library' }))
+        .catch(err => next(err));
+}
+// Function for delete query details
+function deleteMultipleQuery(req, res, next) {
+    libraryController.deleteMultipleQuery(req.body, req.user)
         .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while deleting video library' }))
         .catch(err => next(err));
 }

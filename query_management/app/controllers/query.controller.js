@@ -280,7 +280,7 @@ async function deleteQuery(id) {
 
 
 /**
- * API for delete query
+ * API for Bulk delete query
  */
 async function deleteMultipleQuery(body, user) {
 
