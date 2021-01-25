@@ -6,7 +6,6 @@ const { check } = require('express-validator');
 //Post
 router.post("/create",[
     check('class_id','class_id field is required.').not().isEmpty(),
-    check('day','day field is required.').not().isEmpty(),
     check('timetable','timetable field is required.').not().isEmpty()
     ],create);
 

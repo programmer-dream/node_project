@@ -55,8 +55,9 @@ async function create(req){
         let section_id = 0
         if(timetable.subject_code == null || timetable.subject_code == undefined || timetable.subject_code == "") throw 'subject_code required'
         if(!timetable.start_time) throw 'start_time required'
+        if(!timetable.day)        throw 'day required'
         if(!timetable.end_time)   throw 'end_time required'
-        if(!timetable.room_no)   throw 'room_no required'
+        if(!timetable.room_no)    throw 'room_no required'
         if(timetable.start_time === timetable.end_time )   throw 'Start and end timings are same'
 
         let start = moment(timetable.start_time,'hh:mm')
@@ -73,7 +74,7 @@ async function create(req){
             room_no = timetable.room_no
 
         let body = {
-              day              : moment(req.body.day, 'd').format('dddd'),
+              day              : moment(timetable.day, 'd').format('dddd'),
               class_id         : req.body.class_id,
               school_vls_id    : user.school_id,
               branch_vls_id    : user.branch_vls_id,
@@ -87,7 +88,7 @@ async function create(req){
               end_time         : timetable.end_time
           }
          
-          await getScheduleData(user.school_id, req.body.class_id, section_id, timetable.subject_code, timetable.start_time, timetable.end_time ,body.day)
+          await getScheduleData(user.school_id, req.body.class_id, section_id, timetable.subject_code, timetable.start_time, timetable.end_time ,timetable.day)
 
           timeData.push(body)
     })
