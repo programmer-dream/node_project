@@ -103,23 +103,29 @@ async function view(params , user){
 
    await Promise.all(
       assingmentData.students.map( async function (student, index){
-          student = student.toJSON()
-          student.status = "new"
-          let studentAssignment = await StudentAssignment.findOne({
-            where : {
-              assignment_vls_id: assingmentData.assignment_vls_id,
-              student_vls_id   : student.student_vls_id,
-            }
-          })
+          if(user.role == "student" && user.userVlsId != student.student_vls_id){
+            assingmentData.students.splice(index, 1);
+          }else{
+            student = student.toJSON()
+            student.status = "new"
+            let studentAssignment = await StudentAssignment.findOne({
+              where : {
+                assignment_vls_id: assingmentData.assignment_vls_id,
+                student_vls_id   : student.student_vls_id,
+              }
+            })
 
-          if(studentAssignment)
-            student.status = studentAssignment.assignment_status
+            if(studentAssignment)
+              student.status = studentAssignment.assignment_status
 
-          student.studentAssignment = studentAssignment
-          assingmentData.students[index] = student
+            student.studentAssignment = studentAssignment
+            assingmentData.students[index] = student
+          }
       })
    );
 
+  if(assingmentData.students.length <= 0) throw "You don't have access to this assignment"
+    
   return { success: true, message: "Assignment view", data: assingmentData}
 };
 
