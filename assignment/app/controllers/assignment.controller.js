@@ -41,6 +41,7 @@ async function create(req){
     assignmentData.added_by  = user.userVlsId
     assignmentData.user_role = user.role
     assignmentData.assignment_date = moment()
+    assignmentData.assignment_completion_date = moment(assignmentData.assignment_completion_date).format('YYYY-MM-DD')
     assignmentData.url  = req.body.uplodedPath + req.files.file[0].filename;
     
   	let assignment 		 = await Assignment.create(assignmentData)
