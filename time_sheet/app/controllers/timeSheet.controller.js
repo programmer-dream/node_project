@@ -420,15 +420,15 @@ async function checkEnterTimings(timetable){
       timetable.map(async (routine, index) => {
         for(let i = 0; i < length; i++ ){
           if (timetable[index] != timetable[i]) {
-            if(timetable[index].start_time === timetable[i].start_time)
-              throw `subject_code ${timetable[index].subject_code} timings are overlapping with subject_code ${timetable[i].subject_code}`
+            if(timetable[index].start_time === timetable[i].start_time && timetable[index].day == timetable[i].day)
+              throw `subject_code ${timetable[index].subject_code} timings are overlapping with subject_code ${timetable[i].subject_code} for day ${timetable[i].day}`
             
             let time       = moment(timetable[index].start_time, 'hh:mm')
             let beforeTime = moment(timetable[i].start_time, 'hh:mm')
             let afterTime  = moment(timetable[i].end_time, 'hh:mm')
             
-            if (time.isBetween(beforeTime, afterTime)) 
-                throw `subject_code ${timetable[index].subject_code} timings are overlapping with subject_code ${timetable[i].subject_code}`
+            if (time.isBetween(beforeTime, afterTime) && timetable[index].day == timetable[i].day) 
+                throw `subject_code ${timetable[index].subject_code} timings are overlapping with subject_code ${timetable[i].subject_code} for day ${timetable[i].day}`
           }
         }
     })
