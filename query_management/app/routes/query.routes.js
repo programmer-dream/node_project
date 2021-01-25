@@ -25,6 +25,7 @@ router.get("/dashboardCount",dashboardCount);
 router.get("/teacherQueryList",teacherQueryList);
 //Delete
 router.delete("/delete/:id",deleteQuery);
+router.delete("/multipleDelete/",deleteMultipleQuery);
 
 //Put
 router.put("/update/:id",[
@@ -75,6 +76,14 @@ function deleteQuery(req, res, next) {
         .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while deleting query' }))
         .catch(err => next(err));
 }
+
+// Function for delete multiple query details
+function deleteMultipleQuery(req, res, next) {
+    queryController.deleteMultipleQuery(req.body, req.user)
+        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while deleting query' }))
+        .catch(err => next(err));
+}
+
 // Function for list subjects 
 function listSubject(req, res, next) {
     queryController.listSubject(req.query, req.user)

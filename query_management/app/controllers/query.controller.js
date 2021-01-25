@@ -13,6 +13,7 @@ const Classes = db.Classes;
 const Section = db.Section;
 const SubjectList = db.SubjectList;
 const Users = db.Users;
+const Comment = db.Comment;
 
 const sequelize = db.sequelize;
 const bcrypt = require("bcryptjs");
@@ -24,6 +25,7 @@ module.exports = {
   update,
   view,
   deleteQuery,
+  deleteMultipleQuery,
   listSubject,
   queryResponse,
   getRatingLikes,
@@ -263,10 +265,45 @@ async function deleteQuery(id) {
 
   if(num != 1) throw 'Query not found'
 
+  await Ratings.destroy({
+      where:{query_vls_id: id}
+    })
+
+  await Comment.destroy({
+      where:{query_vls_id: id}
+    })
+
   return { success:true, message:"Query deleted successfully!"}
   
 };
 
+
+
+/**
+ * API for delete query
+ */
+async function deleteMultipleQuery(body, user) {
+
+  // if(user.role != 'branch-admin') throw "unauthorised user"
+  if(!body.queryIds || (!Array.isArray(body.queryIds) || body.queryIds.length <= 0 ) ) throw "queryIds are requeried"
+
+  let queryIds = body.queryIds
+  
+  await StudentQuery.destroy({
+      where: { query_vls_id: queryIds }
+    })
+
+  await Ratings.destroy({
+      where:{query_vls_id: queryIds}
+    })
+
+  await Comment.destroy({
+      where:{query_vls_id: queryIds}
+    })
+
+  return { success:true, message:"Query's deleted successfully!"}
+  
+};
 
 /**
  * API for get today's date
