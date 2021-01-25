@@ -23,7 +23,8 @@ module.exports = {
   deleteAssignment,
   assignToStudents,
   createStudentAssignment,
-  submitAssignment
+  submitAssignment,
+  changeAssignmentStatus
 };
 
 
@@ -125,7 +126,7 @@ async function view(params , user){
    );
 
   if(assingmentData.students.length <= 0) throw "You don't have access to this assignment"
-    
+
   return { success: true, message: "Assignment view", data: assingmentData}
 };
 
@@ -351,6 +352,31 @@ async function submitAssignment(req){
                               where : {
                                         student_assignment_id : id,
                                         student_vls_id:studentId
+                                      }
+                            })
+
+    if(!assignment[0]) throw 'Assignment not found'
+
+    return { success: true, message: "Assignment updated successfully"}
+};
+
+
+/**
+ * API for create new assignment
+ */
+async function changeAssignmentStatus(params, user, body){
+    if(user.role != 'teacher') throw 'unauthorised user'
+    if(!body.assignment_status) throw 'assignment_status is required'
+    let id = params.student_assignment_id
+
+    let assignmentDa  = await StudentAssignment.findByPk(id)
+    let assignmentData = {}
+    assignmentData.assignment_status = body.assignment_status
+
+    let assignment     = await StudentAssignment.update(assignmentData,
+                            {
+                              where : {
+                                        student_assignment_id : id
                                       }
                             })
 

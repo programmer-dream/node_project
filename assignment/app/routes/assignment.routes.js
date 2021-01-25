@@ -43,6 +43,7 @@ router.put("/update/:id",[
     check('subject_code','subject_code field is required.').not().isEmpty()
     ],update);
 router.put("/assignToStudents/:id",assignToStudents)
+router.put("/changeAssignmentStatus/:student_assignment_id",changeAssignmentStatus)
 
 router.put("/submitAssignment/:student_assignment_id",[
     upload.fields([{
@@ -107,6 +108,13 @@ function createStudentAssignment(req, res, next) {
 // Function for assign to student 
 function submitAssignment(req, res, next) {
     assignmentController.submitAssignment(req)
+        .then(assignment => assignment ? res.json(assignment) : res.status(400).json({ status: "error", message: 'Error while deleting assignment' }))
+        .catch(err => next(err));
+}
+
+// Function for assign to student 
+function changeAssignmentStatus(req, res, next) {
+    assignmentController.changeAssignmentStatus(req.params, req.user, req.body)
         .then(assignment => assignment ? res.json(assignment) : res.status(400).json({ status: "error", message: 'Error while deleting assignment' }))
         .catch(err => next(err));
 }
