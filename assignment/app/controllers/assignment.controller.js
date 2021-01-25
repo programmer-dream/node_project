@@ -368,6 +368,10 @@ async function changeAssignmentStatus(params, user, body){
     if(user.role != 'teacher') throw 'unauthorised user'
     if(!body.assignment_status) throw 'assignment_status is required'
     let id = params.student_assignment_id
+    let statusArray = ['ValidationInprogress','Approved','Rejected','Closed']
+
+    if(!statusArray.includes(body.assignment_status))
+      throw "assignment_status should be only ValidationInprogress, Approved, Rejected or Closed "
 
     let assignmentDa  = await StudentAssignment.findByPk(id)
     let assignmentData = {}
