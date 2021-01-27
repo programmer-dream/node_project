@@ -476,6 +476,9 @@ async function createAssignmentQuestion(req){
         if(!question.question)
             throw 'Question field is required'
 
+        if(!question.question_type)
+            throw 'question_type field is required'
+
         if(!question.description)
             throw 'Question description field is required'
 
@@ -516,16 +519,20 @@ async function updateQuestion(req){
 
    if(questionData.question_type !='form' ){
         let allChoice = questionData.choices
+        if(!Array.isArray(allChoice))
+            throw 'Question choices are must be an array'
+          
         delete questionData['choices']
         if(allChoice.length < 2)
             throw 'Atleast two Question choices are required'
         if(allChoice.length > 4)
             throw 'Maximum four Question choices are required'
         let count = 1
-        allChoice.forEach(function (item, index){
-            questionData['choice'+count] = item
-            count++
-        })
+          allChoice.forEach(function (item, index){
+              questionData['choice'+count] = item
+              count++
+          })
+        
     }
    let question       = await AssignmentQuestions.update(questionData,
                             {
@@ -552,20 +559,3 @@ async function deleteQuestion(questionId){
   if(!question) throw 'Question Not found'
   return { success: true, message: "Question deleted successfully" }
 }
-
-// /**
-//  * API for delete question 
-//  */
-// async function getQuestionArr(currentObj){
-//   let optionArr          =  [];
-//   let assignmentQuestion = currentObj.assignmentQuestion
-//   let num                = 1 
-//   assignmentQuestion.forEach(function(item, index){
-//     for(let i = 1; i <=4; i++){
-//       let option = currentObj.assignmentQuestion[index]['choice'+i]
-//       if(option)
-//         optionArr.push(option)
-//     }
-//   })
-//   return optionArr
-// }
