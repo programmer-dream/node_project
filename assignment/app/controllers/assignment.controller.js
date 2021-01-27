@@ -142,9 +142,16 @@ async function view(params , user){
 async function list(params , user){
   let assignmentState  = params.assignmentState
   let class_id         = params.class_id
+  let studentID        = user.userVlsId
+
+  if(user.role == 'guardian')
+    studentID = params.student_id
 
   if((user.role == 'branch-admin' || user.role == 'school-admin' || user.role == 'principal') && !class_id) 
     throw 'class_id is required'
+
+  if(user.role == 'guardian' && !studentID) 
+    throw 'student_id is required'
 
   let userData = await User.findByPk(user.id)
 
@@ -170,7 +177,8 @@ async function list(params , user){
         whereCodition.added_by = user.userVlsId
       break;
     case 'student':
-        student = await Student.findByPk(user.userVlsId)
+    case 'guardian':
+        student = await Student.findByPk(studentID)
         whereCodition.assignment_class_id = student.class_id
       break;
     case 'branch-admin':
@@ -213,12 +221,12 @@ async function list(params , user){
             assingmentData.students = students
       }
 
-      if(user.role == "student"){
+      if(user.role == "student" || user.role == "guardian"){
           if(!assignment.section_id || (assignment.section_id && assignment.section_id == student.section_id) ){
               let studentAssignment = await StudentAssignment.findOne({
                 where : {
                   assignment_vls_id: assingmentData.assignment_vls_id,
-                  student_vls_id   : user.userVlsId,
+                  student_vls_id   : student.student_vls_id,
                 }
               })
             assingmentData.studentAssignment = studentAssignment
