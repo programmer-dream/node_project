@@ -57,8 +57,13 @@ async function create(req){
  * API for assignment view
  */
 async function view(params , user){
+  let whereCodition = { assignment_vls_id:params.id }
+
+  if(user.role == 'teacher' )
+    whereCodition.added_by = user.userVlsId
+    
   let assignment = await Assignment.findOne({
-    where : {assignment_vls_id:params.id},
+    where : whereCodition,
     include: [{ 
                 model:Employee,
                 as:'addedBY',
