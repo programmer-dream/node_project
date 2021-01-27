@@ -97,7 +97,7 @@ async function view(params , user){
       let whereCodition = { 
                 class_id : assingmentData.assignment_class_id
                 }
-      if(assingmentData.assignment_class_id && assingmentData.assignment_class_id > 1)
+      if(assingmentData.section_id && assingmentData.section_id > 1)
           whereCodition.section_id = assingmentData.section_id
 
       let students =  await Student.findAll({
