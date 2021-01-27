@@ -74,11 +74,13 @@ db.StudentAssignment = require("./StudentAssignment.js")(sequelize, Sequelize);
 db.AssignmentQuestions = require("./AssignmentQuestions.js")(sequelize, Sequelize);
 db.Classes = require("../../../student_attendance/app/models/Classes.js")(sequelize, Sequelize);
 
+//relation
 db.Student.belongsTo(db.Guardian,{foreignKey:'parent_vls_id',as:'parent'})
 db.Assignment.belongsTo(db.Employee,{foreignKey:'added_by',as:'addedBY'})
 db.Assignment.belongsTo(db.Classes,{foreignKey:'assignment_class_id',as:'class'})
 db.Assignment.belongsTo(db.SubjectList,{foreignKey:'subject_code',targetKey:'code',as:'subjectList'})
 db.Assignment.hasMany(db.StudentAssignment,{foreignKey:'assignment_vls_id',as:'studentAssignment'})
+db.Assignment.hasMany(db.AssignmentQuestions,{foreignKey:'assignment_vls_id',as:'assignmentQuestion'})
 
 
 module.exports = db;

@@ -84,12 +84,38 @@ async function view(params , user){
                 model:SubjectList,
                 as:'subjectList',
                 attributes: ['subject_name']
+            },{ 
+                model:AssignmentQuestions,
+                as:'assignmentQuestion',
+                attributes: ['assignment_question_id',
+                              'question_type',
+                              'question',
+                              'description',
+                              'choice1',
+                              'choice2',
+                              'choice3',
+                              'choice4',
+                            ]
             }]
   })
 
   if(!assignment) throw 'Assignment not found'
 
     let assingmentData = assignment.toJSON()
+    //start add question array 
+      let assignmentQuestion = assingmentData.assignmentQuestion
+      assignmentQuestion.forEach(function(item, index){
+        if(item.question_type != 'form') {
+          let optionArr =  [];
+          for(let i = 1; i <=4; i++){
+            let option = assingmentData.assignmentQuestion[index]['choice'+i]
+            if(option)
+              optionArr.push(option)
+          }
+          assingmentData.assignmentQuestion[index]['options'] = optionArr
+        }
+      })
+      //end add question array
     let studentIds = JSON.parse(assingmentData.student_vls_ids)
     if(Array.isArray(studentIds) &&  studentIds.length > 0){
         let  students =  await Student.findAll({
@@ -194,7 +220,7 @@ async function list(params , user){
       whereCodition.assignment_class_id = class_id
       break;
   }
-
+  console.log(whereCodition)
   let assignments = await Assignment.findAll({
     where : whereCodition,
     include: [{ 
@@ -209,6 +235,18 @@ async function list(params , user){
                 model:SubjectList,
                 as:'subjectList',
                 attributes: ['subject_name']
+            },{ 
+                model:AssignmentQuestions,
+                as:'assignmentQuestion',
+                attributes: ['assignment_question_id',
+                              'question_type',
+                              'question',
+                              'description',
+                              'choice1',
+                              'choice2',
+                              'choice3',
+                              'choice4',
+                            ]
             }]
   })
 
@@ -217,6 +255,20 @@ async function list(params , user){
     assignments.map(async assignment => {
         let assingmentData = assignment.toJSON()
         let studentIds = JSON.parse(assignment.student_vls_ids)
+        //start add question array 
+        let assignmentQuestion = assingmentData.assignmentQuestion
+        assignmentQuestion.forEach(function(item, index){
+          if(item.question_type != 'form') {
+            let optionArr =  [];
+            for(let i = 1; i <=4; i++){
+              let option = assingmentData.assignmentQuestion[index]['choice'+i]
+              if(option)
+                optionArr.push(option)
+            }
+            assingmentData.assignmentQuestion[index]['options'] = optionArr
+          }
+        })
+        //end add question array 
         if(Array.isArray(studentIds) &&  studentIds.length > 0){
             let  students =  await Student.findAll({
                   where :{ 
@@ -429,17 +481,17 @@ async function createAssignmentQuestion(req){
 
         if(question.question_type !='form' ){
             let allChoice = question.choices
+            delete allQuestion[qIndex]['choices']
+
             if(allChoice.length < 2)
                 throw 'Atleast two Question choices are required'
             if(allChoice.length > 4)
                 throw 'Maximum four Question choices are required'
 
             let count = 1
-            let choicesObj = {}
             allChoice.forEach(function (item, index){
                 allQuestion[qIndex]['choice'+count] = item
                 count++
-                delete allQuestion[qIndex]['choices']
             })
         }
     })
@@ -464,17 +516,15 @@ async function updateQuestion(req){
 
    if(questionData.question_type !='form' ){
         let allChoice = questionData.choices
+        delete questionData['choices']
         if(allChoice.length < 2)
             throw 'Atleast two Question choices are required'
         if(allChoice.length > 4)
             throw 'Maximum four Question choices are required'
-
         let count = 1
-        let choicesObj = {}
         allChoice.forEach(function (item, index){
             questionData['choice'+count] = item
             count++
-            delete questionData['choices']
         })
     }
    let question       = await AssignmentQuestions.update(questionData,
@@ -502,3 +552,20 @@ async function deleteQuestion(questionId){
   if(!question) throw 'Question Not found'
   return { success: true, message: "Question deleted successfully" }
 }
+
+// /**
+//  * API for delete question 
+//  */
+// async function getQuestionArr(currentObj){
+//   let optionArr          =  [];
+//   let assignmentQuestion = currentObj.assignmentQuestion
+//   let num                = 1 
+//   assignmentQuestion.forEach(function(item, index){
+//     for(let i = 1; i <=4; i++){
+//       let option = currentObj.assignmentQuestion[index]['choice'+i]
+//       if(option)
+//         optionArr.push(option)
+//     }
+//   })
+//   return optionArr
+// }
