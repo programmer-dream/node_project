@@ -102,7 +102,7 @@ async function view(params , user){
       let whereCodition = { 
                 class_id : assingmentData.assignment_class_id
                 }
-      if(assingmentData.assignment_class_id && assingmentData.assignment_class_id > 1)
+      if(assingmentData.section_id && assingmentData.section_id > 1)
           whereCodition.section_id = assingmentData.section_id
 
       let students =  await Student.findAll({
@@ -147,9 +147,16 @@ async function view(params , user){
 async function list(params , user){
   let assignmentState  = params.assignmentState
   let class_id         = params.class_id
+  let studentID        = user.userVlsId
+
+  if(user.role == 'guardian')
+    studentID = params.student_id
 
   if((user.role == 'branch-admin' || user.role == 'school-admin' || user.role == 'principal') && !class_id) 
     throw 'class_id is required'
+
+  if(user.role == 'guardian' && !studentID) 
+    throw 'student_id is required'
 
   let userData = await User.findByPk(user.id)
 
@@ -169,15 +176,14 @@ async function list(params , user){
     whereCodition.assignment_completion_date = { [Op.gt]: end }
   }
   
+  let student = {}
   switch (user.role) {
     case 'teacher':
         whereCodition.added_by = user.userVlsId
       break;
     case 'student':
-        let student = await Student.findByPk(user.userVlsId)
-        if(student.section_id && student.section_id != '') 
-          whereCodition.section_id = student.section_id
-          
+    case 'guardian':
+        student = await Student.findByPk(studentID)
         whereCodition.assignment_class_id = student.class_id
       break;
     case 'branch-admin':
@@ -220,19 +226,21 @@ async function list(params , user){
             assingmentData.students = students
       }
 
-      if(user.role == "student"){
-          let studentAssignment = await StudentAssignment.findOne({
-            where : {
-              assignment_vls_id: assingmentData.assignment_vls_id,
-              student_vls_id   : user.userVlsId,
-            }
-          })
-        assingmentData.studentAssignment = studentAssignment
-         if(!Array.isArray(studentIds) ||  studentIds.length < 0 ){
-          finalAssignment.push(assingmentData)
-         }else if(Array.isArray(studentIds) &&  studentIds.length > 0 &&studentIds.includes(user.userVlsId)){
-            finalAssignment.push(assingmentData)
-         }
+      if(user.role == "student" || user.role == "guardian"){
+          if(!assignment.section_id || (assignment.section_id && assignment.section_id == student.section_id) ){
+              let studentAssignment = await StudentAssignment.findOne({
+                where : {
+                  assignment_vls_id: assingmentData.assignment_vls_id,
+                  student_vls_id   : student.student_vls_id,
+                }
+              })
+            assingmentData.studentAssignment = studentAssignment
+             if(!Array.isArray(studentIds) ||  studentIds.length < 0 ){
+              finalAssignment.push(assingmentData)
+             }else if(Array.isArray(studentIds) &&  studentIds.length > 0 && studentIds.includes(user.userVlsId)){
+                finalAssignment.push(assingmentData)
+             }
+          }
       }else{
         finalAssignment.push(assingmentData)
       }

@@ -105,6 +105,10 @@ async function list(params, user){
               }
            }
     };
+
+  if(params.subject_code)
+    whereCondition.subject_code = params.subject_code
+
   //start pagination
   if(params.size)
      limit = parseInt(params.size)
