@@ -10,6 +10,10 @@ module.exports = {
                       type: Sequelize.ENUM('form','choice','multiple_checklist'),
                       allowNull: false
                   });
+        await queryInterface.changeColumn('assignment_questions', 'question', {
+                      type: Sequelize.TEXT,
+                      allowNull: false
+                  });
   },
 
   down: async (queryInterface, Sequelize) => {
