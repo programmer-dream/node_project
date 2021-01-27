@@ -164,15 +164,13 @@ async function list(params , user){
     whereCodition.assignment_completion_date = { [Op.gt]: end }
   }
   
+  let student = {}
   switch (user.role) {
     case 'teacher':
         whereCodition.added_by = user.userVlsId
       break;
     case 'student':
-        let student = await Student.findByPk(user.userVlsId)
-        if(student.section_id && student.section_id != '') 
-          whereCodition.section_id = student.section_id
-          
+        student = await Student.findByPk(user.userVlsId)
         whereCodition.assignment_class_id = student.class_id
       break;
     case 'branch-admin':
@@ -216,18 +214,20 @@ async function list(params , user){
       }
 
       if(user.role == "student"){
-          let studentAssignment = await StudentAssignment.findOne({
-            where : {
-              assignment_vls_id: assingmentData.assignment_vls_id,
-              student_vls_id   : user.userVlsId,
-            }
-          })
-        assingmentData.studentAssignment = studentAssignment
-         if(!Array.isArray(studentIds) ||  studentIds.length < 0 ){
-          finalAssignment.push(assingmentData)
-         }else if(Array.isArray(studentIds) &&  studentIds.length > 0 &&studentIds.includes(user.userVlsId)){
-            finalAssignment.push(assingmentData)
-         }
+          if(assignment.section_id && assignment.section_id == student.section_id){
+              let studentAssignment = await StudentAssignment.findOne({
+                where : {
+                  assignment_vls_id: assingmentData.assignment_vls_id,
+                  student_vls_id   : user.userVlsId,
+                }
+              })
+            assingmentData.studentAssignment = studentAssignment
+             if(!Array.isArray(studentIds) ||  studentIds.length < 0 ){
+              finalAssignment.push(assingmentData)
+             }else if(Array.isArray(studentIds) &&  studentIds.length > 0 && studentIds.includes(user.userVlsId)){
+                finalAssignment.push(assingmentData)
+             }
+          }
       }else{
         finalAssignment.push(assingmentData)
       }
