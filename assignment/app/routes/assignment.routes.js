@@ -25,7 +25,7 @@ router.post("/inprogressAssignment",[
     ],createStudentAssignment);
 
 router.post("/:assignment_vls_id/createQuestion",createAssignmentQuestion);
-
+router.post("/questionResponse",questionResponse)
 //Get 
 router.get("/view/:id",view);
 router.get("/list/",list);
@@ -46,6 +46,7 @@ router.put("/update/:id",[
     ],update);
 router.put("/assignToStudents/:id",assignToStudents)
 router.put("/changeAssignmentStatus/:student_assignment_id",changeAssignmentStatus)
+router.put("/updateMarks",updateMarks)
 
 router.put("/updateQuestion/:id",[
     check('question','question field is required.').not().isEmpty(),
@@ -135,7 +136,7 @@ function createAssignmentQuestion(req, res, next) {
         .then(assignment => assignment ? res.json(assignment) : res.status(400).json({ status: "error", message: 'Error while create assignment question' }))
         .catch(err => next(err));
 }
-// Function for update question assignment question 
+// Function for update question assignment  
 function updateQuestion(req, res, next) {
     assignmentController.updateQuestion(req)
         .then(assignment => assignment ? res.json(assignment) : res.status(400).json({ status: "error", message: 'Error while update assignment question' }))
@@ -144,6 +145,20 @@ function updateQuestion(req, res, next) {
 // Function for delete assignment question 
 function deleteQuestion(req, res, next) {
     assignmentController.deleteQuestion(req.params.id)
+        .then(assignment => assignment ? res.json(assignment) : res.status(400).json({ status: "error", message: 'Error while update assignment question' }))
+        .catch(err => next(err));
+}
+
+// Function for assignment question response
+function questionResponse(req, res, next) {
+    assignmentController.questionResponse(req)
+        .then(assignment => assignment ? res.json(assignment) : res.status(400).json({ status: "error", message: 'Error while update assignment question' }))
+        .catch(err => next(err));
+}
+
+// Function for assignment question response
+function updateMarks(req, res, next) {
+    assignmentController.updateMarks(req)
         .then(assignment => assignment ? res.json(assignment) : res.status(400).json({ status: "error", message: 'Error while update assignment question' }))
         .catch(err => next(err));
 }
