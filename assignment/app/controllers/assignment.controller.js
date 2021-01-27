@@ -14,6 +14,7 @@ const Assignment = db.Assignment;
 const Classes    = db.Classes;
 const SubjectList= db.SubjectList;
 const StudentAssignment= db.StudentAssignment;
+const AssignmentQuestions= db.AssignmentQuestions;
 
 module.exports = {
   create,
@@ -24,7 +25,10 @@ module.exports = {
   assignToStudents,
   createStudentAssignment,
   submitAssignment,
-  changeAssignmentStatus
+  changeAssignmentStatus,
+  createAssignmentQuestion,
+  updateQuestion,
+  deleteQuestion
 };
 
 
@@ -35,15 +39,18 @@ async function create(req){
   const errors = validationResult(req);
   if(errors.array().length) throw errors.array()
 
-    if(!req.files.file) throw 'Please attach a file'
+    let assignmentData =  req.body
+    
+    if(assignmentData.assignment_type != 'online'){
+        if(!req.files.file) throw 'Please attach a file'
+        assignmentData.url  = req.body.uplodedPath + req.files.file[0].filename;
+    }
 
     let user = req.user
-    let assignmentData =  req.body
     assignmentData.added_by  = user.userVlsId
     assignmentData.user_role = user.role
     assignmentData.assignment_date = moment()
     assignmentData.assignment_completion_date = moment(assignmentData.assignment_completion_date).format('YYYY-MM-DD')
-    assignmentData.url  = req.body.uplodedPath + req.files.file[0].filename;
     
   	let assignment 		 = await Assignment.create(assignmentData)
 
@@ -61,7 +68,7 @@ async function view(params , user){
 
   if(user.role == 'teacher' )
     whereCodition.added_by = user.userVlsId
-    
+
   let assignment = await Assignment.findOne({
     where : whereCodition,
     include: [{ 
@@ -77,12 +84,38 @@ async function view(params , user){
                 model:SubjectList,
                 as:'subjectList',
                 attributes: ['subject_name']
+            },{ 
+                model:AssignmentQuestions,
+                as:'assignmentQuestion',
+                attributes: ['assignment_question_id',
+                              'question_type',
+                              'question',
+                              'description',
+                              'choice1',
+                              'choice2',
+                              'choice3',
+                              'choice4',
+                            ]
             }]
   })
 
   if(!assignment) throw 'Assignment not found'
 
     let assingmentData = assignment.toJSON()
+    //start add question array 
+      let assignmentQuestion = assingmentData.assignmentQuestion
+      assignmentQuestion.forEach(function(item, index){
+        if(item.question_type != 'form') {
+          let optionArr =  [];
+          for(let i = 1; i <=4; i++){
+            let option = assingmentData.assignmentQuestion[index]['choice'+i]
+            if(option)
+              optionArr.push(option)
+          }
+          assingmentData.assignmentQuestion[index]['options'] = optionArr
+        }
+      })
+      //end add question array
     let studentIds = JSON.parse(assingmentData.student_vls_ids)
     if(Array.isArray(studentIds) &&  studentIds.length > 0){
         let  students =  await Student.findAll({
@@ -187,7 +220,7 @@ async function list(params , user){
       whereCodition.assignment_class_id = class_id
       break;
   }
-
+  console.log(whereCodition)
   let assignments = await Assignment.findAll({
     where : whereCodition,
     include: [{ 
@@ -202,6 +235,18 @@ async function list(params , user){
                 model:SubjectList,
                 as:'subjectList',
                 attributes: ['subject_name']
+            },{ 
+                model:AssignmentQuestions,
+                as:'assignmentQuestion',
+                attributes: ['assignment_question_id',
+                              'question_type',
+                              'question',
+                              'description',
+                              'choice1',
+                              'choice2',
+                              'choice3',
+                              'choice4',
+                            ]
             }]
   })
 
@@ -210,6 +255,20 @@ async function list(params , user){
     assignments.map(async assignment => {
         let assingmentData = assignment.toJSON()
         let studentIds = JSON.parse(assignment.student_vls_ids)
+        //start add question array 
+        let assignmentQuestion = assingmentData.assignmentQuestion
+        assignmentQuestion.forEach(function(item, index){
+          if(item.question_type != 'form') {
+            let optionArr =  [];
+            for(let i = 1; i <=4; i++){
+              let option = assingmentData.assignmentQuestion[index]['choice'+i]
+              if(option)
+                optionArr.push(option)
+            }
+            assingmentData.assignmentQuestion[index]['options'] = optionArr
+          }
+        })
+        //end add question array 
         if(Array.isArray(studentIds) &&  studentIds.length > 0){
             let  students =  await Student.findAll({
                   where :{ 
@@ -410,3 +469,102 @@ async function changeAssignmentStatus(params, user, body){
 
     return { success: true, message: "Assignment updated successfully"}
 };
+
+
+/**
+ * API for create assignment questions
+ */
+async function createAssignmentQuestion(req){
+  let allQuestion  =  req.body
+  let assingmentId = req.params.assignment_vls_id
+
+  await Promise.all(
+    allQuestion.map(async (question, qIndex) => {
+        allQuestion[qIndex]['assignment_vls_id'] = assingmentId
+
+        if(!question.question)
+            throw 'Question field is required'
+
+        if(!question.question_type)
+            throw 'question_type field is required'
+
+        if(!question.description)
+            throw 'Question description field is required'
+
+        if(question.question_type !='form' ){
+            let allChoice = question.choices
+            delete allQuestion[qIndex]['choices']
+
+            if(allChoice.length < 2)
+                throw 'Atleast two Question choices are required'
+            if(allChoice.length > 4)
+                throw 'Maximum four Question choices are required'
+
+            let count = 1
+            allChoice.forEach(function (item, index){
+                allQuestion[qIndex]['choice'+count] = item
+                count++
+            })
+        }
+    })
+  )
+  
+  let AssignQuest = await AssignmentQuestions.bulkCreate(allQuestion)
+
+  if(!AssignQuest) throw 'Assignment Question not created'
+
+  return { success: true, message: "Assignment Question created successfully", data:AssignQuest }
+};
+
+
+/**
+ * API for update question 
+ */
+async function updateQuestion(req){
+    const errors = validationResult(req);
+  if(errors.array().length) throw errors.array()
+    
+   let questionData   = req.body
+
+   if(questionData.question_type !='form' ){
+        let allChoice = questionData.choices
+        if(!Array.isArray(allChoice))
+            throw 'Question choices are must be an array'
+          
+        delete questionData['choices']
+        if(allChoice.length < 2)
+            throw 'Atleast two Question choices are required'
+        if(allChoice.length > 4)
+            throw 'Maximum four Question choices are required'
+        let count = 1
+          allChoice.forEach(function (item, index){
+              questionData['choice'+count] = item
+              count++
+          })
+        
+    }
+   let question       = await AssignmentQuestions.update(questionData,
+                            {
+                            where : 
+                                { assignment_question_id:req.params.id }
+                            })
+   
+    if(!question[0]) throw 'Assignment question not updated'
+       question  = await AssignmentQuestions.findByPk(req.params.id)
+
+    return { success: true, message: "Assignment Question updated successfully", data:question }
+};
+
+
+/**
+ * API for delete question 
+ */
+async function deleteQuestion(questionId){
+
+  let question  = await AssignmentQuestions.destroy({
+            where: { assignment_question_id: questionId }
+          })
+
+  if(!question) throw 'Question Not found'
+  return { success: true, message: "Question deleted successfully" }
+}

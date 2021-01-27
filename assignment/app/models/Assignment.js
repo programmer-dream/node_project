@@ -33,7 +33,6 @@ module.exports = (sequelize, Sequelize) => {
           type: Sequelize.ENUM('online','offline')
         },
         url: {
-          allowNull: false,
           type: Sequelize.STRING
         },
         added_by: {
