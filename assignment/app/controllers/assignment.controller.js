@@ -214,7 +214,7 @@ async function list(params , user){
       }
 
       if(user.role == "student"){
-          if(assignment.section_id && assignment.section_id == student.section_id){
+          if(!assignment.section_id || (assignment.section_id && assignment.section_id == student.section_id) ){
               let studentAssignment = await StudentAssignment.findOne({
                 where : {
                   assignment_vls_id: assingmentData.assignment_vls_id,
