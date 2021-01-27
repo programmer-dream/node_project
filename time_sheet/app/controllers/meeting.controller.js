@@ -334,19 +334,19 @@ async function checkMeetingTimings(reqDate ,reqDuration, id=null){
            endTime = moment(endTime)
           
           if (reqDate.isSame(startTime))
-              throw 'Metting start time is confict with other metting'
+              throw 'Meeting start Time is conflicting with other meeting'
           
           if (reqDate.isBetween(startTime, endTime))
-              throw 'Your metting time is confict with other metting'
+              throw 'Meeting start Time is conflicting with other meeting'
 
           if (endMoment.isBetween(startTime, endTime))
-              throw 'Your metting time is confict with other metting'
+              throw 'Meeting start Time is conflicting with other meeting'
 
           if (startTime.isBetween(reqDate, endMoment))
-              throw 'Your metting time is confict with other metting'
+              throw 'Meeting start Time is conflicting with other meeting'
 
           if (endTime.isBetween(reqDate, endMoment))
-              throw 'Your metting time is confict with other metting'
+              throw 'Meeting start Time is conflicting with other meeting'
       })
     )
 };
