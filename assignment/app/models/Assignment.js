@@ -56,6 +56,10 @@ module.exports = (sequelize, Sequelize) => {
           allowNull: false,
           type: Sequelize.STRING
         },
+        section_id: {
+          allowNull: false,
+          type: Sequelize.STRING
+        },
         title: {
           allowNull: false,
           type: Sequelize.STRING
