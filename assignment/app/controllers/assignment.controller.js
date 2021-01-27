@@ -26,7 +26,9 @@ module.exports = {
   createStudentAssignment,
   submitAssignment,
   changeAssignmentStatus,
-  createAssignmentQuestion
+  createAssignmentQuestion,
+  updateQuestion,
+  deleteQuestion
 };
 
 
@@ -412,13 +414,91 @@ async function changeAssignmentStatus(params, user, body){
  * API for create assignment questions
  */
 async function createAssignmentQuestion(req){
-  const errors = validationResult(req);
-  if(errors.array().length) throw errors.array()
+  let allQuestion  =  req.body
+  let assingmentId = req.params.assignment_vls_id
 
-  return req.body
-  let assignment     = await AssignmentQuestions.create(questionData)
+  await Promise.all(
+    allQuestion.map(async (question, qIndex) => {
+        allQuestion[qIndex]['assignment_vls_id'] = assingmentId
 
-  if(!assignment) throw 'Assignment Question not created'
+        if(!question.question)
+            throw 'Question field is required'
 
-  return { success: true, message: "Assignment Question created successfully", data:assignment }
+        if(!question.description)
+            throw 'Question description field is required'
+
+        if(question.question_type !='form' ){
+            let allChoice = question.choices
+            if(allChoice.length < 2)
+                throw 'Atleast two Question choices are required'
+            if(allChoice.length > 4)
+                throw 'Maximum four Question choices are required'
+
+            let count = 1
+            let choicesObj = {}
+            allChoice.forEach(function (item, index){
+                allQuestion[qIndex]['choice'+count] = item
+                count++
+                delete allQuestion[qIndex]['choices']
+            })
+        }
+    })
+  )
+  
+  let AssignQuest = await AssignmentQuestions.bulkCreate(allQuestion)
+
+  if(!AssignQuest) throw 'Assignment Question not created'
+
+  return { success: true, message: "Assignment Question created successfully", data:AssignQuest }
 };
+
+
+/**
+ * API for update question 
+ */
+async function updateQuestion(req){
+    const errors = validationResult(req);
+  if(errors.array().length) throw errors.array()
+    
+   let questionData   = req.body
+
+   if(questionData.question_type !='form' ){
+        let allChoice = questionData.choices
+        if(allChoice.length < 2)
+            throw 'Atleast two Question choices are required'
+        if(allChoice.length > 4)
+            throw 'Maximum four Question choices are required'
+
+        let count = 1
+        let choicesObj = {}
+        allChoice.forEach(function (item, index){
+            questionData['choice'+count] = item
+            count++
+            delete questionData['choices']
+        })
+    }
+   let question       = await AssignmentQuestions.update(questionData,
+                            {
+                            where : 
+                                { assignment_question_id:req.params.id }
+                            })
+   
+    if(!question[0]) throw 'Assignment question not updated'
+       question  = await AssignmentQuestions.findByPk(req.params.id)
+
+    return { success: true, message: "Assignment Question updated successfully", data:question }
+};
+
+
+/**
+ * API for delete question 
+ */
+async function deleteQuestion(questionId){
+
+  let question  = await AssignmentQuestions.destroy({
+            where: { assignment_question_id: questionId }
+          })
+
+  if(!question) throw 'Question Not found'
+  return { success: true, message: "Question deleted successfully" }
+}

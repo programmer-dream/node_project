@@ -24,11 +24,7 @@ router.post("/inprogressAssignment",[
     check('submission_date','submission_date field is required.').not().isEmpty()
     ],createStudentAssignment);
 
-router.post("/:assignment_vls_id/createQuestion",[
-    check('question_type','question_type field is required.').not().isEmpty(),
-    check('question','question field is required.').not().isEmpty(),
-    check('description','description field is required.').not().isEmpty()
-    ],createAssignmentQuestion);
+router.post("/:assignment_vls_id/createQuestion",createAssignmentQuestion);
 
 //Get 
 router.get("/view/:id",view);
@@ -51,6 +47,12 @@ router.put("/update/:id",[
 router.put("/assignToStudents/:id",assignToStudents)
 router.put("/changeAssignmentStatus/:student_assignment_id",changeAssignmentStatus)
 
+router.put("/updateQuestion/:id",[
+    check('question','question field is required.').not().isEmpty(),
+    check('description','description field is required.').not().isEmpty(),
+    check('assignment_vls_id','assignment_vls_id field is required.').not().isEmpty()
+    ],updateQuestion)
+
 router.put("/submitAssignment/:student_assignment_id",[
     upload.fields([{
         name:'file',maxCount:1
@@ -58,6 +60,7 @@ router.put("/submitAssignment/:student_assignment_id",[
     ],submitAssignment);
 // DELETE
 router.delete("/delete/:id",deleteAssignment);
+router.delete("/deleteQuestion/:id",deleteQuestion);
 
 
 module.exports = router;
@@ -128,6 +131,18 @@ function changeAssignmentStatus(req, res, next) {
 // Function for create assignment question 
 function createAssignmentQuestion(req, res, next) {
     assignmentController.createAssignmentQuestion(req)
-        .then(assignment => assignment ? res.json(assignment) : res.status(400).json({ status: "error", message: 'Error while deleting assignment' }))
+        .then(assignment => assignment ? res.json(assignment) : res.status(400).json({ status: "error", message: 'Error while create assignment question' }))
+        .catch(err => next(err));
+}
+// Function for update question assignment question 
+function updateQuestion(req, res, next) {
+    assignmentController.updateQuestion(req)
+        .then(assignment => assignment ? res.json(assignment) : res.status(400).json({ status: "error", message: 'Error while update assignment question' }))
+        .catch(err => next(err));
+}
+// Function for delete assignment question 
+function deleteQuestion(req, res, next) {
+    assignmentController.deleteQuestion(req.params.id)
+        .then(assignment => assignment ? res.json(assignment) : res.status(400).json({ status: "error", message: 'Error while update assignment question' }))
         .catch(err => next(err));
 }

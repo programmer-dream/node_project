@@ -6,17 +6,6 @@ module.exports = (sequelize, Sequelize) => {
           primaryKey: true,
           type: Sequelize.INTEGER
         },
-        branch_vls_id: {
-          allowNull: false,
-          type: Sequelize.INTEGER
-        },
-        school_vls_id: {
-          allowNull: false,
-          type: Sequelize.INTEGER
-        },
-        student_vls_id: {
-          type: Sequelize.INTEGER
-        },
         assignment_vls_id: {
           allowNull: false,
           type: Sequelize.INTEGER
@@ -43,10 +32,6 @@ module.exports = (sequelize, Sequelize) => {
         },
         choice4: {
           type: Sequelize.STRING
-        },
-        next_assignment_question_id: {
-          allowNull: false,
-          type: Sequelize.INTEGER
         },
         created_at: {
           allowNull: false,
