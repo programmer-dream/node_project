@@ -328,9 +328,9 @@ async function createStudentAssignment(req){
                               assignment_vls_id : assignmentData.assignment_vls_id
                             }
                           })
-    if(assignmentCheck)
-      throw "Assignment already Inprogress"
-    
+    if(assignmentCheck && assignmentCheck.assignment_vls_id)
+        throw "Assignment already Inprogress"
+
     assignmentData.student_vls_id    = user.userVlsId
     assignmentData.school_vls_id     = userData.school_id
     assignmentData.branch_vls_id     = userData.branch_vls_id
