@@ -322,6 +322,15 @@ async function createStudentAssignment(req){
     let assignmentData =  req.body
     let userData = await User.findByPk(user.id)
 
+    let assignmentCheck = StudentAssignment.findOne({
+                            where:{
+                              student_vls_id    : user.userVlsId,
+                              assignment_vls_id : assignmentData.assignment_vls_id
+                            }
+                          })
+    if(assignmentCheck)
+      throw "Assignment already Inprogress"
+    
     assignmentData.student_vls_id    = user.userVlsId
     assignmentData.school_vls_id     = userData.school_id
     assignmentData.branch_vls_id     = userData.branch_vls_id
