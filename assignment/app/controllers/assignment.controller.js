@@ -146,7 +146,7 @@ async function view(params , user){
             assingmentData.students.splice(index, 1);
           }else{
             student = student.toJSON()
-            student.status = "new"
+            student.status = "New"
             let studentAssignment = await StudentAssignment.findOne({
               where : {
                 assignment_vls_id: assingmentData.assignment_vls_id,
