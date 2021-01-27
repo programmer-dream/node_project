@@ -24,6 +24,12 @@ router.post("/inprogressAssignment",[
     check('submission_date','submission_date field is required.').not().isEmpty()
     ],createStudentAssignment);
 
+router.post("/:assignment_vls_id/createQuestion",[
+    check('question_type','question_type field is required.').not().isEmpty(),
+    check('question','question field is required.').not().isEmpty(),
+    check('description','description field is required.').not().isEmpty()
+    ],createAssignmentQuestion);
+
 //Get 
 router.get("/view/:id",view);
 router.get("/list/",list);
@@ -115,6 +121,13 @@ function submitAssignment(req, res, next) {
 // Function for assign to student 
 function changeAssignmentStatus(req, res, next) {
     assignmentController.changeAssignmentStatus(req.params, req.user, req.body)
+        .then(assignment => assignment ? res.json(assignment) : res.status(400).json({ status: "error", message: 'Error while deleting assignment' }))
+        .catch(err => next(err));
+}
+
+// Function for create assignment question 
+function createAssignmentQuestion(req, res, next) {
+    assignmentController.createAssignmentQuestion(req)
         .then(assignment => assignment ? res.json(assignment) : res.status(400).json({ status: "error", message: 'Error while deleting assignment' }))
         .catch(err => next(err));
 }

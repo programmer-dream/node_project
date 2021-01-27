@@ -1,6 +1,6 @@
 module.exports = (sequelize, Sequelize) => {
-  const Assignment = sequelize.define("assignment", {
-        assignment_vls_id: {
+  const AssignmentQuestions = sequelize.define("assignment_questions", {
+        assignment_question_id: {
           allowNull: false,
           autoIncrement: true,
           primaryKey: true,
@@ -14,54 +14,39 @@ module.exports = (sequelize, Sequelize) => {
           allowNull: false,
           type: Sequelize.INTEGER
         },
-        student_vls_ids: {
-          type: Sequelize.TEXT
+        student_vls_id: {
+          type: Sequelize.INTEGER
         },
-        assignment_class_id: {
+        assignment_vls_id: {
           allowNull: false,
           type: Sequelize.INTEGER
         },
-        assignment_date: {
+        question_type: {
           allowNull: false,
-          type: Sequelize.DATE
+          type: Sequelize.ENUM('Form','Choice','MultipleChecklist')
         },
-        assignment_completion_date: {
-          allowNull: false,
-          type: Sequelize.DATE
-        },
-        assignment_type: {
-          type: Sequelize.ENUM('online','offline')
-        },
-        url: {
-          type: Sequelize.STRING
-        },
-        added_by: {
-          allowNull: false,
-          type: Sequelize.INTEGER
-        },
-        total_marks: {
-          allowNull: false,
-          type: Sequelize.STRING
-        },
-        user_role: {
-          allowNull: false,
-          type: Sequelize.STRING
-        },
-        assignment_level: {
-          allowNull: false,
-          type: Sequelize.STRING
-        },
-        subject_code: {
-          allowNull: false,
-          type: Sequelize.STRING
-        },
-        title: {
+        question: {
           allowNull: false,
           type: Sequelize.STRING
         },
         description: {
-          allowNull: false,
+          type: Sequelize.TEXT
+        },
+        choice1: {
           type: Sequelize.STRING
+        },
+        choice2: {
+          type: Sequelize.STRING
+        },
+        choice3: {
+          type: Sequelize.STRING
+        },
+        choice4: {
+          type: Sequelize.STRING
+        },
+        next_assignment_question_id: {
+          allowNull: false,
+          type: Sequelize.INTEGER
         },
         created_at: {
           allowNull: false,
@@ -72,11 +57,11 @@ module.exports = (sequelize, Sequelize) => {
           type: Sequelize.DATE
         }
   },{
-      tableName: 'assignment',
+      tableName: 'assignment_questions',
       createdAt: 'created_at',
       updatedAt: 'updated_at'
     }
   );
   
-  return Assignment;
+  return AssignmentQuestions;
 };

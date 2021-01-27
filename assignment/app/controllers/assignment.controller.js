@@ -14,6 +14,7 @@ const Assignment = db.Assignment;
 const Classes    = db.Classes;
 const SubjectList= db.SubjectList;
 const StudentAssignment= db.StudentAssignment;
+const AssignmentQuestions= db.AssignmentQuestions;
 
 module.exports = {
   create,
@@ -24,7 +25,8 @@ module.exports = {
   assignToStudents,
   createStudentAssignment,
   submitAssignment,
-  changeAssignmentStatus
+  changeAssignmentStatus,
+  createAssignmentQuestion
 };
 
 
@@ -35,15 +37,18 @@ async function create(req){
   const errors = validationResult(req);
   if(errors.array().length) throw errors.array()
 
-    if(!req.files.file) throw 'Please attach a file'
+    let assignmentData =  req.body
+    
+    if(assignmentData.assignment_type != 'online'){
+        if(!req.files.file) throw 'Please attach a file'
+        assignmentData.url  = req.body.uplodedPath + req.files.file[0].filename;
+    }
 
     let user = req.user
-    let assignmentData =  req.body
     assignmentData.added_by  = user.userVlsId
     assignmentData.user_role = user.role
     assignmentData.assignment_date = moment()
     assignmentData.assignment_completion_date = moment(assignmentData.assignment_completion_date).format('YYYY-MM-DD')
-    assignmentData.url  = req.body.uplodedPath + req.files.file[0].filename;
     
   	let assignment 		 = await Assignment.create(assignmentData)
 
@@ -61,7 +66,7 @@ async function view(params , user){
 
   if(user.role == 'teacher' )
     whereCodition.added_by = user.userVlsId
-    
+
   let assignment = await Assignment.findOne({
     where : whereCodition,
     include: [{ 
@@ -392,4 +397,20 @@ async function changeAssignmentStatus(params, user, body){
     if(!assignment[0]) throw 'Assignment not found'
 
     return { success: true, message: "Assignment updated successfully"}
+};
+
+
+/**
+ * API for create assignment questions
+ */
+async function createAssignmentQuestion(req){
+  const errors = validationResult(req);
+  if(errors.array().length) throw errors.array()
+
+  return req.body
+  let assignment     = await AssignmentQuestions.create(questionData)
+
+  if(!assignment) throw 'Assignment Question not created'
+
+  return { success: true, message: "Assignment Question created successfully", data:assignment }
 };
