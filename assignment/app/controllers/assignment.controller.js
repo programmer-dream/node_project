@@ -15,6 +15,7 @@ const Classes    = db.Classes;
 const SubjectList= db.SubjectList;
 const StudentAssignment= db.StudentAssignment;
 const AssignmentQuestions= db.AssignmentQuestions;
+const StudentAssignmentResponse= db.StudentAssignmentResponse;
 
 module.exports = {
   create,
@@ -28,7 +29,9 @@ module.exports = {
   changeAssignmentStatus,
   createAssignmentQuestion,
   updateQuestion,
-  deleteQuestion
+  deleteQuestion,
+  questionResponse,
+  updateMarks
 };
 
 
@@ -189,21 +192,24 @@ async function list(params , user){
   let userData = await User.findByPk(user.id)
 
   let currentDate = moment().format('YYYY-MM-DD')
-  let start  = moment(currentDate+" 00:00").format('YYYY-MM-DD HH:MM')
-  let end    = moment(currentDate+" 23:59").format('YYYY-MM-DD HH:MM')
 
   let whereCodition = {
-    assignment_completion_date:{ [Op.between]: [start, end]}
+    [Op.eq]: sequelize.where(sequelize.fn('date', sequelize.col('assignment_completion_date')), '=', currentDate)  
   }
+  
+  if(assignmentState == "past"){
+    whereCodition = {
+      [Op.lt]: sequelize.where(sequelize.fn('date', sequelize.col('assignment_completion_date')), '<', currentDate)
+    }
+  }else if(assignmentState == "upcoming"){
+    whereCodition = {
+      [Op.gt]: sequelize.where(sequelize.fn('date', sequelize.col('assignment_completion_date')), '>', currentDate)
+    }
+  }
+
   if(params.section_id)
     whereCodition.section_id = params.section_id
 
-  if(assignmentState == "past"){
-    whereCodition.assignment_completion_date = { [Op.lt]: start }
-  }else if(assignmentState == "upcoming"){
-    whereCodition.assignment_completion_date = { [Op.gt]: end }
-  }
-  
   let student = {}
   switch (user.role) {
     case 'teacher':
@@ -220,7 +226,7 @@ async function list(params , user){
       whereCodition.assignment_class_id = class_id
       break;
   }
-  console.log(whereCodition)
+  
   let assignments = await Assignment.findAll({
     where : whereCodition,
     include: [{ 
@@ -568,3 +574,108 @@ async function deleteQuestion(questionId){
   if(!question) throw 'Question Not found'
   return { success: true, message: "Question deleted successfully" }
 }
+
+
+/**
+ * API for assignment question response 
+ */
+async function questionResponse(req){
+    const errors = validationResult(req);
+  if(errors.array().length) throw errors.array()
+
+  let studentId    = req.user.userVlsId
+  let allQuestion  =  req.body
+  let role         = req.user.role
+  if(role != 'student') throw 'unauthorised user'
+
+  if(allQuestion.length <= 0 ) throw 'Question body must be an array'
+
+  await Promise.all(
+    allQuestion.map(async (question, qIndex) => {
+        let response = question.response
+        if(!question.question_id)
+            throw 'question_id field is required'
+
+        if(!question.question_type)
+            throw 'question_type field is required'
+
+        if(!question.response)
+            throw 'response field is required'
+
+        if(!question.assignment_vls_id)
+            throw 'assignment_vls_id field is required'
+
+        if(question.question_type !='form' ){
+            if(Array.isArray(response)){
+              response = JSON.stringify(response)
+              console.log(response)
+            }
+        }
+        allQuestion[qIndex].response   = response
+        allQuestion[qIndex].student_id = studentId
+    })
+  )
+
+  let deleted  = await StudentAssignmentResponse.destroy({
+            where: { 
+                assignment_vls_id :  allQuestion[0].assignment_vls_id,
+                student_id : studentId
+            }
+          })
+  
+  let questionResponse = await StudentAssignmentResponse.bulkCreate(allQuestion)
+
+  if(!questionResponse) throw 'Assignment Question response created'
+
+  return { success: true, message: "Assignment Question response created successfully", data:questionResponse }
+};
+
+
+/**
+ * API for update marks
+ */
+async function updateMarks(req){
+  const errors = validationResult(req);
+  if(errors.array().length) throw errors.array()
+
+    let user          = req.user
+    if(user.role != 'teacher') throw 'unauthorised user'
+
+    let allAssessment = req.body
+    let totalMarks    = 0
+    let assignmentId  = 0
+    let student_id  = 0
+    await Promise.all(
+      allAssessment.map(async assessment => { 
+          if(!assessment.assignment_id)
+            throw 'assignment_id field is required'
+          if(!assessment.question_id)
+            throw 'question_id field is required'
+          if(!assessment.marks)
+            throw 'marks field is required'
+          if(!assessment.student_vls_id)
+            throw 'student_vls_id field is required'
+
+          assignmentId = assessment.assignment_id
+          student_id   = assessment.student_vls_id
+          totalMarks  += parseInt(assessment.marks)
+          let marks    = { assessment : assessment.marks}
+          
+          await StudentAssignmentResponse.update(marks,{
+            where : {
+                  assignment_vls_id : assignmentId,
+                  question_id       : assessment.question_id,
+                  student_id        : student_id
+            }
+          })
+      })
+    )
+    let studentAssessment = { assessment : totalMarks }
+    await StudentAssignment.update(studentAssessment, {
+        where : {
+            student_vls_id : student_id,
+            assignment_vls_id : assignmentId
+        }
+    })
+    return { success: true, message: "marks updated successfully"}
+};

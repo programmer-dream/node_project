@@ -72,6 +72,7 @@ db.SubjectList = require("../../../query_management/app/models/SubjectList.js")(
 db.Assignment = require("./Assignment.js")(sequelize, Sequelize);
 db.StudentAssignment = require("./StudentAssignment.js")(sequelize, Sequelize);
 db.AssignmentQuestions = require("./AssignmentQuestions.js")(sequelize, Sequelize);
+db.StudentAssignmentResponse = require("./StudentAssignmentResponse.js")(sequelize, Sequelize);
 db.Classes = require("../../../student_attendance/app/models/Classes.js")(sequelize, Sequelize);
 
 //relation
