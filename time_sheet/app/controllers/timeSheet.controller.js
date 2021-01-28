@@ -88,7 +88,7 @@ async function create(req){
               end_time         : timetable.end_time
           }
          
-          await getScheduleData(user.school_id, req.body.class_id, section_id, timetable.subject_code, timetable.start_time, timetable.end_time ,timetable.day)
+          await getScheduleData(user.school_id, req.body.class_id, section_id, timetable.subject_code, timetable.start_time, timetable.end_time ,body.day)
 
           timeData.push(body)
     })
