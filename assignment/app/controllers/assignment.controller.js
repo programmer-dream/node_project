@@ -152,13 +152,41 @@ async function view(params , user){
           if(user.role == "student" && user.userVlsId != student.student_vls_id){
             assingmentData.students.splice(index, 1);
           }else{
+            let include = []
+            let isAssignmentInProcess = await StudentAssignment.findOne({
+              where : {
+                assignment_vls_id: assingmentData.assignment_vls_id,
+                student_vls_id   : student.student_vls_id,
+                assignment_status : {
+                  [Op.ne] : 'Inprogress'
+                }
+              }
+            })
+
+            if(user.role == "student" || isAssignmentInProcess ){
+              include = [{ 
+                          model:StudentAssignmentResponse,
+                          as:'questionResponse',
+                          where : { 
+                            student_id : {
+                              [Op.or]: [student.student_vls_id]
+                            }
+                          },
+                          required:false
+                        }]
+            }
             student = student.toJSON()
             student.status = "New"
             let studentAssignment = await StudentAssignment.findOne({
               where : {
                 assignment_vls_id: assingmentData.assignment_vls_id,
-                student_vls_id   : student.student_vls_id,
-              }
+                student_vls_id   : student.student_vls_id
+              },
+              include: [{ 
+                    model:AssignmentQuestions,
+                    as:'assignmentQuestionResponse',
+                    include: include
+                }]
             })
 
             if(studentAssignment)
@@ -697,4 +725,17 @@ async function releaseAssignment(body){
     await assignment.update(assignmentData);
 
     return { success: true, message: "Assignment updated successfully"}
+}
+
+/**
+ * API for release assignment
+ */
+async function getAssignmentAnswers(){
+  let answeres = await StudentAssignmentResponse.findAll({
+    where : {
+            assignment_vls_id : 1,
+            student_id:1
+
+    }
+  })
 }
