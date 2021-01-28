@@ -39,7 +39,6 @@ router.put("/update/:id",[
     check('assignment_type','assignment_type field is required.').not().isEmpty(),
     check('assignment_level','assignment_level field is required.').not().isEmpty(),
     check('total_marks','total_marks field is required.').not().isEmpty(),
-    check('assignment_class_id','assignment_class_id field is required.').not().isEmpty(),
     check('title','title field is required.').not().isEmpty(),
     check('description','description field is required.').not().isEmpty(),
     check('subject_code','subject_code field is required.').not().isEmpty()
