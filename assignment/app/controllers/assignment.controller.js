@@ -704,7 +704,7 @@ async function updateMarks(req){
       })
     )
     let studentAssessment = { assessment : totalMarks }
-    console.log(studentAssessment)
+    
     await StudentAssignment.update(studentAssessment, {
         where : {
             student_vls_id : student_id,
