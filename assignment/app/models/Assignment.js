@@ -67,6 +67,11 @@ module.exports = (sequelize, Sequelize) => {
           allowNull: false,
           type: Sequelize.STRING
         },
+        is_released: {
+          type: Sequelize.TINYINT,
+          allowNull: false,
+          defaultValue: 0
+        },
         created_at: {
           allowNull: false,
           type: Sequelize.DATE

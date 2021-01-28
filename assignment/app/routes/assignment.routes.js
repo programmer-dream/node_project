@@ -47,6 +47,10 @@ router.put("/update/:id",[
 router.put("/assignToStudents/:id",assignToStudents)
 router.put("/changeAssignmentStatus/:student_assignment_id",changeAssignmentStatus)
 router.put("/updateMarks",updateMarks)
+router.put("/releaseAssignment",[
+    check('is_released','is_released field is required.').not().isEmpty(),
+    check('assignment_id','assignment_id field is required.').not().isEmpty()
+    ],releaseAssignment)
 
 router.put("/updateQuestion/:id",[
     check('question','question field is required.').not().isEmpty(),
@@ -160,5 +164,11 @@ function questionResponse(req, res, next) {
 function updateMarks(req, res, next) {
     assignmentController.updateMarks(req)
         .then(assignment => assignment ? res.json(assignment) : res.status(400).json({ status: "error", message: 'Error while update assignment question' }))
+        .catch(err => next(err));
+}
+// Function for release assignment 
+function releaseAssignment(req, res, next) {
+    assignmentController.releaseAssignment(req.body)
+        .then(assignment => assignment ? res.json(assignment) : res.status(400).json({ status: "error", message: 'Error while release assignment' }))
         .catch(err => next(err));
 }
