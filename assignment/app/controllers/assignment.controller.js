@@ -527,8 +527,8 @@ async function createAssignmentQuestion(req){
         if(!question.question_type)
             throw 'question_type field is required'
 
-        if(!question.description)
-            throw 'Question description field is required'
+        if(!question.assessment)
+            throw 'Question assessment field is required'
 
         if(question.question_type !='form' ){
             let allChoice = question.choices

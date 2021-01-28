@@ -18,8 +18,9 @@ module.exports = (sequelize, Sequelize) => {
           allowNull: false,
           type: Sequelize.STRING
         },
-        description: {
-          type: Sequelize.TEXT
+        assessment: {
+          allowNull: false,
+          type: Sequelize.STRING
         },
         choice1: {
           type: Sequelize.STRING

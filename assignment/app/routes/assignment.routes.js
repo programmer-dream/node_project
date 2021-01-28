@@ -54,7 +54,7 @@ router.put("/releaseAssignment",[
 
 router.put("/updateQuestion/:id",[
     check('question','question field is required.').not().isEmpty(),
-    check('description','description field is required.').not().isEmpty(),
+    check('assessment','assessment field is required.').not().isEmpty(),
     check('assignment_vls_id','assignment_vls_id field is required.').not().isEmpty(),
     check('question_type','question_type field is required.').not().isEmpty()
     ],updateQuestion)
