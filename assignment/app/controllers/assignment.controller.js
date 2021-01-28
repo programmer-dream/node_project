@@ -44,8 +44,7 @@ async function create(req){
 
     let assignmentData =  req.body
     
-    if(assignmentData.assignment_type != 'online'){
-        if(!req.files.file) throw 'Please attach a file'
+    if(req.files.file && req.files.file.length > 0){
         assignmentData.url  = req.body.uplodedPath + req.files.file[0].filename;
     }
 
