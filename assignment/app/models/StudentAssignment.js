@@ -32,6 +32,9 @@ module.exports = (sequelize, Sequelize) => {
         assessment: {
           type: Sequelize.STRING
         },
+        teacher_comment: {
+          type: Sequelize.STRING
+        },
         url: {
           type: Sequelize.STRING
         },
