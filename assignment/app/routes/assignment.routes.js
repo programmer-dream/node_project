@@ -26,6 +26,8 @@ router.post("/inprogressAssignment",[
 
 router.post("/:assignment_vls_id/createQuestion",createAssignmentQuestion);
 router.post("/questionResponse",questionResponse)
+
+
 //Get 
 router.get("/view/:id",view);
 router.get("/list/",list);
@@ -63,6 +65,8 @@ router.put("/submitAssignment/:student_assignment_id",[
         name:'file',maxCount:1
     }])
     ],submitAssignment);
+
+
 // DELETE
 router.delete("/delete/:id",deleteAssignment);
 router.delete("/deleteQuestion/:id",deleteQuestion);
