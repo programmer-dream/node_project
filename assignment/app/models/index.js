@@ -83,5 +83,8 @@ db.Assignment.belongsTo(db.SubjectList,{foreignKey:'subject_code',targetKey:'cod
 db.Assignment.hasMany(db.StudentAssignment,{foreignKey:'assignment_vls_id',as:'studentAssignment'})
 db.Assignment.hasMany(db.AssignmentQuestions,{foreignKey:'assignment_vls_id',as:'assignmentQuestion'})
 
+db.StudentAssignment.hasMany(db.AssignmentQuestions,{foreignKey:'assignment_vls_id', sourceKey:'assignment_vls_id', as:'assignmentQuestionResponse'})
+
+db.AssignmentQuestions.hasOne(db.StudentAssignmentResponse,{foreignKey:'question_id',as:'questionResponse'})
 
 module.exports = db;
