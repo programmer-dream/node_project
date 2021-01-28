@@ -74,6 +74,8 @@ db.Meeting = require("./Meeting.js")(sequelize, Sequelize);
 db.ExamSchedule = require("./ExamSchedule.js")(sequelize, Sequelize);
 db.Exam = require("./Exam.js")(sequelize, Sequelize);
 db.SubjectList = require("../../../query_management/app/models/SubjectList.js")(sequelize, Sequelize);
+db.Assignment = require("../../../assignment/app/models/Assignment.js")(sequelize, Sequelize);
+
 //Relation
 db.Routine.belongsTo(db.SubjectList,{foreignKey:'subject_code',targetKey:'code',as:'subjectList'})
 
@@ -82,5 +84,6 @@ db.Routine.belongsTo(db.Employee,{foreignKey:'teacher_id',as:'teacher'})
 db.ExamSchedule.belongsTo(db.Exam,{foreignKey:'exam_vls_id',as:'exam'})
 db.Student.belongsTo(db.Guardian,{foreignKey:'parent_vls_id',as:'parent'})
 db.Meeting.belongsTo(db.Employee,{foreignKey:'meeting_author_vls_id',as:'addedBy'})
+db.Assignment.belongsTo(db.SubjectList,{foreignKey:'subject_code',targetKey:'code',as:'subject'})
 
 module.exports = db;

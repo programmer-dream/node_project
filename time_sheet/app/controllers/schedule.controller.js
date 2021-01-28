@@ -1,19 +1,20 @@
 const { validationResult } = require('express-validator');
-const db 	 	 = require("../models");
-const moment 	 = require("moment");
-const Op 	 	 = db.Sequelize.Op;
-const Sequelize  = db.Sequelize;
-const path 		 = require('path')
-const User       = db.Authentication;
-const Employee   = db.Employee;
-const Meeting    = db.Meeting;
-const Student    = db.Student;
-const Guardian   = db.Guardian;
-const sequelize  = db.sequelize;
-const Routine    = db.Routine;
-const SubjectList= db.SubjectList;
+const db 	 	      = require("../models");
+const moment 	    = require("moment");
+const Op 	 	      = db.Sequelize.Op;
+const Sequelize   = db.Sequelize;
+const path 		    = require('path')
+const User        = db.Authentication;
+const Employee    = db.Employee;
+const Meeting     = db.Meeting;
+const Student     = db.Student;
+const Guardian    = db.Guardian;
+const sequelize   = db.sequelize;
+const Routine     = db.Routine;
+const SubjectList = db.SubjectList;
 const ExamSchedule= db.ExamSchedule;
 const Exam        = db.Exam;
+const Assignment  = db.Assignment;
 const bcrypt      = require("bcryptjs");
 
 module.exports = {
@@ -38,18 +39,19 @@ async function currentSchedule(user, query){
   //check Api according to date 
   let getData   = await getExamDates(id, branch_id, today, role)
   if(getData)
-     timeTable = await getTimetable(id, today, branch_id, user)
+     timeTable  = await getTimetable(id, today, branch_id, user)
   //check Api according to date
 
   let meetings  = await getMeeting(id, today, branch_id, user)
   let exams     = await getExamSchedule(id, today, branch_id,user)
-  
-  let schedules = timeTable.concat(meetings)
+  let assignment= await getAssignment(id, today, branch_id, user)
+
+  let schedules = timeTable.concat(meetings,assignment)
       finalArr  = schedules
   if(role == 'student' ){
       finalArr = schedules.concat(exams)
   }
-  
+  // return assignment
   let allSchedules = []
   await Promise.all(
       finalArr.map(async schedule => {
@@ -59,6 +61,10 @@ async function currentSchedule(user, query){
         }else if(currSchedule.duration){
           currSchedule.type = 'meeting'
           currSchedule.end_time = moment(currSchedule.start_time,'HH:mm').add(currSchedule.duration,'minutes').format("HH:mm")
+        }else if(currSchedule.assignment_completion_date){
+          currSchedule.type = 'assignment'
+          currSchedule.start_time = '00:00'
+          currSchedule.end_time   = '00:00'
         }else{
           currSchedule.type = 'exam'
         }
@@ -237,4 +243,47 @@ async function getExamDates(id, branch_id, date, role){
   }else{
     return true
   }
+}
+
+
+/**
+ * API for get current day assignment
+ */
+async function getAssignment(id, today, branch_id,user){
+  let exams    = {}
+  let student  = {}
+  
+  let whereCondition = {
+    branch_vls_id : branch_id,
+    [Op.eq]: sequelize.where(sequelize.fn('date', sequelize.col('assignment_completion_date')), '=', today)  
+  }
+  
+  switch(user.role) {
+    case 'teacher':
+          whereCondition.added_by = id
+      break;
+    case 'student':
+          student = await Student.findByPk(id)
+          whereCondition.assignment_class_id = student.class_id
+      break;
+    case 'branch-admin':
+    case 'principal':
+          return []
+      break;
+  }
+  assignment = await Assignment.findAll({
+                      where : whereCondition,
+                      attributes: ['assignment_vls_id',
+                                    'assignment_type',
+                                    'assignment_completion_date',
+                                    'added_by',
+                                    'title'],
+                      include: [{ 
+                                    model:SubjectList,
+                                    as:'subject',
+                                    attributes: ['subject_name']
+                                  }]
+                     })
+
+  return assignment
 }
