@@ -192,19 +192,24 @@ async function list(params , user){
   let userData = await User.findByPk(user.id)
 
   let currentDate = moment().format('YYYY-MM-DD')
-  let start  = moment(currentDate+" 00:00").format('YYYY-MM-DD HH:MM')
-  let end    = moment(currentDate+" 23:59").format('YYYY-MM-DD HH:MM')
 
   let whereCodition = {
-    assignment_completion_date:{ [Op.between]: [start, end]}
+    [Op.and]: [
+                    sequelize.where(sequelize.fn('date', sequelize.col('assignment_completion_date')), '>=', currentDate),
+                    sequelize.where(sequelize.fn('date', sequelize.col('assignment_completion_date')), '<=', currentDate),
+                ]
   }
   if(params.section_id)
     whereCodition.section_id = params.section_id
 
   if(assignmentState == "past"){
-    whereCodition.assignment_completion_date = { [Op.lt]: start }
+    whereCodition = {
+      [Op.lt]: sequelize.where(sequelize.fn('date', sequelize.col('assignment_completion_date')), '<', currentDate)
+    }
   }else if(assignmentState == "upcoming"){
-    whereCodition.assignment_completion_date = { [Op.gt]: end }
+    whereCodition = {
+      [Op.lt]: sequelize.where(sequelize.fn('date', sequelize.col('assignment_completion_date')), '>', currentDate)
+    }
   }
   
   let student = {}
@@ -223,7 +228,7 @@ async function list(params , user){
       whereCodition.assignment_class_id = class_id
       break;
   }
-  console.log(whereCodition)
+  
   let assignments = await Assignment.findAll({
     where : whereCodition,
     include: [{ 
