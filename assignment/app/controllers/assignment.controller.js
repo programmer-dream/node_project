@@ -31,7 +31,8 @@ module.exports = {
   updateQuestion,
   deleteQuestion,
   questionResponse,
-  updateMarks
+  updateMarks,
+  releaseAssignment
 };
 
 
@@ -70,6 +71,9 @@ async function view(params , user){
 
   if(user.role == 'teacher' )
     whereCodition.added_by = user.userVlsId
+
+  if(user.role == 'student' || user.role == 'guardian')
+    whereCodition.is_released = 1
 
   let assignment = await Assignment.findOne({
     where : whereCodition,
@@ -218,6 +222,7 @@ async function list(params , user){
     case 'guardian':
         student = await Student.findByPk(studentID)
         whereCodition.assignment_class_id = student.class_id
+        whereCodition.is_released = 1
       break;
     case 'branch-admin':
     case 'school-admin':
@@ -678,3 +683,17 @@ async function updateMarks(req){
     })
     return { success: true, message: "marks updated successfully"}
 };
+
+
+/**
+ * API for release assignment
+ */
+async function releaseAssignment(body){
+    let assignmentData = { is_released : body.is_released }
+    let assignment = await Assignment.findByPk(body.assignment_id)
+    if(!assignment) throw 'Assignment not found'
+
+    await assignment.update(assignmentData);
+
+    return { success: true, message: "Assignment updated successfully"}
+}
