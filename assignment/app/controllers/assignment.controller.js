@@ -194,24 +194,22 @@ async function list(params , user){
   let currentDate = moment().format('YYYY-MM-DD')
 
   let whereCodition = {
-    [Op.and]: [
-                    sequelize.where(sequelize.fn('date', sequelize.col('assignment_completion_date')), '>=', currentDate),
-                    sequelize.where(sequelize.fn('date', sequelize.col('assignment_completion_date')), '<=', currentDate),
-                ]
+    [Op.eq]: sequelize.where(sequelize.fn('date', sequelize.col('assignment_completion_date')), '=', currentDate)  
   }
-  if(params.section_id)
-    whereCodition.section_id = params.section_id
-
+  
   if(assignmentState == "past"){
     whereCodition = {
       [Op.lt]: sequelize.where(sequelize.fn('date', sequelize.col('assignment_completion_date')), '<', currentDate)
     }
   }else if(assignmentState == "upcoming"){
     whereCodition = {
-      [Op.lt]: sequelize.where(sequelize.fn('date', sequelize.col('assignment_completion_date')), '>', currentDate)
+      [Op.gt]: sequelize.where(sequelize.fn('date', sequelize.col('assignment_completion_date')), '>', currentDate)
     }
   }
-  
+
+  if(params.section_id)
+    whereCodition.section_id = params.section_id
+
   let student = {}
   switch (user.role) {
     case 'teacher':
