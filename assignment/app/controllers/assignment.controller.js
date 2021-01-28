@@ -704,6 +704,7 @@ async function updateMarks(req){
       })
     )
     let studentAssessment = { assessment : totalMarks }
+    console.log(studentAssessment)
     await StudentAssignment.update(studentAssessment, {
         where : {
             student_vls_id : student_id,
@@ -725,17 +726,4 @@ async function releaseAssignment(body){
     await assignment.update(assignmentData);
 
     return { success: true, message: "Assignment updated successfully"}
-}
-
-/**
- * API for release assignment
- */
-async function getAssignmentAnswers(){
-  let answeres = await StudentAssignmentResponse.findAll({
-    where : {
-            assignment_vls_id : 1,
-            student_id:1
-
-    }
-  })
 }
