@@ -456,7 +456,7 @@ async function changeAssignmentStatus(params, user, body){
 
     let assignmentDa  = await StudentAssignment.findByPk(id)
     let assignmentData = {}
-    assignmentData.assignment_status = body.assignment_status
+    assignmentData = body
 
     let assignment     = await StudentAssignment.update(assignmentData,
                             {
