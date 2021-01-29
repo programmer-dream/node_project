@@ -751,14 +751,13 @@ async function releaseAssignment(body){
  */
 async function dashboardData(user , params){
   if(!params.branch_vls_id ) throw 'branch_vls_id is required'
-
-  let startWeek = moment().startOf('isoWeek').format('YYYY-MM-DD');
-  let endWeek   = moment().endOf('isoWeek').format('YYYY-MM-DD');
+  let currentDate = moment().format('YYYY-MM-DD')
+  let afterSevenDays = moment().add(7, 'days').format('YYYY-MM-DD');
   
   let whereCodition = {
       [Op.and]: [
-                sequelize.where(sequelize.fn('date', sequelize.col('assignment_completion_date')), '>=', startWeek),
-                sequelize.where(sequelize.fn('date', sequelize.col('assignment_completion_date')), '<=', endWeek),
+                sequelize.where(sequelize.fn('date', sequelize.col('assignment_completion_date')), '>=', currentDate),
+                sequelize.where(sequelize.fn('date', sequelize.col('assignment_completion_date')), '<=', afterSevenDays),
             ]
   }
   whereCodition.is_released = 1
@@ -789,7 +788,16 @@ async function dashboardData(user , params){
   
   let assignments = await Assignment.findAll({
     where : whereCodition,
-    limit: 5
+    limit: 5,
+    include: [{ 
+                model:SubjectList,
+                as:'subjectList',
+                attributes: ['subject_name']
+            },{ 
+                model:Classes,
+                as:'class',
+                attributes: ['name']
+            }]
   })
 
   return { success: true, message: "Assignment dashboard data current week", data: assignments} 
