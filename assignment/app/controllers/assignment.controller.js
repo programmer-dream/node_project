@@ -33,7 +33,7 @@ module.exports = {
   questionResponse,
   updateMarks,
   releaseAssignment,
-  currentWeek
+  dashboardData
 };
 
 
@@ -733,7 +733,7 @@ async function releaseAssignment(body){
 /**
  * API for current Week assignment
  */
-async function currentWeek(user , params){
+async function dashboardData(user , params){
   let startWeek = moment().startOf('isoWeek').format('YYYY-MM-DD');
   let endWeek   = moment().endOf('isoWeek').format('YYYY-MM-DD');
   
