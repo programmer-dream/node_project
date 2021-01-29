@@ -1,9 +1,9 @@
 module.exports = {
   development: {
-    host: "",
-    username: "",
-    password: "",
-    database: "",
+    host: "localhost",
+    username: "root",
+    password: "pass@1234",
+    database: "vlsdev",
     dialect: "mysql",
     pool: {
       max: 5,
