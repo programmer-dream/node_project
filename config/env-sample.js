@@ -8,7 +8,7 @@ module.exports = {
       videos_cover_photo:"/videos/cover_photo",
       email_service: 'gmail', //gmail option
       email_user: 'vikas.zestgeek@gmail.com',//gmail option
-      email_password: 'Zest@9900',//gmail option
+      email_password: 'WmVzdEA5OTAw',//gmail option base64 encode
       host:'smtp.gmail.com',
       port:587,
       senderEmail:'no-reply@vls.com',
