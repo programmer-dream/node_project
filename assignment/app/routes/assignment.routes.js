@@ -29,6 +29,7 @@ router.post("/questionResponse",questionResponse)
 //Get 
 router.get("/view/:id",view);
 router.get("/list/",list);
+router.get("/currentWeek/",currentWeek);
 
 //Put
 router.put("/update/:id",[
@@ -170,5 +171,12 @@ function updateMarks(req, res, next) {
 function releaseAssignment(req, res, next) {
     assignmentController.releaseAssignment(req.body)
         .then(assignment => assignment ? res.json(assignment) : res.status(400).json({ status: "error", message: 'Error while release assignment' }))
+        .catch(err => next(err));
+}
+
+// Function for release assignment 
+function currentWeek(req, res, next) {
+    assignmentController.currentWeek(req.user, req.query)
+        .then(assignment => assignment ? res.json(assignment) : res.status(400).json({ status: "error", message: 'Error while geting current weeek assignment' }))
         .catch(err => next(err));
 }

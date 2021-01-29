@@ -32,7 +32,8 @@ module.exports = {
   deleteQuestion,
   questionResponse,
   updateMarks,
-  releaseAssignment
+  releaseAssignment,
+  currentWeek
 };
 
 
@@ -726,4 +727,75 @@ async function releaseAssignment(body){
     await assignment.update(assignmentData);
 
     return { success: true, message: "Assignment updated successfully"}
+}
+
+
+/**
+ * API for current Week assignment
+ */
+async function currentWeek(user , params){
+  let startWeek = moment().startOf('isoWeek').format('YYYY-MM-DD');
+  let endWeek   = moment().endOf('isoWeek').format('YYYY-MM-DD');
+  
+  let whereCodition = {
+      [Op.and]: [
+                sequelize.where(sequelize.fn('date', sequelize.col('assignment_completion_date')), '>=', startWeek),
+                sequelize.where(sequelize.fn('date', sequelize.col('assignment_completion_date')), '<=', endWeek),
+            ]
+  }
+  whereCodition.is_released = 1
+  switch (user.role) {
+    case 'teacher':
+        whereCodition.added_by = user.userVlsId
+      break;
+    case 'guardian':
+        if(!params.student_vls_id ) throw 'student_vls_id is required'
+        student = await Student.findByPk(params.student_vls_id)
+        whereCodition.assignment_class_id = student.class_id
+      break;
+    case 'student':
+        student = await Student.findByPk(user.userVlsId)
+        whereCodition.assignment_class_id = student.class_id
+      break;
+    case 'branch-admin':
+    case 'school-admin':
+    case 'principal':
+      if(!params.branch_vls_id ) throw 'branch_vls_id is required'
+      return await getAssignmentCount(params)
+      break;
+  }
+
+  let assignments = await Assignment.findAll({
+    where : whereCodition
+  })
+
+  return { success: true, message: "Assignment dashboard data current week", data: assignments} 
+}
+
+/**
+ * API for current Week assignment
+ */
+async function getAssignmentCount(params){
+  let branchId = params.branch_vls_id
+
+  let startMonth = moment().startOf('month').format('YYYY-MM-DD');
+  let endMonth   = moment().endOf('month').format('YYYY-MM-DD');
+  
+  let whereCodition = {
+      [Op.and]: [
+                sequelize.where(sequelize.fn('date', sequelize.col('assignment_date')), '>=', startMonth),
+                sequelize.where(sequelize.fn('date', sequelize.col('assignment_date')), '<=', endMonth),
+            ]
+  }
+  whereCodition.branch_vls_id = branchId
+  let created = await Assignment.count({
+    where : whereCodition
+  })
+
+  whereCodition.is_released = 1
+  let released = await Assignment.count({
+    where : whereCodition
+  })
+  let data = { created , released }
+  return { success: true, message: "Assignment dashboard data current month", data }
 }
