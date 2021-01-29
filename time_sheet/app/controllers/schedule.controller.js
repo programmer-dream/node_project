@@ -64,8 +64,8 @@ async function currentSchedule(user, query){
           currSchedule.end_time = moment(currSchedule.start_time,'HH:mm').add(currSchedule.duration,'minutes').format("HH:mm")
         }else if(currSchedule.assignment_completion_date){
           currSchedule.type = 'assignment'
-          currSchedule.start_time = '00:00'
-          currSchedule.end_time   = '00:00'
+          currSchedule.start_time = '17:30'
+          currSchedule.end_time   = '18:00'
         }else{
           currSchedule.type = 'exam'
         }
