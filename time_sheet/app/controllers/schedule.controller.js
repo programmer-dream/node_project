@@ -55,6 +55,7 @@ async function currentSchedule(user, query){
   let allSchedules = []
   await Promise.all(
       finalArr.map(async schedule => {
+        console.log(schedule)
         let currSchedule  = schedule.toJSON()
         if(currSchedule.timesheet_id){
           currSchedule.type = 'time_table'
@@ -271,19 +272,38 @@ async function getAssignment(id, today, branch_id,user){
           return []
       break;
   }
-  assignment = await Assignment.findAll({
+  assignments = await Assignment.findAll({
                       where : whereCondition,
                       attributes: ['assignment_vls_id',
                                     'assignment_type',
                                     'assignment_completion_date',
                                     'added_by',
-                                    'title'],
+                                    'title',
+                                    'student_vls_ids'],
                       include: [{ 
                                     model:SubjectList,
                                     as:'subject',
                                     attributes: ['subject_name']
                                   }]
                      })
-
-  return assignment
+  if(user.role == 'student') {
+    let filterAssignments = []
+    await Promise.all(
+        assignments.map(function( assignment){
+          //let assignmentJson = assignment.toJSON()
+          console.log(assignment)
+          let idsArr = JSON.parse(assignment.student_vls_ids)
+          if(Array.isArray(idsArr)){
+              if(idsArr.includes(id))
+                filterAssignments.push(assignment)
+              
+          }else{
+            filterAssignments.push(assignment)
+          }
+        })
+      )
+    return filterAssignments
+  }else{
+    return assignments
+  }
 }
