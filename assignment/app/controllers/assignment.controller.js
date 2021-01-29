@@ -197,7 +197,7 @@ async function view(params , user){
       })
    );
 
-  if(assingmentData.students.length <= 0) throw "You don't have access to this assignment"
+  if( (user.role == 'student' || user.role == 'guardian') && assingmentData.students.length <= 0) throw "You don't have access to this assignment"
 
   return { success: true, message: "Assignment view", data: assingmentData}
 };
