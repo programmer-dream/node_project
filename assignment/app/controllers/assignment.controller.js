@@ -210,6 +210,7 @@ async function list(params , user){
   let assignmentState  = params.assignmentState
   let class_id         = params.class_id
   let studentID        = user.userVlsId
+  let search           = ""
 
   if(user.role == 'guardian')
     studentID = params.student_id
@@ -219,6 +220,7 @@ async function list(params , user){
 
   if(user.role == 'guardian' && !studentID) 
     throw 'student_id is required'
+
 
   let userData = await User.findByPk(user.id)
 
@@ -240,6 +242,21 @@ async function list(params , user){
 
   if(params.section_id)
     whereCodition.section_id = params.section_id
+
+  if(params.subject_code)
+    whereCodition.subject_code = params.subject_code
+
+  if(params.serach)
+    search = params.search
+
+  whereCodition[Op.or] = { 
+                  description: { 
+                    [Op.like]: `%`+search+`%`
+                  },
+                  title : { 
+                    [Op.like]: `%`+search+`%` 
+                  }
+                }
 
   let student = {}
   switch (user.role) {
