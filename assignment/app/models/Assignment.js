@@ -79,20 +79,12 @@ module.exports = (sequelize, Sequelize) => {
         updated_at: {
           allowNull: false,
           type: Sequelize.DATE
-        },
-        title: {
-          type: Sequelize.VIRTUAL,
-          get () {
-            if(this.getDataValue('subject')){
-              return this.getDataValue('subject').subject_name
-            }
-          }
         }
-  },{
-      tableName: 'assignment',
-      createdAt: 'created_at',
-      updatedAt: 'updated_at'
-    }
+    },{
+        tableName: 'assignment',
+        createdAt: 'created_at',
+        updatedAt: 'updated_at'
+      }
   );
   
   return Assignment;
