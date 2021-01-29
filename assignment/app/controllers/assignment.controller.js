@@ -750,6 +750,8 @@ async function releaseAssignment(body){
  * API for current Week assignment
  */
 async function dashboardData(user , params){
+  if(!params.branch_vls_id ) throw 'branch_vls_id is required'
+
   let startWeek = moment().startOf('isoWeek').format('YYYY-MM-DD');
   let endWeek   = moment().endOf('isoWeek').format('YYYY-MM-DD');
   
@@ -765,9 +767,14 @@ async function dashboardData(user , params){
         whereCodition.added_by = user.userVlsId
       break;
     case 'guardian':
-        if(!params.student_vls_id ) throw 'student_vls_id is required'
-        student = await Student.findByPk(params.student_vls_id)
-        whereCodition.assignment_class_id = student.class_id
+        let students = await Student.findAll({
+          where : { parent_vls_id : user.userVlsId,
+                    branch_vls_id : params.branch_vls_id
+                  },
+          attributes: ['class_id']
+
+        }).then(students => students.map( student => student.class_id));
+        whereCodition.assignment_class_id = { [Op.in] : students }
       break;
     case 'student':
         student = await Student.findByPk(user.userVlsId)
@@ -776,13 +783,13 @@ async function dashboardData(user , params){
     case 'branch-admin':
     case 'school-admin':
     case 'principal':
-      if(!params.branch_vls_id ) throw 'branch_vls_id is required'
       return await getAssignmentCount(params)
       break;
   }
-
+  
   let assignments = await Assignment.findAll({
-    where : whereCodition
+    where : whereCodition,
+    limit: 5
   })
 
   return { success: true, message: "Assignment dashboard data current week", data: assignments} 
