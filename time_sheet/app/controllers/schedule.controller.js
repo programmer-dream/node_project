@@ -290,8 +290,6 @@ async function getAssignment(id, today, branch_id,user){
     let filterAssignments = []
     await Promise.all(
         assignments.map(function( assignment){
-          //let assignmentJson = assignment.toJSON()
-          console.log(assignment)
           let idsArr = JSON.parse(assignment.student_vls_ids)
           if(Array.isArray(idsArr)){
               if(idsArr.includes(id))
