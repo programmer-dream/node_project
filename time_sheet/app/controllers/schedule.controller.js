@@ -38,6 +38,7 @@ async function currentSchedule(user, query){
 
   //check Api according to date 
   let getData   = await getExamDates(id, branch_id, today, role)
+
   if(getData)
      timeTable  = await getTimetable(id, today, branch_id, user)
   //check Api according to date
@@ -224,15 +225,20 @@ async function getExamDates(id, branch_id, date, role){
   student = await Student.findByPk(id)
   whereCondition.class_id = student.class_id
 
-  Dates = await ExamSchedule.findOne({
+  let examDates = await ExamSchedule.findOne({
     where : whereCondition,
     attributes: [
-    [Sequelize.fn('max', Sequelize.col('exam_date')), 'max'],
-    [Sequelize.fn('min', Sequelize.col('exam_date')), 'min']],
+    [Sequelize.fn('max', Sequelize.col('exam_date')), 'maxExamDate'],
+    [Sequelize.fn('min', Sequelize.col('exam_date')), 'minExamDate']],
     group: ['class_id']
   })
-  let momentMax = moment(Dates.max).format('YYYY-MM-DD')
-  let momentMin = moment(Dates.min).format('YYYY-MM-DD')
+
+  examDates = examDates.toJSON()
+  let examMax = examDates.maxExamDate
+  let examMin = examDates.minExamDate
+
+  let momentMax = moment(examMax).format('YYYY-MM-DD')
+  let momentMin = moment(examMin).format('YYYY-MM-DD')
   let reqDate   = moment(date)
 
   if(reqDate.isBetween(momentMin,momentMax )){
