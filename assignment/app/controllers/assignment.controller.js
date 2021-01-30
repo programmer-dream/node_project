@@ -188,6 +188,22 @@ async function view(params , user){
                     include: include
                 }]
             })
+            if(studentAssignment && studentAssignment.assignmentQuestionResponse){
+                studentAssignment = studentAssignment.toJSON()
+                let assignmentQuestion = studentAssignment.assignmentQuestionResponse
+                
+                assignmentQuestion.forEach(function(item, index){
+                  if(item.question_type != 'form') {
+                    let optionArr =  [];
+                    for(let i = 1; i <=4; i++){
+                      let option = studentAssignment.assignmentQuestionResponse[index]['choice'+i]
+                      if(option)
+                        optionArr.push(option)
+                    }
+                    studentAssignment.assignmentQuestionResponse[index]['options'] = optionArr
+                  }
+                })
+            }
 
             if(studentAssignment)
               student.status = studentAssignment.assignment_status
