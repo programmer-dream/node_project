@@ -209,15 +209,15 @@ async function view(params , user){
  */
 async function list(params , user){
   let assignmentState  = params.assignmentState
-  let class_id         = params.class_id
+  let branch_id         = params.branch_id
   let studentID        = user.userVlsId
   let search           = ""
 
   if(user.role == 'guardian')
     studentID = params.student_id
 
-  if((user.role == 'branch-admin' || user.role == 'school-admin' || user.role == 'principal') && !class_id) 
-    throw 'class_id is required'
+  if((user.role == 'branch-admin' || user.role == 'school-admin' || user.role == 'principal') && !branch_id) 
+    throw 'branch_id is required'
 
   if(user.role == 'guardian' && !studentID) 
     throw 'student_id is required'
@@ -246,6 +246,12 @@ async function list(params , user){
 
   if(params.subject_code)
     whereCodition.subject_code = params.subject_code
+
+  if(params.teacher_id)
+    whereCodition.added_by = params.teacher_id
+
+  if(branch_id)
+    whereCodition.branch_vls_id = branch_id
 
   if(params.serach)
     search = params.search
@@ -799,6 +805,51 @@ async function dashboardData(user , params){
                 attributes: ['name']
             }]
   })
+  let filterAssignments = []
+  if(user.role == 'student') {
+    await Promise.all(
+        assignments.map(function( assignment){
+          let idsArr = JSON.parse(assignment.student_vls_ids)
+          if(Array.isArray(idsArr)){
+              if(idsArr.includes(user.userVlsId))
+                filterAssignments.push(assignment)
+              
+          }else{
+            filterAssignments.push(assignment)
+          }
+        })
+      )
+    assignments = filterAssignments
+  }else if(user.role == 'guardian'){
+    await Promise.all(
+        assignments.map(async function( assignment){
+          assignment = assignment.toJSON()
+          assignment.students = []
+          let students = await Student.findAll({
+                where : { parent_vls_id : user.userVlsId,
+                          branch_vls_id : params.branch_vls_id,
+                          class_id : assignment.assignment_class_id
+                        },
+                attributes: ['student_vls_id','name']
+
+          })
+
+          let idsArr = JSON.parse(assignment.student_vls_ids)
+          if(Array.isArray(idsArr)){
+              students.map(function(student){
+                  if(idsArr.includes(student.student_vls_id)){
+                    assignment.students.push(student)
+                    filterAssignments.push(assignment)
+                  }
+              })
+          }else{
+            assignment.students = students
+            filterAssignments.push(assignment)
+          }
+        })
+      );
+    assignments = filterAssignments
+  }
 
   return { success: true, message: "Assignment dashboard data current week", data: assignments} 
 }
