@@ -276,11 +276,6 @@ async function list(params , user){
         whereCodition.assignment_class_id = student.class_id
         whereCodition.is_released = 1
       break;
-    case 'branch-admin':
-    case 'school-admin':
-    case 'principal':
-      whereCodition.assignment_class_id = class_id
-      break;
   }
   
   let assignments = await Assignment.findAll({
