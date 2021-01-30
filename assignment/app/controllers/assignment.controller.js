@@ -191,7 +191,7 @@ async function view(params , user){
             if(studentAssignment && studentAssignment.assignmentQuestionResponse){
                 studentAssignment = studentAssignment.toJSON()
                 let assignmentQuestion = studentAssignment.assignmentQuestionResponse
-                
+
                 assignmentQuestion.forEach(function(item, index){
                   if(item.question_type != 'form') {
                     let optionArr =  [];
@@ -701,17 +701,30 @@ async function questionResponse(req){
 /**
  * API for update marks
  */
-async function updateMarks(req){
-  const errors = validationResult(req);
-  if(errors.array().length) throw errors.array()
+async function updateMarks(body, user){
 
-    let user          = req.user
     if(user.role != 'teacher') throw 'unauthorised user'
 
-    let allAssessment = req.body
+    if(!body.assignment_status)
+        throw 'assignment_status field is required'
+
+    if(!body.total_marks)
+      throw 'total_marks field is required'
+
+    if(!body.teacher_comment)
+      throw 'teacher_comment field is required'
+
+    let allAssessment = body.questionmarks
     let totalMarks    = 0
     let assignmentId  = 0
-    let student_id  = 0
+    let student_id    = 0
+    let studentAssignmentId = body.studentAssignmentId
+
+    let studentAssessment = {
+        assignment_status : body.assignment_status,
+        assessment : body.total_marks,
+        teacher_comment : body.teacher_comment
+    }
     await Promise.all(
       allAssessment.map(async assessment => { 
           if(!assessment.assignment_id)
@@ -725,7 +738,6 @@ async function updateMarks(req){
 
           assignmentId = assessment.assignment_id
           student_id   = assessment.student_vls_id
-          totalMarks  += parseInt(assessment.marks)
           let marks    = { assessment : assessment.marks}
           
           await StudentAssignmentResponse.update(marks,{
@@ -737,12 +749,10 @@ async function updateMarks(req){
           })
       })
     )
-    let studentAssessment = { assessment : totalMarks }
     
     await StudentAssignment.update(studentAssessment, {
         where : {
-            student_vls_id : student_id,
-            assignment_vls_id : assignmentId
+            student_assignment_id : studentAssignmentId
         }
     })
     return { success: true, message: "marks updated successfully"}

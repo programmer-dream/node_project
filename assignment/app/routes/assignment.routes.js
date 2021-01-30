@@ -49,6 +49,7 @@ router.put("/update/:id",[
 router.put("/assignToStudents/:id",assignToStudents)
 router.put("/changeAssignmentStatus/:student_assignment_id",changeAssignmentStatus)
 router.put("/updateMarks",updateMarks)
+
 router.put("/releaseAssignment",[
     check('is_released','is_released field is required.').not().isEmpty(),
     check('assignment_id','assignment_id field is required.').not().isEmpty()
@@ -166,7 +167,7 @@ function questionResponse(req, res, next) {
 
 // Function for assignment question response
 function updateMarks(req, res, next) {
-    assignmentController.updateMarks(req)
+    assignmentController.updateMarks(req.body, req.user)
         .then(assignment => assignment ? res.json(assignment) : res.status(400).json({ status: "error", message: 'Error while update assignment question' }))
         .catch(err => next(err));
 }
