@@ -81,6 +81,9 @@ module.exports = (sequelize, Sequelize) => {
       ERP_support: {
         type: Sequelize.ENUM('yes','no')
       },
+      attendance_subject_wise: {
+        type: Sequelize.ENUM('yes','no')
+      },
       authentication_type: {
         type: Sequelize.ENUM('OTP', 'thirdparty','captcha','checkbox')
       },

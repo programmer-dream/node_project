@@ -16,6 +16,6 @@ module.exports = {
       twillioAccountSid: 'ACffdbec4f715b7c867c1d72a314ef1bbe',
       twillioauthToken: '9d9b57181e25145dbfdca406c6bd31eb',
       twillioNumber: '+17406288702',
-      permissionsArray : "feedback_support,learning_library_support,video_library_support,assignment_support,chat_support,community_chat_support,rewards_and_recognition_support,notification_support,alert_support,mailbox_support,ERP_support"
+      permissionsArray : "feedback_support,learning_library_support,video_library_support,assignment_support,chat_support,community_chat_support,rewards_and_recognition_support,notification_support,alert_support,mailbox_support,ERP_support,learning_library_support_type,attendance_subject_wise"
 };
 

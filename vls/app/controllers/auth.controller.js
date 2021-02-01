@@ -364,23 +364,30 @@ async function userSettings(user) {
     if(!userDetails) throw 'User not found'
     if(!userDetails.school) throw 'School is not associated with this user'
     if(!userDetails.branch) throw 'Branch is not associated with this user'
-    if(!userDetails.userSetting) throw 'User Setting is not associated with this user' 
 
     userDetails = userDetails.toJSON()
     let permissionArray = config.permissionsArray.split(',')
 
     let userSettings = userDetails.userSetting
-
-    delete userSettings.user_settings_vls_id
-    delete userSettings.created_at
-    delete userSettings.updated_at
+    
+    if(!userSettings){
+      userSettings = {}
+    }else{
+      delete userSettings.user_settings_vls_id
+      delete userSettings.created_at
+      delete userSettings.updated_at
+    }
 
     permissionArray.map( item => {
 
       if( userDetails.school[item] == null || userDetails.school[item] == 'no' ){
         userSettings[item] = 'no'
+      }else if( userDetails.school[item] == 'yes' ){
+        userSettings[item] = 'yes'
       }else if( userDetails.branch[item] == null || userDetails.branch[item] == 'no' ){
         userSettings[item] = 'no'
+      }else if( userDetails.branch[item] == 'yes' ){
+        userSettings[item] = 'yes'
       }
 
     })

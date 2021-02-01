@@ -97,6 +97,9 @@ module.exports = (sequelize, Sequelize) => {
       ERP_support: {
         type: Sequelize.ENUM('yes','no')
       },
+      attendance_subject_wise: {
+        type: Sequelize.ENUM('yes','no')
+      },
       learning_library_support_type: {
         type: Sequelize.ENUM('SMS', 'Email', 'Both')
       },
