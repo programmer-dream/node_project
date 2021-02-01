@@ -13,6 +13,7 @@ const Authentication = db.Authentication;
 const StudentAbsent = db.StudentAbsent;
 const Subject 		= db.Subject;
 const Guardian 		= db.Guardian;
+const SubjectList   = db.SubjectList;
 
 
 module.exports = {
@@ -696,7 +697,7 @@ async function updateLeaveReason(req, user){
 	}
 	if(req.body.subject_code)
 		reasonData.subject_code = req.body.subject_code
-	
+
 	let studentAbsent = await StudentAbsent.findOne({
 		where:{id:id}
 	})
@@ -826,10 +827,10 @@ async function dashboardAttendanceCount(user){
 
 
 async function sectionWiseAttendance(class_id, section_id, currentYear, currentMonth, currentDay){
-	let presentCount = 0
-	let absentCount  = 0
-	let attributes = []
+	let attributes = ['subject_code']
+	let subjectAttendance = {}
 	attributes.push('day_'+currentDay)
+
 	let attendances  = await StudentAttendance.findAll({
 					where: {
 						class_id   : class_id,
@@ -839,25 +840,44 @@ async function sectionWiseAttendance(class_id, section_id, currentYear, currentM
 					},
 					attributes:attributes
 				})
+	
 	if(attendances.length){
 		await Promise.all(
 			attendances.map(async attendance => {
+				let subName = 'total'
+				if(attendance.subject_code){
+					subName = await SubjectList.findOne({
+									where: {
+										code : attendance.subject_code
+									}
+								})
+					subName =  subName.subject_name
+				}
+				if(!subjectAttendance[subName]){
+				  	subjectAttendance[subName] = {}
+				  	subjectAttendance[subName]['present'] = 0
+				  	subjectAttendance[subName]['absent'] = 0
+				}
+
 	 			if(attendance['day_'+currentDay] =='P'){
-	 				presentCount++
+	 				console.log('present')
+	 				subjectAttendance[subName]['present'] += 1
 	 			}else if(attendance['day_'+currentDay] =='A'){
-	 				absentCount++
+	 				console.log('absent')
+	 				subjectAttendance[subName]['absent'] += 1
 	 			}
 	 		})
 		)
 	}
-	return { present : presentCount, absent : absentCount}
+	return subjectAttendance
 }
 
 
 async function classWiseAttendance(class_id, currentYear, currentMonth, currentDay){
 	let presentCount = 0
 	let absentCount  = 0
-	let attributes = []
+	let attributes   = ['subject_code']
+	let subjectAttendance = {}
 	attributes.push('day_'+currentDay)
 	let attendances  = await StudentAttendance.findAll({
 				where: {
@@ -870,15 +890,29 @@ async function classWiseAttendance(class_id, currentYear, currentMonth, currentD
 	if(attendances.length){
 		await Promise.all(
 			attendances.map(async attendance => {
+				let subName = 'total'
+				if(attendance.subject_code){
+					subName = await SubjectList.findOne({
+									where: {
+										code : attendance.subject_code
+									}
+								})
+					subName =  subName.subject_name
+				}
+				if(!subjectAttendance[subName]){
+				  subjectAttendance[subName] = {}
+				  subjectAttendance[subName]['present'] = 0;
+				  subjectAttendance[subName]['absent'] = 0
+				}
 	 			if(attendance['day_'+currentDay] =='P'){
-	 				presentCount++
+	 				subjectAttendance[subName]['present'] += 1
 	 			}else if(attendance['day_'+currentDay] =='A'){
-	 				absentCount++
+	 				subjectAttendance[subName]['absent'] += 1
 	 			}
 	 		})	
 		)
 	}
-	return { present : presentCount, absent : absentCount}
+	return subjectAttendance
 }
 
 

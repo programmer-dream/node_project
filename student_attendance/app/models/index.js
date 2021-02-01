@@ -75,6 +75,7 @@ db.AcademicYear = require("./AcademicYear.js")(sequelize, Sequelize);
 db.Authentication = require("../../../vls/app/models/Authentication.js")(sequelize, Sequelize);
 db.StudentAbsent = require("./StudentAbsent.js")(sequelize, Sequelize);
 db.Subject = require("../../../query_management/app/models/Subject.js")(sequelize, Sequelize);
+db.SubjectList = require("../../../query_management/app/models/SubjectList.js")(sequelize, Sequelize);
 
 //relatons
 db.Classes.hasMany(db.Section,{foreignKey:'class_id',as:'sections'})
