@@ -145,6 +145,10 @@ module.exports = (sequelize, Sequelize) => {
       },
       modified_by: {
         type: Sequelize.INTEGER
+      },
+      subject_code: {
+        type: Sequelize.STRING,
+        
       } 
   },{
     tableName: 'student_attendances',

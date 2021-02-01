@@ -55,19 +55,20 @@ async function create(req, user){
 
 	let presentStudent	= req.body.present
 	let absentStudent	= req.body.absent
+	let subject_code    = req.body.subject_code
 
 	let day = 'day_'+moment().format('D')
 	let allAttendance = []
 
-  	let presentStudentArray = await mergeStudents(user, day, presentStudent, allAttendance, 'P')
+  	let presentStudentArray = await mergeStudents(user, day, presentStudent, allAttendance, 'P', subject_code)
 
-  	let finalStudentArray = await mergeStudents(user, day, absentStudent, presentStudentArray, 'A')
+  	let finalStudentArray = await mergeStudents(user, day, absentStudent, presentStudentArray, 'A', subject_code)
   	
   return { success: true, message: "Student attendance created successfully", data:finalStudentArray};
 };
 
 
-async function mergeStudents(user, day, studentArray, all_attendance, status){
+async function mergeStudents(user, day, studentArray, all_attendance, status, subject_code){
 	
 	await Promise.all(
 	  	studentArray.map(async student_vls_id => {
@@ -78,7 +79,8 @@ async function mergeStudents(user, day, studentArray, all_attendance, status){
 			let academicYear = await AcademicYear.findOne({
 				where : {
 							school_id  : user.school_id,
-							is_running : 1
+							is_running : 1,
+
 						}
 			});
 
@@ -89,9 +91,10 @@ async function mergeStudents(user, day, studentArray, all_attendance, status){
 				section_id: user.section_id,
 				school_id: user.school_id,
 				academic_year_id: academicYear.id,
-				month: getDate('month'),
-				year: getDate('year'),
-				created_by: user.user_vls_id
+				month: await getDate('month'),
+				year: await getDate('year'),
+				created_by: user.user_vls_id,
+				subject_code : subject_code
 			}
 			attendanceP[day] = status
 
@@ -99,9 +102,11 @@ async function mergeStudents(user, day, studentArray, all_attendance, status){
 							  	where : {
 							  		student_id:student_vls_id,
 							  		month:attendanceP.month,
-							  		year:attendanceP.year
+							  		year:attendanceP.year,
+							  		subject_code : subject_code
 							  	}
 							  })
+			
 			if(attendance){
 				attendance.update(attendanceP)
 			}else{
@@ -126,10 +131,11 @@ async function update(req, user){
 	if(errors.array().length) throw errors.array()
 	
 	let studentIDs		= req.body.studentIDs
+	let subject_code    = req.body.subject_code
 	let attendance 		= {}
 	let day 			= 'day_'+moment(req.body.date).format('D')
 	let present         = 'A';
-
+	
 	if(req.body.present)  
 		present = 'P'
 
@@ -142,18 +148,20 @@ async function update(req, user){
 		where : {
 			student_id : {[Op.in] : studentIDs },
 			month	   : attendance.month,
-			year 	   : attendance.year
+			year 	   : attendance.year,
+			subject_code : subject_code
 		}
 	})
-
+	//return studentAttendance
 	if(studentAttendance.length < 1) 
 		throw "Attendance not found for this date or month"
-
+	
 	await StudentAttendance.update(attendance, {
 		where : {
 			student_id : {[Op.in] : studentIDs },
 			month	   : attendance.month,
-			year 	   : attendance.year
+			year 	   : attendance.year,
+			subject_code : subject_code
 		}
 	})
 
