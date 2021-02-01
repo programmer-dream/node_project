@@ -501,7 +501,8 @@ async function daysArray(attendance, checkForParentStudent = false, checkConditi
 												student_id:student.student_id,
 												date_of_absent:{ 
 								                  [Op.between]: [absent_date, absent_date]
-								                }
+								                },
+								                subject_code:student.subject_code
 											},
 											attributes:['id', 'reason', 'date_of_absent']
 										})
@@ -626,7 +627,7 @@ async function listForParent(params, user){
     
     //return whereCondtion
 	let attendance  = await StudentAttendance.findAll(attendenceQuery);
-	// return attendance
+	//return attendance
 	let checkForParentStudent = true
 	let checkCondition = false
 	if(moment(params.month, 'M').format('MMMM') == moment().format('MMMM')){
