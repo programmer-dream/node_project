@@ -147,8 +147,7 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.INTEGER
       },
       subject_code: {
-        type: Sequelize.STRING,
-        
+        type: Sequelize.STRING(100)
       } 
   },{
     tableName: 'student_attendances',

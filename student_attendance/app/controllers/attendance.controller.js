@@ -348,7 +348,7 @@ async function addLeaveReason(req, user){
 				where : {student_vls_id : req.body.student_id}
 			});
 	let date_of_absent = moment(req.body.dateOfAbsent).format('YYYY-MM-DD')
-	//return student
+	
 	let reasonData = {
 		student_id : req.body.student_id,
 		school_id  : student.school_id,
@@ -359,6 +359,8 @@ async function addLeaveReason(req, user){
 		reason     : req.body.reason,
 		date_of_absent  : date_of_absent
 	}
+	if(req.body.subject_code)
+		reasonData.subject_code = req.body.subject_code
 
 	let studentAbsent = await StudentAbsent.create(reasonData)
 	if(!studentAbsent) throw 'Leave reason not updated'
@@ -384,6 +386,9 @@ async function listForTeacher(params, user){
 
     if(!params.branch_id) throw 'Branch_id is required'
     	whereCondtion.branch_vls_id = params.branch_id
+
+    if(params.subject_code)
+    	whereCondtion.subject_code = params.subject_code
 
 	if(params.size)
     	limit = parseInt(params.size)
@@ -558,6 +563,9 @@ async function listForParent(params, user){
     if(!params.branch_id) throw 'Branch_id is required'
     	whereCondtion.branch_vls_id = params.branch_id
 
+    if(params.subject_code)
+    	whereCondtion.subject_code = params.subject_code
+
 	if(params.size)
     	limit = parseInt(params.size)
   	if(params.page)
@@ -581,7 +589,7 @@ async function listForParent(params, user){
     	let currentYear		= moment().format('YYYY');
     	whereCondtion.year 	= currentYear
     }
-
+    //return whereCondtion
     let attendenceQuery = {  
 	                  limit : limit,
 	                  offset: offset,
@@ -686,7 +694,9 @@ async function updateLeaveReason(req, user){
 		reason     : req.body.reason,
 		date_of_absent  : date_of_absent
 	}
-
+	if(req.body.subject_code)
+		reasonData.subject_code = req.body.subject_code
+	
 	let studentAbsent = await StudentAbsent.findOne({
 		where:{id:id}
 	})
