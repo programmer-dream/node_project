@@ -50,6 +50,10 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: true,
         type: Sequelize.ENUM('yes', 'no')
       },
+      attendance_subject_wise: {
+        allowNull: true,
+        type: Sequelize.ENUM('yes', 'no')
+      },
       student_report: {
         allowNull: true,
         type: Sequelize.ENUM('Readonly', 'ReadWrite')
