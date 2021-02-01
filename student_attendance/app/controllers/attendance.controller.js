@@ -55,7 +55,10 @@ async function create(req, user){
 
 	let presentStudent	= req.body.present
 	let absentStudent	= req.body.absent
-	let subject_code    = req.body.subject_code
+	let subject_code    = null
+
+	if(req.body.subject_code)
+		subject_code    = req.body.subject_code
 
 	let day = 'day_'+moment().format('D')
 	let allAttendance = []
@@ -93,18 +96,24 @@ async function mergeStudents(user, day, studentArray, all_attendance, status, su
 				academic_year_id: academicYear.id,
 				month: await getDate('month'),
 				year: await getDate('year'),
-				created_by: user.user_vls_id,
-				subject_code : subject_code
+				created_by: user.user_vls_id
 			}
+			//where condition 
+			let whereCondtion = {
+		  		student_id:student_vls_id,
+		  		month:attendanceP.month,
+		  		year:attendanceP.year,
+		  	}
+		  	//check subject code
+			if(subject_code){
+				attendanceP.subject_code = subject_code
+				whereCondtion.subject_code = subject_code
+			}
+
 			attendanceP[day] = status
 
 			let attendance = await StudentAttendance.findOne({
-							  	where : {
-							  		student_id:student_vls_id,
-							  		month:attendanceP.month,
-							  		year:attendanceP.year,
-							  		subject_code : subject_code
-							  	}
+							  	where : whereCondtion
 							  })
 			
 			if(attendance){
@@ -131,7 +140,7 @@ async function update(req, user){
 	if(errors.array().length) throw errors.array()
 	
 	let studentIDs		= req.body.studentIDs
-	let subject_code    = req.body.subject_code
+
 	let attendance 		= {}
 	let day 			= 'day_'+moment(req.body.date).format('D')
 	let present         = 'A';
@@ -144,33 +153,28 @@ async function update(req, user){
 	attendance[day] 			= present
 	attendance.modified_by 		= user.userVlsId
 
-	let studentAttendance = await StudentAttendance.findAll({
-		where : {
-			student_id : {[Op.in] : studentIDs },
-			month	   : attendance.month,
-			year 	   : attendance.year,
-			subject_code : subject_code
-		}
-	})
-	//return studentAttendance
-	if(studentAttendance.length < 1) 
-		throw "Attendance not found for this date or month"
-	
-	await StudentAttendance.update(attendance, {
-		where : {
-			student_id : {[Op.in] : studentIDs },
-			month	   : attendance.month,
-			year 	   : attendance.year,
-			subject_code : subject_code
-		}
-	})
-
-	let updatedStudent = await StudentAttendance.findAll({
-		where : {
+	let whereCondtion = {
 			student_id : {[Op.in] : studentIDs },
 			month	   : attendance.month,
 			year 	   : attendance.year
 		}
+
+	if(req.body.subject_code)
+		whereCondtion.subject_code    = req.body.subject_code
+			
+	let studentAttendance = await StudentAttendance.findAll({
+		where : whereCondtion
+	})
+	
+	if(studentAttendance.length < 1) 
+		throw "Attendance not found for this date or month"
+	
+	await StudentAttendance.update(attendance, {
+		where : whereCondtion
+	})
+
+	let updatedStudent = await StudentAttendance.findAll({
+		where : whereCondtion
 	})
 
   	return { success: true, message: "Student attendance updated successfully", data: updatedStudent};
