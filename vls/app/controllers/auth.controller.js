@@ -384,10 +384,14 @@ async function userSettings(user) {
         userSettings[item] = 'no'
       }else if( userDetails.school[item] == 'yes' ){
         userSettings[item] = 'yes'
-      }else if( userDetails.branch[item] == null || userDetails.branch[item] == 'no' ){
-        userSettings[item] = 'no'
-      }else if( userDetails.branch[item] == 'yes' ){
-        userSettings[item] = 'yes'
+      }
+      
+      if( userSettings[item] == 'yes' ){
+        if( userDetails.branch[item] == null || userDetails.branch[item] == 'no' ){
+          userSettings[item] = 'no'
+        }else if( userDetails.branch[item] == 'yes' ){
+          userSettings[item] = 'yes'
+        }
       }
 
     })
