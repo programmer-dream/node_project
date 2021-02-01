@@ -40,7 +40,7 @@ app.use('/schedule', require('./app/routes/schedule.routes'));
 app.use(errorHandler);
 
 // set port, listen for requests
-const PORT = process.env.PORT || 3005;
+const PORT = process.env.PORT || 3051;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
 });
