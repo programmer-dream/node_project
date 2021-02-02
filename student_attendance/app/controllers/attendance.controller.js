@@ -368,10 +368,15 @@ async function addLeaveReason(req, user){
 	
 	const errors = validationResult(req);
 	if(errors.array().length) throw errors.array()
-	//return req.body
+	
 	let student = await Student.findOne({
 				where : {student_vls_id : req.body.student_id}
 			});
+	let isSubjectAttendanceEnable = await isSubjectAttendance(student.branch_vls_id);
+	
+	if(isSubjectAttendanceEnable && !req.body.subject_code )
+		throw 'subject_code is required'
+
 	let date_of_absent = moment(req.body.dateOfAbsent).format('YYYY-MM-DD')
 	
 	let reasonData = {
@@ -705,11 +710,20 @@ async function listParentChildren(params, user){
  * API for update leave reason
  */
 async function updateLeaveReason(req, user){
-	if(user.role !='guardian') 
-		throw 'Unauthorised User'
-	let id       = req.params.id
 	const errors = validationResult(req);
 	if(errors.array().length) throw errors.array()
+
+	if(user.role !='guardian') throw 'Unauthorised User'
+
+	let id       = req.params.id
+	let userdata = await Authentication.findOne({
+		where:{auth_vls_id: user.id},
+		attributes: ['branch_vls_id']
+	})
+	let isSubjectAttendanceEnable = await isSubjectAttendance(userdata.branch_vls_id);
+	
+	if(isSubjectAttendanceEnable && !req.body.subject_code )
+		throw 'subject_code is required'
 
 	let date_of_absent = moment(req.body.dateOfAbsent).format('YYYY-MM-DD')
 	//return student
