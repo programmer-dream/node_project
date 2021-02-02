@@ -124,7 +124,12 @@ async function list(params , user){
 
   if(params.subject){
     let subject = await getSubjectCode(params.subject)
-    subjectCode = subject.code
+    if(subject && subject.code){
+      subjectCode = subject.code
+    }else{
+      return { success: true, message: "All Learning library data", total:0, data:[] }
+    }
+
   }
 
 
@@ -158,7 +163,7 @@ async function list(params , user){
   }
 
   if(subjectCode && subjectCode != "")
-      whereCondition.subject_code = subjectCode
+    whereCondition.subject_code = subjectCode
 
   //orderBy 
   if(params.orderBy)
