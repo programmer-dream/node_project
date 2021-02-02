@@ -31,21 +31,32 @@ async function currentSchedule(user, query){
   let id        = user.userVlsId
   let branch_id = userData.branch_vls_id
   let today     = moment().format('YYYY-MM-DD')
+  let startDate = moment().format('YYYY-MM-DD')
+  let endDate   = moment().format('YYYY-MM-DD')
   let finalArr  = []
   let timeTable = []
-  if(query.date)
-      today     = moment(query.date).format('YYYY-MM-DD')
+  // if(query.date)
+  //     today     = moment(query.date).format('YYYY-MM-DD')
+
+  if(query.startDate)
+     startDate = moment(query.startDate).format('YYYY-MM-DD')
+
+  if(query.endDate)
+     endDate   = moment(query.endDate).format('YYYY-MM-DD')
 
   //check Api according to date 
-  let getData   = await getExamDates(id, branch_id, today, role)
-
+  let getData   = await getExamDates(branch_id, user, startDate, endDate)
+    
   if(getData)
-     timeTable  = await getTimetable(id, today, branch_id, user)
+    timeTable  = await getTimetable(branch_id, user, startDate, endDate)
+  
   //check Api according to date
 
-  let meetings  = await getMeeting(id, today, branch_id, user)
-  let exams     = await getExamSchedule(id, today, branch_id,user)
-  let assignment= await getAssignment(id, today, branch_id, user)
+  let meetings  = await getMeeting(branch_id, user, startDate, endDate)
+
+  let exams     = await getExamSchedule(branch_id, user, startDate, endDate)
+  
+  let assignment= await getAssignment(branch_id, user, startDate, endDate)
 
   let schedules = timeTable.concat(meetings,assignment)
       finalArr  = schedules
@@ -83,21 +94,32 @@ async function currentSchedule(user, query){
 /**
  * API for get current day time table schedule
  */
-async function getTimetable(id, today, branch_id, user){
-  let day       = moment(today).format('dddd')
+async function getTimetable(branch_id, user, start, end){
+  start = moment(start)
+  end   = moment(end)
+  
+  let dateArr = []
+  while (start <= end) {
+    dateArr.push(start.format('dddd'))
+    start = moment(start, 'YYYY-MM-DD').add(1, 'days');
+  }
+  
+  let days      = dateArr
   let student   = {}
   let timeTable = {}
   let whereCondition = { 
-                          day           : day,
+                          day : { 
+                                  [Op.in]: days 
+                          },
                           branch_vls_id : branch_id
                        }
   
   switch(user.role) {
     case 'teacher':
-          whereCondition.teacher_id = id
+          whereCondition.teacher_id = user.userVlsId
       break;
     case 'student':
-          student = await Student.findByPk(id)
+          student = await Student.findByPk(user.userVlsId)
           whereCondition.class_id = student.class_id
       break;
     case 'branch-admin':
@@ -127,30 +149,30 @@ async function getTimetable(id, today, branch_id, user){
 /**
  * API for get current day meeting schedule
  */
-async function getMeeting(id, today, branch_id, user){
-      let start  = today+" 00:00"
-      let end    = today+" 23:59"
+async function getMeeting(branch_id, user, start, end){
+
       let whereCondition = { 
                               branch_id : branch_id,
-                              date:{ 
-                                    [Op.between]: [start, end]
-                              } 
+                              [Op.and]: [
+                                  sequelize.where(sequelize.fn('date', sequelize.col('date')), '>=', start),
+                                  sequelize.where(sequelize.fn('date', sequelize.col('date')), '<=', end),
+                              ] 
                            }
 
       switch(user.role) {
       case 'teacher':
             whereCondition.attendee_type = 'teacher'
-            whereCondition.attendee_vls_id = id
+            whereCondition.attendee_vls_id = user.userVlsId
         break;
       case 'branch-admin':
       case 'principal':
-            whereCondition.meeting_author_vls_id = id
+            whereCondition.meeting_author_vls_id = user.userVlsId
         break;
       case 'student':
             return []
         break;
       case 'guardian':
-            whereCondition.attendee_vls_id = id
+            whereCondition.attendee_vls_id = user.userVlsId
             whereCondition.attendee_type   = 'parent'
         break;
     }
@@ -180,19 +202,18 @@ function compare( a, b ) {
 /**
  * API for get current day time table schedule
  */
-async function getExamSchedule(id, today, branch_id,user){
-  let start  = today+" 00:00"
-  let end    = today+" 23:59"
+async function getExamSchedule(branch_id, user, start, end ){
   let exams  = {}
   let student= {}
   let whereCondition = { 
                           Branch_vls_id : branch_id,
-                          exam_date     : { 
-                                            [Op.between]: [start, end]
-                                          },
+                          [Op.and]: [
+                                  sequelize.where(sequelize.fn('date', sequelize.col('exam_date')), '>=', start),
+                                  sequelize.where(sequelize.fn('date', sequelize.col('exam_date')), '<=', end),
+                              ]
                        }
   if(user.role == 'student') {
-    student = await Student.findByPk(id)
+    student = await Student.findByPk(user.userVlsId)
     whereCondition.class_id = student.class_id
 
     exams = ExamSchedule.findAll({
@@ -208,6 +229,8 @@ async function getExamSchedule(id, today, branch_id,user){
                             }]
                  })
     return exams
+  }else{
+    return []
   }
 }
 
@@ -215,14 +238,14 @@ async function getExamSchedule(id, today, branch_id,user){
 /**
  * API for get current day time table schedule
  */
-async function getExamDates(id, branch_id, date, role){
-  if(role != 'student')
+async function getExamDates(branch_id, user, start, end){
+  if(user.role != 'student')
       return false
 
   let whereCondition = { 
                           Branch_vls_id : branch_id
                        }
-  student = await Student.findByPk(id)
+  student = await Student.findByPk(user.userVlsId)
   whereCondition.class_id = student.class_id
 
   let examDates = await ExamSchedule.findOne({
@@ -239,7 +262,7 @@ async function getExamDates(id, branch_id, date, role){
 
   let momentMax = moment(examMax).format('YYYY-MM-DD')
   let momentMin = moment(examMin).format('YYYY-MM-DD')
-  let reqDate   = moment(date)
+  let reqDate   = moment('2021-2-2')
 
   if(reqDate.isBetween(momentMin,momentMax )){
     return false
@@ -256,21 +279,24 @@ async function getExamDates(id, branch_id, date, role){
 /**
  * API for get current day assignment
  */
-async function getAssignment(id, today, branch_id,user){
+async function getAssignment(branch_id, user, start, end){
   let exams    = {}
   let student  = {}
   
   let whereCondition = {
     branch_vls_id : branch_id,
-    [Op.eq]: sequelize.where(sequelize.fn('date', sequelize.col('assignment_completion_date')), '=', today)  
+    [Op.and]: [
+                sequelize.where(sequelize.fn('date', sequelize.col('assignment_completion_date')), '>=', start),
+                sequelize.where(sequelize.fn('date', sequelize.col('assignment_completion_date')), '<=', end),
+            ]  
   }
   
   switch(user.role) {
     case 'teacher':
-          whereCondition.added_by = id
+          whereCondition.added_by = user.userVlsId
       break;
     case 'student':
-          student = await Student.findByPk(id)
+          student = await Student.findByPk(user.userVlsId)
           whereCondition.assignment_class_id = student.class_id
       break;
     case 'branch-admin':
