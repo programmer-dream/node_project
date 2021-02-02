@@ -316,7 +316,7 @@ async function updatePasswordWithForgetPwd(body) {
   //encrypt new password
   let updatedPassword = bcrypt.hashSync(newPassword, 8)
 
-  let response = await checkPasswordCriteria(body.password, user.roles.slug, user.name)
+  let response = await checkPasswordCriteria(newPassword, user.roles.slug, user.name)
   if(response.isError) throw response.error
 
   allPwd.forEach(function (item, index){
