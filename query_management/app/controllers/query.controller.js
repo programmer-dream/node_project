@@ -335,7 +335,7 @@ async function listSubject(params, user){
   try{
 
     let wherecondition = { branch_vls_id: { [Op.eq]: null } }
-    if(params.branchId)
+    if(params.branchId && params.branchId != null)
       wherecondition = {branch_vls_id:params.branchId}
     console.log(wherecondition)
     let subjects  = await SubjectList.findAll({
