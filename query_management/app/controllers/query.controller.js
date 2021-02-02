@@ -195,7 +195,8 @@ async function list(params,user){
                                     'response',
                                     'response_date',
                                     'is_comment',
-                                    'subject_code'
+                                    'subject_code',
+                                    'reject_comment'
                                   ]
                       });
   return { success: true, message: "All query data", total : allCount ,data:studentQuery }
@@ -337,7 +338,7 @@ async function listSubject(params, user){
     let wherecondition = { branch_vls_id: { [Op.eq]: null } }
     if(params.branchId && params.branchId != "null" )
       wherecondition = {branch_vls_id:params.branchId}
-    
+
     let subjects  = await SubjectList.findAll({
                         where:wherecondition,
                         attributes: ['id','subject_name','code']
