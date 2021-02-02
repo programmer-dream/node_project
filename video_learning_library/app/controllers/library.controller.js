@@ -119,7 +119,14 @@ async function list(params , user){
   let limit         = 10;
   let offset        = 0;
   let search        = '';
+  let subjectCode   = ""
   if(params.level && !level.includes(params.level) ) throw 'level must be Basic,Intermediate or Expert'
+
+  if(params.subject){
+    let subject = await getSubjectCode(params.subject)
+    subjectCode = subject.code
+  }
+
 
   if(params.search)
     search = params.search
@@ -149,6 +156,10 @@ async function list(params , user){
     level.push(params.level)
     whereCondition.recommended_student_level = { [Op.in]: level }
   }
+
+  if(subjectCode && subjectCode != "")
+      whereCondition.subject_code = subjectCode
+
   //orderBy 
   if(params.orderBy)
      orderBy = params.orderBy
@@ -192,6 +203,21 @@ async function list(params , user){
   return { success: true, message: "All Learning library data", total:total, data:learningLibrary }
 };
 
+/**
+ * function to subject code
+ */
+async function getSubjectCode(subject){
+  let whereCodition = {
+    branch_vls_id: { [Op.eq]: null },  
+    [Op.eq]: sequelize.where(sequelize.fn('lower', sequelize.col('subject_name')), '=', subject) 
+  }
+  let subjectData = SubjectList.findOne({
+                      where: whereCodition,
+                      attributes: ['id','subject_name','code']
+                    });
+
+  return subjectData
+}
 
 /**
  * API for query update 
