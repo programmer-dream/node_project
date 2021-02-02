@@ -5,6 +5,9 @@ module.exports = {
     password: "pass@1234",
     database: "vlsdev",
     dialect: "mysql",
+    dialectOptions: {
+      charset: 'latin1',
+    },
     pool: {
       max: 5,
       min: 0,
@@ -18,6 +21,9 @@ module.exports = {
     database: "",
     host: "",
     dialect: 'mysql',
+    dialectOptions: {
+      charset: 'latin1',
+    },
     pool: {
       max: 5,
       min: 0,

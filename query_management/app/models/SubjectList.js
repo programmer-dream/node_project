@@ -30,7 +30,9 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.DATE
       }
   },{
-      tableName: 'subject_list'
+      tableName: 'subject_list',
+      createdAt: 'created_at',
+      updatedAt: 'updated_at'
     }
   );
   

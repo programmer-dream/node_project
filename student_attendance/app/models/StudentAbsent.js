@@ -29,6 +29,9 @@ module.exports = (sequelize, Sequelize) => {
       },
       modified_by: {
         type: Sequelize.INTEGER
+      },
+      subject_code: {
+        type: Sequelize.STRING(100)
       }
   },{
       tableName: 'student_absent',

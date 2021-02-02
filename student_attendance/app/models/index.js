@@ -12,6 +12,7 @@ let poolMax
 let poolMin
 let poolAcquire
 let poolIdle
+let dialectOptions
 
 if(envMode == "production"){
 	DB = dbConfig.production.database
@@ -19,6 +20,7 @@ if(envMode == "production"){
 	passowrd = dbConfig.production.password
 	host = dbConfig.production.host
 	dialect = dbConfig.production.dialect
+	dialectOptions = dbConfig.production.dialectOptions
 	poolMax = dbConfig.production.pool.max
 	poolMin = dbConfig.production.pool.min
 	poolAcquire = dbConfig.production.pool.acquire
@@ -29,6 +31,7 @@ if(envMode == "production"){
 	passowrd = dbConfig.development.password
 	host = dbConfig.development.host
 	dialect = dbConfig.development.dialect
+	dialectOptions = dbConfig.development.dialectOptions
 	poolMax = dbConfig.development.pool.max
 	poolMin = dbConfig.development.pool.min
 	poolAcquire = dbConfig.development.pool.acquire
@@ -39,6 +42,7 @@ const Sequelize = require("sequelize");
 const sequelize = new Sequelize(DB, user, passowrd, {
   host: host,
   dialect: dialect,
+  dialectOptions:dialectOptions,
   pool: {
     max: poolMax,
     min: poolMin,
@@ -71,6 +75,7 @@ db.AcademicYear = require("./AcademicYear.js")(sequelize, Sequelize);
 db.Authentication = require("../../../vls/app/models/Authentication.js")(sequelize, Sequelize);
 db.StudentAbsent = require("./StudentAbsent.js")(sequelize, Sequelize);
 db.Subject = require("../../../query_management/app/models/Subject.js")(sequelize, Sequelize);
+db.SubjectList = require("../../../query_management/app/models/SubjectList.js")(sequelize, Sequelize);
 
 //relatons
 db.Classes.hasMany(db.Section,{foreignKey:'class_id',as:'sections'})
