@@ -256,10 +256,16 @@ async function studentList(params){
 	let limit   		= 100
 	let offset  		= 0
 	let whereCondtion 	= {}
-
+	let subjectCode 	= params.subject_code
 	if(!params.class_id) throw 'class_id is required'
     if(!params.branch_vls_id) throw 'branch_vls_id is required'
 
+    let isSubjectAttendanceEnable = await isSubjectAttendance(params.branch_vls_id);
+
+	if(isSubjectAttendanceEnable && !params.subject_code ){
+		subjectCode = await getFirstSubject(params.branch_vls_id)
+	}
+		
 	if(params.size)
     	limit = parseInt(params.size)
   	if(params.page)
@@ -298,13 +304,13 @@ async function studentList(params){
 	                            }]
 			            });
 
-	let mergeStudentsAttendence = await mergeStudentAttendence(students)
+	let mergeStudentsAttendence = await mergeStudentAttendence(students,subjectCode)
 
   	return { success: true, message: "Student list", data:mergeStudentsAttendence };
 };
 
 
-async function mergeStudentAttendence(students){
+async function mergeStudentAttendence(students, subjectCode){
 	let currentDay = "day_"+moment().format('D')
 	let currentYear		= moment().format('YYYY')
 	let currentMonth 	=  moment().format('MMMM')
@@ -318,9 +324,11 @@ async function mergeStudentAttendence(students){
 				class_id 		: student.class_id,
 				branch_vls_id	: student.branch_vls_id,
 				year			: currentYear,
-				month			: currentMonth,
+				month			: currentMonth
 			}
-	    
+	    	if(subjectCode || subjectCode != '')
+	    		whereCondtion.subject_code = subjectCode
+	    	
 		    //return whereCondtion
 			let attendance  = await StudentAttendance.findOne({  
 				                  where : whereCondtion,
@@ -1089,4 +1097,17 @@ async function isSubjectAttendance(branchVlsId){
   		return true
   		
   return false
+}
+
+/**
+ * API for check is subject attendance enable
+ */
+async function getFirstSubject(branchVlsId){
+	let subject  = await SubjectList.findOne({
+	                        where:{
+	                        	branch_vls_id : branchVlsId
+	                        },
+	                        attributes: ['id','subject_name','code']
+	                      });
+	return subject.code
 }
