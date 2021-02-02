@@ -14,6 +14,7 @@ const StudentAbsent = db.StudentAbsent;
 const Subject 		= db.Subject;
 const Guardian 		= db.Guardian;
 const SubjectList   = db.SubjectList;
+const Branch   = db.Branch;
 
 
 module.exports = {
@@ -40,6 +41,7 @@ async function create(req, user){
 
 	const errors = validationResult(req);
 	if(errors.array().length) throw errors.array()
+
 	user = await Authentication.findOne({
 		where:{auth_vls_id: user.id},
 		attributes: [
@@ -48,6 +50,12 @@ async function create(req, user){
 	      			   	'branch_vls_id',
 	      			   	'user_vls_id'
       			   ]})
+	
+	let isSubjectAttendanceEnable = await isSubjectAttendance(user.branch_vls_id, user.school_id);
+
+	if(isSubjectAttendanceEnable && !req.body.subject_code )
+		throw 'subject_code is required'
+	
 	user = user.toJSON()
 	user.class_id = req.body.classID
 	user.section_id = 0
@@ -139,7 +147,19 @@ async function update(req, user){
 
 	const errors = validationResult(req);
 	if(errors.array().length) throw errors.array()
-	
+	let userdata = await Authentication.findOne({
+		where:{auth_vls_id: user.id},
+		attributes: [
+						'auth_vls_id',
+	      			   	'school_id',
+	      			   	'branch_vls_id',
+	      			   	'user_vls_id'
+      			   ]})
+	let isSubjectAttendanceEnable = await isSubjectAttendance(userdata.branch_vls_id, userdata.school_id);
+
+	if(isSubjectAttendanceEnable && !req.body.subject_code )
+		throw 'subject_code is required'
+
 	let studentIDs		= req.body.studentIDs
 
 	let attendance 		= {}
@@ -160,8 +180,11 @@ async function update(req, user){
 			year 	   : attendance.year
 		}
 
-	if(req.body.subject_code)
-		whereCondtion.subject_code    = req.body.subject_code
+	if(req.body.subject_code){
+		whereCondtion.subject_code  = req.body.subject_code
+		attendance.subject_code     = req.body.subject_code
+	}
+	
 			
 	let studentAttendance = await StudentAttendance.findAll({
 		where : whereCondtion
@@ -1027,4 +1050,24 @@ async function classAttendanceCount(user,currentYear, currentMonth, currentDay, 
 			})
 		)
 	return newData
+}
+
+
+/**
+ * API for check is subject attendance enable
+ */
+async function isSubjectAttendance(branchVlsId, schoolVlsId){
+
+  let branch = await Branch.findOne({
+          where : {
+            branch_vls_id : branchVlsId,
+            school_vls_id : schoolVlsId
+          },
+          attributes: ['attendance_subject_wise']
+        })
+
+  if(branch.attendance_subject_wise == 'yes')
+  		return true;
+
+  return false
 }
