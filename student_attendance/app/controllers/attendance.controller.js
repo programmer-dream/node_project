@@ -15,6 +15,7 @@ const Subject 		= db.Subject;
 const Guardian 		= db.Guardian;
 const SubjectList   = db.SubjectList;
 const Branch   = db.Branch;
+const SchoolDetails   = db.SchoolDetails;
 
 
 module.exports = {
@@ -51,8 +52,8 @@ async function create(req, user){
 	      			   	'user_vls_id'
       			   ]})
 	
-	let isSubjectAttendanceEnable = await isSubjectAttendance(user.branch_vls_id, user.school_id);
-
+	let isSubjectAttendanceEnable = await isSubjectAttendance(user.branch_vls_id);
+	
 	if(isSubjectAttendanceEnable && !req.body.subject_code )
 		throw 'subject_code is required'
 	
@@ -155,7 +156,7 @@ async function update(req, user){
 	      			   	'branch_vls_id',
 	      			   	'user_vls_id'
       			   ]})
-	let isSubjectAttendanceEnable = await isSubjectAttendance(userdata.branch_vls_id, userdata.school_id);
+	let isSubjectAttendanceEnable = await isSubjectAttendance(userdata.branch_vls_id);
 
 	if(isSubjectAttendanceEnable && !req.body.subject_code )
 		throw 'subject_code is required'
@@ -255,10 +256,16 @@ async function studentList(params){
 	let limit   		= 100
 	let offset  		= 0
 	let whereCondtion 	= {}
-
+	let subjectCode 	= params.subject_code
 	if(!params.class_id) throw 'class_id is required'
     if(!params.branch_vls_id) throw 'branch_vls_id is required'
 
+    let isSubjectAttendanceEnable = await isSubjectAttendance(params.branch_vls_id);
+
+	if(isSubjectAttendanceEnable && !params.subject_code ){
+		subjectCode = await getFirstSubject(params.branch_vls_id)
+	}
+		
 	if(params.size)
     	limit = parseInt(params.size)
   	if(params.page)
@@ -297,13 +304,13 @@ async function studentList(params){
 	                            }]
 			            });
 
-	let mergeStudentsAttendence = await mergeStudentAttendence(students)
+	let mergeStudentsAttendence = await mergeStudentAttendence(students,subjectCode)
 
   	return { success: true, message: "Student list", data:mergeStudentsAttendence };
 };
 
 
-async function mergeStudentAttendence(students){
+async function mergeStudentAttendence(students, subjectCode){
 	let currentDay = "day_"+moment().format('D')
 	let currentYear		= moment().format('YYYY')
 	let currentMonth 	=  moment().format('MMMM')
@@ -317,9 +324,11 @@ async function mergeStudentAttendence(students){
 				class_id 		: student.class_id,
 				branch_vls_id	: student.branch_vls_id,
 				year			: currentYear,
-				month			: currentMonth,
+				month			: currentMonth
 			}
-	    
+	    	if(subjectCode || subjectCode != '')
+	    		whereCondtion.subject_code = subjectCode
+	    	
 		    //return whereCondtion
 			let attendance  = await StudentAttendance.findOne({  
 				                  where : whereCondtion,
@@ -367,10 +376,15 @@ async function addLeaveReason(req, user){
 	
 	const errors = validationResult(req);
 	if(errors.array().length) throw errors.array()
-	//return req.body
+	
 	let student = await Student.findOne({
 				where : {student_vls_id : req.body.student_id}
 			});
+	let isSubjectAttendanceEnable = await isSubjectAttendance(student.branch_vls_id);
+	
+	if(isSubjectAttendanceEnable && !req.body.subject_code )
+		throw 'subject_code is required'
+
 	let date_of_absent = moment(req.body.dateOfAbsent).format('YYYY-MM-DD')
 	
 	let reasonData = {
@@ -704,11 +718,20 @@ async function listParentChildren(params, user){
  * API for update leave reason
  */
 async function updateLeaveReason(req, user){
-	if(user.role !='guardian') 
-		throw 'Unauthorised User'
-	let id       = req.params.id
 	const errors = validationResult(req);
 	if(errors.array().length) throw errors.array()
+
+	if(user.role !='guardian') throw 'Unauthorised User'
+
+	let id       = req.params.id
+	let userdata = await Authentication.findOne({
+		where:{auth_vls_id: user.id},
+		attributes: ['branch_vls_id']
+	})
+	let isSubjectAttendanceEnable = await isSubjectAttendance(userdata.branch_vls_id);
+	
+	if(isSubjectAttendanceEnable && !req.body.subject_code )
+		throw 'subject_code is required'
 
 	let date_of_absent = moment(req.body.dateOfAbsent).format('YYYY-MM-DD')
 	//return student
@@ -1056,18 +1079,35 @@ async function classAttendanceCount(user,currentYear, currentMonth, currentDay, 
 /**
  * API for check is subject attendance enable
  */
-async function isSubjectAttendance(branchVlsId, schoolVlsId){
+async function isSubjectAttendance(branchVlsId){
 
   let branch = await Branch.findOne({
           where : {
-            branch_vls_id : branchVlsId,
-            school_vls_id : schoolVlsId
+            branch_vls_id : branchVlsId
           },
-          attributes: ['attendance_subject_wise']
+          attributes: ['attendance_subject_wise'],
+          include: [{ 
+                      model:SchoolDetails,
+                      as:'school',
+                      attributes: ['attendance_subject_wise']
+                    }]
         })
 
-  if(branch.attendance_subject_wise == 'yes')
-  		return true;
-
+  if(branch.school.attendance_subject_wise == 'yes' && branch.attendance_subject_wise == 'yes')
+  		return true
+  		
   return false
+}
+
+/**
+ * API for check is subject attendance enable
+ */
+async function getFirstSubject(branchVlsId){
+	let subject  = await SubjectList.findOne({
+	                        where:{
+	                        	branch_vls_id : branchVlsId
+	                        },
+	                        attributes: ['id','subject_name','code']
+	                      });
+	return subject.code
 }

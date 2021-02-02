@@ -76,10 +76,12 @@ db.Authentication = require("../../../vls/app/models/Authentication.js")(sequeli
 db.StudentAbsent = require("./StudentAbsent.js")(sequelize, Sequelize);
 db.Subject = require("../../../query_management/app/models/Subject.js")(sequelize, Sequelize);
 db.SubjectList = require("../../../query_management/app/models/SubjectList.js")(sequelize, Sequelize);
+db.SchoolDetails = require("../../../vls/app/models/School.js")(sequelize, Sequelize);
 
 //relatons
 db.Classes.hasMany(db.Section,{foreignKey:'class_id',as:'sections'})
 db.StudentAttendance.belongsTo(db.Student,{foreignKey:'student_id',as:'student'})
 db.Student.belongsTo(db.Guardian,{foreignKey:'parent_vls_id',as:'parent'})
+db.Branch.belongsTo(db.SchoolDetails,{foreignKey:'school_vls_id',as:'school'})
 
 module.exports = db;
