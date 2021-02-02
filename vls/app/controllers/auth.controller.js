@@ -67,12 +67,29 @@ async function signIn(userDetails) {
     // Remove password object from user's object
     let data = getUserWithoutPassword(user)
 
+    if(data.roles.slug == 'school-admin')
+      data = await getBranchesAccordingToSchool(data)
 
     return {status: "success", token, data };
 
   }
 
 }
+
+/**
+ * Get Branches according to school
+ */
+async function getBranchesAccordingToSchool(data){
+  
+  let branches = await Branch.findAll({ 
+                            where : {school_vls_id :  data.school_id },
+                            attributes: ['branch_vls_id', 'branch_name']
+                          })
+  data.branches = branches
+
+  return data
+}
+
 
 /**
  * Remove password form user's object
