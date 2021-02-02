@@ -56,7 +56,7 @@ async function create(req, user){
 	
 	if(isSubjectAttendanceEnable && !req.body.subject_code )
 		throw 'subject_code is required'
-	return 'done'
+	
 	user = user.toJSON()
 	user.class_id = req.body.classID
 	user.section_id = 0
