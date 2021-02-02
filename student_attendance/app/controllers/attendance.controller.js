@@ -15,6 +15,7 @@ const Subject 		= db.Subject;
 const Guardian 		= db.Guardian;
 const SubjectList   = db.SubjectList;
 const Branch   = db.Branch;
+const SchoolDetails   = db.SchoolDetails;
 
 
 module.exports = {
@@ -51,11 +52,11 @@ async function create(req, user){
 	      			   	'user_vls_id'
       			   ]})
 	
-	let isSubjectAttendanceEnable = await isSubjectAttendance(user.branch_vls_id, user.school_id);
-
+	let isSubjectAttendanceEnable = await isSubjectAttendance(user.branch_vls_id);
+	
 	if(isSubjectAttendanceEnable && !req.body.subject_code )
 		throw 'subject_code is required'
-	
+	return 'done'
 	user = user.toJSON()
 	user.class_id = req.body.classID
 	user.section_id = 0
@@ -155,7 +156,7 @@ async function update(req, user){
 	      			   	'branch_vls_id',
 	      			   	'user_vls_id'
       			   ]})
-	let isSubjectAttendanceEnable = await isSubjectAttendance(userdata.branch_vls_id, userdata.school_id);
+	let isSubjectAttendanceEnable = await isSubjectAttendance(userdata.branch_vls_id);
 
 	if(isSubjectAttendanceEnable && !req.body.subject_code )
 		throw 'subject_code is required'
@@ -1056,18 +1057,22 @@ async function classAttendanceCount(user,currentYear, currentMonth, currentDay, 
 /**
  * API for check is subject attendance enable
  */
-async function isSubjectAttendance(branchVlsId, schoolVlsId){
+async function isSubjectAttendance(branchVlsId){
 
   let branch = await Branch.findOne({
           where : {
-            branch_vls_id : branchVlsId,
-            school_vls_id : schoolVlsId
+            branch_vls_id : branchVlsId
           },
-          attributes: ['attendance_subject_wise']
+          attributes: ['attendance_subject_wise'],
+          include: [{ 
+                      model:SchoolDetails,
+                      as:'school',
+                      attributes: ['attendance_subject_wise']
+                    }]
         })
 
-  if(branch.attendance_subject_wise == 'yes')
-  		return true;
-
+  if(branch.school.attendance_subject_wise == 'yes' && branch.attendance_subject_wise == 'yes')
+  		return true
+  		
   return false
 }
