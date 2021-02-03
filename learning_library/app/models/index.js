@@ -74,6 +74,7 @@ db.LibraryHistory = require("../../../vls/app/models/LibraryHistory.js")(sequeli
 db.LibraryComment = require("./LibraryComment.js")(sequelize, Sequelize);
 db.SubjectList = require("../../../query_management/app/models/SubjectList.js")(sequelize, Sequelize);
 db.VideoLearningLibrary = require("../../../video_learning_library/app/models/VideoLearningLibrary.js")(sequelize, Sequelize);
+db.VideoRatings = require("../../../video_learning_library/app/models/Ratings.js")(sequelize, Sequelize);
 
 
 //relations
