@@ -383,7 +383,7 @@ async function userSettings(user) {
 
     if(user.role == 'school-admin' && !userDetails.school){
       return {}
-    }else{
+    }else if(user.role != 'school-admin'){
       if(!userDetails.school) throw 'School is not associated with this user'
       if(!userDetails.branch) throw 'Branch is not associated with this user'
     }
@@ -419,9 +419,10 @@ async function getUserSettings(user) {
                             }]
                     })
 
+
     if(user.role == 'school-admin' && !userDetails.school){
       return {}
-    }else{
+    }else if(user.role != 'school-admin'){
       if(!userDetails.school) return {}
       if(!userDetails.branch) return {}
     }
@@ -433,7 +434,6 @@ async function getUserSettings(user) {
     }else{
       userSettings = await manageUserSettings(userDetails)
     }
-
 
    return userSettings
 }
