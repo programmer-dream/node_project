@@ -18,7 +18,7 @@ module.exports = {
  * API for view history for learning library
  */
 async function viewHistory(params, user){
-  if(!user.role != "student")   throw "Unauthorised user"
+  if(user.role != "student")    throw "Unauthorised user"
   if(!params.library_type)      throw "library_type is requeired"
 
   let library_type = params.library_type
@@ -185,7 +185,7 @@ async function getRatingLikes(id, user) {
  */
 async function addHistory(body, user){
 
-  if(!user.role != "student") throw "Unauthorised user"
+  if(user.role != "student")  throw "Unauthorised user"
   if(!body.library_type)      throw "library_type is requeired"
   if(!body.subject_code)      throw "subject_code is requeired"
   if(!body.visited_date)      throw "visited_date is requeired"
