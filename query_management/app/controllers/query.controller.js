@@ -331,13 +331,13 @@ function formatDate() {
  */
 async function listSubject(params, user){
 
-  if(!params.branchId && user.role != "super-admin") throw 'branch id is required'
+  if(!params.branch_vls_id && user.role != "super-admin") throw 'branch id is required'
 
   try{
 
     let wherecondition = { branch_vls_id: { [Op.eq]: null } }
-    if(params.branchId && params.branchId != "null" )
-      wherecondition = {branch_vls_id:params.branchId}
+    if(params.branch_vls_id && params.branch_vls_id != "null" )
+      wherecondition = {branch_vls_id:params.branch_vls_id}
 
     let subjects  = await SubjectList.findAll({
                         where:wherecondition,
