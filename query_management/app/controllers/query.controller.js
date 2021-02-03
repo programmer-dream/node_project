@@ -148,15 +148,33 @@ async function list(params,user){
   if(params.studentVlsId)
     whereCondition.student_vls_id = params.studentVlsId
 
-  if(params.subject_code && params.subject_code != 'mySubject'){
+  if(params.subject_code && params.subject_code != 'mySubject')
     whereCondition.subject_code = params.subject_code
-  }else{
-    let subjects_code = await Subject.findAll({
+  
+  if(params.subject_code == 'mySubject'){
+    
+    let classes = await Classes.findAll({
            where:{
                   teacher_id   : user.userVlsId
                  },
+            attributes: ['class_vls_id']   
+        }).then(classes => classes.map(classes => classes.class_vls_id));
+    let section = await Section.findAll({
+           where:{
+                  teacher_id   : user.userVlsId
+                 },
+            group:['class_id'],
+            attributes: ['class_id']   
+        }).then(section => section.map(section => section.class_id));
+    let allClassIds = classes.concat(section)
+
+    let subjects_code = await Subject.findAll({
+           where:{
+                  class_id  : { [Op.in] : allClassIds }
+                 },
             attributes: ['code']   
         }).then(subject => subject.map(subject => subject.code));
+    
     whereCondition.subject_code = { [Op.in] : subjects_code }
   }
 
