@@ -88,7 +88,7 @@ async function view(id){
 async function list(params,user){
 
   let schoolVlsId   = params.schoolVlsId
-  let branchVlsId   = params.branchVlsId
+  let branchVlsId   = params.branch_vls_id
   let myQuery       = params.myQuery
 
   if(!schoolVlsId) throw 'schoolVlsId is required'

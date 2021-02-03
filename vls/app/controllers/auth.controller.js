@@ -383,6 +383,8 @@ async function userSettings(user) {
 
     if(user.role == 'school-admin' && !userDetails.school){
       return {}
+    }else if(user.role != 'super-admin'){
+      return {}
     }else if(user.role != 'school-admin'){
       if(!userDetails.school) throw 'School is not associated with this user'
       if(!userDetails.branch) throw 'Branch is not associated with this user'

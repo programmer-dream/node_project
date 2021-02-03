@@ -422,8 +422,8 @@ async function listForTeacher(params, user){
     if(!params.school_id) throw 'School_id is required'
     	whereCondtion.school_id = params.school_id
 
-    if(!params.branch_id) throw 'Branch_id is required'
-    	whereCondtion.branch_vls_id = params.branch_id
+    if(!params.branch_vls_id) throw 'branch_vls_id is required'
+    	whereCondtion.branch_vls_id = params.branch_vls_id
 
     if(params.subject_code)
     	whereCondtion.subject_code = params.subject_code
@@ -599,8 +599,8 @@ async function listForParent(params, user){
     if(!params.school_id) throw 'School_id is required'
     	whereCondtion.school_id = params.school_id
 
-    if(!params.branch_id) throw 'Branch_id is required'
-    	whereCondtion.branch_vls_id = params.branch_id
+    if(!params.branch_vls_id) throw 'branch_vls_id is required'
+    	whereCondtion.branch_vls_id = params.branch_vls_id
 
     if(params.subject_code)
     	whereCondtion.subject_code = params.subject_code
@@ -692,8 +692,8 @@ async function listParentChildren(params, user){
 
 	let whereCondtion = {}
 	
-	if(!params.branch_id) throw 'branch_id is required'
-    	whereCondtion.branch_vls_id = params.branch_id
+	if(!params.branch_vls_id) throw 'branch_vls_id is required'
+    	whereCondtion.branch_vls_id = params.branch_vls_id
 
     if(!params.school_id) throw 'school_id is required'
     	whereCondtion.school_id = params.school_id

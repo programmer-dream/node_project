@@ -83,7 +83,7 @@ async function list(params, user){
   let offset        = 0;
   let search        = '';
   let schoolVlsId   = params.schoolVlsId
-  let branchVlsId   = params.branchVlsId
+  let branchVlsId   = params.branch_vls_id
 
   if(!schoolVlsId) throw 'schoolVlsId is required'
   if(!branchVlsId) throw 'branchVlsId is required'

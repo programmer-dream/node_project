@@ -225,7 +225,7 @@ async function view(params , user){
  */
 async function list(params , user){
   let assignmentState  = params.assignmentState
-  let branch_id         = params.branch_id
+  let branch_id         = params.branch_vls_id
   let studentID        = user.userVlsId
   let search           = ""
 
