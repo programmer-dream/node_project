@@ -70,11 +70,15 @@ db.SchoolDetails = require("../../../vls/app/models/School.js")(sequelize, Seque
 db.Branch = require("../../../vls/app/models/Branch.js")(sequelize, Sequelize);
 db.Student = require("../../../vls/app/models/Student.js")(sequelize, Sequelize);
 db.Employee = require("../../../vls/app/models/Employee.js")(sequelize, Sequelize);
+db.LibraryHistory = require("../../../vls/app/models/LibraryHistory.js")(sequelize, Sequelize);
 db.LibraryComment = require("./LibraryComment.js")(sequelize, Sequelize);
 db.SubjectList = require("../../../query_management/app/models/SubjectList.js")(sequelize, Sequelize);
+db.VideoLearningLibrary = require("../../../video_learning_library/app/models/VideoLearningLibrary.js")(sequelize, Sequelize);
 
 
 //relations
 db.LearningLibrary.belongsTo(db.SubjectList,{foreignKey:'subject_code',targetKey:'code',as:'subjectList'})
+db.LibraryHistory.belongsTo(db.LearningLibrary,{foreignKey:'Learning_library_vls_id', as:'learningLibraryHistory'})
+db.LibraryHistory.belongsTo(db.VideoLearningLibrary,{foreignKey:'Learning_library_vls_id', as:'videoLearningLibraryHistory'})
 
 module.exports = db;

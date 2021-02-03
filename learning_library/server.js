@@ -35,6 +35,7 @@ app.use('/learningLibrary', require('./app/routes/learningLibrary.routes'));
 app.use('/learningLibrary/comment', require('./app/routes/libraryComment.routes'));
 app.use('/learningLibrary/ratings', require('./app/routes/ratings.routes'));
 app.use('/learningLibrary/likes', require('./app/routes/likes.routes'));
+app.use('/library/history', require('./app/routes/learningLibraryHistory.routes'));
 
 // global error handler
 app.use(errorHandler);
