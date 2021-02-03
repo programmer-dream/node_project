@@ -35,7 +35,8 @@ async function viewHistory(params, user){
 
   let libraryHistory = await LibraryHistory.findAll({
                         where: {
-                          learning_library_type: library_type,
+                          learning_library_type : library_type,
+                          student_vls_id        : user.userVlsId
                         },
                         limit: 10,
                         order: [
