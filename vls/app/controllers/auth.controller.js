@@ -380,10 +380,21 @@ async function userSettings(user) {
                     })
 
     if(!userDetails) throw 'User not found'
-    if(!userDetails.school) throw 'School is not associated with this user'
-    if(!userDetails.branch) throw 'Branch is not associated with this user'
 
-    let userSettings = await manageUserSettings(userDetails)
+    if(user.role == 'school-admin' && !userDetails.school){
+      return {}
+    }else{
+      if(!userDetails.school) throw 'School is not associated with this user'
+      if(!userDetails.branch) throw 'Branch is not associated with this user'
+    }
+
+    let userSettings = {}
+
+    if(user.role == 'school-admin'){
+      userSettings = await manageUserSettingsSchool(userDetails)
+    }else{
+      userSettings = await manageUserSettings(userDetails)
+    }
 
 
    return {status: "success", userSettings };
@@ -408,10 +419,20 @@ async function getUserSettings(user) {
                             }]
                     })
 
-    if(!userDetails.school) return {}
-    if(!userDetails.branch) return {}
+    if(user.role == 'school-admin' && !userDetails.school){
+      return {}
+    }else{
+      if(!userDetails.school) return {}
+      if(!userDetails.branch) return {}
+    }
 
-    let userSettings = await manageUserSettings(userDetails)
+    let userSettings = {}
+
+    if(user.role == 'school-admin'){
+      userSettings = await manageUserSettingsSchool(userDetails)
+    }else{
+      userSettings = await manageUserSettings(userDetails)
+    }
 
 
    return userSettings
@@ -451,6 +472,47 @@ async function manageUserSettings(userDetails) {
           }else if( userDetails.branch[item] == 'yes' ){
             userSettings[item] = 'yes'
           }
+        }
+
+      })
+    );
+
+    Object.keys(userSettings).forEach(function(key) {
+        if(userSettings[key] == null) {
+            userSettings[key] = 'no';
+        }
+    })
+
+    return userSettings
+}
+
+
+
+/**
+ * API for manage user settings
+ */
+async function manageUserSettingsSchool(userDetails) {
+
+  userDetails = userDetails.toJSON()
+  let permissionArray = config.permissionsArray.split(',')
+
+  let userSettings = userDetails.userSetting
+  
+  if(!userSettings){
+    userSettings = {}
+  }else{
+    delete userSettings.user_settings_vls_id
+    delete userSettings.created_at
+    delete userSettings.updated_at
+  }
+
+  await Promise.all(
+    permissionArray.map( item => {
+
+        if( userDetails.school[item] == null || userDetails.school[item] == 'no' ){
+          userSettings[item] = 'no'
+        }else if( userDetails.school[item] == 'yes' ){
+          userSettings[item] = 'yes'
         }
 
       })
