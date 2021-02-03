@@ -127,8 +127,7 @@ async function list(params,user){
 
   whereCondition.branch_vls_id = branchVlsId
   whereCondition.school_vls_id = schoolVlsId
-  console.log(whereCondition)
-
+  
   //status 
   if(params.status){
     status = []
@@ -149,6 +148,18 @@ async function list(params,user){
   if(params.studentVlsId)
     whereCondition.student_vls_id = params.studentVlsId
 
+  if(params.subject_code && params.subject_code != 'mySubject'){
+    whereCondition.subject_code = params.subject_code
+  }else{
+    let subjects_code = await Subject.findAll({
+           where:{
+                  teacher_id   : user.userVlsId
+                 },
+            attributes: ['code']   
+        }).then(subject => subject.map(subject => subject.code));
+    whereCondition.subject_code = { [Op.in] : subjects_code }
+  }
+  console.log(whereCondition)
   if(myQuery){
     if(user.role == 'student'){
       whereCondition.student_vls_id = user.userVlsId
