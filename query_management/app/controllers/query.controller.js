@@ -159,7 +159,7 @@ async function list(params,user){
         }).then(subject => subject.map(subject => subject.code));
     whereCondition.subject_code = { [Op.in] : subjects_code }
   }
-  console.log(whereCondition)
+  
   if(myQuery){
     if(user.role == 'student'){
       whereCondition.student_vls_id = user.userVlsId
