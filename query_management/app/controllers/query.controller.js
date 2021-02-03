@@ -159,7 +159,10 @@ async function list(params,user){
         }).then(subject => subject.map(subject => subject.code));
     whereCondition.subject_code = { [Op.in] : subjects_code }
   }
-  
+
+  if(params.class_vls_id)
+    whereCondition.class_vls_id = params.class_vls_id
+
   if(myQuery){
     if(user.role == 'student'){
       whereCondition.student_vls_id = user.userVlsId
