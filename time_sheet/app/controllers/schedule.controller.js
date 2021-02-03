@@ -34,83 +34,111 @@ async function currentSchedule(user, query){
   let startDate = moment().format('YYYY-MM-DD')
   let endDate   = moment().format('YYYY-MM-DD')
   let finalArr  = []
-  let timeTable = []
-  // if(query.date)
-  //     today     = moment(query.date).format('YYYY-MM-DD')
-
+  
+  
   if(query.startDate)
-     startDate = moment(query.startDate).format('YYYY-MM-DD')
+     startDate = moment(query.startDate)
 
   if(query.endDate)
-     endDate   = moment(query.endDate).format('YYYY-MM-DD')
+     endDate   = moment(query.endDate)
+  let startFilter = startDate
+  let endFilter   = endDate
+  //get date wise time table
+  let dateWiseTimeTable = {}
+  while (startDate <= endDate) {
+    let timeTable = []
+    let start = moment(startDate).format('YYYY-MM-DD')
+    let startFilterDate = moment(startFilter).format('YYYY-MM-DD')
+    let day = moment(startDate).format('dddd')
+    let getData   = await getExamDates(branch_id, user, start, startFilterDate)
 
-  //check Api according to date 
-  let getData   = await getExamDates(branch_id, user, startDate, endDate)
-    
-  if(getData)
-    timeTable  = await getTimetable(branch_id, user, startDate, endDate)
+    if(getData)
+      timeTable  = await getTimetable(branch_id, user, day)
+
+    if(!dateWiseTimeTable[start])
+        dateWiseTimeTable[start] = []
+
+    if(timeTable && timeTable.length > 0)
+        dateWiseTimeTable[start] = timeTable
+
+    startDate = moment(startDate, 'YYYY-MM-DD').add(1, 'days');
+  }
+  //get date wise time table
+  let meetings  = await getMeeting(branch_id, user, startFilter, endFilter)
+  //return meetings
+  let exams     = await getExamSchedule(branch_id, user, startFilter, endFilter)
   
-  //check Api according to date
+  let assignment= await getAssignment(branch_id, user, startFilter, endFilter)
 
-  let meetings  = await getMeeting(branch_id, user, startDate, endDate)
-
-  let exams     = await getExamSchedule(branch_id, user, startDate, endDate)
-  
-  let assignment= await getAssignment(branch_id, user, startDate, endDate)
-
-  let schedules = timeTable.concat(meetings,assignment)
+  let schedules = meetings.concat(assignment)
       finalArr  = schedules
+
   if(role == 'student' ){
       finalArr = schedules.concat(exams)
   }
-  // return assignment
-  let allSchedules = []
+  //return finalArr
+  let dayData = {}
+  //return finalArr
   await Promise.all(
       finalArr.map(async schedule => {
-        console.log(schedule)
         let currSchedule  = schedule.toJSON()
-        if(currSchedule.timesheet_id){
-          currSchedule.type = 'time_table'
-        }else if(currSchedule.duration){
+        if(currSchedule.duration){
           currSchedule.type = 'meeting'
           currSchedule.end_time = moment(currSchedule.start_time,'HH:mm').add(currSchedule.duration,'minutes').format("HH:mm")
+            let mDate = moment(currSchedule.date).format('YYYY-MM-DD')
+            if(!dayData[mDate])
+                  dayData[mDate] = []
+
+            dayData[mDate].push(currSchedule)
         }else if(currSchedule.assignment_completion_date){
           currSchedule.type = 'assignment'
           currSchedule.start_time = '17:30'
           currSchedule.end_time   = '18:00'
-        }else{
+          let aDate = moment(currSchedule.assignment_completion_date).format('YYYY-MM-DD')
+          if(!dayData[aDate])
+                dayData[aDate] = []
+
+            dayData[aDate].push(currSchedule)
+        }else if (currSchedule.exam_date) {
           currSchedule.type = 'exam'
-        }
-        allSchedules.push(currSchedule)
-        
+          let eDate = moment(currSchedule.exam_date).format('YYYY-MM-DD')
+          if(!dayData[eDate])
+                dayData[eDate] = []
+
+            dayData[eDate].push(currSchedule)
+        }        
+      })
+  )
+  //return dayData
+  let scheduleDates = Object.keys(dateWiseTimeTable)
+  await Promise.all(
+      scheduleDates.map(async currentDate => {
+        if(!dayData[currentDate])
+            dayData[currentDate] = []
+
+         if(dateWiseTimeTable[currentDate]){
+            dateWiseTimeTable[currentDate].map( timetable => {
+              timetable = timetable.toJSON()
+              timetable.type = "time_table"
+              dayData[currentDate].push(timetable)
+            })
+         } 
       })
   )
   
-  let newArr = allSchedules.sort( compare );
-  return { success: true, message: "Today's schedule", data:allSchedules }
+  // let newArr = allSchedules.sort( compare );
+  return { success: true, message: "Today's schedule", data:dayData }
 };
 
 
 /**
  * API for get current day time table schedule
  */
-async function getTimetable(branch_id, user, start, end){
-  start = moment(start)
-  end   = moment(end)
-  
-  let dateArr = []
-  while (start <= end) {
-    dateArr.push(start.format('dddd'))
-    start = moment(start, 'YYYY-MM-DD').add(1, 'days');
-  }
-  
-  let days      = dateArr
+async function getTimetable(branch_id, user, day){
   let student   = {}
   let timeTable = {}
   let whereCondition = { 
-                          day : { 
-                                  [Op.in]: days 
-                          },
+                          day : day,
                           branch_vls_id : branch_id
                        }
   
@@ -150,6 +178,8 @@ async function getTimetable(branch_id, user, start, end){
  * API for get current day meeting schedule
  */
 async function getMeeting(branch_id, user, start, end){
+      start = moment(start).format('YYYY-MM-DD')
+      end   = moment(end).format('YYYY-MM-DD')
 
       let whereCondition = { 
                               branch_id : branch_id,
@@ -177,11 +207,11 @@ async function getMeeting(branch_id, user, start, end){
         break;
     }
 
-    let meetings = Meeting.findAll({
+    let meetings = await Meeting.findAll({
       where :whereCondition,
       attributes: [['meeting_title','title'],
                    ['time','start_time'],
-                   'duration','meeting_mode','meeting_location']
+                   'duration','meeting_mode','meeting_location','date']
     })
     return meetings
 }
@@ -203,6 +233,8 @@ function compare( a, b ) {
  * API for get current day time table schedule
  */
 async function getExamSchedule(branch_id, user, start, end ){
+  start = moment(start).format('YYYY-MM-DD')
+  end   = moment(end).format('YYYY-MM-DD')
   let exams  = {}
   let student= {}
   let whereCondition = { 
@@ -221,7 +253,8 @@ async function getExamSchedule(branch_id, user, start, end ){
                   attributes: ['title',
                                 'start_time',
                                 'end_time',
-                                'subject_code'],
+                                'subject_code',
+                                'exam_date'],
                   include: [{ 
                               model:SubjectList,
                               as:'subject',
@@ -238,37 +271,40 @@ async function getExamSchedule(branch_id, user, start, end ){
 /**
  * API for get current day time table schedule
  */
-async function getExamDates(branch_id, user, start, end){
-  if(user.role != 'student')
+async function getExamDates(branch_id, user, reqDate, startFilter){
+  if(user.role != 'student' && user.role != 'teacher')
       return false
+
+  if(user.role == 'teacher')
+      return true
 
   let whereCondition = { 
                           Branch_vls_id : branch_id
                        }
+
   student = await Student.findByPk(user.userVlsId)
   whereCondition.class_id = student.class_id
-
+   
   let examDates = await ExamSchedule.findOne({
     where : whereCondition,
     attributes: [
-    [Sequelize.fn('max', Sequelize.col('exam_date')), 'maxExamDate'],
-    [Sequelize.fn('min', Sequelize.col('exam_date')), 'minExamDate']],
+      [Sequelize.fn('max', Sequelize.col('exam_date')), 'maxExamDate']
+    ],
     group: ['class_id']
   })
 
   examDates = examDates.toJSON()
+  //return examDates
   let examMax = examDates.maxExamDate
-  let examMin = examDates.minExamDate
 
   let momentMax = moment(examMax).format('YYYY-MM-DD')
-  let momentMin = moment(examMin).format('YYYY-MM-DD')
-  let reqDate   = moment('2021-2-2')
-
-  if(reqDate.isBetween(momentMin,momentMax )){
+  let momentMin = startFilter
+  
+  if(moment(reqDate).isBetween(momentMin, momentMax)){
     return false
-  }else if(reqDate.isSame(momentMin)){
+  }else if(moment(reqDate).isSame(momentMin)){
     return false
-  }else if(reqDate.isSame(momentMax)){
+  }else if(moment(reqDate).isSame(momentMax)){
     return false
   }else{
     return true
@@ -280,6 +316,8 @@ async function getExamDates(branch_id, user, start, end){
  * API for get current day assignment
  */
 async function getAssignment(branch_id, user, start, end){
+  start = moment(start).format('YYYY-MM-DD')
+  end   = moment(end).format('YYYY-MM-DD')
   let exams    = {}
   let student  = {}
   
