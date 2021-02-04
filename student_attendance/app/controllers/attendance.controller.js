@@ -609,7 +609,7 @@ async function listForParent(params, user){
     if(!params.branch_vls_id) throw 'branch_vls_id is required'
     	whereCondtion.branch_vls_id = params.branch_vls_id
 
-    let isSubjectAttendanceEnable = await isSubjectAttendance(params.branch_id);
+    let isSubjectAttendanceEnable = await isSubjectAttendance(params.branch_vls_id);
 	
 	if(isSubjectAttendanceEnable && !params.subject_code )
 		throw 'subject_code is required'
@@ -640,6 +640,7 @@ async function listForParent(params, user){
     	let currentYear		= moment().format('YYYY');
     	whereCondtion.year 	= currentYear
     }
+
     //return whereCondtion
     let attendenceQuery = {  
 	                  limit : limit,
