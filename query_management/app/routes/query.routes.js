@@ -104,7 +104,7 @@ function getRatingLikes(req, res, next) {
 }
 // Function for status update query
 function statusUpdate(req, res, next) {
-    queryController.statusUpdate(req.params.id , req.user)
+    queryController.statusUpdate(req.params.id , req.user, req.body)
         .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while getting query like & ratting' }))
         .catch(err => next(err));
 }

@@ -466,14 +466,18 @@ async function getRatingLikes(id, user) {
 /**
  * API for status update query
  */
-async function statusUpdate(id, user) {
+async function statusUpdate(id, user, body) {
   //if(user.role != 'student') throw 'unauthorised user'
   let whereCondition = { query_vls_id : id }
   let status = "Rejected"
-
+  let reject_comment = ""
   if(user.role == 'student'){
     whereCondition = { student_vls_id : user.userVlsId, query_vls_id : id }
     status = "Closed"
+  }
+
+  if(body.reject_comment){
+    reject_comment = body.reject_comment
   }
 
   try{
@@ -483,7 +487,7 @@ async function statusUpdate(id, user) {
                     });
 
     if(query){
-      query.update({query_status: status})
+      query.update({query_status: status, reject_comment: reject_comment})
     }else{
       throw new Error('Query not found')
     }
