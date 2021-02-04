@@ -93,7 +93,7 @@ async function list(params,user){
 
   if(!schoolVlsId) throw 'schoolVlsId is required'
   if(!branchVlsId) throw 'branchVlsId is required'
-  //let data  = await queryRatingLikes(154)
+    
   //start pagination
   let limit   = 10
   let offset  = 0
