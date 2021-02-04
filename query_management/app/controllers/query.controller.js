@@ -231,7 +231,16 @@ async function list(params,user){
                                     'reject_comment'
                                   ]
                       });
-  return { success: true, message: "All query data", total : allCount ,data:studentQuery }
+  let queryArray = []
+  await Promise.all(
+    studentQuery.map(async query => {
+      let queryData    = query.toJSON()
+      let ratingLikes  = await queryRatingLikes(query.query_vls_id);
+      queryData.ratingLikes = ratingLikes
+      queryArray.push(queryData)
+    })
+  )
+  return { success: true, message: "All query data", total : allCount ,data:queryArray }
 
 };
 
@@ -815,3 +824,46 @@ async function teacherQueryList(user , params){
     }
     return { success : false, message : "Query list", data : allQuery }
 };
+
+
+/**
+ * function for list query for subject teacher
+ */
+async function queryRatingLikes(queryId){
+    //get query likes
+     let likes =  await Ratings.findOne({
+              where : {
+                query_vls_id : queryId,
+                likes : 1
+              },
+        attributes:[
+          [ Sequelize.fn('SUM', Sequelize.col('likes')), 'likeCount' ]
+        ]
+     })
+     let likesData = likes.toJSON()
+
+     if(likesData.likeCount){
+      likes = likesData.likeCount
+     }else{
+      likes = 0
+     }
+     //get query rating 
+     let ratings =  await Ratings.findOne({
+              where : {
+                query_vls_id : queryId,
+              },
+        attributes:[
+          [ Sequelize.fn('AVG', Sequelize.col('ratings')), 'ratingsCount' ] 
+        ]
+     })
+
+     let ratingsData = ratings.toJSON()
+
+     if(ratingsData.ratingsCount){
+        ratings = ratingsData.ratingsCount
+     }else{
+      ratings = 0
+     }
+
+     return {likes , ratings}
+}
