@@ -327,6 +327,7 @@ async function list(params , user){
   await Promise.all(
     assignments.map(async assignment => {
         let assingmentData = assignment.toJSON()
+        assingmentData.submittedCount = await getSubmittedCount(assignment.assignment_vls_id)
         let studentIds = JSON.parse(assignment.student_vls_ids)
         //start add question array 
         let assignmentQuestion = assingmentData.assignmentQuestion
@@ -901,4 +902,17 @@ async function getAssignmentCount(params){
   })
   let data = { created , released }
   return { success: true, message: "Assignment dashboard data current month", data }
+}
+
+/**
+ * API for current Week assignment
+ */
+async function getSubmittedCount(assignmentId){
+  let submitted = await StudentAssignment.count({
+    where : {
+      assignment_vls_id : assignmentId,
+      assignment_status : 'Submitted'
+    }
+  })
+  return submitted
 }
