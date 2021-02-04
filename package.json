@@ -11,7 +11,8 @@
     "start:time_sheet": "yarn workspace time_sheet start",
     "start:attendance": "yarn workspace student_attendance start",
     "start:assignment": "yarn workspace assignment start",
-    "start": "concurrently --kill-others-on-fail \"yarn start:vls\" \"yarn start:query\" \"yarn start:library\" \"yarn start:video_library\" \"yarn start:attendance\" \"yarn start:time_sheet\" \"yarn start:assignment\"",
+    "start:chat_management": "yarn workspace chat_management start",
+    "start": "concurrently --kill-others-on-fail \"yarn start:vls\" \"yarn start:query\" \"yarn start:library\" \"yarn start:video_library\" \"yarn start:attendance\" \"yarn start:time_sheet\" \"yarn start:assignment\" \"yarn start:chat_management\"",
     "dev:vls": "yarn workspace vls dev",
     "dev:query": "yarn workspace query_management dev",
     "dev:library": "yarn workspace learning_library dev",
@@ -19,7 +20,8 @@
     "dev:time_sheet": "yarn workspace time_sheet dev",
     "dev:attendance": "yarn workspace student_attendance dev",
     "dev:assignment": "yarn workspace assignment dev",
-    "dev": "concurrently --kill-others-on-fail \"yarn dev:vls\" \"yarn dev:query\" \"yarn dev:library\" \"yarn dev:video_library\" \"yarn dev:attendance\" \"yarn dev:time_sheet\" \"yarn dev:assignment\""
+    "dev:chat_management": "yarn workspace chat_management dev",
+    "dev": "concurrently --kill-others-on-fail \"yarn dev:vls\" \"yarn dev:query\" \"yarn dev:library\" \"yarn dev:video_library\" \"yarn dev:attendance\" \"yarn dev:time_sheet\" \"yarn dev:assignment\" \"yarn dev:chat_management\""
   },
   "keywords": [],
   "author": "",
@@ -32,7 +34,8 @@
     "video_learning_library",
     "time_sheet",
     "student_attendance",
-    "assignment"
+    "assignment",
+    "chat_management"
   ],
   "dependencies": {
     "concurrently": "^5.3.0",
