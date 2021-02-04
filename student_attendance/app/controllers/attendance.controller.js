@@ -328,7 +328,7 @@ async function mergeStudentAttendence(students, subjectCode){
 			}
 	    	if(subjectCode || subjectCode != '')
 	    		whereCondtion.subject_code = subjectCode
-	    	
+
 		    //return whereCondtion
 			let attendance  = await StudentAttendance.findOne({  
 				                  where : whereCondtion,
@@ -415,7 +415,8 @@ async function listForTeacher(params, user){
 	let limit   	= 10
 	let offset  	= 0
 	let whereCondtion 	= {}
-	
+
+	whereCondtion.subject_code = null
 	if(!params.class_id) throw 'Class_id is required'
     	whereCondtion.class_id = params.class_id
 
@@ -424,6 +425,11 @@ async function listForTeacher(params, user){
 
     if(!params.branch_vls_id) throw 'branch_vls_id is required'
     	whereCondtion.branch_vls_id = params.branch_vls_id
+
+    let isSubjectAttendanceEnable = await isSubjectAttendance(params.branch_id);
+	
+	if(isSubjectAttendanceEnable && !params.subject_code )
+		throw 'subject_code is required'
 
     if(params.subject_code)
     	whereCondtion.subject_code = params.subject_code
@@ -584,6 +590,7 @@ async function listForParent(params, user){
 	let offset  	= 0
 	let whereCondtion 	= {}
 
+	whereCondtion.subject_code = null
 	if(user.role == 'student'){
 		let student = await Student.findByPk(user.userVlsId)
 		whereCondtion.class_id = student.class_id
@@ -601,6 +608,11 @@ async function listForParent(params, user){
 
     if(!params.branch_vls_id) throw 'branch_vls_id is required'
     	whereCondtion.branch_vls_id = params.branch_vls_id
+
+    let isSubjectAttendanceEnable = await isSubjectAttendance(params.branch_id);
+	
+	if(isSubjectAttendanceEnable && !params.subject_code )
+		throw 'subject_code is required'
 
     if(params.subject_code)
     	whereCondtion.subject_code = params.subject_code
