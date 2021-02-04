@@ -37,22 +37,22 @@ async function currentSchedule(user, query){
   
   
   if(query.startDate)
-     startDate = moment(query.startDate).format('YYYY-MM-DD')
+     startDate = moment(query.startDate)
 
   if(query.endDate)
-     endDate   = moment(query.endDate).format('YYYY-MM-DD')
+     endDate   = moment(query.endDate)
+
   let startFilter = startDate
   let endFilter   = endDate
-
 
   //get date wise time table
   let dateWiseTimeTable = {}
   while (startDate <= endDate) {
     let timeTable = []
     let start = moment(startDate).format('YYYY-MM-DD')
-    let startFilterDate = moment(startFilter).format('YYYY-MM-DD')
     let day = moment(startDate).format('dddd')
-    let getData   = await getExamDates(branch_id, user, start, startFilterDate)
+    console.log(day, "daydaydaydaydayday")
+    let getData   = await getExamDates(branch_id, user, start)
 
     if(getData)
       timeTable  = await getTimetable(branch_id, user, day)
@@ -273,7 +273,7 @@ async function getExamSchedule(branch_id, user, start, end ){
 /**
  * API for get current day time table schedule
  */
-async function getExamDates(branch_id, user, reqDate, startFilter){
+async function getExamDates(branch_id, user, reqDate){
   if(user.role != 'student' && user.role != 'teacher')
       return false
 
@@ -286,12 +286,12 @@ async function getExamDates(branch_id, user, reqDate, startFilter){
 
   student = await Student.findByPk(user.userVlsId)
   whereCondition.class_id = student.class_id
-  whereCondition.exam_date = sequelize.where(sequelize.fn('date', sequelize.col('exam_date')), '>=', startFilter)
+  whereCondition.exam_date = sequelize.where(sequelize.fn('date', sequelize.col('exam_date')), '>=', reqDate)
 
   let examDates = await ExamSchedule.findOne({
     where : whereCondition,
     attributes: [
-      [Sequelize.fn('max', Sequelize.col('exam_date')), 'maxExamDate']
+      [Sequelize.fn('max', Sequelize.col('exam_date')), 'maxExamDate'],
       [Sequelize.fn('min', Sequelize.col('exam_date')), 'minExamDate']
     ],
     group: ['class_id']
@@ -302,7 +302,7 @@ async function getExamDates(branch_id, user, reqDate, startFilter){
     //return examDates
     let examMax = examDates.maxExamDate
     let examMin = examDates.minExamDate
-    
+
     let momentMax = moment(examMax).format('YYYY-MM-DD')
     let momentMin = moment(examMin).format('YYYY-MM-DD')
     
