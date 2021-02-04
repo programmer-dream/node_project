@@ -93,7 +93,7 @@ async function list(params,user){
 
   if(!schoolVlsId) throw 'schoolVlsId is required'
   if(!branchVlsId) throw 'branchVlsId is required'
-    
+
   //start pagination
   let limit   = 10
   let offset  = 0
@@ -152,25 +152,10 @@ async function list(params,user){
     whereCondition.subject_code = params.subject_code
   
   if(params.subject_code == 'mySubject'){
-    
-    let classes = await Classes.findAll({
-           where:{
-                  teacher_id   : user.userVlsId
-                 },
-            attributes: ['class_vls_id']   
-        }).then(classes => classes.map(classes => classes.class_vls_id));
-    let section = await Section.findAll({
-           where:{
-                  teacher_id   : user.userVlsId
-                 },
-            group:['class_id'],
-            attributes: ['class_id']   
-        }).then(section => section.map(section => section.class_id));
-    let allClassIds = classes.concat(section)
 
-    let subjects_code = await Subject.findAll({
+        let subjects_code = await Subject.findAll({
            where:{
-                  class_id  : { [Op.in] : allClassIds }
+                  teacher_id  : user.userVlsId
                  },
             attributes: ['code']   
         }).then(subject => subject.map(subject => subject.code));
