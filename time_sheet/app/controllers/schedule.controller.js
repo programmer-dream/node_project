@@ -37,12 +37,14 @@ async function currentSchedule(user, query){
   
   
   if(query.startDate)
-     startDate = moment(query.startDate)
+     startDate = moment(query.startDate).format('YYYY-MM-DD')
 
   if(query.endDate)
-     endDate   = moment(query.endDate)
+     endDate   = moment(query.endDate).format('YYYY-MM-DD')
   let startFilter = startDate
   let endFilter   = endDate
+
+
   //get date wise time table
   let dateWiseTimeTable = {}
   while (startDate <= endDate) {
@@ -155,7 +157,7 @@ async function getTimetable(branch_id, user, day){
           return []
       break;
   }
-  
+
   timeTable = await Routine.findAll({
       where :whereCondition,
       attributes: ['timesheet_id','start_time','end_time','room_no','title'],
@@ -284,31 +286,37 @@ async function getExamDates(branch_id, user, reqDate, startFilter){
 
   student = await Student.findByPk(user.userVlsId)
   whereCondition.class_id = student.class_id
-   
+  whereCondition.exam_date = sequelize.where(sequelize.fn('date', sequelize.col('exam_date')), '>=', startFilter)
+
   let examDates = await ExamSchedule.findOne({
     where : whereCondition,
     attributes: [
       [Sequelize.fn('max', Sequelize.col('exam_date')), 'maxExamDate']
+      [Sequelize.fn('min', Sequelize.col('exam_date')), 'minExamDate']
     ],
     group: ['class_id']
   })
 
-  examDates = examDates.toJSON()
-  //return examDates
-  let examMax = examDates.maxExamDate
-
-  let momentMax = moment(examMax).format('YYYY-MM-DD')
-  let momentMin = startFilter
-  
-  if(moment(reqDate).isBetween(momentMin, momentMax)){
-    return false
-  }else if(moment(reqDate).isSame(momentMin)){
-    return false
-  }else if(moment(reqDate).isSame(momentMax)){
-    return false
-  }else{
-    return true
+  if(examDates){
+    examDates = examDates.toJSON()
+    //return examDates
+    let examMax = examDates.maxExamDate
+    let examMin = examDates.minExamDate
+    
+    let momentMax = moment(examMax).format('YYYY-MM-DD')
+    let momentMin = moment(examMin).format('YYYY-MM-DD')
+    
+    if(moment(reqDate).isBetween(momentMin, momentMax)){
+      return false
+    }else if(moment(reqDate).isSame(momentMin)){
+      return false
+    }else if(moment(reqDate).isSame(momentMax)){
+      return false
+    }else{
+      return true
+    }
   }
+  return true
 }
 
 
