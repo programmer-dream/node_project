@@ -97,7 +97,8 @@ async function viewChat(req){
                      ]     
             })
   userchat = await addChatUser(userChat);
-  return userchat
+
+  return { success: true, message: "Chat listing", data : userchat}
 }
 
 /**
