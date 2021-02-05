@@ -6,7 +6,11 @@ const helper = require("../helper");
 const upload  = helper.upload;
 
 //POST 
-router.post("/create",create);
+router.post("/create",[
+	upload.fields([{
+        name:'file',maxCount:1
+    }])
+	],create);
 
 //GET 
 router.get("/viewChat",viewChat);

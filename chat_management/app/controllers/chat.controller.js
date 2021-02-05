@@ -29,6 +29,12 @@ async function create(req){
   
   user = await getUser(user.id)
 
+  if(req.files.file && req.files.file.length > 0){
+      data.attachment      = req.body.uplodedPath + req.files.file[0].filename;
+      //data.attachmentType  = path.extname(req.files.file[0].originalname);
+      data.attachmentType  = 'image'
+  }
+
   let createdChat = await saveChat(data, user)
   
 	return { success: true, message: "Chat created successfully"}

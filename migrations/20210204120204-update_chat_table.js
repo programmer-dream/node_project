@@ -8,7 +8,7 @@ module.exports = {
                       type: Sequelize.STRING
                   });
     await queryInterface.changeColumn('chat', 'attachmentType', {
-                      type: Sequelize.ENUM('mage','document')
+                      type: Sequelize.ENUM('image','document')
                   });
     await queryInterface.addColumn('chat', 'sender_type', {
                     type: Sequelize.ENUM('employee','student','guardian'),
