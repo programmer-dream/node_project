@@ -299,32 +299,33 @@ async function getType(role){
  */
 async function getChatUser(userList){
   let userChatList = []
-  let user         = {}
+  let dbUser       = {}
   await Promise.all(
     userList.map(async user => {
-
+        let userJson = {}
         switch(user.type){
           case 'employee' : 
-              user = await Employee.findOne({
+              dbUser = await Employee.findOne({
                 where : { faculty_vls_id : user.id},
-                attributes: ['name','photo']
+                attributes: [['faculty_vls_id','id'],'name','photo']
               })
           break;
           case 'student' : 
-              user = await Student.findOne({
+              dbUser = await Student.findOne({
                 where : { student_vls_id : user.id},
-                attributes: ['name','photo']
+                attributes: [['student_vls_id','id'],'name','photo']
               })
           break;
           case 'guardian' : 
-              user = await Guardian.findOne({
+              dbUser = await Guardian.findOne({
                 where : { parent_vls_id : user.id},
-                attributes: ['name','photo']
+                attributes: [['parent_vls_id','id'],'name','photo']
               })
           break;
         }
-        
-        userChatList.push(user)
+        userJson = dbUser.toJSON()
+        userJson.type = user.type
+        userChatList.push(userJson)
     })
   )
   return userChatList

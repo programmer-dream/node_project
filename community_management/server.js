@@ -31,7 +31,7 @@ app.get("/",function(req, res){
 });
 
 // api routes
-app.use('/chat', require('./app/routes/chat.routes'));
+app.use('/community', require('./app/routes/community.routes'));
 
 
 // global error handler
