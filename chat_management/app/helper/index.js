@@ -43,7 +43,18 @@ let storage = multer.diskStorage({
     cb(null, file.fieldname + Date.now()+path.extname(file.originalname))
   }
 })
-let upload = multer({ storage: storage })
+/* defined filter */
+const fileFilter = (req, file, cb) => {
+  let ext = ['.jpeg','.jpg','.png','.gif','.pdf','.doc']
+  let fileExt = path.extname(file.originalname)
+  if ( ext.includes(fileExt)) {
+    cb(null, true);
+  } else {
+    cb("File format not supported"); // if validation failed then generate error
+  }
+};
+
+let upload = multer({ storage: storage, fileFilter: fileFilter })
 
 helper.upload = upload;
 module.exports = helper;

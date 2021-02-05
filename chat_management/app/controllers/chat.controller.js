@@ -31,8 +31,7 @@ async function create(req){
 
   if(req.files.file && req.files.file.length > 0){
       data.attachment      = req.body.uplodedPath + req.files.file[0].filename;
-      //data.attachmentType  = path.extname(req.files.file[0].originalname);
-      data.attachmentType  = 'image'
+      data.attachmentType  = await isImage(req.files.file[0].originalname);
   }
 
   let createdChat = await saveChat(data, user)
@@ -213,4 +212,16 @@ async function isUserAuthorised(id , user){
     if(isChat) return true
 
     return false
+}
+
+/**
+ * API for check file type  
+ */
+async function isImage(file){
+  let ext     = ['.jpeg','.jpg','.png','.gif']
+  let fileExt = path.extname(file)
+
+  if(ext.includes(fileExt)) return 'image'
+
+  return 'document'
 }
