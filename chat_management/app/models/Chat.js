@@ -1,12 +1,12 @@
 module.exports = (sequelize, Sequelize) => {
-  const StudentAssignment = sequelize.define("student_assignment", {
-        student_assignment_id: {
+  const Chat = sequelize.define("chat", {
+        chat_vls_id: {
           allowNull: false,
           autoIncrement: true,
           primaryKey: true,
           type: Sequelize.INTEGER
         },
-        student_vls_id: {
+        branch_vls_id: {
           allowNull: false,
           type: Sequelize.INTEGER
         },
@@ -14,32 +14,36 @@ module.exports = (sequelize, Sequelize) => {
           allowNull: false,
           type: Sequelize.INTEGER
         },
-        branch_vls_id: {
+        sender_user_vls_id: {
           type: Sequelize.INTEGER
         },
-        assignment_vls_id: {
+        receiver_user_vls_id: {
           allowNull: false,
           type: Sequelize.INTEGER
         },
-        assignment_status: {
-          allowNull: false,
-          type: Sequelize.ENUM('New','Inprogress','Submitted','ValidationInprogress','Approved','Rejected','Closed')
-        },
-        submission_date: {
+        date: {
           allowNull: false,
           type: Sequelize.DATE
         },
-        assessment: {
+        chat_message: {
+          allowNull: false,
           type: Sequelize.STRING
         },
-        teacher_comment: {
+        status: {
+          allowNull: false,
           type: Sequelize.STRING
         },
-        url: {
+        attachment: {
           type: Sequelize.STRING
         },
-        comments: {
-          type: Sequelize.TEXT
+        attachmentType: {
+          type: Sequelize.ENUM('image','document')
+        },
+        sender_type: {
+          type: Sequelize.ENUM('employee','student','guardian')
+        },
+        receiver_type: {
+          type: Sequelize.ENUM('employee','student','guardian')
         },
         created_at: {
           allowNull: false,
@@ -49,12 +53,12 @@ module.exports = (sequelize, Sequelize) => {
           allowNull: false,
           type: Sequelize.DATE
         }
-  },{
-      tableName: 'student_assignment',
-      createdAt: 'created_at',
-      updatedAt: 'updated_at'
-    }
+    },{
+        tableName: 'chat',
+        createdAt: 'created_at',
+        updatedAt: 'updated_at'
+      }
   );
   
-  return StudentAssignment;
+  return Chat;
 };

@@ -72,23 +72,11 @@ db.Employee = require("../../../vls/app/models/Employee.js")(sequelize, Sequeliz
 db.Authentication = require("../../../vls/app/models/Authentication.js")(sequelize, Sequelize);
 db.AcademicYear = require("../../../student_attendance/app/models/AcademicYear.js")(sequelize, Sequelize);
 db.Guardian = require("../../../vls/app/models/Guardian.js")(sequelize, Sequelize);
-db.SubjectList = require("../../../query_management/app/models/SubjectList.js")(sequelize, Sequelize);
-db.Assignment = require("./Assignment.js")(sequelize, Sequelize);
-db.StudentAssignment = require("./StudentAssignment.js")(sequelize, Sequelize);
-db.AssignmentQuestions = require("./AssignmentQuestions.js")(sequelize, Sequelize);
-db.StudentAssignmentResponse = require("./StudentAssignmentResponse.js")(sequelize, Sequelize);
 db.Classes = require("../../../student_attendance/app/models/Classes.js")(sequelize, Sequelize);
+db.Chat = require("./Chat.js")(sequelize, Sequelize);
 
 //relation
 db.Student.belongsTo(db.Guardian,{foreignKey:'parent_vls_id',as:'parent'})
-db.Assignment.belongsTo(db.Employee,{foreignKey:'added_by',as:'addedBY'})
-db.Assignment.belongsTo(db.Classes,{foreignKey:'assignment_class_id',as:'class'})
-db.Assignment.belongsTo(db.SubjectList,{foreignKey:'subject_code',targetKey:'code',as:'subjectList'})
-db.Assignment.hasMany(db.StudentAssignment,{foreignKey:'assignment_vls_id',as:'studentAssignment'})
-db.Assignment.hasMany(db.AssignmentQuestions,{foreignKey:'assignment_vls_id',as:'assignmentQuestion'})
 
-db.StudentAssignment.hasMany(db.AssignmentQuestions,{foreignKey:'assignment_vls_id', sourceKey:'assignment_vls_id', as:'assignmentQuestionResponse'})
-
-db.AssignmentQuestions.hasOne(db.StudentAssignmentResponse,{foreignKey:'question_id',as:'questionResponse'})
 
 module.exports = db;
