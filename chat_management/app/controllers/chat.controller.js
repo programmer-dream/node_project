@@ -10,13 +10,15 @@ const Chat       = db.Chat;
 const Student    = db.Student;
 const Employee   = db.Employee;
 const Guardian   = db.Guardian;
+const Role        = db.Role;
 
 
 module.exports = {
   create,
   viewChat,
   updateChat,
-  deleteChat
+  deleteChat,
+  listUser
 };
 
 
@@ -104,7 +106,7 @@ async function viewChat(req){
  * API for add user chat 
  */
 async function addChatUser(userChat){
-  userChatArray = []
+  let userChatArray = []
   await Promise.all(
     userChat.map(async chat => {
         let senderUser   = {}
@@ -214,6 +216,7 @@ async function isUserAuthorised(id , user){
     return false
 }
 
+
 /**
  * API for check file type  
  */
@@ -224,4 +227,105 @@ async function isImage(file){
   if(ext.includes(fileExt)) return 'image'
 
   return 'document'
+}
+
+
+/**
+ * API for list user chat created  
+ */
+async function listUser(user){
+  let type = await getType(user.role)
+  let whereCondition = {
+              [Op.or]:[{
+                    sender_user_vls_id: user.userVlsId,
+                    sender_type : type
+                  },{
+                  receiver_user_vls_id : user.userVlsId,
+                  receiver_type : type
+                }],
+    };
+  let chat = await Chat.findAll({
+            where : whereCondition,
+            attributes:[
+                        'sender_user_vls_id',
+                        'receiver_user_vls_id',
+                        'sender_type',
+                        'receiver_type'
+                        ]
+          })
+  let chatUserIds = []
+  await Promise.all(
+    chat.map(async uChat => {
+      let obj = {}
+      if((uChat.sender_user_vls_id != user.userVlsId && uChat.sender_type != type) ){
+         obj = { 
+                  id : uChat.sender_user_vls_id ,
+                  type : uChat.sender_type 
+               }
+        chatUserIds.push(obj)
+      }
+      if(uChat.receiver_user_vls_id != user.userVlsId && uChat.receiver_type != type){
+         obj = { 
+                  id : uChat.sender_user_vls_id ,
+                  type : uChat.sender_type 
+               }
+        chatUserIds.push(obj)
+      }
+    })
+  )
+  let userChatList = await getChatUser(chatUserIds)
+
+  return { success: true, message: "Chat deleted successfully",
+           data: userChatList}
+}
+
+
+/**
+ * API for list user chat created  
+ */
+async function getType(role){
+  switch(role){
+    case 'student': return 'student'
+      break;
+    case 'guardian': return 'guardian'
+      break;
+    default : return 'employee'
+      break;  
+  }
+}
+
+/**
+ * API for get user chat 
+ */
+async function getChatUser(userList){
+  let userChatList = []
+  let user         = {}
+  await Promise.all(
+    userList.map(async user => {
+
+        switch(user.type){
+          case 'employee' : 
+              user = await Employee.findOne({
+                where : { faculty_vls_id : user.id},
+                attributes: ['name','photo']
+              })
+          break;
+          case 'student' : 
+              user = await Student.findOne({
+                where : { student_vls_id : user.id},
+                attributes: ['name','photo']
+              })
+          break;
+          case 'guardian' : 
+              user = await Guardian.findOne({
+                where : { parent_vls_id : user.id},
+                attributes: ['name','photo']
+              })
+          break;
+        }
+        
+        userChatList.push(user)
+    })
+  )
+  return userChatList
 }

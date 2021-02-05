@@ -14,6 +14,7 @@ router.post("/create",[
 
 //GET 
 router.get("/viewChat",viewChat);
+router.get("/listUser",listUser);
 
 //PUT 
 router.put("/update/:id",updateChat);
@@ -47,6 +48,13 @@ function updateChat(req, res, next) {
 // Function for delete chat	
 function deleteChat(req, res, next) {
     chatController.deleteChat(req.params, req.user)
+        .then(chat => chat ? res.json(chat) : res.status(400).json({ status: "error", message: 'Error while updating chat' }))
+        .catch(err => next(err));
+}
+
+// Function for delete chat	
+function listUser(req, res, next) {
+    chatController.listUser(req.user)
         .then(chat => chat ? res.json(chat) : res.status(400).json({ status: "error", message: 'Error while updating chat' }))
         .catch(err => next(err));
 }
