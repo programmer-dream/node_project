@@ -609,7 +609,7 @@ async function listForParent(params, user){
     if(!params.branch_vls_id) throw 'branch_vls_id is required'
     	whereCondtion.branch_vls_id = params.branch_vls_id
 
-    let isSubjectAttendanceEnable = await isSubjectAttendance(params.branch_id);
+    let isSubjectAttendanceEnable = await isSubjectAttendance(params.branch_vls_id);
 	
 	if(isSubjectAttendanceEnable && !params.subject_code )
 		throw 'subject_code is required'
@@ -640,6 +640,7 @@ async function listForParent(params, user){
     	let currentYear		= moment().format('YYYY');
     	whereCondtion.year 	= currentYear
     }
+
     //return whereCondtion
     let attendenceQuery = {  
 	                  limit : limit,
@@ -860,6 +861,7 @@ async function dashboardAttendanceCount(user){
 		newData	= await teacherCount(classList, currentYear, currentMonth, currentDay)
 	}else if(user.role =='student'){
 		newData	= await studentCount(user.userVlsId, currentYear, currentMonth, currentDay)
+		
 	}else if( user.role == 'guardian' ){
 		let studentDetails = await Student.findAll({
 									where: { parent_vls_id: user.userVlsId },
@@ -1010,34 +1012,70 @@ async function teacherCount(classList, currentYear, currentMonth, currentDay){
 async function studentCount(userId, currentYear, currentMonth, currentDay){
 	let presentCount = 0
 	let absentCount  = 0
+	let isSubjectEnable = false
+	
+
 	student = await Student.findOne({
 					where : {student_vls_id:userId},
-					attributes :['class_id','student_vls_id']
+					attributes :['class_id','student_vls_id','branch_vls_id']
 			  })
 
-	attendances  = await StudentAttendance.findAll({
-			where: {
+	let whereCondtion = {
 				class_id   : student.class_id,
 				year 	   : currentYear,
 				month      : currentMonth,
 				student_id : student.student_vls_id
 			}
-		})
-	
-	if(attendances.length){
-		await Promise.all(
-			attendances.map(async attendance => {
-		 		for(var i = 1; i<=currentDay; i++){
-		 			if(attendance['day_'+i] =='P'){
-		 				presentCount++
-		 			}else if(attendance['day_'+i] =='A'){
-		 				absentCount++
-		 			}
-		 		}
-	 		})	
-		)
+
+	if(student){
+		isSubjectEnable = await isSubjectAttendance(student.branch_vls_id)
+		whereCondtion.subject_code  = { [Op.not]: null }
 	}
-	return {present : presentCount, absent : absentCount}
+	
+	attendances  = await StudentAttendance.findAll({
+			where: whereCondtion,
+			include: [{ 
+                  model:SubjectList,
+                  as:'subject',
+                  attributes: ['subject_name']
+                }]
+		})
+	if(!isSubjectEnable){
+		if(attendances.length){
+			await Promise.all(
+				attendances.map(async attendance => {
+			 		for(var i = 1; i<=currentDay; i++){
+			 			if(attendance['day_'+i] =='P'){
+			 				presentCount++
+			 			}else if(attendance['day_'+i] =='A'){
+			 				absentCount++
+			 			}
+			 		}
+		 		})	
+			)
+		}
+		return {present : presentCount, absent : absentCount}
+	}else{
+		let subjectWistAttendance = {}
+		if(attendances.length){
+			await Promise.all(
+				attendances.map(async attendance => {
+					let subject = attendance.subject.subject_name
+					presentCount = 0
+					absentCount  = 0
+			 		for(var i = 1; i<=currentDay; i++){
+			 			if(attendance['day_'+i] =='P'){
+			 				presentCount++
+			 			}else if(attendance['day_'+i] =='A'){
+			 				absentCount++
+			 			}
+			 		}
+			 		subjectWistAttendance[subject] = {present : presentCount, absent : absentCount}
+		 		})	
+			)
+		}
+		return subjectWistAttendance
+	}
 }
 
 
