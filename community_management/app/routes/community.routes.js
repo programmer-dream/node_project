@@ -17,7 +17,9 @@ router.get("/view/:id",view);
 router.get("/list",list);
 
 //PUT 
-router.put("/update/:id",update);
+router.put("/update/:id",update); 
+router.put("/:id/addUsers",addUsers);
+router.put("/:id/addAdmins",addAdmins);
 
 //PUT 
 router.delete("/delete/:id",deleteCommunity);
@@ -69,6 +71,18 @@ function update(req, res, next) {
 // Function for delete community 
 function deleteCommunity(req, res, next) {
     communityController.deleteCommunity(req.params.id)
+        .then(community => community ? res.json(community) : res.status(400).json({ status: "error", message: 'Error while updating chat' }))
+        .catch(err => next(err));
+}
+// Function for add user community 
+function addUsers(req, res, next) {
+    communityController.addUsers(req.params.id, req.body)
+        .then(community => community ? res.json(community) : res.status(400).json({ status: "error", message: 'Error while updating chat' }))
+        .catch(err => next(err));
+}
+// Function for add admins user community 
+function addAdmins(req, res, next) {
+    communityController.addAdmins(req.params.id, req.body)
         .then(community => community ? res.json(community) : res.status(400).json({ status: "error", message: 'Error while updating chat' }))
         .catch(err => next(err));
 }
