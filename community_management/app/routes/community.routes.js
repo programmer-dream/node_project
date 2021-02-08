@@ -13,48 +13,62 @@ router.post("/create",[
 	],create);
 
 //GET 
-router.get("/viewChat",viewChat);
-router.get("/listUser",listUser);
+router.get("/view/:id",view);
+router.get("/list",list);
 
 //PUT 
-router.put("/update/:id",updateChat);
+router.put("/update/:id",update);
 
 //PUT 
-router.delete("/delete/:id",deleteChat);
+router.delete("/delete/:id",deleteCommunity);
 
 module.exports = router;
 
-// Function for create chat	
+// Function for create community	
 function create(req, res, next) {
     communityController.create(req)
-        .then(chat => chat ? res.json(chat) : res.status(400).json({ status: "error", message: 'Error while creating chat' }))
+        .then(community => community ? res.json(community) : res.status(400).json({ status: "error", message: 'Error while creating chat' }))
         .catch(err => next(err));
 }
 
-// Function for view chat	
-function viewChat(req, res, next) {
-    communityController.viewChat(req)
-        .then(chat => chat ? res.json(chat) : res.status(400).json({ status: "error", message: 'Error while getting chat' }))
+// Function for view community	
+function view(req, res, next) {
+    communityController.view(req.params.id)
+        .then(community => community ? res.json(community) : res.status(400).json({ status: "error", message: 'Error while getting chat' }))
         .catch(err => next(err));
 }
 
-// Function for update chat	
-function updateChat(req, res, next) {
-    communityController.updateChat(req)
-        .then(chat => chat ? res.json(chat) : res.status(400).json({ status: "error", message: 'Error while updating chat' }))
+// Function for list community	
+function list(req, res, next) {
+    communityController.list(req.user)
+        .then(community => community ? res.json(community) : res.status(400).json({ status: "error", message: 'Error while updating chat' }))
         .catch(err => next(err));
 }
 
-// Function for delete chat	
-function deleteChat(req, res, next) {
-    communityController.deleteChat(req.params, req.user)
-        .then(chat => chat ? res.json(chat) : res.status(400).json({ status: "error", message: 'Error while updating chat' }))
+// Function for update community 
+function update(req, res, next) {
+    communityController.update(req)
+        .then(community => community ? res.json(community) : res.status(400).json({ status: "error", message: 'Error while updating chat' }))
         .catch(err => next(err));
 }
 
-// Function for delete chat	
-function listUser(req, res, next) {
-    communityController.listUser(req.user)
-        .then(chat => chat ? res.json(chat) : res.status(400).json({ status: "error", message: 'Error while updating chat' }))
+// Function for delete community 
+function update(req, res, next) {
+    communityController.update(req)
+        .then(community => community ? res.json(community) : res.status(400).json({ status: "error", message: 'Error while updating chat' }))
+        .catch(err => next(err));
+}
+
+// Function for delete community 
+function update(req, res, next) {
+    communityController.update(req.params.id)
+        .then(community => community ? res.json(community) : res.status(400).json({ status: "error", message: 'Error while updating chat' }))
+        .catch(err => next(err));
+}
+
+// Function for delete community 
+function deleteCommunity(req, res, next) {
+    communityController.deleteCommunity(req.params.id)
+        .then(community => community ? res.json(community) : res.status(400).json({ status: "error", message: 'Error while updating chat' }))
         .catch(err => next(err));
 }

@@ -6,7 +6,7 @@ const path       = require('path')
 const Op 	 	     = db.Sequelize.Op;
 const Sequelize  = db.Sequelize;
 const User       = db.Authentication;
-const Chat       = db.Chat;
+const CommunityChat = db.CommunityChat;
 const Student    = db.Student;
 const Employee   = db.Employee;
 const Guardian   = db.Guardian;
@@ -15,15 +15,15 @@ const Role        = db.Role;
 
 module.exports = {
   create,
-  viewChat,
-  updateChat,
-  deleteChat,
-  listUser
+  view,
+  list,
+  update,
+  deleteCommunity
 };
 
 
 /**
- * API for create chat 
+ * API for create community 
  */
 async function create(req){
   let user = req.user
@@ -31,14 +31,9 @@ async function create(req){
   
   user = await getUser(user.id)
 
-  if(req.files.file && req.files.file.length > 0){
-      data.attachment      = req.body.uplodedPath + req.files.file[0].filename;
-      data.attachmentType  = await isImage(req.files.file[0].originalname);
-  }
-
-  let createdChat = await saveChat(data, user)
+  let createdCommunity = await saveCommunity(data, user)
   
-	return { success: true, message: "Chat created successfully"}
+	return { success: true, message: "Community created successfully" , data : createdCommunity}
 };
 
 
@@ -55,277 +50,86 @@ async function getUser(id){
 
 
 /**
- * API for save chat 
+ * API for save community 
  */
-async function saveChat(data, user){
-
+async function saveCommunity(data, user){
   data.branch_vls_id = user.branch_vls_id
   data.school_vls_id = user.school_id
-  data.date          = moment().format('YYYY-MM-DD HH:mm:ss')
+  data.user_list     = JSON.stringify(data.user_list)
+  data.tags          = JSON.stringify(data.tags)
+  data.group_admin_user_id_list = JSON.stringify(data.group_admin_user_id_list)
 
-  let createdChat = await Chat.create(data)
-  return createdChat
+  let createdCommunity = await CommunityChat.create(data)
+  return createdCommunity
 }
 
 
 /**
- * API for save chat 
+ * API for view community 
  */
-async function editChat(data , id){
+async function view(id){
+  
+  let userCommunity = await CommunityChat.findByPk(id)
 
-  let editedChat = await Chat.update(data,{
-      where : { chat_vls_id : id }
-  })
-  return editedChat
+  return { success: true, message: "Community view", data : userCommunity}
 }
 
+
 /**
- * API for view chat 
+ * API for list community 
  */
-async function viewChat(req){
+async function list(req){
   let user = req.user
   
-  let whereCondition = {
-      [Op.or]:{
-              sender_user_vls_id: user.userVlsId,
-              receiver_user_vls_id : user.userVlsId
-           }
-    };
-  let userChat = await Chat.findAll({
-              where : whereCondition,
-              order: [
-                       ['date', 'desc']
-                     ]     
-            })
-  userchat = await addChatUser(userChat);
+  let userCommunity = await CommunityChat.findAll()
 
-  return { success: true, message: "Chat listing", data : userchat}
+  return { success: true, message: "Community list", data : userCommunity}
 }
 
+
 /**
- * API for add user chat 
+ * API for update community 
  */
-async function addChatUser(userChat){
-  let userChatArray = []
-  await Promise.all(
-    userChat.map(async chat => {
-        let senderUser   = {}
-        let receiverUser = {}
-        let uChat = chat.toJSON();
-        //add sender user
-        switch(uChat.sender_type){
-          case 'employee' : 
-              senderUser = await Employee.findOne({
-                where : { faculty_vls_id : uChat.sender_user_vls_id},
-                attributes: ['name','photo']
-              })
-          break;
-          case 'student' : 
-              senderUser = await Student.findOne({
-                where : { student_vls_id : uChat.sender_user_vls_id},
-                attributes: ['name','photo']
-              })
-          break;
-          case 'guardian' : 
-              senderUser = await Guardian.findOne({
-                where : { parent_vls_id : uChat.sender_user_vls_id },
-                attributes: ['name','photo']
-              })
-          break;
-        }
-        //add receiver user
-        switch(uChat.receiver_type){
-          case 'employee' : 
-              receiverUser = await Employee.findOne({
-                where : { faculty_vls_id : uChat.receiver_user_vls_id},
-                attributes: ['name','photo']
-              })
-          break;
-          case 'student' : 
-              receiverUser = await Student.findOne({
-                where : { student_vls_id : uChat.receiver_user_vls_id},
-                attributes: ['name','photo']
-              })
-          break;
-          case 'guardian' : 
-              receiverUser = await Guardian.findOne({
-                where : { parent_vls_id : uChat.receiver_user_vls_id },
-                attributes: ['name','photo']
-              })
-          break;
-        }
-        uChat.senderUser = senderUser
-        uChat.receiverUser = receiverUser
-        userChatArray.push(uChat)
+async function update(req){
+  let id   = req.params.id
+  let data = req.body
+  
+  let updatedCommunity = await updateCommunity(data, id)
+  
+  return { success: true, message: "Community updated successfully" , data : updatedCommunity}
+}
+
+
+/**
+ * API for save community 
+ */
+async function updateCommunity(data, id){
+  data.user_list     = JSON.stringify(data.user_list)
+  data.tags          = JSON.stringify(data.tags)
+  data.group_admin_user_id_list = JSON.stringify(data.group_admin_user_id_list)
+
+  let community = await CommunityChat.findByPk(id)
+
+  if(community){
+    let updatedCommunity = await CommunityChat.update(data,{
+      where : { community_chat_vls_id:id }
     })
-  )
-  return userChatArray
-}
-
-
-/**
- * API for update chat 
- */
-async function updateChat(req){
-    let user = req.user
-    let data = req.body
-    let id   = req.params.id
-
-    let isChat = await  isUserAuthorised(id , user)
-
-    if(isChat) throw 'unauthorised user'
-
-    let editedChat = await editChat(data , id)
-    
-    if(editedChat[0]) 
-      return { success: true, message: "Chat updated successfully"}
-
-    return { success: true, message: "Error while updating chat"}
-}
-
-/**
- * API for update chat 
- */
-async function deleteChat(params, user){
-    let id   = params.id
-
-    let isChat = await  isUserAuthorised(id , user)
-
-    if(isChat) throw 'unauthorised user'
-
-    let chat  = await Chat.destroy({ where: { chat_vls_id: id } })
-    
-    if(!chat) throw 'Chat Not found'
-
-  return { success: true, message: "Chat deleted successfully" }
-}
-
-
-/**
- * API for update chat 
- */
-async function isUserAuthorised(id , user){
-    let isChat = await Chat.findOne({
-      where : { 
-                chat_vls_id        : id,
-                sender_user_vls_id : user.userVlsId
-              }
-    })
-    if(isChat) return true
-
-    return false
-}
-
-
-/**
- * API for check file type  
- */
-async function isImage(file){
-  let ext     = ['.jpeg','.jpg','.png','.gif']
-  let fileExt = path.extname(file)
-
-  if(ext.includes(fileExt)) return 'image'
-
-  return 'document'
-}
-
-
-/**
- * API for list user chat created  
- */
-async function listUser(user){
-  let type = await getType(user.role)
-  let whereCondition = {
-              [Op.or]:[{
-                    sender_user_vls_id: user.userVlsId,
-                    sender_type : type
-                  },{
-                  receiver_user_vls_id : user.userVlsId,
-                  receiver_type : type
-                }],
-    };
-  let chat = await Chat.findAll({
-            where : whereCondition,
-            attributes:[
-                        'sender_user_vls_id',
-                        'receiver_user_vls_id',
-                        'sender_type',
-                        'receiver_type'
-                        ]
-          })
-  let chatUserIds = []
-  await Promise.all(
-    chat.map(async uChat => {
-      let obj = {}
-      if((uChat.sender_user_vls_id != user.userVlsId && uChat.sender_type != type) ){
-         obj = { 
-                  id : uChat.sender_user_vls_id ,
-                  type : uChat.sender_type 
-               }
-        chatUserIds.push(obj)
-      }
-      if(uChat.receiver_user_vls_id != user.userVlsId && uChat.receiver_type != type){
-         obj = { 
-                  id : uChat.sender_user_vls_id ,
-                  type : uChat.sender_type 
-               }
-        chatUserIds.push(obj)
-      }
-    })
-  )
-  let userChatList = await getChatUser(chatUserIds)
-
-  return { success: true, message: "User listing",
-           data: userChatList}
-}
-
-
-/**
- * API for list user chat created  
- */
-async function getType(role){
-  switch(role){
-    case 'student': return 'student'
-      break;
-    case 'guardian': return 'guardian'
-      break;
-    default : return 'employee'
-      break;  
+    community = await CommunityChat.findByPk(id)
+  }else{
+    throw 'Community not found'
   }
+
+  return community
 }
 
-/**
- * API for get user chat 
- */
-async function getChatUser(userList){
-  let userChatList = []
-  let user         = {}
-  await Promise.all(
-    userList.map(async user => {
 
-        switch(user.type){
-          case 'employee' : 
-              user = await Employee.findOne({
-                where : { faculty_vls_id : user.id},
-                attributes: ['name','photo']
-              })
-          break;
-          case 'student' : 
-              user = await Student.findOne({
-                where : { student_vls_id : user.id},
-                attributes: ['name','photo']
-              })
-          break;
-          case 'guardian' : 
-              user = await Guardian.findOne({
-                where : { parent_vls_id : user.id},
-                attributes: ['name','photo']
-              })
-          break;
-        }
-        
-        userChatList.push(user)
-    })
-  )
-  return userChatList
+/**
+ * API for delete community 
+ */
+async function deleteCommunity(id){
+    let chat  = await CommunityChat.destroy({ where: { community_chat_vls_id : id } })
+    
+    if(!chat) throw 'Community Not found'
+
+  return { success: true, message: "Community deleted successfully" }
 }
