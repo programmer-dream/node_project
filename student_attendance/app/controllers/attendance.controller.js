@@ -1012,7 +1012,7 @@ async function teacherCount(classList, currentYear, currentMonth, currentDay){
 async function studentCount(userId, currentYear, currentMonth, currentDay){
 	let presentCount = 0
 	let absentCount  = 0
-	let isSubjectAttendance = false
+	let isSubjectEnable = false
 	
 
 	student = await Student.findOne({
@@ -1028,7 +1028,7 @@ async function studentCount(userId, currentYear, currentMonth, currentDay){
 			}
 
 	if(student){
-		isSubjectAttendance = await isSubjectAttendance(student.branch_vls_id)
+		isSubjectEnable = await isSubjectAttendance(student.branch_vls_id)
 		whereCondtion.subject_code  = { [Op.not]: null }
 	}
 	
@@ -1040,21 +1040,42 @@ async function studentCount(userId, currentYear, currentMonth, currentDay){
                   attributes: ['subject_name']
                 }]
 		})
-	return attendances
-	if(attendances.length){
-		await Promise.all(
-			attendances.map(async attendance => {
-		 		for(var i = 1; i<=currentDay; i++){
-		 			if(attendance['day_'+i] =='P'){
-		 				presentCount++
-		 			}else if(attendance['day_'+i] =='A'){
-		 				absentCount++
-		 			}
-		 		}
-	 		})	
-		)
+	if(!isSubjectEnable){
+		if(attendances.length){
+			await Promise.all(
+				attendances.map(async attendance => {
+			 		for(var i = 1; i<=currentDay; i++){
+			 			if(attendance['day_'+i] =='P'){
+			 				presentCount++
+			 			}else if(attendance['day_'+i] =='A'){
+			 				absentCount++
+			 			}
+			 		}
+		 		})	
+			)
+		}
+		return {present : presentCount, absent : absentCount}
+	}else{
+		let subjectWistAttendance = {}
+		if(attendances.length){
+			await Promise.all(
+				attendances.map(async attendance => {
+					let subject = attendance.subject.subject_name
+					presentCount = 0
+					absentCount  = 0
+			 		for(var i = 1; i<=currentDay; i++){
+			 			if(attendance['day_'+i] =='P'){
+			 				presentCount++
+			 			}else if(attendance['day_'+i] =='A'){
+			 				absentCount++
+			 			}
+			 		}
+			 		subjectWistAttendance[subject] = {present : presentCount, absent : absentCount}
+		 		})	
+			)
+		}
+		return subjectWistAttendance
 	}
-	return {present : presentCount, absent : absentCount}
 }
 
 
