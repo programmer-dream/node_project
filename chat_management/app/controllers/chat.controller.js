@@ -84,13 +84,18 @@ async function editChat(data , id){
  * API for view chat 
  */
 async function viewChat(req){
-  let user = req.user
-  
+  let user    = req.user
+  let user_id = req.query.user_id
+  if(!user_id) throw 'user_id is required'
+
   let whereCondition = {
-      [Op.or]:{
-              sender_user_vls_id: user.userVlsId,
-              receiver_user_vls_id : user.userVlsId
-           }
+      [Op.or]:[{
+                  sender_user_vls_id: user.userVlsId,
+                  receiver_user_vls_id : user_id
+                },{
+                  receiver_user_vls_id : user.userVlsId,
+                  sender_user_vls_id : user_id
+                }]
     };
   let userChat = await Chat.findAll({
               where : whereCondition,
