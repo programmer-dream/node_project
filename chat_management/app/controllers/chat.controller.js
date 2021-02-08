@@ -252,28 +252,44 @@ async function listUser(user){
                         'receiver_user_vls_id',
                         'sender_type',
                         'receiver_type'
-                        ]
+                        ],
+            group :['sender_user_vls_id',
+                    'receiver_user_vls_id',
+                    'sender_type',
+                    'receiver_type'
+                   ] 
           })
+  //return chat
   let chatUserIds = []
+  let ids = []
   await Promise.all(
     chat.map(async uChat => {
+      uChat = uChat.toJSON()
       let obj = {}
       if((uChat.sender_user_vls_id != user.userVlsId && uChat.sender_type != type) ){
          obj = { 
                   id : uChat.sender_user_vls_id ,
                   type : uChat.sender_type 
                }
-        chatUserIds.push(obj)
+        if(!ids.includes(uChat.sender_user_vls_id)){
+          ids.push(uChat.sender_user_vls_id)
+          chatUserIds.push(obj)
+        }
       }
       if(uChat.receiver_user_vls_id != user.userVlsId && uChat.receiver_type != type){
          obj = { 
-                  id : uChat.sender_user_vls_id ,
-                  type : uChat.sender_type 
+                  id : uChat.receiver_user_vls_id ,
+                  type : uChat.receiver_type 
                }
-        chatUserIds.push(obj)
+        if(!ids.includes(uChat.sender_user_vls_id)){
+           ids.push(uChat.receiver_user_vls_id)
+           chatUserIds.push(obj)
+        }
       }
     })
   )
+
+  //return chatUserIds
   let userChatList = await getChatUser(chatUserIds)
 
   return { success: true, message: "User listing",
@@ -301,9 +317,31 @@ async function getType(role){
 async function getChatUser(userList){
   let userChatList = []
   let dbUser       = {}
+
   await Promise.all(
     userList.map(async user => {
         let userJson = {}
+        let whereCondition = {
+              [Op.or]:[{
+                    sender_user_vls_id: user.id,
+                    sender_type : user.type
+                  },{
+                  receiver_user_vls_id : user.id,
+                  receiver_type : user.type
+                }],
+            };
+          
+          let lastMsg = await Chat.findOne({
+                    where : whereCondition,
+                    attributes:['chat_message'],
+                    order : [
+                        ['created_at', 'DESC']
+                      ]
+                  })
+          whereCondition.status = 'unread'
+          let unreadCount = await Chat.count({
+                    where : whereCondition
+                  })
         switch(user.type){
           case 'employee' : 
               dbUser = await Employee.findOne({
@@ -326,6 +364,12 @@ async function getChatUser(userList){
         }
         userJson = dbUser.toJSON()
         userJson.type = user.type
+        if(lastMsg){
+          userJson.chat_message = lastMsg.chat_message
+        }else{
+          userJson.chat_message = ''
+        }
+        userJson.unreadCount = unreadCount
         userChatList.push(userJson)
     })
   )
