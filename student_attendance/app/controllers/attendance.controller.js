@@ -861,7 +861,7 @@ async function dashboardAttendanceCount(user){
 		newData	= await teacherCount(classList, currentYear, currentMonth, currentDay)
 	}else if(user.role =='student'){
 		newData	= await studentCount(user.userVlsId, currentYear, currentMonth, currentDay)
-		return newData
+		
 	}else if( user.role == 'guardian' ){
 		let studentDetails = await Student.findAll({
 									where: { parent_vls_id: user.userVlsId },
