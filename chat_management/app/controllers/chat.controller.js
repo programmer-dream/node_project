@@ -18,7 +18,8 @@ module.exports = {
   viewChat,
   updateChat,
   deleteChat,
-  listUser
+  listUser,
+  searchFaculty
 };
 
 
@@ -329,4 +330,24 @@ async function getChatUser(userList){
     })
   )
   return userChatList
+}
+
+/**
+ * API for search faculty
+ */
+async function searchFaculty(params){
+  let search = ''
+
+  if(params.search) 
+    search = params.search
+
+  let faculty  = await Employee.findAll({
+                          where:{
+                            name : { 
+                              [Op.like]: `%`+search+`%`
+                            },
+                            isTeacher : 1
+                          }
+                        });
+  return { success: true, message: "Faculty list" ,data : faculty};
 }
