@@ -265,6 +265,7 @@ async function listUser(user){
   await Promise.all(
     chat.map(async uChat => {
       uChat = uChat.toJSON()
+            console.log(uChat)
       let obj = {}
       if((uChat.sender_user_vls_id != user.userVlsId && uChat.sender_type != type) ){
          obj = { 
@@ -281,7 +282,7 @@ async function listUser(user){
                   id : uChat.receiver_user_vls_id ,
                   type : uChat.receiver_type 
                }
-        if(!ids.includes(uChat.sender_user_vls_id)){
+        if(!ids.includes(uChat.receiver_user_vls_id)){
            ids.push(uChat.receiver_user_vls_id)
            chatUserIds.push(obj)
         }
@@ -289,7 +290,6 @@ async function listUser(user){
     })
   )
 
-  //return chatUserIds
   let userChatList = await getChatUser(chatUserIds)
 
   return { success: true, message: "User listing",
