@@ -861,6 +861,7 @@ async function dashboardAttendanceCount(user){
 		newData	= await teacherCount(classList, currentYear, currentMonth, currentDay)
 	}else if(user.role =='student'){
 		newData	= await studentCount(user.userVlsId, currentYear, currentMonth, currentDay)
+		return newData
 	}else if( user.role == 'guardian' ){
 		let studentDetails = await Student.findAll({
 									where: { parent_vls_id: user.userVlsId },
@@ -1011,20 +1012,35 @@ async function teacherCount(classList, currentYear, currentMonth, currentDay){
 async function studentCount(userId, currentYear, currentMonth, currentDay){
 	let presentCount = 0
 	let absentCount  = 0
+	let isSubjectAttendance = false
+	
+
 	student = await Student.findOne({
 					where : {student_vls_id:userId},
-					attributes :['class_id','student_vls_id']
+					attributes :['class_id','student_vls_id','branch_vls_id']
 			  })
 
-	attendances  = await StudentAttendance.findAll({
-			where: {
+	let whereCondtion = {
 				class_id   : student.class_id,
 				year 	   : currentYear,
 				month      : currentMonth,
 				student_id : student.student_vls_id
 			}
-		})
+
+	if(student){
+		isSubjectAttendance = await isSubjectAttendance(student.branch_vls_id)
+		whereCondtion.subject_code  = { [Op.not]: null }
+	}
 	
+	attendances  = await StudentAttendance.findAll({
+			where: whereCondtion,
+			include: [{ 
+                  model:SubjectList,
+                  as:'subject',
+                  attributes: ['subject_name']
+                }]
+		})
+	return attendances
 	if(attendances.length){
 		await Promise.all(
 			attendances.map(async attendance => {
