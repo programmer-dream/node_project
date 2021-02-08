@@ -81,6 +81,7 @@ db.SchoolDetails = require("../../../vls/app/models/School.js")(sequelize, Seque
 //relatons
 db.Classes.hasMany(db.Section,{foreignKey:'class_id',as:'sections'})
 db.StudentAttendance.belongsTo(db.Student,{foreignKey:'student_id',as:'student'})
+db.StudentAttendance.belongsTo(db.SubjectList,{foreignKey:'subject_code',targetKey:'code',as:'subject'})
 db.Student.belongsTo(db.Guardian,{foreignKey:'parent_vls_id',as:'parent'})
 db.Branch.belongsTo(db.SchoolDetails,{foreignKey:'school_vls_id',as:'school'})
 
