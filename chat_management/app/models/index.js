@@ -75,9 +75,12 @@ db.Guardian = require("../../../vls/app/models/Guardian.js")(sequelize, Sequeliz
 db.Classes = require("../../../student_attendance/app/models/Classes.js")(sequelize, Sequelize);
 db.Chat = require("./Chat.js")(sequelize, Sequelize);
 db.Role = require("../../../vls/app/models/Role.js")(sequelize, Sequelize);
+db.SubjectList = require("../../../query_management/app/models/SubjectList.js")(sequelize, Sequelize);
+db.Subject = require("../../../query_management/app/models//Subject.js")(sequelize, Sequelize);
 
 //relation
 db.Student.belongsTo(db.Guardian,{foreignKey:'parent_vls_id',as:'parent'})
+db.Employee.hasMany(db.Subject,{foreignKey:'teacher_id',as:'subject'})
 
 
 module.exports = db;
