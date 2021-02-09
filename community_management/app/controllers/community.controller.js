@@ -161,7 +161,11 @@ async function list(params , user){
                 'group_name',
                 'group_type',
                 'user_list',
-                'group_admin_user_id_list'
+                'group_admin_user_id_list',
+                'tags',
+                'start_date',
+                'community_status',
+                'group_description'
                 ]
   })
 

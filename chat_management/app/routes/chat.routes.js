@@ -34,7 +34,7 @@ function create(req, res, next) {
 
 // Function for view chat	
 function viewChat(req, res, next) {
-    chatController.viewChat(req)
+    chatController.viewChat(req.query, req.user)
         .then(chat => chat ? res.json(chat) : res.status(400).json({ status: "error", message: 'Error while getting chat' }))
         .catch(err => next(err));
 }
