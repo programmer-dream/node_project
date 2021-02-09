@@ -41,7 +41,7 @@ async function create(req){
 
   let createdChat = await saveChat(data, user)
   
-	return { success: true, message: "Chat created successfully"}
+	return { success: true, message: "Chat created successfully", chat : createdChat}
 };
 
 
