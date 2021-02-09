@@ -85,10 +85,18 @@ async function editChat(data , id){
 /**
  * API for view chat 
  */
-async function viewChat(req){
-  let user    = req.user
-  let user_id = req.query.user_id
+async function viewChat(params , user){
+  let user_id = params.user_id
   if(!user_id) throw 'user_id is required'
+
+  let limit   = 10
+  let offset  = 0
+
+  if(params.size)
+     limit = parseInt(params.size)
+
+  if(params.page)
+      offset = 0 + (parseInt(params.page) - 1) * limit
 
   let whereCondition = {
       [Op.or]:[{
@@ -100,10 +108,12 @@ async function viewChat(req){
                 }]
     };
   let userChat = await Chat.findAll({
-              where : whereCondition,
+              limit:limit,
+              offset:offset,
               order: [
-                       ['date', 'desc']
-                     ]     
+                       ['chat_vls_id', 'asc']
+                     ],
+              where : whereCondition    
             })
   userchat = await addChatUser(userChat);
 
