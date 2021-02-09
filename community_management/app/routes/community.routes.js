@@ -42,7 +42,7 @@ function view(req, res, next) {
 
 // Function for list community	
 function list(req, res, next) {
-    communityController.list(req.user)
+    communityController.list(req.query, req.user)
         .then(community => community ? res.json(community) : res.status(400).json({ status: "error", message: 'Error while updating chat' }))
         .catch(err => next(err));
 }
@@ -50,20 +50,6 @@ function list(req, res, next) {
 // Function for update community 
 function update(req, res, next) {
     communityController.update(req)
-        .then(community => community ? res.json(community) : res.status(400).json({ status: "error", message: 'Error while updating chat' }))
-        .catch(err => next(err));
-}
-
-// Function for delete community 
-function update(req, res, next) {
-    communityController.update(req)
-        .then(community => community ? res.json(community) : res.status(400).json({ status: "error", message: 'Error while updating chat' }))
-        .catch(err => next(err));
-}
-
-// Function for delete community 
-function update(req, res, next) {
-    communityController.update(req.params.id)
         .then(community => community ? res.json(community) : res.status(400).json({ status: "error", message: 'Error while updating chat' }))
         .catch(err => next(err));
 }
