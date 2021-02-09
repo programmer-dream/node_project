@@ -98,6 +98,7 @@ async function viewChat(params , user){
   if(params.page)
       offset = 0 + (parseInt(params.page) - 1) * limit
 
+  
   let whereCondition = {
       [Op.or]:[{
                   sender_user_vls_id: user.userVlsId,
@@ -107,6 +108,12 @@ async function viewChat(params , user){
                   sender_user_vls_id : user_id
                 }]
     };
+
+  if(params.id){
+    whereCondition.chat_vls_id = {[Op.lt]: params.id}
+    offset = 0
+  }
+  
   let userChat = await Chat.findAll({
               limit:limit,
               offset:offset,

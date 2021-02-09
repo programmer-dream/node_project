@@ -74,6 +74,7 @@ db.AcademicYear = require("../../../student_attendance/app/models/AcademicYear.j
 db.Guardian = require("../../../vls/app/models/Guardian.js")(sequelize, Sequelize);
 db.Classes = require("../../../student_attendance/app/models/Classes.js")(sequelize, Sequelize);
 db.CommunityChat = require("./CommunityChat.js")(sequelize, Sequelize);
+db.CommunityCommunication = require("./CommunityCommunication.js")(sequelize, Sequelize);
 
 //relation
 db.Student.belongsTo(db.Guardian,{foreignKey:'parent_vls_id',as:'parent'})
