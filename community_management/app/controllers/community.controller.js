@@ -84,38 +84,20 @@ async function saveCommunity(data, user, classStudents){
  * API for view community 
  */
 async function view(id){
-  let userList   = []
-  let adminsList = []
-  let communityWithUser = {}
-  let userCommunity  = await CommunityChat.findByPk(id)
-  communityWithUser  = userCommunity.toJSON()
 
-  if(userCommunity.user_list){
-    userIds = JSON.parse(userCommunity.user_list)
-    userList = await Student.findAll({
-      where : { 
-        student_vls_id : { 
-          [Op.in] : userIds
-        } 
-      },
-      attributes:['student_vls_id','name','photo']
-    })
-    communityWithUser.users = userList
-  }
+  let userCommunity   = await CommunityChat.findByPk(id)
 
-  if(userCommunity.group_admin_user_id_list){
-    userIds = JSON.parse(userCommunity.group_admin_user_id_list)
-    adminsList = await Employee.findAll({
-      where : { 
-        faculty_vls_id : { 
-          [Op.in] : userIds
-        } 
-      },
-      attributes:['faculty_vls_id','name','photo']
-    })
-    communityWithUser.admins = adminsList
-  }
+  if(!userCommunity) throw 'Community not found'
 
+  let communityJSON   = userCommunity.toJSON()
+
+  let userList   = JSON.parse(userCommunity.user_list)
+  let adminsList = JSON.parse(userCommunity.group_admin_user_id_list)
+
+  communityJSON.users_list_details = await addUserList(userList);
+  communityJSON.admin_list_details = await addUserList(adminsList);
+  let communityWithUser = communityJSON
+  
   return { success: true, message: "Community view", data : communityWithUser}
 }
 
