@@ -10,7 +10,9 @@ const Chat       = db.Chat;
 const Student    = db.Student;
 const Employee   = db.Employee;
 const Guardian   = db.Guardian;
-const Role        = db.Role;
+const Role       = db.Role;
+const SubjectList= db.SubjectList;
+const Subject    = db.Subject;
 
 
 module.exports = {
@@ -84,13 +86,18 @@ async function editChat(data , id){
  * API for view chat 
  */
 async function viewChat(req){
-  let user = req.user
-  
+  let user    = req.user
+  let user_id = req.query.user_id
+  if(!user_id) throw 'user_id is required'
+
   let whereCondition = {
-      [Op.or]:{
-              sender_user_vls_id: user.userVlsId,
-              receiver_user_vls_id : user.userVlsId
-           }
+      [Op.or]:[{
+                  sender_user_vls_id: user.userVlsId,
+                  receiver_user_vls_id : user_id
+                },{
+                  receiver_user_vls_id : user.userVlsId,
+                  sender_user_vls_id : user_id
+                }]
     };
   let userChat = await Chat.findAll({
               where : whereCondition,
@@ -381,9 +388,20 @@ async function getChatUser(userList){
  */
 async function searchFaculty(params){
   let search = ''
-
+  let include = []
   if(params.search) 
     search = params.search
+
+  if(params.subject_code) {
+    subject_code = params.subject_code
+    include = [{ 
+                  model:Subject,
+                  as:'subject',
+                  where : {
+                    code: subject_code
+                  }
+                }]
+  }
 
   let faculty  = await Employee.findAll({
                           where:{
@@ -391,7 +409,9 @@ async function searchFaculty(params){
                               [Op.like]: `%`+search+`%`
                             },
                             isTeacher : 1
-                          }
+                          },
+                          attributes : ['faculty_vls_id','name'],
+                          include: include
                         });
   return { success: true, message: "Faculty list" ,data : faculty};
 }
