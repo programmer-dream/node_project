@@ -33,6 +33,8 @@ app.get("/",function(req, res){
 // api routes
 app.use('/community', require('./app/routes/community.routes'));
 app.use('/community/comment', require('./app/routes/comment.routes'));
+app.use('/community/ratings', require('./app/routes/ratings.routes'));
+app.use('/community/likes', require('./app/routes/likes.routes'));
 
 
 // global error handler

@@ -11,6 +11,7 @@ const Student    = db.Student;
 const Employee   = db.Employee;
 const Guardian   = db.Guardian;
 const Role       = db.Role;
+const CommunityRatingLike       = db.CommunityRatingLike;
 
 
 module.exports = {
@@ -178,6 +179,7 @@ async function list(params , user){
 
       communityJSON.users_list_details = await addUserList(userList);
       communityJSON.admin_list_details = await addUserList(adminList);
+      communityJSON.ratings_likes = await queryRatingLikes(community.community_chat_vls_id)
       communityIds.push(communityJSON)
 
     })
@@ -324,4 +326,47 @@ async function addUserList(userList){
       })
   )
   return allUser
+}
+
+
+/**
+ * function for get rating likes
+ */
+async function queryRatingLikes(communityId){
+    //get query likes
+     let likes =  await CommunityRatingLike.findOne({
+              where : {
+                community_chat_vls_id : communityId,
+                likes : 1
+              },
+        attributes:[
+          [ Sequelize.fn('SUM', Sequelize.col('likes')), 'likeCount' ]
+        ]
+     })
+     let likesData = likes.toJSON()
+
+     if(likesData.likeCount){
+      likes = likesData.likeCount
+     }else{
+      likes = 0
+     }
+     //get query rating 
+     let ratings =  await CommunityRatingLike.findOne({
+              where : {
+                community_chat_vls_id : communityId,
+              },
+        attributes:[
+          [ Sequelize.fn('AVG', Sequelize.col('ratings')), 'ratingsCount' ] 
+        ]
+     })
+
+     let ratingsData = ratings.toJSON()
+
+     if(ratingsData.ratingsCount){
+        ratings = ratingsData.ratingsCount
+     }else{
+      ratings = 0
+     }
+
+     return {likes , ratings}
 }
