@@ -9,6 +9,7 @@ const Exams      = db.Exams;
 const Marks      = db.Marks;
 const Student    = db.Student;
 const SubjectList    = db.SubjectList;
+const Authentication = db.Authentication;
 
 
 module.exports = {
@@ -21,15 +22,21 @@ module.exports = {
  * API for list exams
  */
 async function list(params , user){
-  let whereConditions = {}
+  let authentication = await Authentication.findByPk(user.id)
+  let branchId       = authentication.branch_vls_id
+
+  let whereConditions = {
+  	branch_vls_id : branchId
+  }
+
   let joinWhere = {}
   if(user.role == 'student'){
   	 let student = await Student.findByPk(user.userVlsId)
 
-  	 whereConditions.branch_vls_id = student.branch_vls_id
   	 joinWhere.class_id            = student.class_id
   	 joinWhere.student_id          = user.userVlsId
   }
+
   let limit   = 10
   let offset  = 0
   let search  = '';
@@ -69,24 +76,43 @@ async function list(params , user){
 /**
  * API for get marks
  */
-async function getExamMarks(params , user){
+async function getExamMarks(params , user , query){
 	let id = params.id
 	let whereConditions = { exam_id : id}
-
+	let includeArray = [{ 
+			                model:SubjectList,
+			                as:'subject',
+			                attributes: ['subject_name'],
+			                
+			              }
+	            	    ]
   	if(user.role == 'student'){
 	  	let student = await Student.findByPk(user.userVlsId)
 	  	
 	  	whereConditions.class_id   = student.class_id
 	  	whereConditions.student_id = user.userVlsId
+  	}else{
+
+  		if(!query.class_id) throw 'class_id is required'	
+  			whereConditions.class_id   = query.class_id
+
+  		if(query.section_id) 
+  			whereConditions.section_id   = query.section_id
+
+  		if(query.student_id) 
+  			whereConditions.student_id   = query.student_id
+
+  		studentInclude = { 
+					        model:Student,
+					        as:'student',
+					        attributes: ['name','photo']
+					    }
+		includeArray.push(studentInclude)
   	}
 
 	let subjectMarks = await Marks.findAll({
 		where : whereConditions,
-		include: [{ 
-	                model:SubjectList,
-	                as:'subject',
-	                attributes: ['subject_name']
-	            }]
+		include: includeArray
 	})
 
 	let overallMarks = await Marks.findOne({

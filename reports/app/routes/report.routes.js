@@ -23,7 +23,7 @@ function list(req, res, next) {
 
 // Function for assignment details
 function getExamMarks(req, res, next) {
-    reportController.getExamMarks(req.params, req.user)
+    reportController.getExamMarks(req.params, req.user, req.query)
         .then(exam => exam ? res.json(exam) : res.status(400).json({ status: "error", message: 'Error while getting exam marks' }))
         .catch(err => next(err));
 }
