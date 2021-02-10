@@ -151,6 +151,8 @@ async function getTimetable(branch_id, user, day){
     case 'student':
           student = await Student.findByPk(user.userVlsId)
           whereCondition.class_id = student.class_id
+          if(student.section_id && student.section_id > 0)
+            whereCondition.section_id = student.section_id
       break;
     case 'branch-admin':
     case 'principal':
