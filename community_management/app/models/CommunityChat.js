@@ -17,6 +17,9 @@ module.exports = (sequelize, Sequelize) => {
         group_name: {
           type: Sequelize.STRING
         },
+        group_description: {
+          type: Sequelize.TEXT
+        },
         group_type: {
           allowNull: false,
           type: Sequelize.STRING
