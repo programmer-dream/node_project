@@ -317,6 +317,10 @@ async function listUser(user){
   )
 
   let userChatList = await getChatUser(chatUserIds, user)
+  // Latest user first according to chat date
+  userChatList.sort(function(a,b) {
+    return b.chat_message_date - a.chat_message_date;
+  });
 
   return { success: true, message: "User listing",
            data: userChatList}
@@ -359,7 +363,7 @@ async function getChatUser(userList, loginUser){
           
           let lastMsg = await Chat.findOne({
                     where : whereCondition,
-                    attributes:['chat_message'],
+                    attributes:['chat_message', 'date'],
                     order : [
                         ['created_at', 'DESC']
                       ]
@@ -400,8 +404,10 @@ async function getChatUser(userList, loginUser){
         userJson.type = user.type
         if(lastMsg){
           userJson.chat_message = lastMsg.chat_message
+          userJson.chat_message_date = lastMsg.date
         }else{
           userJson.chat_message = ''
+          userJson.chat_message_date = ''
         }
         userJson.unreadCount = unreadCount
         userChatList.push(userJson)
