@@ -33,7 +33,6 @@ async function create(req){
   }
   req.body.sender_user_vls_id = req.user.userVlsId
   req.body.sender_type        = req.user.role  
-  req.body.comment            = req.body.comment_body  
   req.body.reply_date         = moment().format('YYYY-MM-DD HH:mm:ss')
   
   let createdComment = await CommunityCommunication.create(req.body);
