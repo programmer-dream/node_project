@@ -97,6 +97,7 @@ async function view(id){
 
   communityJSON.users_list_details = await addUserList(userList);
   communityJSON.admin_list_details = await addUserList(adminsList);
+  communityJSON.ratings_likes = await queryRatingLikes(userCommunity.community_chat_vls_id)
   let communityWithUser = communityJSON
   
   return { success: true, message: "Community view", data : communityWithUser}
