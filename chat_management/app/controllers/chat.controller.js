@@ -21,7 +21,8 @@ module.exports = {
   updateChat,
   deleteChat,
   listUser,
-  searchFaculty
+  searchFaculty,
+  readMessages
 };
 
 
@@ -439,4 +440,24 @@ async function searchFaculty(params){
                           include: include
                         });
   return { success: true, message: "Faculty list" ,data : faculty};
+}
+
+/**
+ * API for read messages 
+ */
+async function readMessages(body){
+  let ids = body.chatIds
+  if(!Array.isArray(ids)) throw 'chatIds must be an array'
+
+  if(ids.length < 1) throw 'Please send atleast one id to update'
+
+  let updateData = { status : 'read' }
+
+  let updatedRecords = await Chat.update(updateData,{
+    where : { 
+      chat_vls_id : { [Op.in] : ids }
+    }
+  })
+
+  return { success: true, message: "All messages read successfully"};
 }
