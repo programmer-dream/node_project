@@ -362,6 +362,13 @@ async function getChatUser(userList){
                         ['created_at', 'DESC']
                       ]
                   })
+
+          let whereCondition = {
+              [Op.or]:[{
+                  receiver_user_vls_id : user.id,
+                  receiver_type : user.type
+                }],
+            };
           whereCondition.status = 'unread'
           let unreadCount = await Chat.count({
                     where : whereCondition
