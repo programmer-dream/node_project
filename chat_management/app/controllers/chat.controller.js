@@ -363,7 +363,7 @@ async function getChatUser(userList){
                       ]
                   })
 
-          let whereCondition = {
+          whereCondition = {
               [Op.or]:[{
                   receiver_user_vls_id : user.id,
                   receiver_type : user.type
