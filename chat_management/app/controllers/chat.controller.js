@@ -124,7 +124,9 @@ async function viewChat(params , user){
               where : whereCondition    
             })
   userchat = await addChatUser(userChat);
-
+  userchat.sort(function(a,b) {
+    return b.chat_vls_id - a.chat_vls_id;
+  });
   return { success: true, message: "Chat listing", data : userchat}
 }
 
