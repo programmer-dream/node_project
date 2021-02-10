@@ -134,13 +134,7 @@ async function list(params , user){
      orderBy = params.orderBy
 
   let userObj = '{"id":'+userId+',"type":"'+type+'"}';
-  let communities = await CommunityChat.findAll({
-    limit:limit,
-    offset:offset,
-    order: [
-             ['community_chat_vls_id', orderBy]
-           ],
-    where: {
+  let whereCondition = {
       [Op.or]:{
             user_list: { 
                 [Op.like]: `%`+userObj+`%`
@@ -159,7 +153,18 @@ async function list(params , user){
             }
          }
       }
-    },
+    }
+
+  if(params.community_status)
+    whereCondition.community_status = params.community_status
+
+  let communities = await CommunityChat.findAll({
+    limit:limit,
+    offset:offset,
+    order: [
+             ['community_chat_vls_id', orderBy]
+           ],
+    where: whereCondition,
     attributes:['community_chat_vls_id',
                 'group_name',
                 'group_type',
