@@ -119,12 +119,12 @@ async function viewChat(params , user){
               limit:limit,
               offset:offset,
               order: [
-                       ['chat_vls_id', 'asc']
+                       ['chat_vls_id', 'DESC']
                      ],
               where : whereCondition    
             })
   userchat = await addChatUser(userChat);
-
+  userchat = userchat.reverse()
   return { success: true, message: "Chat listing", data : userchat}
 }
 
@@ -290,7 +290,6 @@ async function listUser(user){
   await Promise.all(
     chat.map(async uChat => {
       uChat = uChat.toJSON()
-            console.log(uChat)
       let obj = {}
       if((uChat.sender_user_vls_id != user.userVlsId && uChat.sender_type != type) ){
          obj = { 
