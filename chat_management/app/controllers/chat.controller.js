@@ -315,7 +315,7 @@ async function listUser(user){
     })
   )
 
-  let userChatList = await getChatUser(chatUserIds)
+  let userChatList = await getChatUser(chatUserIds, user)
 
   return { success: true, message: "User listing",
            data: userChatList}
@@ -339,7 +339,7 @@ async function getType(role){
 /**
  * API for get user chat 
  */
-async function getChatUser(userList){
+async function getChatUser(userList, loginUser){
   let userChatList = []
   let dbUser       = {}
 
@@ -365,12 +365,13 @@ async function getChatUser(userList){
                   })
 
           whereCondition = {
-              [Op.or]:[{
-                  receiver_user_vls_id : user.id,
-                  receiver_type : user.type
-                }],
+                    sender_user_vls_id: user.id,
+                    sender_type : user.type,
+                  receiver_user_vls_id : loginUser.userVlsId,
+                  receiver_type : loginUser.role
             };
           whereCondition.status = 'unread'
+
           let unreadCount = await Chat.count({
                     where : whereCondition
                   })
