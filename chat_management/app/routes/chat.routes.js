@@ -19,6 +19,7 @@ router.get("/searchFaculty",searchFaculty);
 
 //PUT 
 router.put("/update/:id",updateChat);
+router.put("/readMessages/",readMessages);
 
 //PUT 
 router.delete("/delete/:id",deleteChat);
@@ -63,5 +64,12 @@ function listUser(req, res, next) {
 function searchFaculty(req, res, next) {
     chatController.searchFaculty(req.query)
         .then(chat => chat ? res.json(chat) : res.status(400).json({ status: "error", message: 'Error while updating chat' }))
+        .catch(err => next(err));
+}
+
+// Function for delete chat 
+function readMessages(req, res, next) {
+    chatController.readMessages(req.body)
+        .then(chat => chat ? res.json(chat) : res.status(400).json({ status: "error", message: 'Error while reading messages' }))
         .catch(err => next(err));
 }
