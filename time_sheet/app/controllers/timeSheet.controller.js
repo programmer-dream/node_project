@@ -210,6 +210,8 @@ async function parentView(params , user){
     let student = await Student.findByPk(user.userVlsId)
         whereCondition.class_id   = student.class_id
         params.class_id = student.class_id
+        if(student.section_id && student.section_id > 0)
+          params.section_id = student.section_id
   }else{
     if(!params.class_id) throw 'class_id is required'
       whereCondition.class_id   = params.class_id 
