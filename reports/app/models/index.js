@@ -73,9 +73,12 @@ db.Authentication = require("../../../vls/app/models/Authentication.js")(sequeli
 db.AcademicYear = require("../../../student_attendance/app/models/AcademicYear.js")(sequelize, Sequelize);
 db.Guardian = require("../../../vls/app/models/Guardian.js")(sequelize, Sequelize);
 db.SubjectList = require("../../../query_management/app/models/SubjectList.js")(sequelize, Sequelize);
-
 db.Classes = require("../../../student_attendance/app/models/Classes.js")(sequelize, Sequelize);
 
+db.Exams = require("./Exams.js")(sequelize, Sequelize);
+db.Marks = require("./Marks.js")(sequelize, Sequelize);
 
+db.Exams.hasMany(db.Marks,{foreignKey:'exam_id',as:'marks'})
+db.Marks.belongsTo(db.SubjectList,{foreignKey:'subject_code',targetKey : 'code', as:'subject'})
 
 module.exports = db;
