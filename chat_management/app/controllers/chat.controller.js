@@ -124,7 +124,7 @@ async function viewChat(params , user){
               where : whereCondition    
             })
   userchat = await addChatUser(userChat);
-  userchat = userchat.reverse()
+
   return { success: true, message: "Chat listing", data : userchat}
 }
 

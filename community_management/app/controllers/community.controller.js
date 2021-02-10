@@ -384,7 +384,7 @@ async function getRatingLikes(id, user) {
     let avg = null;
     //get like count
     let like  = await CommunityRatingLike.count({
-      where:{likes:1,query_vls_id:id}
+      where:{likes:1,community_chat_vls_id:id}
     })
     //get rating avg
     let ratings = await CommunityRatingLike.findOne({
@@ -392,8 +392,8 @@ async function getRatingLikes(id, user) {
                     [ Sequelize.fn('SUM', Sequelize.col('ratings')), 'total_ratings' ],
                     [ Sequelize.fn('COUNT', Sequelize.col('ratings')), 'total_count' ]
                   ],
-      where:{query_vls_id:id},
-      group:['query_vls_id']
+      where:{community_chat_vls_id:id},
+      group:['community_chat_vls_id']
     })
 
     if(ratings){
@@ -404,7 +404,7 @@ async function getRatingLikes(id, user) {
 
     userRating  = await CommunityRatingLike.findOne({
       attributes: ['ratings','likes'],
-      where:{query_vls_id:id,user_vls_id:user.userVlsId}
+      where:{community_chat_vls_id:id,user_vls_id:user.userVlsId}
     })
 
     return { success:true, message:"Rating & like data",like:like,avg:avg,data:userRating};
