@@ -287,11 +287,13 @@ async function listUser(user){
   //return chat
   let chatUserIds = []
   let ids = []
+  
   await Promise.all(
     chat.map(async uChat => {
       uChat = uChat.toJSON()
+
       let obj = {}
-      if((uChat.sender_user_vls_id != user.userVlsId && uChat.sender_type != type) ){
+      if( uChat.sender_type != type ){
          obj = { 
                   id : uChat.sender_user_vls_id ,
                   type : uChat.sender_type 
@@ -301,7 +303,7 @@ async function listUser(user){
           chatUserIds.push(obj)
         }
       }
-      if(uChat.receiver_user_vls_id != user.userVlsId && uChat.receiver_type != type){
+      if(uChat.receiver_type != type){
          obj = { 
                   id : uChat.receiver_user_vls_id ,
                   type : uChat.receiver_type 
