@@ -11,7 +11,7 @@ const Student    = db.Student;
 const Employee   = db.Employee;
 const Guardian   = db.Guardian;
 const Role       = db.Role;
-const CommunityRatingLike       = db.CommunityRatingLike;
+const CommunityRatingLike = db.CommunityRatingLike;
 
 
 module.exports = {
@@ -21,7 +21,8 @@ module.exports = {
   update,
   deleteCommunity,
   addUsers,
-  addAdmins
+  addAdmins,
+  getRatingLikes
 };
 
 
@@ -371,3 +372,43 @@ async function queryRatingLikes(communityId){
 
      return {likes , ratings}
 }
+
+
+
+
+/**
+ * API for get ratings and likes
+ */
+async function getRatingLikes(id, user) {
+  try{
+    let avg = null;
+    //get like count
+    let like  = await CommunityRatingLike.count({
+      where:{likes:1,query_vls_id:id}
+    })
+    //get rating avg
+    let ratings = await CommunityRatingLike.findOne({
+      attributes: [
+                    [ Sequelize.fn('SUM', Sequelize.col('ratings')), 'total_ratings' ],
+                    [ Sequelize.fn('COUNT', Sequelize.col('ratings')), 'total_count' ]
+                  ],
+      where:{query_vls_id:id},
+      group:['query_vls_id']
+    })
+
+    if(ratings){
+    //get rating & likes
+      let ratingData = ratings.toJSON();
+      avg = parseInt(ratingData.total_ratings) / ratingData.total_count
+    }
+
+    userRating  = await CommunityRatingLike.findOne({
+      attributes: ['ratings','likes'],
+      where:{query_vls_id:id,user_vls_id:user.userVlsId}
+    })
+
+    return { success:true, message:"Rating & like data",like:like,avg:avg,data:userRating};
+  }catch(err){
+    throw err.message
+  }
+};
