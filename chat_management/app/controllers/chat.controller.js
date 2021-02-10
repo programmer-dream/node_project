@@ -22,6 +22,7 @@ module.exports = {
   deleteChat,
   listUser,
   searchFaculty,
+  searchStudent,
   readMessages
 };
 
@@ -443,10 +444,39 @@ async function searchFaculty(params){
                             },
                             isTeacher : 1
                           },
-                          attributes : ['faculty_vls_id','name'],
+                          attributes : ['faculty_vls_id', 'name', 'photo'],
                           include: include
                         });
   return { success: true, message: "Faculty list" ,data : faculty};
+}
+
+
+/**
+ * API for search faculty
+ */
+async function searchStudent(params){
+  let search = ''
+  let include = []
+  if(!params.class_id) throw "class_id is requeired"
+  if(params.search) 
+    search = params.search
+
+  let whereCondition = {
+                        name : { 
+                          [Op.like]: `%`+search+`%`
+                        },
+                      }
+
+  if(params.section_id)
+    whereCondition.section_id = params.section_id
+
+    whereCondition.class_id = params.class_id
+
+  let students  = await Student.findAll({
+                          where: whereCondition,
+                          attributes : ['student_vls_id', 'name', 'photo'],
+                        });
+  return { success: true, message: "students list" ,data : students};
 }
 
 /**
