@@ -11,7 +11,7 @@ const Student    = db.Student;
 const Employee   = db.Employee;
 const Guardian   = db.Guardian;
 const Role       = db.Role;
-const CommunityRatingLike       = db.CommunityRatingLike;
+const CommunityRatingLike = db.CommunityRatingLike;
 
 
 module.exports = {
@@ -21,7 +21,8 @@ module.exports = {
   update,
   deleteCommunity,
   addUsers,
-  addAdmins
+  addAdmins,
+  getRatingLikes
 };
 
 
@@ -133,13 +134,7 @@ async function list(params , user){
      orderBy = params.orderBy
 
   let userObj = '{"id":'+userId+',"type":"'+type+'"}';
-  let communities = await CommunityChat.findAll({
-    limit:limit,
-    offset:offset,
-    order: [
-             ['community_chat_vls_id', orderBy]
-           ],
-    where: {
+  let whereCondition = {
       [Op.or]:{
             user_list: { 
                 [Op.like]: `%`+userObj+`%`
@@ -158,7 +153,18 @@ async function list(params , user){
             }
          }
       }
-    },
+    }
+
+  if(params.community_status)
+    whereCondition.community_status = params.community_status
+
+  let communities = await CommunityChat.findAll({
+    limit:limit,
+    offset:offset,
+    order: [
+             ['community_chat_vls_id', orderBy]
+           ],
+    where: whereCondition,
     attributes:['community_chat_vls_id',
                 'group_name',
                 'group_type',
@@ -371,3 +377,43 @@ async function queryRatingLikes(communityId){
 
      return {likes , ratings}
 }
+
+
+
+
+/**
+ * API for get ratings and likes
+ */
+async function getRatingLikes(id, user) {
+  try{
+    let avg = null;
+    //get like count
+    let like  = await CommunityRatingLike.count({
+      where:{likes:1,community_chat_vls_id:id}
+    })
+    //get rating avg
+    let ratings = await CommunityRatingLike.findOne({
+      attributes: [
+                    [ Sequelize.fn('SUM', Sequelize.col('ratings')), 'total_ratings' ],
+                    [ Sequelize.fn('COUNT', Sequelize.col('ratings')), 'total_count' ]
+                  ],
+      where:{community_chat_vls_id:id},
+      group:['community_chat_vls_id']
+    })
+
+    if(ratings){
+    //get rating & likes
+      let ratingData = ratings.toJSON();
+      avg = parseInt(ratingData.total_ratings) / ratingData.total_count
+    }
+
+    userRating  = await CommunityRatingLike.findOne({
+      attributes: ['ratings','likes'],
+      where:{community_chat_vls_id:id,user_vls_id:user.userVlsId}
+    })
+
+    return { success:true, message:"Rating & like data",like:like,avg:avg,data:userRating};
+  }catch(err){
+    throw err.message
+  }
+};

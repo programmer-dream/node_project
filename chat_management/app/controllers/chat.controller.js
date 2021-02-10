@@ -22,6 +22,7 @@ module.exports = {
   deleteChat,
   listUser,
   searchFaculty,
+  searchStudent,
   readMessages
 };
 
@@ -124,7 +125,9 @@ async function viewChat(params , user){
               where : whereCondition    
             })
   userchat = await addChatUser(userChat);
-  userchat = userchat.reverse()
+  userchat.sort(function(a,b) {
+    return b.chat_vls_id - a.chat_vls_id;
+  });
   return { success: true, message: "Chat listing", data : userchat}
 }
 
@@ -317,6 +320,10 @@ async function listUser(user){
   )
 
   let userChatList = await getChatUser(chatUserIds, user)
+  // Latest user first according to chat date
+  userChatList.sort(function(a,b) {
+    return b.chat_message_date - a.chat_message_date;
+  });
 
   return { success: true, message: "User listing",
            data: userChatList}
@@ -359,7 +366,7 @@ async function getChatUser(userList, loginUser){
           
           let lastMsg = await Chat.findOne({
                     where : whereCondition,
-                    attributes:['chat_message'],
+                    attributes:['chat_message', 'date'],
                     order : [
                         ['created_at', 'DESC']
                       ]
@@ -400,8 +407,10 @@ async function getChatUser(userList, loginUser){
         userJson.type = user.type
         if(lastMsg){
           userJson.chat_message = lastMsg.chat_message
+          userJson.chat_message_date = lastMsg.date
         }else{
           userJson.chat_message = ''
+          userJson.chat_message_date = ''
         }
         userJson.unreadCount = unreadCount
         userChatList.push(userJson)
@@ -437,10 +446,39 @@ async function searchFaculty(params){
                             },
                             isTeacher : 1
                           },
-                          attributes : ['faculty_vls_id','name'],
+                          attributes : ['faculty_vls_id', 'name', 'photo'],
                           include: include
                         });
   return { success: true, message: "Faculty list" ,data : faculty};
+}
+
+
+/**
+ * API for search faculty
+ */
+async function searchStudent(params){
+  let search = ''
+  let include = []
+  if(!params.class_id) throw "class_id is requeired"
+  if(params.search) 
+    search = params.search
+
+  let whereCondition = {
+                        name : { 
+                          [Op.like]: `%`+search+`%`
+                        },
+                      }
+
+  if(params.section_id)
+    whereCondition.section_id = params.section_id
+
+    whereCondition.class_id = params.class_id
+
+  let students  = await Student.findAll({
+                          where: whereCondition,
+                          attributes : ['student_vls_id', 'name', 'photo'],
+                        });
+  return { success: true, message: "students list" ,data : students};
 }
 
 /**
