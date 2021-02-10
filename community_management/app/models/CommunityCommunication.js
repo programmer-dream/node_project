@@ -18,7 +18,7 @@ module.exports = (sequelize, Sequelize) => {
           type: Sequelize.INTEGER,
           allowNull: false,
         },
-        comment: {
+        comment_body: {
           allowNull: false,
           type: Sequelize.TEXT
         },
