@@ -350,20 +350,33 @@ async function getType(role){
 async function getChatUser(userList, loginUser){
   let userChatList = []
   let dbUser       = {}
+  let loginUserType = "employee"
+  if(loginUser.role == "student")
+    loginUserType = "student"
 
   await Promise.all(
     userList.map(async user => {
         let userJson = {}
         let whereCondition = {
-              [Op.or]:[{
+              [Op.and]:[{
+                  [Op.or]:[{
                     sender_user_vls_id: user.id,
                     sender_type : user.type
-                  },{
-                  receiver_user_vls_id : user.id,
-                  receiver_type : user.type
+                    },{
+                    receiver_user_vls_id : user.id,
+                    receiver_type : user.type
+                  }]
+                },{
+                  [Op.or]:[{
+                    sender_user_vls_id: loginUser.userVlsId,
+                    sender_type : loginUserType
+                    },{
+                    receiver_user_vls_id : loginUser.userVlsId,
+                    receiver_type : loginUserType
+                  }]
                 }],
             };
-          
+          console.log(whereCondition, "whereCondition")
           let lastMsg = await Chat.findOne({
                     where : whereCondition,
                     attributes:['chat_message', 'date'],
@@ -373,10 +386,10 @@ async function getChatUser(userList, loginUser){
                   })
 
           whereCondition = {
-                    sender_user_vls_id: user.id,
-                    sender_type : user.type,
+                  sender_user_vls_id: user.id,
+                  sender_type : user.type,
                   receiver_user_vls_id : loginUser.userVlsId,
-                  receiver_type : loginUser.role
+                  receiver_type : loginUserType
             };
           whereCondition.status = 'unread'
 
