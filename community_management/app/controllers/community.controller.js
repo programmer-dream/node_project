@@ -321,15 +321,19 @@ async function addUserList(userList){
                 where : { faculty_vls_id : user.id},
                 attributes: [['faculty_vls_id','id'],'name','photo']
               })
+              dbUser = dbUser.toJSON()
+              dbUser.type = "employee"
           break;
           case 'student' : 
               dbUser = await Student.findOne({
                 where : { student_vls_id : user.id},
                 attributes: [['student_vls_id','id'],'name','photo']
               })
+              dbUser = dbUser.toJSON()
+              dbUser.type = "student"
           break;
         }
-        allUser.push(dbUser.toJSON())
+        allUser.push(dbUser)
       })
   )
   return allUser
