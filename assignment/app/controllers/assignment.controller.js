@@ -147,10 +147,11 @@ async function view(params , user){
         assingmentData.students = students
    }
 
+   let studentAssignAssignment = []
    await Promise.all(
       assingmentData.students.map( async function (student, index){
           if(user.role == "student" && user.userVlsId != student.student_vls_id){
-            assingmentData.students.splice(index, 1);
+            //assingmentData.students.splice(index, 1);
           }else{
             let include = []
             let isAssignmentInProcess = await StudentAssignment.findOne({
@@ -209,10 +210,12 @@ async function view(params , user){
               student.status = studentAssignment.assignment_status
 
             student.studentAssignment = studentAssignment
-            assingmentData.students[index] = student
+            studentAssignAssignment.push(student)
           }
       })
    );
+
+  assingmentData.students = studentAssignAssignment
 
   if( (user.role == 'student' || user.role == 'guardian') && assingmentData.students.length <= 0) throw "You don't have access to this assignment"
 
