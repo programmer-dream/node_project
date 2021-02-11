@@ -106,6 +106,15 @@ module.exports = (sequelize, Sequelize) => {
       isPrincipal: {
         type: Sequelize.STRING
       },
+      isAdmin: {
+        type: Sequelize.STRING
+      },
+      isTeacher: {
+        type: Sequelize.STRING
+      },
+      isOfficeStaff: {
+        type: Sequelize.STRING
+      },
       spare5: {
         type: Sequelize.STRING
       },

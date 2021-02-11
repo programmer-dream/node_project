@@ -16,7 +16,7 @@
     let id = prompt("whats your id");
     let role = prompt("role name");
     let ID = "";
-    var socket = io();
+    var socket = io({'query': 'token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NSwidXNlcklkIjoxNjA4Mjg5OTg5MTc2LCJyb2xlIjoidGVhY2hlciIsInVzZXJWbHNJZCI6MSwiaWF0IjoxNjEzMDQxNDM5LCJleHAiOjE2MTMxMjc4Mzl9.tQC4H-4y_yYLNC79IG2eHTjVbEmbeC4RmijXJjwCrEw'});
     //send event that user has joined room
     socket.emit("join_chat", {id : id, role : role});
 
