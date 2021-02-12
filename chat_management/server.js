@@ -108,7 +108,7 @@ app.post("/chat/create",[
               console.log(user, "useruseruseruseruseruseruseruseruser useruseruser")
               if (user) {
                 console.log(io.sockets, "io socket")
-                io.sockets.broadcast.to(user.socketId).emit('receivedMessageObject', chat);
+                io.to(user.socketId).emit('receivedMessageObject', chat);
               }
               res.json(chat)
             }else{
