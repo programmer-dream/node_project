@@ -13,16 +13,17 @@
   ></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.26.0/moment.min.js"></script>
   <script>
-    let id = prompt("whats your id");
-    let role = prompt("role name");
+    let userName = prompt("whats your name");
+    //let room = prompt("room name");
     let ID = "";
-    var socket = io({'query': 'token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NSwidXNlcklkIjoxNjA4Mjg5OTg5MTc2LCJyb2xlIjoidGVhY2hlciIsInVzZXJWbHNJZCI6MSwiaWF0IjoxNjEzMDQxNDM5LCJleHAiOjE2MTMxMjc4Mzl9.tQC4H-4y_yYLNC79IG2eHTjVbEmbeC4RmijXJjwCrEw'});
+    var socket = io({'query': 'token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NSwidXNlcklkIjoxNjA4Mjg5OTg5MTc2LCJyb2xlIjoidGVhY2hlciIsInVzZXJWbHNJZCI6MSwiaWF0IjoxNjEzMTMyMTk4LCJleHAiOjE2MTMyMTg1OTh9.Ut9r3zynkzHeOO4svzERqT_EMkPCVC5lPvQtfdtw2ok'});
     //send event that user has joined room
-    socket.emit("join_chat", {id : id, role : role});
+    socket.emit("joinRoom", {communityId : userName});
 
     //receive data from server.
-    socket.on('send_chat',(data)=>{
-        ID = data.id; //ID will be used later
+    socket.on('send data',(data)=>{
+      console.log(data , 'data')
+        ID = data.socketID; //ID will be used later
         console.log(" my ID:" + ID);
     })
     $("#m").focus();
@@ -31,16 +32,16 @@
       .getElementsByTagName("form")[0]
       .addEventListener("submit", function (event) {
         event.preventDefault();
-        socket.emit("chat_message", {
+        socket.emit("chat message", {
           value: document.getElementById("m").value,
-          user: id,
-        
+          user: userName
         });
 
         document.getElementById("m").value = "";
       });
-    socket.on("chat_message", (data) => {
-      console.log(data.data.user + ": " + data.id);
+    socket.on("chatMessage", (data) => {
+      console.log(data)
+      console.log(data + ": " + data.message);
         displayMessage(data);
     });
 
@@ -63,13 +64,8 @@
       p.className = "time";
       p.innerText = moment().format("hh:mm");
       div.innerHTML =
-        '<p class="' +
-        authorClass +
-        '">' +
-        data.data.user +
-        "</p>" +
         '<p class="message"> ' +
-        data.data.value +
+        data.message +
         "</p>";
       div.appendChild(p);
       li.appendChild(div);
