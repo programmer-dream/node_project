@@ -22,7 +22,8 @@ module.exports = {
   deleteCommunity,
   addUsers,
   addAdmins,
-  getRatingLikes
+  getRatingLikes,
+  adminsList
 };
 
 
@@ -421,3 +422,21 @@ async function getRatingLikes(id, user) {
     throw err.message
   }
 };
+
+
+/**
+ * API for get admins list
+ */
+async function adminsList(user) {
+  let userData =   await User.findOne({
+              where : { auth_vls_id : user.id },
+              attributes : ['branch_vls_id']
+            })
+  let branchId = userData. branch_vls_id
+  
+  let allAdmins = await Employee.findAll({
+    where : { branch_vls_id : branchId},
+    attributes : ['faculty_vls_id','isPrincipal','isAdmin','isTeacher','type','name']
+  })
+  return { success:true, message:"Admins list", data : allAdmins};
+}

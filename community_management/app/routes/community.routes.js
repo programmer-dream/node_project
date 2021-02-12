@@ -16,6 +16,7 @@ router.post("/create",[
 router.get("/view/:id",view);
 router.get("/list",list);
 router.get("/getRatingLikes/:id",getRatingLikes);
+router.get("/adminsList/",adminsList);
 
 //PUT 
 router.put("/update/:id",update); 
@@ -78,5 +79,11 @@ function addAdmins(req, res, next) {
 function getRatingLikes(req, res, next) {
     communityController.getRatingLikes(req.params.id , req.user)
         .then(community => community ? res.json(community) : res.status(400).json({ status: "error", message: 'Error while getting community like & ratting' }))
+        .catch(err => next(err));
+}
+// Function for get rating and likes for query
+function adminsList(req, res, next) {
+    communityController.adminsList(req.user)
+        .then(community => community ? res.json(community) : res.status(400).json({ status: "error", message: 'Error while getting community admin list' }))
         .catch(err => next(err));
 }
