@@ -107,8 +107,8 @@ app.post("/chat/create",[
               const user = findUser(reciverUserDetails.user_name)
               console.log(user, "useruseruseruseruseruseruseruseruser useruseruser")
               if (user) {
-                console.log(io.socket, "io socket")
-                io.socket.broadcast.to(user.socketId).emit('receivedMessageObject', chat);
+                console.log(io.sockets, "io socket")
+                io.sockets.broadcast.to(user.socketId).emit('receivedMessageObject', chat);
               }
               res.json(chat)
             }else{
