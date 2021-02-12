@@ -131,6 +131,12 @@ module.exports = (sequelize, Sequelize) => {
       updated_at: {
         allowNull: false,
         type: Sequelize.DATE
+      },
+      type: {
+          type: Sequelize.VIRTUAL,
+          get () {
+              return 'employee'
+          }
       } 
   },{
     tableName: 'employees',
