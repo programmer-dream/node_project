@@ -118,6 +118,8 @@ async function saveChat(data, user){
   data.date          = moment().format('YYYY-MM-DD HH:mm:ss')
 
   let createdChat = await Chat.create(data)
+  createdChat     = [createdChat]
+  createdChat     = await addChatUser(createdChat)
   return createdChat
 }
 
@@ -130,6 +132,10 @@ async function editChat(data , id){
   let editedChat = await Chat.update(data,{
       where : { chat_vls_id : id }
   })
+  editedChat  = await Chat.findByPk(id)
+      
+  editedChat  = [editedChat]
+  editedChat  = await addChatUser(editedChat)
   return editedChat
 }
 
@@ -255,8 +261,8 @@ async function updateChat(req){
 
     let editedChat = await editChat(data , id)
     
-    if(editedChat[0]) 
-      return { success: true, message: "Chat updated successfully"}
+    if(editedChat) 
+      return { success: true, message: "Chat updated successfully", data : editedChat}
 
     return { success: true, message: "Error while updating chat"}
 }
