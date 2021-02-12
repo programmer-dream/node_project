@@ -4,7 +4,11 @@ const app = express();
 
 //socket code
 var http = require("http").Server(app);
-var io = require("socket.io")(http);
+var io = require("socket.io")(http,{
+  cors: {
+    origin: '*',
+  }
+});
 //socket code
 const bodyParser = require("body-parser");
 const cors = require("cors");
