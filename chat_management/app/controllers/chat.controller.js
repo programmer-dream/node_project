@@ -23,7 +23,8 @@ module.exports = {
   listUser,
   searchFaculty,
   searchStudent,
-  readMessages
+  readMessages,
+  chatUserDetails
 };
 
 
@@ -56,6 +57,54 @@ async function getUser(id){
     attributes: ['branch_vls_id','school_id']
   })
   return user
+};
+
+/**
+ * API for get user 
+ */
+async function chatUserDetails(reciverUserId, reciverUsertype){
+
+  let userData = {}
+  let chatUserDetails = {}
+  if(reciverUsertype != "student"){
+     userData = await Employee.findOne({
+                where : { faculty_vls_id : reciverUserId}
+              })
+
+    if(userData.isTeacher == 1){
+      chatUserDetails = await User.findOne({
+        where : { user_vls_id :  reciverUserId },
+        attributes: ['user_name'],
+        include: [{ 
+                model:Role,
+                as:'roles',
+                where : { slug : 'teacher' }
+            }]
+      })
+    }else if(userData.isPrincipal == 1){
+      chatUserDetails = await User.findOne({
+        where : { user_vls_id :  reciverUserId },
+        attributes: ['user_name'],
+        include: [{ 
+                model:Role,
+                as:'roles',
+                where : { slug : 'principal' }
+            }]
+      })
+    }
+  }else{
+    chatUserDetails = await User.findOne({
+        where : { user_vls_id :  reciverUserId },
+        attributes: ['user_name'],
+        include: [{ 
+                model:Role,
+                as:'roles',
+                where : { slug : 'student' }
+            }]
+      })
+  }
+
+  return chatUserDetails
 };
 
 

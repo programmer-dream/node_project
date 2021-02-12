@@ -1,13 +1,25 @@
 require('rootpath')();
 const express = require('express');
+const app = express();
+
+//socket code
+var http = require("http").Server(app);
+var io = require("socket.io")(http);
+//socket code
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const path = require("path");
+const jwtPackage = require('jsonwebtoken');
 const jwt = require('./app/helper/jwt');
 const errorHandler = require('./app/helper/error-handler');
+const chatController = require("./app/controllers/chat.controller");
+const config = require("../config/env.js");
+const authController = require("../vls/app/controllers/auth.controller");
+const helper = require("./app/helper");
+const upload  = helper.upload;
+const secret = config.secret;
 require('dotenv').config()
 
-const app = express();
 
 var corsOptions = {
   origin: "*"
@@ -24,10 +36,83 @@ app.use(bodyParser.urlencoded({limit: '50mb', extended: true }));
 // use JWT auth to secure the api
 app.use(jwt());
 
+let createChatId
 // const db = require("./app/models");
 // db.sequelize.sync();
 app.get("/",function(req, res){
-	res.send('landing page');
+	//res.send('landing page');
+	res.sendFile(__dirname + "/index.html");
+});
+
+let users = []
+
+function findUser(userId) {
+  return users.find(user =>  user.userId == userId)
+
+}
+
+//socket code
+io.on("connection", async function (client) {
+  console.log("connected");
+  let token = client.handshake.query.token
+
+  if (!token) {
+    console.log("refused a session atempt with token not present");
+    client.disconnect(true);
+    return;
+  }
+  let decoded;
+  try {
+    decoded = jwtPackage.verify(token, secret)
+  }
+  catch(reason) {
+    console.log("refused a session atempt with an invalid token");
+    client.disconnect(true);
+    return;
+  }
+
+  const userDetails = await authController.getById(decoded.userId);
+  console.log(userDetails.user_name, "client.user")
+  const user = findUser(userDetails.user_name)
+  if(!user){
+    users.push({
+        userId: userDetails.user_name,
+        socketId: client.id
+      })
+  }
+
+  client.on('disconnect', function (data) {
+    users = users.filter(user => user.socketId !== socket.id)
+  })
+
+});
+
+// Create chat route
+app.post("/chat/create",[
+  upload.fields([{
+        name:'file',maxCount:1
+    }])
+  ],async function(req, res){
+    console.log(users, "users")
+    let reciverUserId       = req.body.receiver_user_vls_id
+    let reciverUsertype     = req.body.receiver_type
+    let reciverUserDetails  = await chatController.chatUserDetails(reciverUserId, reciverUsertype)
+    chatController.create(req)
+          .then((chat) => {
+            if(chat){
+              const user = findUser(reciverUserDetails.user_name)
+              if (user) {
+                io.socket.broadcast.to(user.socketId).emit('receivedMessageObject', chat);
+              }
+              res.json(chat)
+            }else{
+              res.status(400).json({ status: "error", message: 'Error while creating chat' })
+            }
+          })
+          .catch( (err) => {
+            console.log(err, "err")
+            res.status(400).json({ status: "error", message: "Something went wrong" }) 
+          });
 });
 
 // api routes
@@ -39,6 +124,6 @@ app.use(errorHandler);
 
 // set port, listen for requests
 const PORT = process.env.PORT || 3007;
-app.listen(PORT, () => {
+http.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
 });

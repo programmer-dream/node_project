@@ -5,13 +5,6 @@ const { check } = require('express-validator');
 const helper = require("../helper");
 const upload  = helper.upload;
 
-//POST 
-router.post("/create",[
-	upload.fields([{
-        name:'file',maxCount:1
-    }])
-	],create);
-
 //GET 
 router.get("/viewChat",viewChat);
 router.get("/listUser",listUser);
@@ -26,13 +19,6 @@ router.put("/readMessages/",readMessages);
 router.delete("/delete/:id",deleteChat);
 
 module.exports = router;
-
-// Function for create chat	
-function create(req, res, next) {
-    chatController.create(req)
-        .then(chat => chat ? res.json(chat) : res.status(400).json({ status: "error", message: 'Error while creating chat' }))
-        .catch(err => next(err));
-}
 
 // Function for view chat	
 function viewChat(req, res, next) {

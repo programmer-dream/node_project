@@ -82,5 +82,6 @@ db.Subject = require("../../../query_management/app/models//Subject.js")(sequeli
 db.Student.belongsTo(db.Guardian,{foreignKey:'parent_vls_id',as:'parent'})
 db.Employee.hasMany(db.Subject,{foreignKey:'teacher_id',as:'subject'})
 
+db.Authentication.belongsTo(db.Role,{foreignKey:'role_id',as:'roles'})
 
 module.exports = db;
