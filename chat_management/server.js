@@ -86,7 +86,7 @@ io.on("connection", async function (client) {
   }
 
   client.on('disconnect', function (data) {
-    users = users.filter(user => user.socketId !== socket.id)
+    users = users.filter(user => user.socketId !== client.id)
   })
 
 });
