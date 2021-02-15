@@ -5,13 +5,6 @@ const { check } = require('express-validator');
 const helper = require("../helper");
 const upload  = helper.upload;
 
-//POST 
-router.post("/create",[
-	upload.fields([{
-        name:'file',maxCount:1
-    }])
-	],create);
-
 //GET 
 router.get("/view/:id",view);
 router.get("/list",list);
@@ -28,12 +21,6 @@ router.delete("/delete/:id",deleteComment);
 
 module.exports = router;
 
-// Function for create community	
-function create(req, res, next) {
-    communityCommentController.create(req)
-        .then(community => community ? res.json(community) : res.status(400).json({ status: "error", message: 'Error while creating chat' }))
-        .catch(err => next(err));
-}
 
 // Function for view community	
 function view(req, res, next) {

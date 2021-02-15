@@ -26,8 +26,8 @@ module.exports = {
 async function create(req){
   const errors = validationResult(req);
   if(errors.array().length) throw errors.array()
-  if(!req.user) throw 'User not found'
-
+  //if(!req.user) throw 'User not found'
+  return { test:'testing' }
   if(req.files.file && req.files.file.length > 0){
       req.body.file_url  = req.body.uplodedPath + req.files.file[0].filename;
   }

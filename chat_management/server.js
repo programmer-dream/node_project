@@ -81,12 +81,18 @@ io.on("connection", async function (client) {
   if(!user){
     users.push({
         userId: userDetails.user_name,
+        userVlsId : decoded.userVlsId,
+        userType : decoded.role,
         socketId: client.id
       })
   }
+  //send user online user list
+  io.sockets.emit('chat-list-response', { users });
 
   client.on('disconnect', function (data) {
     users = users.filter(user => user.socketId !== client.id)
+    //send user online user list
+    io.sockets.emit('chat-list-response', { users });
   })
 
 });

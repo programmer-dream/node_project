@@ -13,7 +13,7 @@ function jwt() {
             '/auth/signup',
             '/auth/forgetPassword',
             '/auth/updatePassword',
-            '/auth/verifyOTP',
+            '/auth/verifyOTP'
         ]
     });
 }
