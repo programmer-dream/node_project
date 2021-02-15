@@ -78,6 +78,9 @@ io.on("connection", async function (client) {
   const userDetails = await authController.getById(decoded.userId);
   console.log(userDetails.user_name, "client.user")
   const user = findUser(userDetails.user_name)
+  if(decoded.role != "student")
+    decoded.role = "employee"
+  
   if(!user){
     users.push({
         userId: userDetails.user_name,
