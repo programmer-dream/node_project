@@ -94,7 +94,19 @@ io.on("connection", async function (client) {
     //send user online user list
     io.sockets.emit('chat-list-response', { users });
   })
+  //read messages
+  client.on('readMessage', async function (data) {
 
+    let body = {
+        chatIds :[ data.messageId ]
+      }
+
+    await chatController.readMessages(body)
+
+    const user = findUser(data.userId)
+    if (user) {
+      socket.broadcast.to(user.socketId).emit('seenMessage', {seen: true});
+    }
 });
 
 // Create chat route
