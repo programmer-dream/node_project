@@ -14,7 +14,8 @@
     "start:chat_management": "yarn workspace chat_management start",
     "start:community_management": "yarn workspace community_management start",
     "start:reports": "yarn workspace reports start",
-    "start": "concurrently --kill-others-on-fail \"yarn start:vls\" \"yarn start:query\" \"yarn start:library\" \"yarn start:video_library\" \"yarn start:attendance\" \"yarn start:time_sheet\" \"yarn start:assignment\" \"yarn start:chat_management\" \"yarn start:community_management\" \"yarn start:reports\"",
+    "start:feedback": "yarn workspace feedback start",
+    "start": "concurrently --kill-others-on-fail \"yarn start:vls\" \"yarn start:query\" \"yarn start:library\" \"yarn start:video_library\" \"yarn start:attendance\" \"yarn start:time_sheet\" \"yarn start:assignment\" \"yarn start:chat_management\" \"yarn start:community_management\" \"yarn start:reports\" \"yarn start:feedback\"",
     "dev:vls": "yarn workspace vls dev",
     "dev:query": "yarn workspace query_management dev",
     "dev:library": "yarn workspace learning_library dev",
@@ -25,7 +26,8 @@
     "dev:chat_management": "yarn workspace chat_management dev",
     "dev:community_management": "yarn workspace community_management dev",
     "dev:reports": "yarn workspace reports dev",
-    "dev": "concurrently --kill-others-on-fail \"yarn dev:vls\" \"yarn dev:query\" \"yarn dev:library\" \"yarn dev:video_library\" \"yarn dev:attendance\" \"yarn dev:time_sheet\" \"yarn dev:assignment\" \"yarn dev:chat_management\" \"yarn dev:community_management\" \"yarn dev:reports\""
+    "dev:feedback": "yarn workspace feedback dev",
+    "dev": "concurrently --kill-others-on-fail \"yarn dev:vls\" \"yarn dev:query\" \"yarn dev:library\" \"yarn dev:video_library\" \"yarn dev:attendance\" \"yarn dev:time_sheet\" \"yarn dev:assignment\" \"yarn dev:chat_management\" \"yarn dev:community_management\" \"yarn dev:reports\" \"yarn dev:feedback\""
   },
   "keywords": [],
   "author": "",
@@ -41,7 +43,8 @@
     "assignment",
     "chat_management",
     "community_management",
-    "reports"
+    "reports",
+    "feedback"
   ],
   "dependencies": {
     "concurrently": "^5.3.0",
