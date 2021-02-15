@@ -80,12 +80,18 @@ io.on("connection", async function (client) {
   if(!user){
     users.push({
         userId: userDetails.user_name,
+        userVlsId : decoded.userVlsId,
+        userType : decoded.role,
         socketId: client.id
       })
   }
+  //send user online user list
+  io.sockets.emit('chat-list-response', { users });
 
   client.on('disconnect', function (data) {
     users = users.filter(user => user.socketId !== client.id)
+    //send user online user list
+    io.sockets.emit('chat-list-response', { users });
   })
 
   client.on('joinRoom', function(data) {
@@ -106,22 +112,19 @@ app.post("/community/comment/create",[
     let community_id = req.body.community_chat_vls_id
     let community = 'communityGroup_'+community_id
     //join community
-    io.sockets.in(community).emit('chatMessage', {"message":"this is tests"});
-    res.json(community_id)
-    //join community
-    // communityCommentController.create(req)
-    //       .then((comment) => {
-    //         if(comment){
-    //           io.to('default').emit('chatMessage', comment);
-    //           res.json(comment)
-    //         }else{
-    //           res.status(400).json({ status: "error", message: 'Error while creating chat' })
-    //         }
-    //       })
-    //       .catch( (err) => {
-    //         console.log(err, "err")
-    //         res.status(400).json({ status: "error", message: "Something went wrong" }) 
-    //       });
+    communityCommentController.create(req)
+          .then((comment) => {
+            if(comment){
+              io.sockets.in(community).emit('chatMessage', comment);
+              res.json(comment)
+            }else{
+              res.status(400).json({ status: "error", message: 'Error while creating chat' })
+            }
+          })
+          .catch( (err) => {
+            console.log(err, "err")
+            res.status(400).json({ status: "error", message: "Something went wrong" }) 
+          });
 });
 //socket changes
 // api routes

@@ -16,7 +16,7 @@
     let userName = prompt("whats your name");
     //let room = prompt("room name");
     let ID = "";
-    var socket = io({'query': 'token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NSwidXNlcklkIjoxNjA4Mjg5OTg5MTc2LCJyb2xlIjoidGVhY2hlciIsInVzZXJWbHNJZCI6MSwiaWF0IjoxNjEzMTMyMTk4LCJleHAiOjE2MTMyMTg1OTh9.Ut9r3zynkzHeOO4svzERqT_EMkPCVC5lPvQtfdtw2ok'});
+    var socket = io({'query': 'token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTEsInVzZXJJZCI6MTYwODI4OTk4OTE4OCwicm9sZSI6InN0dWRlbnQiLCJ1c2VyVmxzSWQiOjIsImlhdCI6MTYxMzM3MjQ0MiwiZXhwIjoxNjEzNDU4ODQyfQ.I4M3NjmZIk3uTudftIP7RcQKMUhNYsNCErJHc6OEsys'});
     //send event that user has joined room
     socket.emit("joinRoom", {communityId : userName});
 
@@ -26,6 +26,11 @@
         ID = data.socketID; //ID will be used later
         console.log(" my ID:" + ID);
     })
+    
+    socket.on('chat-list-response',(data)=>{
+      console.log(data , 'user list')
+    })
+
     $("#m").focus();
     //when form is submitted, capture the input value and then send it to server
     document
