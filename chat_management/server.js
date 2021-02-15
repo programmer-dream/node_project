@@ -86,7 +86,7 @@ io.on("connection", async function (client) {
   }
 
   client.on('disconnect', function (data) {
-    users = users.filter(user => user.socketId !== socket.id)
+    users = users.filter(user => user.socketId !== client.id)
   })
 
 });
@@ -97,7 +97,6 @@ app.post("/chat/create",[
         name:'file',maxCount:1
     }])
   ],async function(req, res){
-    console.log(users, "users")
     let reciverUserId       = req.body.receiver_user_vls_id
     let reciverUsertype     = req.body.receiver_type
     let reciverUserDetails  = await chatController.chatUserDetails(reciverUserId, reciverUsertype)

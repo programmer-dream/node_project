@@ -436,7 +436,7 @@ async function adminsList(user) {
   
   let allAdmins = await Employee.findAll({
     where : { branch_vls_id : branchId},
-    attributes : ['faculty_vls_id','isPrincipal','isAdmin','isTeacher','type']
+    attributes : ['faculty_vls_id','isPrincipal','isAdmin','isTeacher','type','name']
   })
   return { success:true, message:"Admins list", data : allAdmins};
 }
