@@ -107,6 +107,8 @@ io.on("connection", async function (client) {
     if (user) {
       socket.broadcast.to(user.socketId).emit('seenMessage', {seen: true});
     }
+  });
+  
 });
 
 // Create chat route
