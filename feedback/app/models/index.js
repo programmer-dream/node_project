@@ -79,6 +79,7 @@ db.Meeting = require("../../../time_sheet/app/models/Meeting.js")(sequelize, Seq
 
 
 db.Feedback.belongsTo(db.Meeting,{foreignKey:'meeting_vls_id',as:'meetingData'})
+db.Meeting.belongsTo(db.Employee,{foreignKey:'meeting_author_vls_id',as:'meetingUser'})
 
 //relation
 module.exports = db;

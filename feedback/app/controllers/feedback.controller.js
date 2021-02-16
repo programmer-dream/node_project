@@ -57,7 +57,12 @@ async function view(params , user){
     where : { feedback_id : id},
     include : [{ 
                 model:Meeting,
-                as:'meetingData'
+                as:'meetingData',
+                include : [{ 
+                    model:Employee,
+                    as:'meetingUser',
+                    attributes:['name','photo']
+                  }]
               }]
   })
   feedback = feedback.toJSON()
@@ -86,7 +91,7 @@ async function list(params , user){
     branch_vls_id : branchVlsId,
     school_vls_id : schoolVlsId,
   }
-  
+
   if(user.role != 'principal'){
     whereCondition.user_vls_id = user.userVlsId
     whereCondition.user_type   = user.role
@@ -106,7 +111,12 @@ async function list(params , user){
             ],
     include : [{ 
                 model:Meeting,
-                as:'meetingData'
+                as:'meetingData',
+                include : [{ 
+                    model:Employee,
+                    as:'meetingUser',
+                    attributes:['name','photo']
+                  }]
               }]
   })
   let feedbackArr = []
