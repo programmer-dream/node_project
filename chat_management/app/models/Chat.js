@@ -52,6 +52,9 @@ module.exports = (sequelize, Sequelize) => {
         updated_at: {
           allowNull: false,
           type: Sequelize.DATE
+        },
+        image_thumbnail: {
+          type: Sequelize.STRING
         }
     },{
         tableName: 'chat',
