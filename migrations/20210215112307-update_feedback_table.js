@@ -63,6 +63,12 @@ module.exports = {
       meeting_vls_id: {
         type: Sequelize.INTEGER
       },
+      closed_by: {
+        type: Sequelize.INTEGER
+      },
+      closed_user_type: {
+        type: Sequelize.STRING
+      },
       created_at: {
         allowNull: false,
         type: Sequelize.DATE
