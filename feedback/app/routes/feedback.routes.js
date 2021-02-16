@@ -4,19 +4,24 @@ const feedbackController = require("../controllers/feedback.controller");
 const { check } = require('express-validator');
 
 //Post
-router.post("/create",create);
+router.post("/create",[
+    check('title','title field is required.').not().isEmpty(),
+    check('description','description field is required.').not().isEmpty(),
+    check('feedback_type','feedback_type field is required.').not().isEmpty(),
+    check('open_to_comment','open_to_comment field is required.').not().isEmpty(),
+    check('branch_vls_id','branch_vls_id field is required.').not().isEmpty(),
+    check('school_vls_id','school_vls_id field is required.').not().isEmpty()
+    ],create);
 
 //Get 
 router.get("/view/:id",view);
 router.get("/list/",list);
 
-
 //Put
 router.put("/update/:id",update);
 
-
 // DELETE
-router.delete("/delete/:id",deleteAssignment);
+router.delete("/delete/:id",deleteFeedback);
 
 
 module.exports = router;
@@ -50,7 +55,7 @@ function update(req, res, next) {
 }
 
 // Function for delete feedback 
-function deleteAssignment(req, res, next) {
+function deleteFeedback(req, res, next) {
     feedbackController.deleteFeedback(req.params.id, req.user)
         .then(feedback => feedback ? res.json(feedback) : res.status(400).json({ status: "error", message: 'Error while deleting feedback' }))
         .catch(err => next(err));
