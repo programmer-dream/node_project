@@ -15,7 +15,6 @@ router.post("/create",[
     check('topic','Topic field is required.').not().isEmpty(),
     check('description','Description field is required.').not().isEmpty(),
     check('recommended_student_level','Recommended_student_level field is required.').not().isEmpty(),
-    check('tags','Tags field is required.').not().isEmpty()
     ],create);
 
 //Get 
