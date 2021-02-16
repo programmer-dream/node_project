@@ -11,6 +11,7 @@ const Student    = db.Student;
 const Guardian   = db.Guardian;
 const sequelize  = db.sequelize;
 const Feedback   = db.Feedback;
+const Meeting    = db.Meeting;
 
 
 module.exports = {
@@ -18,7 +19,9 @@ module.exports = {
   view,
   update,
   list,
-  deleteFeedback
+  deleteFeedback,
+  closeFeedback,
+  setMeeting
 };
 
 
@@ -51,7 +54,11 @@ async function view(params , user){
   let id  = params.id 
 
   let feedback = await Feedback.findOne({
-    where : { feedback_id : id}
+    where : { feedback_id : id},
+    include : [{ 
+                model:Meeting,
+                as:'meetingData'
+              }]
   })
   feedback = feedback.toJSON()
   feedback.feedback_user = await getUser(feedback.user_vls_id , feedback.user_type)
@@ -77,8 +84,14 @@ async function list(params , user){
 
   let whereCondition = {
     branch_vls_id : branchVlsId,
-    school_vls_id : schoolVlsId
+    school_vls_id : schoolVlsId,
   }
+  
+  if(user.role != 'principal'){
+    whereCondition.user_vls_id = user.userVlsId
+    whereCondition.user_type   = user.role
+  }
+
   if(params.size)
      limit = parseInt(params.size)
   if(params.page)
@@ -90,7 +103,11 @@ async function list(params , user){
     where : whereCondition,
     order : [
              ['feedback_id', orderBy]
-            ]
+            ],
+    include : [{ 
+                model:Meeting,
+                as:'meetingData'
+              }]
   })
   let feedbackArr = []
   await Promise.all(
@@ -113,7 +130,7 @@ async function update(req){
   let id = req.params.id 
 
   let user = req.user
-  feedbackData  = req.body
+  let feedbackData  = req.body
   let feedback  = await Feedback.update(feedbackData,
   { 
     where : { feedback_id : id }
@@ -166,3 +183,46 @@ async function getUser(id , type){
   }
   return user
 };
+
+
+/**
+ * API for close feedback 
+ */
+async function closeFeedback(id, body, user){
+  
+  if(user.role != 'principal') throw 'Unauthorized user'
+  if(!body.remarks) throw 'remarks field is required'
+  if(!body.feedback_rating) throw 'feedback_rating field is required'
+
+  let feedbackData  = {
+    status            : 'closed',
+    remarks           : body.remarks,
+    feedback_rating   : body.feedback_rating,
+    close_date        : moment().format('YYYY-MM-DD HH:mm:ss'),
+    closed_by         : user.userVlsId,
+    closed_user_type  : user.role
+  }
+
+  let feedback  = await Feedback.findByPk(id)
+
+  if(!feedback) throw 'Feedback not found'
+      feedback.update(feedbackData)
+  
+  return { success: true, message: "Feedback updated successfully", data:feedback }
+};
+
+/**
+ * API for add metting feedback 
+ */
+async function setMeeting(feedbackId , body){
+  if(!body.meeting_vls_id) throw 'meeting_vls_id field is required'
+
+  let feedback  = await Feedback.findByPk(feedbackId)
+  let meetingData = {
+    meeting_vls_id : body.meeting_vls_id
+  }
+  if(!feedback) throw 'Feedback not found'
+      feedback.update(meetingData)
+
+  return { success: true, message: "Feedback updated successfully", data:feedback }
+}

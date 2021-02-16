@@ -75,6 +75,10 @@ db.Guardian = require("../../../vls/app/models/Guardian.js")(sequelize, Sequeliz
 db.SubjectList = require("../../../query_management/app/models/SubjectList.js")(sequelize, Sequelize);
 db.Classes = require("../../../student_attendance/app/models/Classes.js")(sequelize, Sequelize);
 db.Feedback = require("./Feedback.js")(sequelize, Sequelize);
+db.Meeting = require("../../../time_sheet/app/models/Meeting.js")(sequelize, Sequelize);
+
+
+db.Feedback.belongsTo(db.Meeting,{foreignKey:'meeting_vls_id',as:'meetingData'})
 
 //relation
 module.exports = db;
