@@ -53,7 +53,8 @@ async function view(params , user){
   let feedback = await Feedback.findOne({
     where : { feedback_id : id}
   })
-
+  feedback = feedback.toJSON()
+  feedback.feedback_user = await getUser(feedback.user_vls_id , feedback.user_type)
   if(!feedback) throw 'Feedback not found'
 
   return { success: true, message: "Feedback view", data: feedback}
@@ -64,10 +65,42 @@ async function view(params , user){
  * API for feedback list
  */
 async function list(params , user){
+  let limit   = 10
+  let offset  = 0
+  let orderBy = 'desc';
 
-  let feedback = await Feedback.findAll()
+  let schoolVlsId   = params.schoolVlsId
+  let branchVlsId   = params.branch_vls_id
 
-  return { success: true, message: "Feedback list", data: feedback}
+  if(!schoolVlsId) throw 'schoolVlsId is required'
+  if(!branchVlsId) throw 'branchVlsId is required'
+
+  let whereCondition = {
+    branch_vls_id : branchVlsId,
+    school_vls_id : schoolVlsId
+  }
+  if(params.size)
+     limit = parseInt(params.size)
+  if(params.page)
+      offset = 0 + (parseInt(params.page) - 1) * limit
+
+  let allFeedback = await Feedback.findAll({
+    limit : limit,
+    offset: offset,
+    where : whereCondition,
+    order : [
+             ['feedback_id', orderBy]
+            ]
+  })
+  let feedbackArr = []
+  await Promise.all(
+    allFeedback.map(async feedback => {
+      feedback = feedback.toJSON()
+      feedback.feedback_user = await getUser(feedback.user_vls_id , feedback.user_type)
+      feedbackArr.push(feedback)
+    })
+  )
+  return { success: true, message: "Feedback list", data: feedbackArr}
 };
 
 
@@ -103,4 +136,33 @@ async function deleteFeedback(id){
 
   if(!feedback) throw 'Feedback Not found'
   return { success: true, message: "Feedback deleted successfully" }
+};
+
+
+/**
+ * API for feedback users 
+ */
+async function getUser(id , type){
+  let user = {}
+  switch (type) {
+    case 'student':
+       user =  await Student.findOne({
+        where : {student_vls_id : id},
+        attributes: ['name','photo']
+        })
+      break;
+    case 'guardian':
+        user =  await Guardian.findOne({
+          where : {parent_vls_id : id},
+          attributes: ['name','photo']
+        })
+      break;
+    default :
+        user =  await Employee.findOne({
+          where : {faculty_vls_id : id},
+          attributes: ['name','photo']
+        })
+      break;
+  }
+  return user
 };
