@@ -911,7 +911,7 @@ async function querySubjectTeacher(code){
   let teachers = []
   await Promise.all(
     allTeacher.map(async teacher => {
-      let obj = { id : teacher.teacher_id, type : 'teacher' }
+      let obj = { id : teacher.teacher_id, type : 'employee' }
       teachers.push(obj)
     })
   )

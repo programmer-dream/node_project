@@ -64,10 +64,13 @@ async function create(req){
 
   	if(!meeting) throw 'meeting not created'
 
+    let roleType = 'employee'
+    if(meeting.attendee_type == 'parent')
+        roleType = 'guardian'
     //notification
       let users = [{
         id: meeting.attendee_vls_id,
-        type: meeting.attendee_type
+        type: roleType
       }]
       let notificatonData = {}
       notificatonData.branch_vls_id = meeting.branch_id
@@ -247,10 +250,13 @@ async function update(req){
   	if(!meeting[0]) throw 'meeting not updated'
       meetingData  = await Meeting.findByPk(req.params.id)
 
+      let roleType = 'employee'
+      if(meetingData.attendee_type == 'parent')
+        roleType = 'guardian'
     //notification
       let users = [{
         id: meetingData.attendee_vls_id,
-        type: meetingData.attendee_type
+        type: roleType
       }]
       let notificatonData = {}
       notificatonData.branch_vls_id = meetingData.branch_id
@@ -307,10 +313,11 @@ async function attendMeeting(meetingId, body, user){
   if(!meeting[0]) throw 'Meeting Not found'
 
     meetingData  = await Meeting.findByPk(meetingId)
+    
     //notification
     let users = [{
       id: meetingData.meeting_author_vls_id,
-      type: meetingData.originator_type
+      type: 'employee'
     }]
     let notificatonData = {}
     notificatonData.branch_vls_id = meetingData.branch_id
