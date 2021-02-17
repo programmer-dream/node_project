@@ -12,8 +12,9 @@ const Subject = db.Subject;
 const Classes = db.Classes;
 const Section = db.Section;
 const SubjectList = db.SubjectList;
-const Users = db.Users;
+const Users   = db.Users;
 const Comment = db.Comment;
+const Notification = db.Notification;
 
 const sequelize = db.sequelize;
 const bcrypt = require("bcryptjs");
@@ -55,7 +56,22 @@ async function create(req){
     req.body.tags = JSON.stringify(req.body.tags)
   
   let createdQuery = await StudentQuery.create(req.body);
-
+    
+    let notificatonData = {}
+    let users = await querySubjectTeacher(createdQuery.subject_code)
+    notificatonData.branch_vls_id = createdQuery.branch_vls_id
+    notificatonData.school_vls_id = createdQuery.school_vls_id
+    notificatonData.status        = 'general'
+    notificatonData.message       = 'is created a new query'
+    notificatonData.notificaton_type = 'query'
+    notificatonData.notificaton_type_id = createdQuery.query_vls_id
+    notificatonData.start_date    = createdQuery.query_date
+    notificatonData.users         = JSON.stringify(users)
+    notificatonData.added_by      = user.userVlsId
+    notificatonData.added_type    = user.role
+    notificatonData.event_type    = 'created'
+    await Notification.create(notificatonData)
+    //notification
   return { success: true, message: "Query created successfully", data:createdQuery }
 };
 
@@ -276,7 +292,21 @@ async function update(req){
   if(!num) throw 'Query not updated'
   
   let query = await StudentQuery.findByPk(id)
-     
+    let notificatonData = {}
+    let users = await querySubjectTeacher(query.subject_code)
+    notificatonData.branch_vls_id = query.branch_vls_id
+    notificatonData.school_vls_id = query.school_vls_id
+    notificatonData.status        = 'general'
+    notificatonData.message       = 'is updated a new query'
+    notificatonData.notificaton_type = 'query'
+    notificatonData.notificaton_type_id = query.query_vls_id
+    notificatonData.start_date    = query.query_date
+    notificatonData.users         = JSON.stringify(users)
+    notificatonData.added_by      = req.user.userVlsId
+    notificatonData.added_type    = req.user.role
+    notificatonData.event_type    = 'updated'
+    await Notification.create(notificatonData)
+    //notification
   return { success: true, message: "Query updated successfully", data: query }
   
 };
@@ -486,6 +516,22 @@ async function statusUpdate(id, user, body) {
       throw new Error('Query not found')
     }
 
+    let notificatonData = {}
+    let dbQuery = await StudentQuery.findByPk(id)
+    let users = await querySubjectTeacher(query.subject_code)
+    notificatonData.branch_vls_id = dbQuery.branch_vls_id
+    notificatonData.school_vls_id = dbQuery.school_vls_id
+    notificatonData.status        = 'general'
+    notificatonData.message       = 'is updated a new query'
+    notificatonData.notificaton_type = 'query'
+    notificatonData.notificaton_type_id = dbQuery.query_vls_id
+    notificatonData.start_date    = dbQuery.query_date
+    notificatonData.users         = JSON.stringify(users)
+    notificatonData.added_by      = user.userVlsId
+    notificatonData.added_type    = user.role
+    notificatonData.event_type    = status
+    await Notification.create(notificatonData)
+    //notification
     return { success:true, message:"Status updated successfully",data:query}
 
   }catch(err){
@@ -851,4 +897,23 @@ async function queryRatingLikes(queryId){
      }
 
      return {likes , ratings}
+}
+
+/**
+ * function for get subject teacher 
+ */
+async function querySubjectTeacher(code){
+  let allTeacher = await Subject.findAll({
+    where : { code : code },
+    attributes : ['teacher_id']
+  })
+
+  let teachers = []
+  await Promise.all(
+    allTeacher.map(async teacher => {
+      let obj = { id : teacher.teacher_id, type : 'teacher' }
+      teachers.push(obj)
+    })
+  )
+  return teachers
 }

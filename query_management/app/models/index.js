@@ -75,6 +75,7 @@ db.Subject = require("./Subject.js")(sequelize, Sequelize);
 db.Classes = require("../../../student_attendance/app/models/Classes.js")(sequelize, Sequelize);
 db.Section = require("../../../student_attendance/app/models/Section.js")(sequelize, Sequelize);
 db.SubjectList = require("./SubjectList.js")(sequelize, Sequelize);
+db.Notification = require("../../../notification/app/models/Notification.js")(sequelize, Sequelize);
 
 db.StudentQuery.belongsTo(db.Student,{foreignKey:'student_vls_id',as:'postedBy'})
 db.StudentQuery.belongsTo(db.Employee,{foreignKey:'faculty_vls_id',as:'respondedBy'})
