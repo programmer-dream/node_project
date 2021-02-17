@@ -12,6 +12,8 @@ const Employee   = db.Employee;
 const Guardian   = db.Guardian;
 const Role       = db.Role;
 const CommunityRatingLike = db.CommunityRatingLike;
+const Notification = db.Notification;
+
 
 
 module.exports = {
@@ -40,7 +42,7 @@ async function create(req){
     classStudents   = await getClassStudents(data.class_id, data.section_id)
   }
   
-  let createdCommunity = await saveCommunity(data, user, classStudents)
+  let createdCommunity = await saveCommunity(data, user, classStudents, req.user)
   
 	return { success: true, message: "Community created successfully" , data : createdCommunity}
 };
@@ -61,7 +63,7 @@ async function getUser(id){
 /**
  * API for save community 
  */
-async function saveCommunity(data, user, classStudents){
+async function saveCommunity(data, user, classStudents, auth){
   let allStudents    = []
 
   if(classStudents.length){
@@ -77,8 +79,25 @@ async function saveCommunity(data, user, classStudents){
   data.user_list     = JSON.stringify(allStudents)
   
   data.group_admin_user_id_list = JSON.stringify(data.group_admin_user_id_list)
-
+  
   let createdCommunity = await CommunityChat.create(data)
+  //notification
+    let notificatonData = {}
+    notificatonData.branch_vls_id = data.branch_vls_id
+    notificatonData.school_vls_id = data.school_vls_id
+    notificatonData.status        = 'general'
+    notificatonData.message       = 'is added in community'
+    notificatonData.notificaton_type = 'community'
+    notificatonData.notificaton_type_id = createdCommunity.community_chat_vls_id
+    notificatonData.start_date    = data.start_date
+    notificatonData.users         = data.user_list
+    notificatonData.added_by      = auth.userVlsId
+    notificatonData.added_type    = auth.role
+    notificatonData.event_type    = 'added'
+    await Notification.create(notificatonData)
+    notificatonData.users         = data.group_admin_user_id_list
+    await Notification.create(notificatonData)
+    //notification
   return createdCommunity
 }
 
@@ -204,7 +223,7 @@ async function update(req){
   let id   = req.params.id
   let data = req.body
   
-  let updatedCommunity = await updateCommunity(data, id)
+  let updatedCommunity = await updateCommunity(data, id, req.user)
   
   return { success: true, message: "Community updated successfully" , data : updatedCommunity}
 }
@@ -213,7 +232,7 @@ async function update(req){
 /**
  * API for save community 
  */
-async function updateCommunity(data, id){
+async function updateCommunity(data, id, auth){
   data.user_list     = JSON.stringify(data.user_list)
   data.tags          = JSON.stringify(data.tags)
   data.group_admin_user_id_list = JSON.stringify(data.group_admin_user_id_list)
@@ -225,6 +244,23 @@ async function updateCommunity(data, id){
       where : { community_chat_vls_id:id }
     })
     community = await CommunityChat.findByPk(id)
+    //notification
+    let notificatonData = {}
+    notificatonData.branch_vls_id = community.branch_vls_id
+    notificatonData.school_vls_id = community.school_vls_id
+    notificatonData.status        = 'general'
+    notificatonData.message       = 'is updated a community'
+    notificatonData.notificaton_type = 'community'
+    notificatonData.notificaton_type_id = community.community_chat_vls_id
+    notificatonData.start_date    = community.start_date
+    notificatonData.users         = community.user_list
+    notificatonData.added_by      = auth.userVlsId
+    notificatonData.added_type    = auth.role
+    notificatonData.event_type    = 'updated'
+    await Notification.create(notificatonData)
+    notificatonData.users         = community.group_admin_user_id_list
+    await Notification.create(notificatonData)
+    //notification
   }else{
     throw 'Community not found'
   }
@@ -248,7 +284,7 @@ async function deleteCommunity(id){
 /**
  * API for add community user 
  */
-async function addUsers(id, body){
+async function addUsers(id, body , user){
   if(!body.user_list) throw 'user_list field is required'
 
   if(!Array.isArray(body.user_list)) throw 'user_list must be an array'
@@ -258,7 +294,22 @@ async function addUsers(id, body){
   let chat  = await CommunityChat.update(data,{
     where : { community_chat_vls_id : id }
   })
-    
+//notification
+  let notificatonData = {}
+  community = await CommunityChat.findByPk(id)
+  notificatonData.branch_vls_id = community.branch_vls_id
+  notificatonData.school_vls_id = community.school_vls_id
+  notificatonData.status        = 'general'
+  notificatonData.message       = 'is updated a community'
+  notificatonData.notificaton_type = 'community'
+  notificatonData.notificaton_type_id = community.community_chat_vls_id
+  notificatonData.start_date    = community.start_date
+  notificatonData.added_by      = user.userVlsId
+  notificatonData.added_type    = user.role
+  notificatonData.event_type    = 'added'
+  notificatonData.users         = community.user_list
+  await Notification.create(notificatonData)
+  //notification
   return { success: true, message: "Community user added successfully" }
 }
 
@@ -266,7 +317,7 @@ async function addUsers(id, body){
 /**
  * API for add community user 
  */
-async function addAdmins(id, body){
+async function addAdmins(id, body, user){
   if(!body.admin_list) throw 'admin_list field is required'
 
   if(!Array.isArray(body.admin_list)) throw 'user_list must be an array'
@@ -276,7 +327,22 @@ async function addAdmins(id, body){
   let chat  = await CommunityChat.update(data,{
     where : { community_chat_vls_id : id }
   })
-    
+  //notification
+    let notificatonData = {}
+    community = await CommunityChat.findByPk(id)
+    notificatonData.branch_vls_id = community.branch_vls_id
+    notificatonData.school_vls_id = community.school_vls_id
+    notificatonData.status        = 'general'
+    notificatonData.message       = 'is updated a community'
+    notificatonData.notificaton_type = 'community'
+    notificatonData.notificaton_type_id = community.community_chat_vls_id
+    notificatonData.start_date    = community.start_date
+    notificatonData.added_by      = user.userVlsId
+    notificatonData.added_type    = user.role
+    notificatonData.event_type    = 'added'
+    notificatonData.users         = community.group_admin_user_id_list
+    await Notification.create(notificatonData)
+    //notification
   return { success: true, message: "Community addmins added successfully" }
 }
 

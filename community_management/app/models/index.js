@@ -76,6 +76,7 @@ db.Classes = require("../../../student_attendance/app/models/Classes.js")(sequel
 db.CommunityChat = require("./CommunityChat.js")(sequelize, Sequelize);
 db.CommunityCommunication = require("./CommunityCommunication.js")(sequelize, Sequelize);
 db.CommunityRatingLike = require("./CommunityRatingLike.js")(sequelize, Sequelize);
+db.Notification = require("../../../notification/app/models/Notification.js")(sequelize, Sequelize);
 
 //relation
 db.Student.belongsTo(db.Guardian,{foreignKey:'parent_vls_id',as:'parent'})
