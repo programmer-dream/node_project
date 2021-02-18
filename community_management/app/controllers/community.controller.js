@@ -86,7 +86,7 @@ async function saveCommunity(data, user, classStudents, auth){
     notificatonData.branch_vls_id = data.branch_vls_id
     notificatonData.school_vls_id = data.school_vls_id
     notificatonData.status        = 'general'
-    notificatonData.message       = 'is added in community'
+    notificatonData.message       = '{name} added you in a community.'
     notificatonData.notificaton_type = 'community'
     notificatonData.notificaton_type_id = createdCommunity.community_chat_vls_id
     notificatonData.start_date    = data.start_date
@@ -96,6 +96,7 @@ async function saveCommunity(data, user, classStudents, auth){
     notificatonData.event_type    = 'added'
     await Notification.create(notificatonData)
     notificatonData.users         = data.group_admin_user_id_list
+    notificatonData.message = '{name} added you as admin in a community'
     await Notification.create(notificatonData)
     //notification
   return createdCommunity
@@ -235,7 +236,6 @@ async function update(req){
 async function updateCommunity(data, id, auth){
   data.user_list     = JSON.stringify(data.user_list)
   data.tags          = JSON.stringify(data.tags)
-  data.group_admin_user_id_list = JSON.stringify(data.group_admin_user_id_list)
 
   let community = await CommunityChat.findByPk(id)
 
@@ -249,7 +249,7 @@ async function updateCommunity(data, id, auth){
     notificatonData.branch_vls_id = community.branch_vls_id
     notificatonData.school_vls_id = community.school_vls_id
     notificatonData.status        = 'general'
-    notificatonData.message       = 'is updated a community'
+    notificatonData.message       = '{name} updated a community.'
     notificatonData.notificaton_type = 'community'
     notificatonData.notificaton_type_id = community.community_chat_vls_id
     notificatonData.start_date    = community.start_date
@@ -300,7 +300,7 @@ async function addUsers(id, body , user){
   notificatonData.branch_vls_id = community.branch_vls_id
   notificatonData.school_vls_id = community.school_vls_id
   notificatonData.status        = 'general'
-  notificatonData.message       = 'is updated a community'
+  notificatonData.message       = '{name} added you in a community'
   notificatonData.notificaton_type = 'community'
   notificatonData.notificaton_type_id = community.community_chat_vls_id
   notificatonData.start_date    = community.start_date
@@ -333,7 +333,7 @@ async function addAdmins(id, body, user){
     notificatonData.branch_vls_id = community.branch_vls_id
     notificatonData.school_vls_id = community.school_vls_id
     notificatonData.status        = 'general'
-    notificatonData.message       = 'is updated a community'
+    notificatonData.message       = '{name} added you as admin in a community'
     notificatonData.notificaton_type = 'community'
     notificatonData.notificaton_type_id = community.community_chat_vls_id
     notificatonData.start_date    = community.start_date

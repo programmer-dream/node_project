@@ -62,7 +62,7 @@ async function create(req){
     notificatonData.branch_vls_id = createdQuery.branch_vls_id
     notificatonData.school_vls_id = createdQuery.school_vls_id
     notificatonData.status        = 'general'
-    notificatonData.message       = 'is created a new query'
+    notificatonData.message       = '{name} created new query for {subjectname}.'
     notificatonData.notificaton_type = 'query'
     notificatonData.notificaton_type_id = createdQuery.query_vls_id
     notificatonData.start_date    = createdQuery.query_date
@@ -297,7 +297,7 @@ async function update(req){
     notificatonData.branch_vls_id = query.branch_vls_id
     notificatonData.school_vls_id = query.school_vls_id
     notificatonData.status        = 'general'
-    notificatonData.message       = 'is updated a new query'
+    notificatonData.message       = '{name} updated query for {subjectname}.'
     notificatonData.notificaton_type = 'query'
     notificatonData.notificaton_type_id = query.query_vls_id
     notificatonData.start_date    = query.query_date
@@ -494,10 +494,12 @@ async function statusUpdate(id, user, body) {
   //if(user.role != 'student') throw 'unauthorised user'
   let whereCondition = { query_vls_id : id }
   let status = "Rejected"
+  let message = '{name} rejected query for {subjectname}.'
   let reject_comment = ""
   if(user.role == 'student'){
     whereCondition = { student_vls_id : user.userVlsId, query_vls_id : id }
     status = "Closed"
+    message = '{name} closed query for {subjectname}.'
   }
 
   if(body.reject_comment){
@@ -522,7 +524,7 @@ async function statusUpdate(id, user, body) {
     notificatonData.branch_vls_id = dbQuery.branch_vls_id
     notificatonData.school_vls_id = dbQuery.school_vls_id
     notificatonData.status        = 'general'
-    notificatonData.message       = 'is updated a new query'
+    notificatonData.message       = message
     notificatonData.notificaton_type = 'query'
     notificatonData.notificaton_type_id = dbQuery.query_vls_id
     notificatonData.start_date    = dbQuery.query_date

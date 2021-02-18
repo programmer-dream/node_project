@@ -76,7 +76,7 @@ async function create(req){
       notificatonData.branch_vls_id = meeting.branch_id
       notificatonData.school_vls_id = meeting.school_id
       notificatonData.status        = 'important'
-      notificatonData.message       = 'is created a new meeting'
+      notificatonData.message       = '{name} schedule a meeting with you.'
       notificatonData.notificaton_type = 'meeting'
       notificatonData.notificaton_type_id = meeting.id
       notificatonData.start_date    = meeting.date
@@ -262,7 +262,7 @@ async function update(req){
       notificatonData.branch_vls_id = meetingData.branch_id
       notificatonData.school_vls_id = meetingData.school_id
       notificatonData.status        = 'important'
-      notificatonData.message       = 'is updated a new meeting'
+      notificatonData.message       = '{name} updated schedule meeting with you.'
       notificatonData.notificaton_type = 'meeting'
       notificatonData.notificaton_type_id = meetingData.id
       notificatonData.start_date    = meetingData.date
@@ -296,7 +296,8 @@ async function attendMeeting(meetingId, body, user){
   if(!body.attendee_status) throw 'attendee_status is required'
   if(body.attendee_status == 'reject' && !body.attendee_remarks) 
   		throw 'attendee_remarks is required'
-
+    
+  let message = '{name} accepted schedule meeting with you.';
   let meetingData = {
   	attendee_status  : body.attendee_status,
   	attendee_remarks : body.attendee_remarks,
@@ -304,6 +305,7 @@ async function attendMeeting(meetingId, body, user){
   if(body.attendee_status == 'reject'){
     meetingData.rejected_by = user.userVlsId
     meetingData.rejected_role = user.role
+    message = '{name} rejected schedule meeting with you.';
   }
 
   let meeting  = await Meeting.update(meetingData,{
@@ -323,7 +325,7 @@ async function attendMeeting(meetingId, body, user){
     notificatonData.branch_vls_id = meetingData.branch_id
     notificatonData.school_vls_id = meetingData.school_id
     notificatonData.status        = 'important'
-    notificatonData.message       = 'is updated a new meeting'
+    notificatonData.message       = message
     notificatonData.notificaton_type = 'meeting'
     notificatonData.notificaton_type_id = meetingData.id
     notificatonData.start_date    = meetingData.date
