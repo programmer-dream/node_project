@@ -63,7 +63,7 @@ async function create(req){
     notificatonData.branch_vls_id = assignmentData.branch_vls_id
     notificatonData.school_vls_id = assignmentData.school_vls_id
     notificatonData.status        = 'important'
-    notificatonData.message       = 'is created a new assignment'
+    notificatonData.message       = '{name} created new assignment for {subjectname}.'
     notificatonData.notificaton_type = 'assignment'
     notificatonData.notificaton_type_id = assignment.assignment_vls_id
     notificatonData.start_date    = assignmentData.assignment_date
@@ -424,7 +424,7 @@ async function update(req){
     notificatonData.branch_vls_id = assignment.branch_vls_id
     notificatonData.school_vls_id = assignment.school_vls_id
     notificatonData.status        = 'important'
-    notificatonData.message       = 'is updated a new assignment'
+    notificatonData.message       = '{name} udpated an assignment for {subjectname}.'
     notificatonData.notificaton_type = 'assignment'
     notificatonData.notificaton_type_id = assignment.assignment_vls_id
     notificatonData.start_date    = assignment.assignment_date
@@ -476,7 +476,7 @@ async function assignToStudents(req){
     notificatonData.branch_vls_id = assignment.branch_vls_id
     notificatonData.school_vls_id = assignment.school_vls_id
     notificatonData.status        = 'important'
-    notificatonData.message       = 'is updated a new assignment'
+    notificatonData.message       = '{name} assigned an assignment to you.'
     notificatonData.notificaton_type = 'assignment'
     notificatonData.notificaton_type_id = assignment.assignment_vls_id
     notificatonData.start_date    = assignment.assignment_date
@@ -589,19 +589,25 @@ async function changeAssignmentStatus(params, user, body){
     if(!assignment[0]) throw 'Assignment not found'
 
     if(body.assignment_status == 'Approved' || body.assignment_status =='Rejected'){
+      let message = '{name} approved your assignment.'
+      if(body.assignment_status == 'Rejected')
+         message = '{name} rejected your assignment.'
+
       //notification
       let mainAssignment  = await Assignment.findByPk(studentAssignment.assignment_vls_id)
-      let assignedStudent = await getStudentList(mainAssignment)
+      let users = { id : studentAssignment.student_vls_id,
+                   type: 'student'
+                 }
       let notificatonData = {}
       notificatonData.branch_vls_id = mainAssignment.branch_vls_id
       notificatonData.school_vls_id = mainAssignment.school_vls_id
       notificatonData.status        = 'important'
-      notificatonData.message       = 'is updated a new assignment'
+      notificatonData.message       = message
       notificatonData.notificaton_type = 'assignment'
       notificatonData.notificaton_type_id = mainAssignment.assignment_vls_id
       notificatonData.start_date    = mainAssignment.assignment_date
       notificatonData.close_date    = mainAssignment.assignment_completion_date
-      notificatonData.users         = JSON.stringify(assignedStudent)
+      notificatonData.users         = JSON.stringify(users)
       notificatonData.added_by      = user.userVlsId
       notificatonData.added_type    = user.role
       notificatonData.event_type    = body.assignment_status

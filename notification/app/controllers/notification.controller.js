@@ -93,7 +93,7 @@ async function readNotifications(body, user){
 
 
 /**
- * API for feedback delete 
+ * API for notification read
  */
 async function isRead(id , userId, type){
   let readBy  = await NotificationReadBy.count({
@@ -107,3 +107,4 @@ async function isRead(id , userId, type){
 
   return false
 };
+
