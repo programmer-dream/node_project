@@ -291,24 +291,44 @@ async function addUsers(id, body , user){
   let data = {
       user_list : JSON.stringify(body.user_list)
   }
+  let oldCommunity = await CommunityChat.findByPk(id)
+  let updatedUsers = await usersUpdated(oldCommunity.user_list , data.user_list)
+
   let chat  = await CommunityChat.update(data,{
     where : { community_chat_vls_id : id }
   })
 //notification
   let notificatonData = {}
-  community = await CommunityChat.findByPk(id)
+  let community = await CommunityChat.findByPk(id)
+  
   notificatonData.branch_vls_id = community.branch_vls_id
   notificatonData.school_vls_id = community.school_vls_id
   notificatonData.status        = 'general'
-  notificatonData.message       = '{name} added you in a community'
   notificatonData.notificaton_type = 'community'
   notificatonData.notificaton_type_id = community.community_chat_vls_id
   notificatonData.start_date    = community.start_date
   notificatonData.added_by      = user.userVlsId
   notificatonData.added_type    = user.role
-  notificatonData.event_type    = 'added'
   notificatonData.users         = community.user_list
-  await Notification.create(notificatonData)
+  
+  if(updatedUsers.deletedUsers.length){
+    let msg = updatedUsers.deletedUsers.length+' user'
+    if(updatedUsers.deletedUsers.length > 1)
+        msg = updatedUsers.deletedUsers.length+' users'
+
+    notificatonData.event_type    = 'deleted'
+    notificatonData.message = '{name} deleted '+msg+' from community'
+    await Notification.create(notificatonData)
+  }
+  if(updatedUsers.addedUsers.length){
+    let msg = updatedUsers.addedUsers.length+' user'
+    if(updatedUsers.addedUsers.length > 1)
+        msg = updatedUsers.addedUsers.length+' users'
+
+    notificatonData.event_type    = 'added'
+    notificatonData.message = '{name} added '+msg+' in community'
+    await Notification.create(notificatonData)
+  }
   //notification
   return { success: true, message: "Community user added successfully" }
 }
@@ -321,19 +341,23 @@ async function addAdmins(id, body, user){
   if(!body.admin_list) throw 'admin_list field is required'
 
   if(!Array.isArray(body.admin_list)) throw 'user_list must be an array'
-  let data = {
-      group_admin_user_id_list : JSON.stringify(body.admin_list)
-  }
-  let chat  = await CommunityChat.update(data,{
-    where : { community_chat_vls_id : id }
-  })
+    let data = {
+        group_admin_user_id_list : JSON.stringify(body.admin_list)
+    }
+
+    let oldCommunity = await CommunityChat.findByPk(id)
+    let updatedUsers = await usersUpdated(oldCommunity.group_admin_user_id_list , data.group_admin_user_id_list)
+
+    let chat  = await CommunityChat.update(data,{
+      where : { community_chat_vls_id : id }
+    })
   //notification
     let notificatonData = {}
-    community = await CommunityChat.findByPk(id)
+    let community = await CommunityChat.findByPk(id)
+    
     notificatonData.branch_vls_id = community.branch_vls_id
     notificatonData.school_vls_id = community.school_vls_id
     notificatonData.status        = 'general'
-    notificatonData.message       = '{name} added you as admin in a community'
     notificatonData.notificaton_type = 'community'
     notificatonData.notificaton_type_id = community.community_chat_vls_id
     notificatonData.start_date    = community.start_date
@@ -341,7 +365,25 @@ async function addAdmins(id, body, user){
     notificatonData.added_type    = user.role
     notificatonData.event_type    = 'added'
     notificatonData.users         = community.group_admin_user_id_list
-    await Notification.create(notificatonData)
+
+    if(updatedUsers.deletedUsers.length){
+      let msg = updatedUsers.deletedUsers.length+' admin'
+      if(updatedUsers.deletedUsers.length > 1)
+          msg = updatedUsers.deletedUsers.length+' admin'
+
+      notificatonData.event_type    = 'deleted'
+      notificatonData.message = '{name} deleted '+msg+' from community'
+      await Notification.create(notificatonData)
+    }
+    if(updatedUsers.addedUsers.length){
+      let msg = updatedUsers.addedUsers.length+' admin'
+      if(updatedUsers.addedUsers.length > 1)
+          msg = updatedUsers.addedUsers.length+' admins'
+
+      notificatonData.event_type    = 'added'
+      notificatonData.message = '{name} added '+msg+' in community'
+      await Notification.create(notificatonData)
+    }
     //notification
   return { success: true, message: "Community addmins added successfully" }
 }
@@ -505,4 +547,26 @@ async function adminsList(user) {
     attributes : ['faculty_vls_id','isPrincipal','isAdmin','isTeacher','type','name']
   })
   return { success:true, message:"Admins list", data : allAdmins};
+}
+
+/**
+ * API for get deleted user list
+ */
+async function usersUpdated(oldUsers , newUsers){
+  let oldUsersArr  = JSON.parse(oldUsers)
+  let newUsersArr  = JSON.parse(newUsers)
+
+  var deletedUsers = oldUsersArr.filter(comparer(newUsersArr));
+  var addedUsers = newUsersArr.filter(comparer(oldUsersArr));
+
+  return { deletedUsers , addedUsers}
+}
+
+
+function comparer(otherArray){
+  return function(current){
+    return otherArray.filter(function(other){
+      return other.id == current.id && other.type == current.type
+    }).length == 0;
+  }
 }
