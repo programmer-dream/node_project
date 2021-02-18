@@ -76,8 +76,12 @@ db.SubjectList = require("../../../query_management/app/models/SubjectList.js")(
 db.Classes = require("../../../student_attendance/app/models/Classes.js")(sequelize, Sequelize);
 db.Notification = require("./Notification.js")(sequelize, Sequelize);
 db.NotificationReadBy = require("./NotificationReadBy.js")(sequelize, Sequelize);
+db.Assignment = require("../../../assignment/app/models/Assignment.js")(sequelize, Sequelize);
+db.StudentQuery = require("../../../query_management/app/models/StudentQuery.js")(sequelize, Sequelize);
+
 
 db.Notification.belongsTo(db.NotificationReadBy,{foreignKey:'notification_vls_id',as:'readBy'})
+db.SubjectList = require("../../../query_management/app/models/SubjectList.js")(sequelize, Sequelize);
 
 
 //relation

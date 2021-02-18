@@ -12,6 +12,9 @@ const Guardian   = db.Guardian;
 const sequelize  = db.sequelize;
 const Notification   = db.Notification;
 const NotificationReadBy   = db.NotificationReadBy;
+const SubjectList   = db.SubjectList;
+const Assignment    = db.Assignment;
+const StudentQuery  = db.StudentQuery;
 
 
 module.exports = {
@@ -61,7 +64,12 @@ async function list(params , user){
     notifications.map(async notification => {
       notification = notification.toJSON()
       let is_read =   await isRead(notification.notification_vls_id , user.userVlsId, user.role)
-      notification.isRead = is_read
+      //updated message
+        let updatedMessage = await getUserWithMessage(notification.added_by , notification.added_type , notification.message)
+      //updated message
+      notification.message = updatedMessage
+      notification.message = await updatedSubject(notification)
+      notification.isRead  = is_read
       allNotifications.push(notification)
     })
   )
@@ -108,3 +116,64 @@ async function isRead(id , userId, type){
   return false
 };
 
+
+/**
+ * API for get user 
+ */
+async function getUserWithMessage(userId , type , message){
+  let user = {};
+  switch(type){
+    case 'student': 
+        user = await Student.findOne({
+          where : { student_vls_id : userId},
+          attributes: ['name']
+        })
+      break ;
+    case 'guardian': 
+        user = await Guardian.findOne({
+          where : { parent_vls_id : userId },
+          attributes: ['name']
+        })
+      break ;
+    case 'teacher': 
+    case 'branch-admin': 
+    case 'school-admin': 
+    case 'principal': 
+        user = await Employee.findOne({
+          where : { faculty_vls_id : userId },
+          attributes: ['name']
+        })
+      break ;
+  }
+  return message.replace("{name}", user.name); 
+}
+
+
+/**
+ * API for update subject 
+ */
+async function updatedSubject(notification){
+    let type = {}
+    switch(notification.notificaton_type){
+      case 'assignment': 
+           type = await Assignment.findOne({
+            where : { assignment_vls_id : notification.notificaton_type_id},
+            attributes: ['subject_code']
+          })
+        break ;
+      case 'query':
+           type = await StudentQuery.findOne({
+            where : {query_vls_id : notification.notificaton_type_id },
+             attributes: ['subject_code']
+          }) 
+        break;
+      default : return notification.message
+  }
+  let code = type.subject_code
+  let subject = await SubjectList.findOne({
+            where : {code : code },
+             attributes: ['subject_name']
+          })
+  let message = notification.message
+  return message.replace("{subjectname}", subject.subject_name);
+}
