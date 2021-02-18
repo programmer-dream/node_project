@@ -11,67 +11,18 @@ const Student    = db.Student;
 const Guardian   = db.Guardian;
 const sequelize  = db.sequelize;
 const Notification   = db.Notification;
+const NotificationReadBy   = db.NotificationReadBy;
 
 
 module.exports = {
-  create,
-  view,
-  update,
   list,
-  deleteNotification
+  readNotifications
 };
 
 
-/**
- * API for create new feedback
- */
-async function create(req){
-  const errors = validationResult(req);
-  if(errors.array().length) throw errors.array()
-
-    let user = req.user
-    let feedbackData =  req.body
-    feedbackData.user_vls_id   = user.userVlsId
-    feedbackData.user_type     = user.role
-    feedbackData.status        = 'open'
-    feedbackData.open_date     = moment().format('YYYY-MM-DD HH:mm:ss')
-    
-  	let feedback 		 = await Notification.create(feedbackData)
-
-  	if(!feedback) throw 'Notification not created'
-
-  	return { success: true, message: "Notification created successfully", data:feedback }
-};
-
 
 /**
- * API for feedback view
- */
-async function view(params , user){
-  let id  = params.id 
-
-  let feedback = await Notification.findOne({
-    where : { feedback_id : id},
-    include : [{ 
-                model:Meeting,
-                as:'meetingData',
-                include : [{ 
-                    model:Employee,
-                    as:'meetingUser',
-                    attributes:['name','photo']
-                  }]
-              }]
-  })
-  feedback = feedback.toJSON()
-  feedback.feedback_user = await getUser(feedback.user_vls_id , feedback.user_type)
-  if(!feedback) throw 'Notification not found'
-
-  return { success: true, message: "Notification view", data: feedback}
-};
-
-
-/**
- * API for feedback list
+ * API for notification list
  */
 async function list(params , user){
   let limit   = 10
@@ -96,7 +47,7 @@ async function list(params , user){
      limit = parseInt(params.size)
   if(params.page)
       offset = 0 + (parseInt(params.page) - 1) * limit
-  //console.log(whereCondition)
+  
   let notifications = await Notification.findAll({
     limit : limit,
     offset: offset,
@@ -104,71 +55,55 @@ async function list(params , user){
     order : [
              ['notification_vls_id', orderBy]
             ]
-    
   })
-  return { success: true, message: "Notification list", data: notifications}
+  let allNotifications = []
+  await Promise.all(
+    notifications.map(async notification => {
+      notification = notification.toJSON()
+      let is_read =   await isRead(notification.notification_vls_id , user.userVlsId, user.role)
+      notification.isRead = is_read
+      allNotifications.push(notification)
+    })
+  )
+  return { success: true, message: "Notification list", data: allNotifications}
 };
 
 
 /**
- * API for feedback update 
+ * API for notification read by 
  */
-async function update(req){
-  const errors = validationResult(req);
-  if(errors.array().length) throw errors.array()
-  let id = req.params.id 
-
-  let user = req.user
-  let feedbackData  = req.body
-  let feedback  = await Feedback.update(feedbackData,
-  { 
-    where : { feedback_id : id }
-
-  })
-  if(feedback[0])
-     feedback  = await Notification.findByPk(id)
-
-  return { success: true, message: "Notification updated successfully", data:feedback }
+async function readNotifications(body, user){
+  let notificationIds = body.notificationIds
+  let readByArray = []
+  if(Array.isArray(notificationIds) && notificationIds.length){
+      notificationIds.forEach(function(id){
+        let obj = {
+          notification_vls_id : id,
+          user_vls_id : user.userVlsId,
+          user_type : user.role
+        }
+        readByArray.push(obj)
+      })
+  }
+  //return readByArray
+  let notificationReadBy  = await NotificationReadBy.bulkCreate(readByArray)
+  
+  return { success: true, message: "Notification read successfully" }
 };
 
 
 /**
  * API for feedback delete 
  */
-async function deleteNotification(id){
-  let feedback  = await Notification.destroy({
-				    where: { feedback_id : id }
-				  })
+async function isRead(id , userId, type){
+  let readBy  = await NotificationReadBy.count({
+        where: { 
+          notification_vls_id : id,
+          user_vls_id : userId ,
+          user_type : type
+         }
+      })
+  if(readBy) return true
 
-  if(!feedback) throw 'Notification Not found'
-  return { success: true, message: "Notification deleted successfully" }
-};
-
-
-/**
- * API for feedback users 
- */
-async function getUser(id , type){
-  let user = {}
-  switch (type) {
-    case 'student':
-       user =  await Student.findOne({
-        where : {student_vls_id : id},
-        attributes: ['name','photo']
-        })
-      break;
-    case 'guardian':
-        user =  await Guardian.findOne({
-          where : {parent_vls_id : id},
-          attributes: ['name','photo']
-        })
-      break;
-    default :
-        user =  await Employee.findOne({
-          where : {faculty_vls_id : id},
-          attributes: ['name','photo']
-        })
-      break;
-  }
-  return user
+  return false
 };

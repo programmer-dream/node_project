@@ -75,7 +75,9 @@ db.Guardian = require("../../../vls/app/models/Guardian.js")(sequelize, Sequeliz
 db.SubjectList = require("../../../query_management/app/models/SubjectList.js")(sequelize, Sequelize);
 db.Classes = require("../../../student_attendance/app/models/Classes.js")(sequelize, Sequelize);
 db.Notification = require("./Notification.js")(sequelize, Sequelize);
+db.NotificationReadBy = require("./NotificationReadBy.js")(sequelize, Sequelize);
 
+db.Notification.belongsTo(db.NotificationReadBy,{foreignKey:'notification_vls_id',as:'readBy'})
 
 
 //relation
