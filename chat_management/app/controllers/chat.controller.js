@@ -3,6 +3,8 @@ const db 	 	     = require("../models");
 const moment 	   = require("moment");
 const bcrypt     = require("bcryptjs");
 const path       = require('path')
+const fs       = require('fs')
+const imageThumbnail = require('image-thumbnail');
 const Op 	 	     = db.Sequelize.Op;
 const Sequelize  = db.Sequelize;
 const User       = db.Authentication;
@@ -13,7 +15,7 @@ const Guardian   = db.Guardian;
 const Role       = db.Role;
 const SubjectList= db.SubjectList;
 const Subject    = db.Subject;
-
+const config = require("../../../config/env.js");
 
 module.exports = {
   create,
@@ -40,6 +42,18 @@ async function create(req){
   if(req.files.file && req.files.file.length > 0){
       data.attachment      = req.body.uplodedPath + req.files.file[0].filename;
       data.attachmentType  = await isImage(req.files.file[0].originalname);
+    if(data.attachmentType == 'image'){
+      let options = { width: 150, height: 150 , responseType: 'base64'}  
+      let dirpath = config.pdf_path+data.attachment
+       
+      const thumbnail = await imageThumbnail(dirpath, options);
+      let imageBuffer = new Buffer(thumbnail, 'base64');
+
+      let fileName = req.body.uplodedPath+"thumb_"+Date.now()+'.png';
+      fs.writeFileSync(config.pdf_path+fileName, imageBuffer, 'utf8');
+
+      data.image_thumbnail = fileName
+    }
   }
 
   let createdChat = await saveChat(data, user)
