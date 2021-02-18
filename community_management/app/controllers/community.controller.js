@@ -252,14 +252,17 @@ async function addUsers(id, body){
   if(!body.user_list) throw 'user_list field is required'
 
   if(!Array.isArray(body.user_list)) throw 'user_list must be an array'
+  let userList = body.user_list
   let data = {
-      user_list : JSON.stringify(body.user_list)
+      user_list : JSON.stringify(userList)
   }
   let chat  = await CommunityChat.update(data,{
     where : { community_chat_vls_id : id }
   })
-    
-  return { success: true, message: "Community user added successfully" }
+
+  let usersArray = await addUserList(userList);
+
+  return { success: true, message: "Community user added successfully", users_list_details: usersArray }
 }
 
 
@@ -270,14 +273,18 @@ async function addAdmins(id, body){
   if(!body.admin_list) throw 'admin_list field is required'
 
   if(!Array.isArray(body.admin_list)) throw 'user_list must be an array'
+  let userList = body.admin_list
+
   let data = {
-      group_admin_user_id_list : JSON.stringify(body.admin_list)
+      group_admin_user_id_list : JSON.stringify(userList)
   }
   let chat  = await CommunityChat.update(data,{
     where : { community_chat_vls_id : id }
   })
-    
-  return { success: true, message: "Community addmins added successfully" }
+  
+  let usersArray = await addUserList(userList);
+
+  return { success: true, message: "Community addmins added successfully", admin_list_details: usersArray }
 }
 
 
