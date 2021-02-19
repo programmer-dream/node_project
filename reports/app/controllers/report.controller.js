@@ -187,7 +187,12 @@ async function dashboardList(params , user){
 			    include: [{ 
 	                model:Marks,
 	                as:'marks',
-	                where : joinWhere
+	                where : joinWhere,
+	                include: [{ 
+			                model:SubjectList,
+			                as:'subject',
+			                attributes:['subject_name']
+			            }]
 	            }]
 			  	
   	})
