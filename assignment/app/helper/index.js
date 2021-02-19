@@ -33,7 +33,7 @@ let storage = multer.diskStorage({
   uplodedPath = "/"+school_name+"/"+branch_name+"/assignment/"
   dirpath = dirpath + uplodedPath
   req.body.uplodedPath = uplodedPath
-  //console.log(dirpath)
+
 	if( !fs.existsSync(dirpath) ){
 	    fs.mkdirSync(dirpath, { recursive: true })
 	}

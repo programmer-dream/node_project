@@ -750,7 +750,6 @@ async function questionResponse(req){
         if(question.question_type !='form' ){
             if(Array.isArray(response)){
               response = JSON.stringify(response)
-              console.log(response)
             }
         }
         allQuestion[qIndex].response   = response

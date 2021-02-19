@@ -66,7 +66,6 @@ io.on("connection", async function (client) {
   let decoded;
   try {
     decoded = jwtPackage.verify(token, secret)
-    //console.log(decoded, secret)
   }
   catch(reason) {
     console.log("refused a session atempt with an invalid token");
@@ -102,7 +101,6 @@ io.on("connection", async function (client) {
       client.join("communityGroup_"+communityId);
   });
 
-  //client.join('default');
 });
 
 // Create chat route
