@@ -96,17 +96,29 @@ async function list(params , user){
   let limit   = 10
   let offset  = 0
   let orderBy = 'desc';
-
+  let search = ''
   let schoolVlsId   = params.schoolVlsId
   let branchVlsId   = params.branch_vls_id
 
   if(!schoolVlsId) throw 'schoolVlsId is required'
   if(!branchVlsId) throw 'branchVlsId is required'
 
+  if(params.search) 
+    search = params.search
+
   let whereCondition = {
-    branch_vls_id : branchVlsId,
-    school_vls_id : schoolVlsId,
-  }
+      [Op.or]:{
+                description: { 
+                  [Op.like]: `%`+search+`%`
+                },
+              title : { 
+                [Op.like]: `%`+search+`%` 
+              }
+           }
+    };
+
+  whereCondition.branch_vls_id : branchVlsId
+  whereCondition.school_vls_id : schoolVlsId
 
   if(user.role != 'principal'){
     whereCondition.user_vls_id = user.userVlsId
@@ -121,6 +133,9 @@ async function list(params , user){
 
   if(params.status)
      whereCondition.status = params.status
+
+  if(params.feedback_type)
+     whereCondition.feedback_type = params.feedback_type
 
   let allFeedback = await Feedback.findAll({
     limit : limit,
