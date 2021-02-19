@@ -14,7 +14,8 @@ const Authentication = db.Authentication;
 
 module.exports = {
   list,
-  getExamMarks
+  getExamMarks,
+  dashboardList
 };
 
 
@@ -64,7 +65,8 @@ async function list(params , user){
 			    include: [{ 
 	                model:Marks,
 	                as:'marks',
-	                where : joinWhere
+	                where : joinWhere,
+	                attributes:['id']
 	            }]
 			  	
   	})
@@ -137,3 +139,58 @@ async function getExamMarks(params , user , query){
 	return { success: true, message: "Exam list", data : {final_marks,subjectMarks}
 	}
 }
+
+
+/**
+ * API for list exams
+ */
+async function dashboardList(params , user){
+  let authentication = await Authentication.findByPk(user.id)
+  let branchId       = authentication.branch_vls_id
+
+  let whereConditions = {
+  	branch_vls_id : branchId
+  }
+
+  let joinWhere = {}
+  if(user.role == 'student'){
+  	 let student = await Student.findByPk(user.userVlsId)
+
+  	 joinWhere.class_id            = student.class_id
+  	 joinWhere.student_id          = user.userVlsId
+  }
+
+  let limit   = 10
+  let offset  = 0
+  let search  = '';
+  let orderBy = 'desc';
+
+  if(params.size)
+     limit = parseInt(params.size)
+
+  if(params.page)
+      offset = 0 + (parseInt(params.page) - 1) * limit
+
+  if(params.search) 
+    search = params.search
+
+  if(params.orderBy)
+     orderBy = params.orderBy
+
+  let exams = await Exams.findAll({
+			  	limit  : limit,
+			    offset : offset,
+			    where : whereConditions,
+			    order : [
+			             ['test_id', orderBy]
+			            ],
+			    include: [{ 
+	                model:Marks,
+	                as:'marks',
+	                where : joinWhere
+	            }]
+			  	
+  	})
+
+  return { success: true, message: "Exam list", data : exams}	    
+};

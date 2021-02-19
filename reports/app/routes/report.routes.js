@@ -7,6 +7,7 @@ const upload  = helper.upload;
 
 
 router.get("/list/",list);
+router.get("/dashboardList/",dashboardList);
 router.get("/:id/getExamMarks",getExamMarks);
 
 
@@ -17,6 +18,13 @@ module.exports = router;
 // Function for assignment details
 function list(req, res, next) {
     reportController.list(req.query, req.user)
+        .then(exam => exam ? res.json(exam) : res.status(400).json({ status: "error", message: 'Error while listing exam' }))
+        .catch(err => next(err));
+}
+
+// Function for assignment details
+function dashboardList(req, res, next) {
+    reportController.dashboardList(req.query, req.user)
         .then(exam => exam ? res.json(exam) : res.status(400).json({ status: "error", message: 'Error while listing exam' }))
         .catch(err => next(err));
 }
