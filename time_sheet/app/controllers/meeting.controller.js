@@ -11,6 +11,7 @@ const Student    = db.Student;
 const Guardian   = db.Guardian;
 const sequelize  = db.sequelize;
 const Routine    = db.Routine;
+const Notification = db.Notification;
 const bcrypt     = require("bcryptjs");
 
 module.exports = {
@@ -62,6 +63,29 @@ async function create(req){
   	let meeting 		     = await Meeting.create(meetingData)
 
   	if(!meeting) throw 'meeting not created'
+
+    let roleType = 'employee'
+    if(meeting.attendee_type == 'parent')
+        roleType = 'guardian'
+    //notification
+      let users = [{
+        id: meeting.attendee_vls_id,
+        type: roleType
+      }]
+      let notificatonData = {}
+      notificatonData.branch_vls_id = meeting.branch_id
+      notificatonData.school_vls_id = meeting.school_id
+      notificatonData.status        = 'important'
+      notificatonData.message       = '{name} schedule a meeting with you.'
+      notificatonData.notificaton_type = 'meeting'
+      notificatonData.notificaton_type_id = meeting.id
+      notificatonData.start_date    = meeting.date
+      notificatonData.users         = JSON.stringify(users)
+      notificatonData.added_by      = req.user.userVlsId
+      notificatonData.added_type    = req.user.role
+      notificatonData.event_type    = 'created'
+      await Notification.create(notificatonData)
+      //notification
 
   	return { success: true, message: "Meeting created successfully", data:meeting }
 };
@@ -226,6 +250,28 @@ async function update(req){
   	if(!meeting[0]) throw 'meeting not updated'
       meetingData  = await Meeting.findByPk(req.params.id)
 
+      let roleType = 'employee'
+      if(meetingData.attendee_type == 'parent')
+        roleType = 'guardian'
+    //notification
+      let users = [{
+        id: meetingData.attendee_vls_id,
+        type: roleType
+      }]
+      let notificatonData = {}
+      notificatonData.branch_vls_id = meetingData.branch_id
+      notificatonData.school_vls_id = meetingData.school_id
+      notificatonData.status        = 'important'
+      notificatonData.message       = '{name} updated schedule meeting with you.'
+      notificatonData.notificaton_type = 'meeting'
+      notificatonData.notificaton_type_id = meetingData.id
+      notificatonData.start_date    = meetingData.date
+      notificatonData.users         = JSON.stringify(users)
+      notificatonData.added_by      = req.user.userVlsId
+      notificatonData.added_type    = req.user.role
+      notificatonData.event_type    = 'updated'
+      await Notification.create(notificatonData)
+      //notification
   	return { success: true, message: "Meeting updated successfully", data:meetingData }
 };
 
@@ -250,7 +296,8 @@ async function attendMeeting(meetingId, body, user){
   if(!body.attendee_status) throw 'attendee_status is required'
   if(body.attendee_status == 'reject' && !body.attendee_remarks) 
   		throw 'attendee_remarks is required'
-
+    
+  let message = '{name} accepted schedule meeting with you.';
   let meetingData = {
   	attendee_status  : body.attendee_status,
   	attendee_remarks : body.attendee_remarks,
@@ -258,6 +305,7 @@ async function attendMeeting(meetingId, body, user){
   if(body.attendee_status == 'reject'){
     meetingData.rejected_by = user.userVlsId
     meetingData.rejected_role = user.role
+    message = '{name} rejected schedule meeting with you.';
   }
 
   let meeting  = await Meeting.update(meetingData,{
@@ -267,7 +315,26 @@ async function attendMeeting(meetingId, body, user){
   if(!meeting[0]) throw 'Meeting Not found'
 
     meetingData  = await Meeting.findByPk(meetingId)
-
+    
+    //notification
+    let users = [{
+      id: meetingData.meeting_author_vls_id,
+      type: 'employee'
+    }]
+    let notificatonData = {}
+    notificatonData.branch_vls_id = meetingData.branch_id
+    notificatonData.school_vls_id = meetingData.school_id
+    notificatonData.status        = 'important'
+    notificatonData.message       = message
+    notificatonData.notificaton_type = 'meeting'
+    notificatonData.notificaton_type_id = meetingData.id
+    notificatonData.start_date    = meetingData.date
+    notificatonData.users         = JSON.stringify(users)
+    notificatonData.added_by      = user.userVlsId
+    notificatonData.added_type    = user.role
+    notificatonData.event_type    = body.attendee_status
+    await Notification.create(notificatonData)
+    //notification
   return { success: true, message: "Meeting status updated successfully",data:meetingData }
 };
 

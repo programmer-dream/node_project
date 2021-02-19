@@ -13,6 +13,7 @@ const sequelize  = db.sequelize;
 const Assignment = db.Assignment;
 const Classes    = db.Classes;
 const SubjectList= db.SubjectList;
+const Notification= db.Notification;
 const StudentAssignment= db.StudentAssignment;
 const AssignmentQuestions= db.AssignmentQuestions;
 const StudentAssignmentResponse= db.StudentAssignmentResponse;
@@ -45,7 +46,7 @@ async function create(req){
   if(errors.array().length) throw errors.array()
 
     let assignmentData =  req.body
-    
+    let notificatonData = {}
     if(req.files.file && req.files.file.length > 0){
         assignmentData.url  = req.body.uplodedPath + req.files.file[0].filename;
     }
@@ -56,8 +57,23 @@ async function create(req){
     assignmentData.assignment_date = moment()
     assignmentData.assignment_completion_date = moment(assignmentData.assignment_completion_date).format('YYYY-MM-DD')
     
-  	let assignment 		 = await Assignment.create(assignmentData)
-
+  	let assignment = await Assignment.create(assignmentData)
+    //notification
+    let assignedStudent = await getStudents(assignmentData)
+    notificatonData.branch_vls_id = assignmentData.branch_vls_id
+    notificatonData.school_vls_id = assignmentData.school_vls_id
+    notificatonData.status        = 'important'
+    notificatonData.message       = '{name} created new assignment for {subjectname}.'
+    notificatonData.notificaton_type = 'assignment'
+    notificatonData.notificaton_type_id = assignment.assignment_vls_id
+    notificatonData.start_date    = assignmentData.assignment_date
+    notificatonData.close_date    = assignmentData.assignment_completion_date
+    notificatonData.users         = JSON.stringify(assignedStudent)
+    notificatonData.added_by      = user.userVlsId
+    notificatonData.added_type    = user.role
+    notificatonData.event_type    = 'created'
+    await Notification.create(notificatonData)
+    //notification
   	if(!assignment) throw 'Assignment not created'
 
   	return { success: true, message: "Assignment created successfully", data:assignment }
@@ -387,10 +403,11 @@ async function list(params , user){
  */
 async function update(req){
   	const errors = validationResult(req);
-  if(errors.array().length) throw errors.array()
+    if(errors.array().length) throw errors.array()
 
     let user                 = req.user
     let assignmentData       = req.body
+    let notificatonData      = {}
     assignmentData.added_by  = user.userVlsId
     assignmentData.user_role = user.role
     assignmentData.assignment_completion_date = moment(assignmentData.assignment_completion_date).format('YYYY-MM-DD')
@@ -398,14 +415,26 @@ async function update(req){
       assignmentData.url     = req.body.uplodedPath + req.files.file[0].filename;
     }
 
-	 let assignment        = await Assignment.update(assignmentData,{
-              						  where : 
-                                { assignment_vls_id:req.params.id }
-              						  })
-   
-  	if(!assignment[0]) throw 'Assignment not updated'
-       assignment  = await Assignment.findByPk(req.params.id)
+    let assignment  = await Assignment.findByPk(req.params.id)
+    if(!assignment) throw 'Assignment not updated'
 
+        assignment.update(assignmentData)
+    //notification
+    let assignedStudent = await getStudentList(assignment)
+    notificatonData.branch_vls_id = assignment.branch_vls_id
+    notificatonData.school_vls_id = assignment.school_vls_id
+    notificatonData.status        = 'important'
+    notificatonData.message       = '{name} udpated an assignment for {subjectname}.'
+    notificatonData.notificaton_type = 'assignment'
+    notificatonData.notificaton_type_id = assignment.assignment_vls_id
+    notificatonData.start_date    = assignment.assignment_date
+    notificatonData.close_date    = assignment.assignment_completion_date
+    notificatonData.users         = JSON.stringify(assignedStudent)
+    notificatonData.added_by      = user.userVlsId
+    notificatonData.added_type    = user.role
+    notificatonData.event_type    = 'updated'
+    await Notification.create(notificatonData)
+       
   	return { success: true, message: "Assignment updated successfully", data:assignment }
 };
 
@@ -441,7 +470,23 @@ async function assignToStudents(req){
 
   if(!assignment) throw 'Assignment Not found'
       assignment  = await Assignment.findByPk(id)
-
+  //notification
+    let notificatonData = {}
+    let assignedStudent = await getStudentList(assignment)
+    notificatonData.branch_vls_id = assignment.branch_vls_id
+    notificatonData.school_vls_id = assignment.school_vls_id
+    notificatonData.status        = 'important'
+    notificatonData.message       = '{name} assigned an assignment to you.'
+    notificatonData.notificaton_type = 'assignment'
+    notificatonData.notificaton_type_id = assignment.assignment_vls_id
+    notificatonData.start_date    = assignment.assignment_date
+    notificatonData.close_date    = assignment.assignment_completion_date
+    notificatonData.users         = JSON.stringify(assignedStudent)
+    notificatonData.added_by      = user.userVlsId
+    notificatonData.added_type    = user.role
+    notificatonData.event_type    = 'assigned'
+    await Notification.create(notificatonData)
+  //notification
   return { success: true, message: "Assignment assigned to student successfully" ,data : assignment}
 };
 
@@ -531,8 +576,7 @@ async function changeAssignmentStatus(params, user, body){
     if(!statusArray.includes(body.assignment_status))
       throw "assignment_status should be only ValidationInprogress, Approved, Rejected or Closed "
 
-    let assignmentDa  = await StudentAssignment.findByPk(id)
-    let assignmentData = {}
+    let studentAssignment  = await StudentAssignment.findByPk(id)
     assignmentData = body
 
     let assignment     = await StudentAssignment.update(assignmentData,
@@ -543,6 +587,33 @@ async function changeAssignmentStatus(params, user, body){
                             })
 
     if(!assignment[0]) throw 'Assignment not found'
+
+    if(body.assignment_status == 'Approved' || body.assignment_status =='Rejected'){
+      let message = '{name} approved your assignment.'
+      if(body.assignment_status == 'Rejected')
+         message = '{name} rejected your assignment.'
+
+      //notification
+      let mainAssignment  = await Assignment.findByPk(studentAssignment.assignment_vls_id)
+      let users = { id : studentAssignment.student_vls_id,
+                   type: 'student'
+                 }
+      let notificatonData = {}
+      notificatonData.branch_vls_id = mainAssignment.branch_vls_id
+      notificatonData.school_vls_id = mainAssignment.school_vls_id
+      notificatonData.status        = 'important'
+      notificatonData.message       = message
+      notificatonData.notificaton_type = 'assignment'
+      notificatonData.notificaton_type_id = mainAssignment.assignment_vls_id
+      notificatonData.start_date    = mainAssignment.assignment_date
+      notificatonData.close_date    = mainAssignment.assignment_completion_date
+      notificatonData.users         = JSON.stringify(users)
+      notificatonData.added_by      = user.userVlsId
+      notificatonData.added_type    = user.role
+      notificatonData.event_type    = body.assignment_status
+      await Notification.create(notificatonData)
+      //notification
+    }
 
     return { success: true, message: "Assignment updated successfully"}
 };
@@ -918,4 +989,116 @@ async function getSubmittedCount(assignmentId){
     }
   })
   return submitted
+}
+
+/**
+ * API for get students from request
+ */
+async function getStudents(body){
+  let studentsArr = []
+  if(body.student_vls_ids){
+    let allIds = body.student_vls_ids
+    allIds.forEach(function(id){
+      let studentObj = {
+              id   : id,
+              type : 'student'
+            }
+        studentsArr.push(studentObj)
+    });
+
+  }else if(body.section_id && body.assignment_class_id){
+      let whereCodition  = {
+        class_id   : body.assignment_class_id,
+        section_id : body.section_id,
+        school_id  : body.school_vls_id
+      }
+      let allStudents = await Student.findAll({
+                where : whereCodition,
+                attributes : ['student_vls_id']
+              })
+      await Promise.all(
+        allStudents.map(async function( student){
+          let studentObj = {
+            id   : student.student_vls_id,
+            type : 'student'
+          }
+          studentsArr.push(studentObj)
+        })
+      )
+  }else{
+    let whereCodition  = {
+        class_id   : body.assignment_class_id,
+        school_id  : body.school_vls_id
+      }
+      let allStudents = await Student.findAll({
+                where : whereCodition,
+                attributes : ['student_vls_id']
+              })
+      await Promise.all(
+        allStudents.map(async function( student){
+          let studentObj = {
+            id   : student.student_vls_id,
+            type : 'student'
+          }
+          studentsArr.push(studentObj)
+        })
+      )
+  }
+  return studentsArr
+}
+
+/**
+ * API for get students from updated assignment
+ */
+async function getStudentList(assignment){
+  let studentsArr = [] 
+  
+  if(assignment.student_vls_ids){
+    let studentIds = JSON.parse(assignment.student_vls_ids)
+    studentIds.forEach(function(id){
+      let studentObj = {
+              id   : id,
+              type : 'student'
+            }
+        studentsArr.push(studentObj)
+    });
+  }else if(assignment.section_id && assignment.assignment_class_id){
+    let whereCodition  = {
+        class_id   : assignment.assignment_class_id,
+        section_id : assignment.section_id,
+        school_id  : assignment.school_vls_id
+      }
+    let allStudents = await Student.findAll({
+                where : whereCodition,
+                attributes : ['student_vls_id']
+              })
+      await Promise.all(
+        allStudents.map(async function( student){
+          let studentObj = {
+            id   : student.student_vls_id,
+            type : 'student'
+          }
+          studentsArr.push(studentObj)
+        })
+      )
+  }else{
+    let whereCodition  = {
+        class_id   : assignment.assignment_class_id,
+        school_id  : assignment.school_vls_id
+      }
+      let allStudents = await Student.findAll({
+                where : whereCodition,
+                attributes : ['student_vls_id']
+              })
+      await Promise.all(
+        allStudents.map(async function( student){
+          let studentObj = {
+            id   : student.student_vls_id,
+            type : 'student'
+          }
+          studentsArr.push(studentObj)
+        })
+      )
+  }
+  return studentsArr
 }

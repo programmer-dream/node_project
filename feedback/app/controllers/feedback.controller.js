@@ -12,6 +12,7 @@ const Guardian   = db.Guardian;
 const sequelize  = db.sequelize;
 const Feedback   = db.Feedback;
 const Meeting    = db.Meeting;
+const Notification = db.Notification;
 
 
 module.exports = {
@@ -40,7 +41,22 @@ async function create(req){
     feedbackData.open_date     = moment().format('YYYY-MM-DD HH:mm:ss')
     
   	let feedback 		 = await Feedback.create(feedbackData)
-
+    //notification
+    let userObj  = await getPrincipal(feedback.branch_vls_id)
+    let notificatonData = {}
+    notificatonData.branch_vls_id = feedback.branch_vls_id
+    notificatonData.school_vls_id = feedback.school_vls_id
+    notificatonData.status        = 'general'
+    notificatonData.message       = '{name} added feedback for you.'
+    notificatonData.notificaton_type = 'feedback'
+    notificatonData.notificaton_type_id = feedback.feedback_id
+    notificatonData.start_date    = feedback.open_date
+    notificatonData.users         = JSON.stringify([userObj])
+    notificatonData.added_by      = user.userVlsId
+    notificatonData.added_type    = user.role
+    notificatonData.event_type    = 'added'
+    await Notification.create(notificatonData)
+    //notification
   	if(!feedback) throw 'Feedback not created'
 
   	return { success: true, message: "Feedback created successfully", data:feedback }
@@ -99,8 +115,12 @@ async function list(params , user){
 
   if(params.size)
      limit = parseInt(params.size)
+
   if(params.page)
       offset = 0 + (parseInt(params.page) - 1) * limit
+
+  if(params.status)
+     whereCondition.status = params.status
 
   let allFeedback = await Feedback.findAll({
     limit : limit,
@@ -148,7 +168,22 @@ async function update(req){
   })
   if(feedback[0])
      feedback  = await Feedback.findByPk(id)
-
+   //notification
+    let userObj  = await getPrincipal(feedback.branch_vls_id)
+    let notificatonData = {}
+    notificatonData.branch_vls_id = feedback.branch_vls_id
+    notificatonData.school_vls_id = feedback.school_vls_id
+    notificatonData.status        = 'general'
+    notificatonData.message       = '{name} updated feedback for you.'
+    notificatonData.notificaton_type = 'feedback'
+    notificatonData.notificaton_type_id = feedback.feedback_id
+    notificatonData.start_date    = feedback.open_date
+    notificatonData.users         = JSON.stringify([userObj])
+    notificatonData.added_by      = user.userVlsId
+    notificatonData.added_type    = user.role
+    notificatonData.event_type    = 'updated'
+    await Notification.create(notificatonData)
+    //notification
   return { success: true, message: "Feedback updated successfully", data:feedback }
 };
 
@@ -217,6 +252,23 @@ async function closeFeedback(id, body, user){
 
   if(!feedback) throw 'Feedback not found'
       feedback.update(feedbackData)
+    
+  //notification
+    let userObj = await getfeedbackUser(feedback)
+    let notificatonData = {}
+    notificatonData.branch_vls_id = feedback.branch_vls_id
+    notificatonData.school_vls_id = feedback.school_vls_id
+    notificatonData.status        = 'general'
+    notificatonData.message       = '{name} closed feedback with remark.'
+    notificatonData.notificaton_type = 'feedback'
+    notificatonData.notificaton_type_id = feedback.feedback_id
+    notificatonData.start_date    = feedback.open_date
+    notificatonData.users         = JSON.stringify([userObj])
+    notificatonData.added_by      = user.userVlsId
+    notificatonData.added_type    = user.role
+    notificatonData.event_type    = 'closed'
+    await Notification.create(notificatonData)
+    //notification
   
   let updatedFeedback  = await Feedback.findByPk(id)
   updatedFeedback = updatedFeedback.toJSON()
@@ -237,6 +289,75 @@ async function setMeeting(feedbackId , body){
   }
   if(!feedback) throw 'Feedback not found'
       feedback.update(meetingData)
-
+  //notification
+    let userObj = await getfeedbackUser(feedback)
+    let principal = await  getPrincipal(feedback.branch_vls_id)
+    let notificatonData = {}
+    notificatonData.branch_vls_id = feedback.branch_vls_id
+    notificatonData.school_vls_id = feedback.school_vls_id
+    notificatonData.status        = 'general'
+    notificatonData.message       = '{name} schedule meeting regarding your feedback'
+    notificatonData.notificaton_type = 'feedback'
+    notificatonData.notificaton_type_id = feedback.feedback_id
+    notificatonData.start_date    = feedback.open_date
+    notificatonData.users         = JSON.stringify([userObj])
+    notificatonData.added_by      = principal.id
+    notificatonData.added_type    = 'principal'
+    notificatonData.event_type    = 'meeting'
+    await Notification.create(notificatonData)
+    //notification
   return { success: true, message: "Feedback updated successfully", data:feedback }
+}
+
+/**
+ * API for get branch principal
+ */
+async function getPrincipal(branchId){
+  let user =  await Employee.findOne({
+          where : {
+              branch_vls_id : branchId,
+              isPrincipal : 1
+            },
+          attributes: ['faculty_vls_id']
+        })
+  let userObj = {
+    id : user.faculty_vls_id,
+    type: 'employee'
+  }
+  return userObj
+} 
+
+/**
+ * API for get feedback objects
+ */
+async function getfeedbackUser(feedback){
+  let user = {}
+  let userObj = {};
+  switch(feedback.user_type){
+    case 'student': 
+        user = await Student.findOne({
+          where : { student_vls_id : feedback.user_vls_id},
+          attributes: ['student_vls_id']
+        })
+        userObj = { id : user.student_vls_id , type : 'student'}
+      break ;
+    case 'guardian': 
+        user = await Guardian.findOne({
+          where : { parent_vls_id : feedback.user_vls_id },
+          attributes: ['parent_vls_id']
+        })
+        userObj = { id : user.parent_vls_id , type : 'guardian'}
+      break ;
+    case 'teacher': 
+    case 'branch-admin': 
+    case 'school-admin': 
+    case 'principal': 
+        user = await Employee.findOne({
+          where : { faculty_vls_id : feedback.user_vls_id },
+          attributes: ['faculty_vls_id']
+        })
+        userObj = { id : user.faculty_vls_id , type : 'employee'}
+      break ;
+  }
+  return userObj 
 }

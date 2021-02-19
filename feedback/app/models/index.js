@@ -76,6 +76,7 @@ db.SubjectList = require("../../../query_management/app/models/SubjectList.js")(
 db.Classes = require("../../../student_attendance/app/models/Classes.js")(sequelize, Sequelize);
 db.Feedback = require("./Feedback.js")(sequelize, Sequelize);
 db.Meeting = require("../../../time_sheet/app/models/Meeting.js")(sequelize, Sequelize);
+db.Notification = require("../../../notification/app/models/Notification.js")(sequelize, Sequelize);
 
 
 db.Feedback.belongsTo(db.Meeting,{foreignKey:'meeting_vls_id',as:'meetingData'})

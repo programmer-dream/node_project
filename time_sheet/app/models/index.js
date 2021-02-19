@@ -79,6 +79,7 @@ db.ExamSchedule = require("./ExamSchedule.js")(sequelize, Sequelize);
 db.Exam = require("./Exam.js")(sequelize, Sequelize);
 db.SubjectList = require("../../../query_management/app/models/SubjectList.js")(sequelize, Sequelize);
 db.Assignment = require("../../../assignment/app/models/Assignment.js")(sequelize, Sequelize);
+db.Notification = require("../../../notification/app/models/Notification.js")(sequelize, Sequelize);
 
 //Relation
 db.Routine.belongsTo(db.SubjectList,{foreignKey:'subject_code',targetKey:'code',as:'subjectList'})

@@ -64,28 +64,26 @@ sequelize.authenticate()
 	}
 );
 
-db.StudentQuery = require("./StudentQuery.js")(sequelize, Sequelize);
-db.Comment = require("./Comment.js")(sequelize, Sequelize);
-db.Ratings = require("./Ratings.js")(sequelize, Sequelize);
-db.Employee = require("../../../vls/app/models/Employee.js")(sequelize, Sequelize);
-db.Student = require("../../../vls/app/models/Student.js")(sequelize, Sequelize);
+
+db.SchoolDetails = require("../../../vls/app/models/School.js")(sequelize, Sequelize);
 db.Branch = require("../../../vls/app/models/Branch.js")(sequelize, Sequelize);
-db.Users = require("../../../vls/app/models/Authentication.js")(sequelize, Sequelize);
-db.Subject = require("./Subject.js")(sequelize, Sequelize);
+db.Student = require("../../../vls/app/models/Student.js")(sequelize, Sequelize);
+db.Employee = require("../../../vls/app/models/Employee.js")(sequelize, Sequelize);
+db.Authentication = require("../../../vls/app/models/Authentication.js")(sequelize, Sequelize);
+db.AcademicYear = require("../../../student_attendance/app/models/AcademicYear.js")(sequelize, Sequelize);
+db.Guardian = require("../../../vls/app/models/Guardian.js")(sequelize, Sequelize);
+db.SubjectList = require("../../../query_management/app/models/SubjectList.js")(sequelize, Sequelize);
 db.Classes = require("../../../student_attendance/app/models/Classes.js")(sequelize, Sequelize);
 db.Section = require("../../../student_attendance/app/models/Section.js")(sequelize, Sequelize);
-db.SubjectList = require("./SubjectList.js")(sequelize, Sequelize);
-db.Notification = require("../../../notification/app/models/Notification.js")(sequelize, Sequelize);
+db.Notification = require("./Notification.js")(sequelize, Sequelize);
+db.NotificationReadBy = require("./NotificationReadBy.js")(sequelize, Sequelize);
+db.Assignment = require("../../../assignment/app/models/Assignment.js")(sequelize, Sequelize);
+db.StudentQuery = require("../../../query_management/app/models/StudentQuery.js")(sequelize, Sequelize);
 
-db.StudentQuery.belongsTo(db.Student,{foreignKey:'student_vls_id',as:'postedBy'})
-db.StudentQuery.belongsTo(db.Employee,{foreignKey:'faculty_vls_id',as:'respondedBy'})
-db.Ratings.belongsTo(db.Student,{foreignKey:'user_vls_id',as:'ratingBy'})
-db.Ratings.belongsTo(db.Student,{foreignKey:'user_vls_id',as:'likeBy'})
-db.Branch.hasMany(db.Subject,{foreignKey:'branch_vls_id',as:'subject'})
-db.StudentQuery.belongsTo(db.SubjectList,{foreignKey:'subject_code',targetKey:'code',as:'subjectList'})
-db.StudentQuery.belongsTo(db.Subject,{foreignKey:'subject_code',targetKey:'code',as:'subject'})
-db.StudentQuery.belongsTo(db.Classes,{foreignKey:'class_vls_id',as:'class'})
-db.StudentQuery.belongsTo(db.Employee,{foreignKey:'faculty_vls_id',as:'faculty'})
-db.Branch.hasMany(db.SubjectList,{foreignKey:'branch_vls_id',as:'subjectList'})
-db.StudentQuery.hasMany(db.Ratings,{foreignKey:'query_vls_id',as:'ratingLikes'})
+
+db.Notification.belongsTo(db.NotificationReadBy,{foreignKey:'notification_vls_id',as:'readBy'})
+db.SubjectList = require("../../../query_management/app/models/SubjectList.js")(sequelize, Sequelize);
+
+
+//relation
 module.exports = db;

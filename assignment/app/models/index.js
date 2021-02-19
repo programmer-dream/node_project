@@ -78,6 +78,7 @@ db.StudentAssignment = require("./StudentAssignment.js")(sequelize, Sequelize);
 db.AssignmentQuestions = require("./AssignmentQuestions.js")(sequelize, Sequelize);
 db.StudentAssignmentResponse = require("./StudentAssignmentResponse.js")(sequelize, Sequelize);
 db.Classes = require("../../../student_attendance/app/models/Classes.js")(sequelize, Sequelize);
+db.Notification = require("../../../notification/app/models/Notification.js")(sequelize, Sequelize);
 
 //relation
 db.Student.belongsTo(db.Guardian,{foreignKey:'parent_vls_id',as:'parent'})

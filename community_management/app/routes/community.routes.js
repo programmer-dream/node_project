@@ -64,13 +64,13 @@ function deleteCommunity(req, res, next) {
 }
 // Function for add user community 
 function addUsers(req, res, next) {
-    communityController.addUsers(req.params.id, req.body)
+    communityController.addUsers(req.params.id, req.body, req.user )
         .then(community => community ? res.json(community) : res.status(400).json({ status: "error", message: 'Error while updating chat' }))
         .catch(err => next(err));
 }
 // Function for add admins user community 
 function addAdmins(req, res, next) {
-    communityController.addAdmins(req.params.id, req.body)
+    communityController.addAdmins(req.params.id, req.body, req.user)
         .then(community => community ? res.json(community) : res.status(400).json({ status: "error", message: 'Error while updating chat' }))
         .catch(err => next(err));
 }
