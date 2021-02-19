@@ -248,7 +248,6 @@ async function closeFeedback(id, body, user){
 
   if(!feedback) throw 'Feedback not found'
       feedback.update(feedbackData)
-<<<<<<< HEAD
     
   //notification
     let userObj = await getfeedbackUser(feedback)
@@ -266,15 +265,12 @@ async function closeFeedback(id, body, user){
     notificatonData.event_type    = 'closed'
     await Notification.create(notificatonData)
     //notification
-  return { success: true, message: "Feedback updated successfully", data:feedback }
-=======
   
   let updatedFeedback  = await Feedback.findByPk(id)
   updatedFeedback = updatedFeedback.toJSON()
   updatedFeedback.feedback_user = await getUser(updatedFeedback.user_vls_id , updatedFeedback.user_type)
 
   return { success: true, message: "Feedback updated successfully", data:updatedFeedback }
->>>>>>> origin/master
 };
 
 /**
