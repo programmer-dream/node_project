@@ -7,12 +7,10 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.INTEGER
       },
       branch_vls_id: {
-        type: Sequelize.INTEGER,
-        allowNull: false
+        type: Sequelize.INTEGER
       },
       school_vls_id: {
-        type: Sequelize.INTEGER,
-        allowNull: false
+        type: Sequelize.INTEGER
       },
       message: {
         type: Sequelize.TEXT,
@@ -33,8 +31,7 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.INTEGER
       },
       users:{
-        type: Sequelize.TEXT('long'),
-        allowNull: false
+        type: Sequelize.TEXT('long')
       },
       added_by: {
         type: Sequelize.INTEGER,
@@ -50,6 +47,12 @@ module.exports = (sequelize, Sequelize) => {
       },
       close_date: {
         type: Sequelize.DATE
+      },
+      class_id: {
+        type: Sequelize.INTEGER
+      },
+      section_id: {
+        type: Sequelize.INTEGER
       },
       created_at: {
         allowNull: false,

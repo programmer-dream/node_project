@@ -15,11 +15,17 @@ const NotificationReadBy   = db.NotificationReadBy;
 const SubjectList   = db.SubjectList;
 const Assignment    = db.Assignment;
 const StudentQuery  = db.StudentQuery;
+const Classes       = db.Classes;
+const Section       = db.Section;
 
 
 module.exports = {
   list,
-  readNotifications
+  readNotifications,
+  create,
+  customList,
+  update,
+  deleteNotification
 };
 
 
@@ -32,20 +38,10 @@ async function list(params , user){
   let offset  = 0
   let orderBy = 'desc';
 
-  let schoolVlsId   = params.schoolVlsId
-  let branchVlsId   = params.branch_vls_id
+  let userObj = '{"id":'+user.userVlsId+',"type":"'+user.role+'"}';
 
-  if(!schoolVlsId) throw 'schoolVlsId is required'
-  if(!branchVlsId) throw 'branchVlsId is required'
-
-  let whereCondition = {
-    branch_vls_id : branchVlsId,
-    school_vls_id : schoolVlsId,
-  }
-  //check user
-    let userObj = '{"id":'+user.userVlsId+',"type":"'+user.role+'"}';
-    whereCondition.users = { [Op.like]: `%`+userObj+`%`}
-  //check users
+  let whereCondition = await getWhereCondition(user , userObj)
+  console.log(whereCondition ,'whereCondition')
   if(params.size)
      limit = parseInt(params.size)
   if(params.page)
@@ -177,3 +173,198 @@ async function updatedSubject(notification){
   let message = notification.message
   return message.replace("{subjectname}", subject.subject_name);
 }
+
+/**
+ * API for create custom notification 
+ */
+async function create(req){
+    const errors = validationResult(req);
+    if(errors.array().length) throw errors.array()
+
+    let targetId = false
+    if(req.body.school_vls_id){
+      targetId = true
+    }else if(req.body.branch_vls_id){
+      targetId = true
+    }else if(req.body.class_id){
+      targetId = true
+    }else if(req.body.section_id){
+      targetId = true
+    }else if(req.body.users){
+      targetId = true
+    }
+
+    if(!targetId){
+      throw "Please add atleast form { school_vls_id , branch_vls_id, class_id, section_id , users }for send notification"
+    }
+
+    let user = req.user
+    let customNotification = req.body
+    customNotification.notificaton_type = 'custom_notification'
+    customNotification.event_type       = 'created'
+    customNotification.notificaton_type_id = 0
+    customNotification.added_by   = user.userVlsId
+    customNotification.added_type = user.role
+    customNotification.start_date = moment().format('YYYY-MM-DD HH:mm:ss')
+    customNotification.close_date = moment(req.body.close_date).format('YYYY-MM-DD')
+
+    let notification = await Notification.create(customNotification)
+
+    return { success: true, message: "Notification read successfully", data : notification}
+}
+
+
+/**
+ * API for notification list
+ */
+async function customList(params , user){
+  let limit   = 10
+  let offset  = 0
+  let orderBy = 'desc';
+
+  let whereCondition = { 
+      notificaton_type : 'custom_notification',
+      added_by : user.userVlsId,
+      added_type : user.role
+  }
+  
+  if(params.size)
+     limit = parseInt(params.size)
+
+  if(params.page)
+      offset = 0 + (parseInt(params.page) - 1) * limit
+  
+  let notifications = await Notification.findAll({
+    limit : limit,
+    offset: offset,
+    where : whereCondition,
+    order : [
+             ['notification_vls_id', orderBy]
+            ]
+  })
+
+  return { success: true, message: "Custom notification list", data: notifications}
+}
+
+/**
+ * API for create custom notification 
+ */
+async function update(req){
+    const errors = validationResult(req);
+    if(errors.array().length) throw errors.array()
+    let id = req.params.id
+
+    let notification = await Notification.findByPk(id)
+    if(!notification) throw 'notification not found'
+
+    let targetId = false
+    if(req.body.school_vls_id){
+      targetId = true
+    }else if(req.body.branch_vls_id){
+      targetId = true
+    }else if(req.body.class_id){
+      targetId = true
+    }else if(req.body.section_id){
+      targetId = true
+    }
+
+    if(!targetId){
+      throw "Please add atleast one id { school_vls_id , branch_vls_id, class_id, section_id }for send notification"
+    }
+
+    let customNotification = req.body
+    
+    notification =  await notification.update(customNotification)
+    
+    return { success: true, message: "Notification read successfully", data : notification}
+}
+
+
+/**
+ * API for  delete notification
+ */
+async function deleteNotification(notificationId){
+
+  let notification = await Notification.findByPk(notificationId)
+  if(!notification) throw 'notification not found'
+
+  notification  = await Notification.destroy({
+            where: { notification_vls_id: notificationId }
+          })
+
+  if(!notification) throw 'Notification Not found'
+  return { success: true, message: "Notification deleted successfully" }
+};
+
+
+/**
+ * API for  delete notification
+ */
+async function getWhereCondition(user , userObj){
+  let whereCondition = {}
+  let authUser  = await User.findByPk(user.id)
+
+  switch(user.role){
+    case 'student' :
+      let student  = await Student.findByPk(user.userVlsId)
+        whereCondition = {
+          [Op.or]:[{
+                    branch_vls_id: authUser.branch_vls_id,
+                    users : { [Op.eq]: null }
+                 },{
+                    school_vls_id : authUser.school_id,
+                    users : { [Op.eq]: null }
+                 },{
+                    class_id : student.class_id,
+                    users : { [Op.eq]: null }
+                 },{
+                    section_id : student.section_id,
+                    users : { [Op.eq]: null }
+                 },{
+                    users : userObj
+                 }]
+      }
+      break;
+    case 'teacher': 
+      //class ids
+      let classes = await Classes.findAll({
+                where : { teacher_id : user.userVlsId },
+                attributes: ['class_vls_id']
+              }).then(classes => classes.map(classes => classes.class_vls_id));
+      //section ids
+      let section = await Section.findAll({
+                where : { teacher_id : user.userVlsId },
+                attributes: ['id']
+              }).then(section => section.map(section => section.id));
+      
+      let employee = await Employee.findOne({
+                where : { faculty_vls_id : user.userVlsId },
+                attributes: ['branch_vls_id']
+              })
+        whereCondition = {
+          [Op.or]:[{
+                    branch_vls_id: authUser.branch_vls_id,
+                    users : { [Op.eq]: null }
+                 },{
+                    school_vls_id : authUser.school_id,
+                    users : { [Op.eq]: null }
+                 },{
+                    class_id : { [Op.in]: classes },
+                    users : { [Op.eq]: null }
+                 },{
+                    section_id : { [Op.in]: section },
+                    users : { [Op.eq]: null }
+                 },{
+                    users : userObj
+                 }]
+        }
+      break;
+    default : 
+      whereCondition = {
+        users : userObj
+      }
+      break;
+  }
+  return whereCondition
+}
+    

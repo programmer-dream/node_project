@@ -74,6 +74,7 @@ db.AcademicYear = require("../../../student_attendance/app/models/AcademicYear.j
 db.Guardian = require("../../../vls/app/models/Guardian.js")(sequelize, Sequelize);
 db.SubjectList = require("../../../query_management/app/models/SubjectList.js")(sequelize, Sequelize);
 db.Classes = require("../../../student_attendance/app/models/Classes.js")(sequelize, Sequelize);
+db.Section = require("../../../student_attendance/app/models/Section.js")(sequelize, Sequelize);
 db.Notification = require("./Notification.js")(sequelize, Sequelize);
 db.NotificationReadBy = require("./NotificationReadBy.js")(sequelize, Sequelize);
 db.Assignment = require("../../../assignment/app/models/Assignment.js")(sequelize, Sequelize);
