@@ -41,7 +41,7 @@ async function list(params , user){
   let userObj = '{"id":'+user.userVlsId+',"type":"'+user.role+'"}';
 
   let whereCondition = await getWhereCondition(user , userObj)
-  console.log(whereCondition ,'whereCondition')
+  //console.log(whereCondition ,'whereCondition')
   if(params.size)
      limit = parseInt(params.size)
   if(params.page)
@@ -359,9 +359,17 @@ async function getWhereCondition(user , userObj){
                  }]
         }
       break;
-    default : 
+    case 'branch-admin': 
+    case 'school-admin': 
+    case 'principal': 
       whereCondition = {
-        users : userObj
+          [Op.or]:[{
+                    branch_vls_id: authUser.branch_vls_id,
+                    users : { [Op.eq]: null }
+                 },{
+                    school_vls_id : authUser.school_id,
+                    users : { [Op.eq]: null }
+                 }]
       }
       break;
   }
