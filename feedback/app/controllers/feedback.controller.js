@@ -117,8 +117,8 @@ async function list(params , user){
            }
     };
 
-  whereCondition.branch_vls_id : branchVlsId
-  whereCondition.school_vls_id : schoolVlsId
+  whereCondition.branch_vls_id = branchVlsId
+  whereCondition.school_vls_id = schoolVlsId
 
   if(user.role != 'principal'){
     whereCondition.user_vls_id = user.userVlsId
