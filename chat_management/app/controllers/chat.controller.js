@@ -26,7 +26,8 @@ module.exports = {
   searchFaculty,
   searchStudent,
   readMessages,
-  chatUserDetails
+  chatUserDetails,
+  unreadCount
 };
 
 
@@ -445,7 +446,7 @@ async function getChatUser(userList, loginUser){
                   }]
                 }],
             };
-          console.log(whereCondition, "whereCondition")
+          //console.log(whereCondition, "whereCondition")
           let lastMsg = await Chat.findOne({
                     where : whereCondition,
                     attributes:['chat_message', 'date'],
@@ -581,4 +582,22 @@ async function readMessages(body){
   })
 
   return { success: true, message: "All messages read successfully"};
+}
+
+
+/**
+ * API for unread count  
+ */
+async function unreadCount(user){
+
+  let whereCondition = {
+                  receiver_user_vls_id : user.userVlsId,
+                  receiver_type : user.role,
+                  status :'unread'
+            };
+
+    let unreadCount = await Chat.count({
+              where : whereCondition
+            })
+  return { success: true, message: "Unread count", data : unreadCount }
 }

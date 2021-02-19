@@ -115,8 +115,12 @@ async function list(params , user){
 
   if(params.size)
      limit = parseInt(params.size)
+
   if(params.page)
       offset = 0 + (parseInt(params.page) - 1) * limit
+
+  if(params.status)
+     whereCondition.status = params.status
 
   let allFeedback = await Feedback.findAll({
     limit : limit,

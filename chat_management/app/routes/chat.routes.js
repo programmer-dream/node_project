@@ -10,6 +10,7 @@ router.get("/viewChat",viewChat);
 router.get("/listUser",listUser);
 router.get("/searchFaculty",searchFaculty);
 router.get("/searchStudent",searchStudent);
+router.get("/unreadCount",unreadCount);
 
 //PUT 
 router.put("/update/:id",updateChat);
@@ -65,5 +66,12 @@ function searchStudent(req, res, next) {
 function readMessages(req, res, next) {
     chatController.readMessages(req.body)
         .then(chat => chat ? res.json(chat) : res.status(400).json({ status: "error", message: 'Error while reading messages' }))
+        .catch(err => next(err));
+}
+
+// Function for delete chat 
+function unreadCount(req, res, next) {
+    chatController.unreadCount(req.user)
+        .then(chat => chat ? res.json(chat) : res.status(400).json({ status: "error", message: 'Error while unread count' }))
         .catch(err => next(err));
 }
