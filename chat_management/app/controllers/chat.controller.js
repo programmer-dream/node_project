@@ -589,10 +589,10 @@ async function readMessages(body){
  * API for unread count  
  */
 async function unreadCount(user){
-
+  let type = await getType(user.role)
   let whereCondition = {
                   receiver_user_vls_id : user.userVlsId,
-                  receiver_type : user.role,
+                  receiver_type : type,
                   status :'unread'
             };
 
