@@ -64,8 +64,7 @@ async function list(params , user){
 			    include: [{ 
 	                model:Marks,
 	                as:'marks',
-	                where : joinWhere,
-	                attributes: ['id']
+	                where : joinWhere
 	            }]
 			  	
   	})
