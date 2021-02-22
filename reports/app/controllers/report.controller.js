@@ -10,12 +10,15 @@ const Marks      = db.Marks;
 const Student    = db.Student;
 const SubjectList    = db.SubjectList;
 const Authentication = db.Authentication;
+const AcademicYear = db.AcademicYear;
 
 
 module.exports = {
   list,
   getExamMarks,
-  dashboardList
+  dashboardList,
+  sendExamResult,
+  sendAttendanceResult
 };
 
 
@@ -148,23 +151,36 @@ async function dashboardList(params , user){
   let authentication = await Authentication.findByPk(user.id)
   let branchId       = authentication.branch_vls_id
 
+  //acadminc year
+  let academicYear  = await AcademicYear.findOne({
+	                where:{school_id:authentication.school_id},
+	                order : [
+			             ['id', 'desc']
+			            ]
+	              })
+   
   let whereConditions = {
-  	branch_vls_id : branchId
+  	branch_vls_id : branchId,
+  	academic_year_id : academicYear.id
   }
 
+  //return academicYear
+  let limit   = 10
+  let offset  = 0
+  let search  = '';
+  let orderBy = 'desc';
+
+  //return user
   let joinWhere = {}
   if(user.role == 'student'){
   	 let student = await Student.findByPk(user.userVlsId)
 
   	 joinWhere.class_id            = student.class_id
   	 joinWhere.student_id          = user.userVlsId
+  	 joinWhere.academic_year_id    = academicYear.id
+  	 limit 						   = 1 
   }
-
-  let limit   = 10
-  let offset  = 0
-  let search  = '';
-  let orderBy = 'desc';
-
+  
   if(params.size)
      limit = parseInt(params.size)
 
@@ -199,3 +215,19 @@ async function dashboardList(params , user){
 
   return { success: true, message: "Exam list", data : exams}	    
 };
+
+
+/**
+ * API for send exam Report
+ */
+async function sendExamResult(){
+	return 'sendExamResult'
+}
+
+
+/**
+ * API for send exam Report
+ */
+async function sendAttendanceResult(){
+	return 'sendAttendanceResult'
+}
