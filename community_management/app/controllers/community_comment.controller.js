@@ -89,7 +89,7 @@ async function view(id){
       offset = 0 + (parseInt(params.page) - 1) * limit
 
   if(params.id){
-    whereCondition.id = {[Op.lt]: params.id}
+    whereCondition.community_chat_communication_vls_id = {[Op.lt]: params.id}
     offset = 0
   }
   
@@ -98,7 +98,7 @@ async function view(id){
                       offset:offset,
                       where:whereCondition,
                       order: [
-                              ['community_chat_vls_id', orderBy]
+                              ['community_chat_communication_vls_id', orderBy]
                       ]
                       });
   let comentWithUser = await setUsers(comments)
