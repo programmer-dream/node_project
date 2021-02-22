@@ -9,6 +9,7 @@ const upload  = helper.upload;
 router.get("/list/",list);
 router.get("/dashboardList/",dashboardList);
 router.get("/:id/getExamMarks",getExamMarks);
+router.get("/subjectPerformance",subjectPerformance);
 
 //Post
 router.post("/sendExamResult",sendExamResult);
@@ -42,7 +43,7 @@ function getExamMarks(req, res, next) {
 
 // Function for assignment details
 function sendExamResult(req, res, next) {
-    reportController.sendExamResult(req.params, req.user, req.query)
+    reportController.sendExamResult(req.body, req.user)
         .then(exam => exam ? res.json(exam) : res.status(400).json({ status: "error", message: 'Error while getting send exam marks' }))
         .catch(err => next(err));
 }
@@ -50,6 +51,13 @@ function sendExamResult(req, res, next) {
 // Function for assignment details
 function sendAttendanceResult(req, res, next) {
     reportController.sendAttendanceResult(req.params, req.user, req.query)
+        .then(exam => exam ? res.json(exam) : res.status(400).json({ status: "error", message: 'Error while getting send attenance marks' }))
+        .catch(err => next(err));
+}
+
+// Function for assignment details
+function subjectPerformance(req, res, next) {
+    reportController.subjectPerformance(req.query, req.user)
         .then(exam => exam ? res.json(exam) : res.status(400).json({ status: "error", message: 'Error while getting send attenance marks' }))
         .catch(err => next(err));
 }

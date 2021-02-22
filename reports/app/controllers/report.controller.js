@@ -18,7 +18,8 @@ module.exports = {
   getExamMarks,
   dashboardList,
   sendExamResult,
-  sendAttendanceResult
+  sendAttendanceResult,
+  subjectPerformance
 };
 
 
@@ -180,7 +181,7 @@ async function dashboardList(params , user){
   	 joinWhere.academic_year_id    = academicYear.id
   	 limit 						   = 1 
   }
-  
+
   if(params.size)
      limit = parseInt(params.size)
 
@@ -192,6 +193,9 @@ async function dashboardList(params , user){
 
   if(params.orderBy)
      orderBy = params.orderBy
+
+  if(params.test_id)
+  		whereConditions.test_id = params.test_id
 
   let exams = await Exams.findAll({
 			  	limit  : limit,
@@ -220,8 +224,65 @@ async function dashboardList(params , user){
 /**
  * API for send exam Report
  */
-async function sendExamResult(){
-	return 'sendExamResult'
+async function sendExamResult(body, user){
+	//return academicYear
+  let limit   = 10
+  let offset  = 0
+  let search  = '';
+  let orderBy = 'desc';
+  //Auth user
+  let authentication = await Authentication.findByPk(user.id)
+  //branch
+  let branchId       = authentication.branch_vls_id
+
+  //acadminc year
+  let academicYear  = await AcademicYear.findOne({
+	                where:{school_id:authentication.school_id},
+	                order : [
+			             ['id', 'desc']
+			            ]
+	              })
+   
+  let whereConditions = {
+  	branch_vls_id : branchId,
+  	academic_year_id : academicYear.id
+  }
+	//return body
+	if(body.school_id){
+		whereConditions.school_id = body.school_id
+	}else if(body.class_id){
+		whereConditions.class_id = body.class_id
+	}
+	//return user
+  	let joinWhere = {}
+	if(body.student_id){
+	  	 let student = await Student.findByPk(body.student_id)
+	  	 joinWhere.class_id            = student.class_id
+	  	 joinWhere.student_id          = user.userVlsId
+	  	 joinWhere.academic_year_id    = academicYear.id
+	  	 limit 						   = 1 
+  	}
+
+	let exams = await Exams.findAll({
+			  	limit  : limit,
+			    offset : offset,
+			    where : whereConditions,
+			    order : [
+			             ['test_id', orderBy]
+			            ],
+			    include: [{ 
+	                model:Marks,
+	                as:'marks',
+	                where : joinWhere,
+	                include: [{ 
+			                model:SubjectList,
+			                as:'subject',
+			                attributes:['subject_name']
+			            }]
+	            }]
+			  	
+  	})
+	return { success: true, message: "Exam list", data : exams}
 }
 
 
@@ -230,4 +291,59 @@ async function sendExamResult(){
  */
 async function sendAttendanceResult(){
 	return 'sendAttendanceResult'
+}
+
+
+/**
+ * API for get overall performance of subject 
+ */
+async function subjectPerformance(params, user){
+  if(!params.student_vls_id) throw 'student_vls_id field is required'
+	//Auth user
+  let authentication = await Authentication.findByPk(user.id)
+  //branch
+  let branchId       = authentication.branch_vls_id
+  let orderBy 		 = 'desc' 
+  //acadminc year
+  let academicYear  = await AcademicYear.findOne({
+	                where:{school_id:authentication.school_id},
+	                order : [
+			             ['id', 'desc']
+			            ]
+	              })
+   
+  let whereConditions = {
+  	branch_vls_id : branchId,
+  	academic_year_id : academicYear.id
+  }
+	
+  let joinWhere = {}
+  if(params.student_vls_id){
+  	 let student = await Student.findByPk(params.student_vls_id)
+  	 joinWhere.class_id            = student.class_id
+  	 joinWhere.student_id          = student.student_vls_id
+  	 joinWhere.academic_year_id    = academicYear.id
+
+  	 if(params.subject_code) 
+  	 	joinWhere.subject_code     = params.subject_code  
+   }
+   //return {whereConditions , joinWhere}
+   let exams = await Exams.findAll({
+			    where : whereConditions,
+			    order : [
+			             ['test_id', orderBy]
+			            ],
+			    include: [{ 
+	                model:Marks,
+	                as:'marks',
+	                where : joinWhere,
+	                include: [{ 
+			                model:SubjectList,
+			                as:'subject',
+			                attributes:['subject_name']
+			            }]
+	            }]
+			  	
+  	})
+  	return { success: true, message: "Exam performance", data : exams}
 }
