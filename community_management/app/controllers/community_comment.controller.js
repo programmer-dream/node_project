@@ -89,7 +89,7 @@ async function view(id){
       offset = 0 + (parseInt(params.page) - 1) * limit
 
   if(params.orderBy)
-      orderBy = orderBy
+      orderBy = params.orderBy
 
   if(params.id){
     whereCondition.community_chat_communication_vls_id = {[Op.lt]: params.id}
