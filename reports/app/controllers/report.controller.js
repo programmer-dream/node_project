@@ -3,6 +3,7 @@ const db 	 	 = require("../models");
 const moment 	 = require("moment");
 const bcrypt     = require("bcryptjs");
 const path       = require('path')
+const mailer     = require('../helper/nodemailer')
 const Op 	 	 = db.Sequelize.Op;
 const Sequelize  = db.Sequelize;
 const Exams      = db.Exams;
@@ -10,7 +11,9 @@ const Marks      = db.Marks;
 const Student    = db.Student;
 const SubjectList    = db.SubjectList;
 const Authentication = db.Authentication;
-const AcademicYear = db.AcademicYear;
+const AcademicYear   = db.AcademicYear;
+const Guardian   	 = db.Guardian;
+const StudentAttendance = db.StudentAttendance;
 
 
 module.exports = {
@@ -225,72 +228,77 @@ async function dashboardList(params , user){
  * API for send exam Report
  */
 async function sendExamResult(body, user){
-	//return academicYear
-  let limit   = 10
-  let offset  = 0
-  let search  = '';
-  let orderBy = 'desc';
-  //Auth user
-  let authentication = await Authentication.findByPk(user.id)
-  //branch
-  let branchId       = authentication.branch_vls_id
-
-  //acadminc year
-  let academicYear  = await AcademicYear.findOne({
-	                where:{school_id:authentication.school_id},
-	                order : [
-			             ['id', 'desc']
-			            ]
-	              })
-   
-  let whereConditions = {
-  	branch_vls_id : branchId,
-  	academic_year_id : academicYear.id
-  }
-	//return body
-	if(body.school_id){
-		whereConditions.school_id = body.school_id
-	}else if(body.class_id){
-		whereConditions.class_id = body.class_id
+	if(user.role !='branch-admin') throw 'Unauthorised user'
+	if(!body.test_id) throw 'test_id field is required'
+  	//Auth user
+	let authentication = await Authentication.findByPk(user.id)
+  	//branch
+	let branchId       = authentication.branch_vls_id
+  	//acadminc year
+	let academicYear  = await AcademicYear.findOne({
+	                	where:{ school_id : authentication.school_id },
+		                	order : [
+				             	['id', 'desc']
+				            ]
+	              		})
+	let whereConditions = {
+		branch_vls_id : branchId
 	}
-	//return user
-  	let joinWhere = {}
-	if(body.student_id){
-	  	 let student = await Student.findByPk(body.student_id)
-	  	 joinWhere.class_id            = student.class_id
-	  	 joinWhere.student_id          = user.userVlsId
-	  	 joinWhere.academic_year_id    = academicYear.id
-	  	 limit 						   = 1 
-  	}
 
-	let exams = await Exams.findAll({
-			  	limit  : limit,
-			    offset : offset,
-			    where : whereConditions,
-			    order : [
-			             ['test_id', orderBy]
-			            ],
-			    include: [{ 
+   	let students = await Student.findAll({
+   		where : whereConditions,
+   		include: [{ 	
+	                model:Guardian,
+	                as:'guardian',
+	                attributes:['email']
+	            },{ 	
 	                model:Marks,
 	                as:'marks',
-	                where : joinWhere,
-	                include: [{ 
-			                model:SubjectList,
-			                as:'subject',
-			                attributes:['subject_name']
-			            }]
-	            }]
-			  	
-  	})
-	return { success: true, message: "Exam list", data : exams}
+	                include: [{ 	
+		                model:Exams,
+		                as:'exam',
+		                where : { test_id : body.test_id}
+		            },{ 	
+		                model:SubjectList,
+		                as:'subject'
+		            }]
+	            }
+	            ]
+   	})
+	    
+	return { success: true, message: "Exam list", data : students}
 }
-
 
 /**
  * API for send exam Report
  */
-async function sendAttendanceResult(){
-	return 'sendAttendanceResult'
+async function sendAttendanceResult(body, user){
+	if(user.role !='branch-admin') throw 'Unauthorised user'
+  	//Auth user
+	let authentication = await Authentication.findByPk(user.id)
+  	//branch
+	let branchId       = authentication.branch_vls_id
+
+	let whereConditions = {
+		branch_vls_id : branchId
+	}
+	let students = await Student.findAll({
+   		where : whereConditions,
+   		include: [{ 	
+	                model:Guardian,
+	                as:'guardian',
+	                attributes:['email']
+	            },{ 	
+	                model:StudentAttendance,
+	                as:'attendance',
+	                include: [{ 	
+		                model:SubjectList,
+		                as:'subject'
+		            }]
+	            }]
+   	})
+
+   	return { success: true, message: "Attendance list", data : students}
 }
 
 
@@ -327,7 +335,7 @@ async function subjectPerformance(params, user){
   	 if(params.subject_code) 
   	 	joinWhere.subject_code     = params.subject_code  
    }
-   //return {whereConditions , joinWhere}
+   
    let exams = await Exams.findAll({
 			    where : whereConditions,
 			    order : [
