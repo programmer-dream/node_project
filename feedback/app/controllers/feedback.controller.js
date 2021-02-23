@@ -22,7 +22,8 @@ module.exports = {
   list,
   deleteFeedback,
   closeFeedback,
-  setMeeting
+  setMeeting,
+  deleteMultiFeedback
 };
 
 
@@ -119,8 +120,9 @@ async function list(params , user){
 
   whereCondition.branch_vls_id = branchVlsId
   whereCondition.school_vls_id = schoolVlsId
-
-  if(user.role != 'principal'){
+  let roleArr = ['principal','branch-admin',
+                 'school-admin','super-admin']        
+  if(!roleArr.includes(user.role)){
     whereCondition.user_vls_id = user.userVlsId
     whereCondition.user_type   = user.role
   }
@@ -210,6 +212,24 @@ async function deleteFeedback(id){
   let feedback  = await Feedback.destroy({
 				    where: { feedback_id : id }
 				  })
+
+  if(!feedback) throw 'Feedback Not found'
+  return { success: true, message: "Feedback deleted successfully" }
+};
+
+/**
+ * API for feedback delete 
+ */
+async function deleteMultiFeedback(body){
+  let ids  = body.ids
+  if(!Array.isArray(ids)) throw 'ids field must be an array'
+  if(ids.length < 1 ) throw 'please select atleast one id to delete'
+  
+  let feedback  = await Feedback.destroy({
+            where: { 
+              feedback_id : { [Op.in] : ids }
+            }
+          })
 
   if(!feedback) throw 'Feedback Not found'
   return { success: true, message: "Feedback deleted successfully" }

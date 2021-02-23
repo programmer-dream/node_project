@@ -24,6 +24,7 @@ router.put("/setMeeting/:id",setMeeting);
 
 // DELETE
 router.delete("/delete/:id",deleteFeedback);
+router.delete("/deleteMultiFeedback",deleteMultiFeedback);
 
 
 module.exports = router;
@@ -59,6 +60,13 @@ function update(req, res, next) {
 // Function for delete feedback 
 function deleteFeedback(req, res, next) {
     feedbackController.deleteFeedback(req.params.id, req.user)
+        .then(feedback => feedback ? res.json(feedback) : res.status(400).json({ status: "error", message: 'Error while deleting feedback' }))
+        .catch(err => next(err));
+}
+
+// Function for delete feedback 
+function deleteMultiFeedback(req, res, next) {
+    feedbackController.deleteMultiFeedback(req.body)
         .then(feedback => feedback ? res.json(feedback) : res.status(400).json({ status: "error", message: 'Error while deleting feedback' }))
         .catch(err => next(err));
 }
