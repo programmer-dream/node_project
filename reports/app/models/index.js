@@ -81,5 +81,8 @@ db.Marks = require("./Marks.js")(sequelize, Sequelize);
 db.Exams.hasMany(db.Marks,{foreignKey:'exam_id',as:'marks'})
 db.Marks.belongsTo(db.SubjectList,{foreignKey:'subject_code',targetKey : 'code', as:'subject'})
 db.Marks.belongsTo(db.Student,{foreignKey:'student_id', as:'student'})
+db.Student.belongsTo(db.Guardian,{foreignKey:'parent_vls_id', as:'guardian'})
+db.Student.hasMany(db.Marks,{foreignKey:'student_id', as:'marks'})
+db.Marks.belongsTo(db.Exams,{foreignKey:'exam_id', as:'exam'})
 
 module.exports = db;
