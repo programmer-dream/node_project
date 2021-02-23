@@ -50,7 +50,7 @@ function sendExamResult(req, res, next) {
 
 // Function for assignment details
 function sendAttendanceResult(req, res, next) {
-    reportController.sendAttendanceResult(req.params, req.user, req.query)
+    reportController.sendAttendanceResult(req.body, req.user)
         .then(exam => exam ? res.json(exam) : res.status(400).json({ status: "error", message: 'Error while getting send attenance marks' }))
         .catch(err => next(err));
 }

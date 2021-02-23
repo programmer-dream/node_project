@@ -3,6 +3,7 @@ const db 	 	 = require("../models");
 const moment 	 = require("moment");
 const bcrypt     = require("bcryptjs");
 const path       = require('path')
+const mailer     = require('../helper/nodemailer')
 const Op 	 	 = db.Sequelize.Op;
 const Sequelize  = db.Sequelize;
 const Exams      = db.Exams;
@@ -12,6 +13,7 @@ const SubjectList    = db.SubjectList;
 const Authentication = db.Authentication;
 const AcademicYear   = db.AcademicYear;
 const Guardian   	 = db.Guardian;
+const StudentAttendance = db.StudentAttendance;
 
 
 module.exports = {
@@ -270,8 +272,33 @@ async function sendExamResult(body, user){
 /**
  * API for send exam Report
  */
-async function sendAttendanceResult(){
-	return 'sendAttendanceResult'
+async function sendAttendanceResult(body, user){
+	if(user.role !='branch-admin') throw 'Unauthorised user'
+  	//Auth user
+	let authentication = await Authentication.findByPk(user.id)
+  	//branch
+	let branchId       = authentication.branch_vls_id
+
+	let whereConditions = {
+		branch_vls_id : branchId
+	}
+	let students = await Student.findAll({
+   		where : whereConditions,
+   		include: [{ 	
+	                model:Guardian,
+	                as:'guardian',
+	                attributes:['email']
+	            },{ 	
+	                model:StudentAttendance,
+	                as:'attendance',
+	                include: [{ 	
+		                model:SubjectList,
+		                as:'subject'
+		            }]
+	            }]
+   	})
+
+   	return { success: true, message: "Attendance list", data : students}
 }
 
 
