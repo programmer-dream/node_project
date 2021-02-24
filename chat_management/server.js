@@ -89,7 +89,8 @@ io.on("connection", async function (client) {
         socketId: [client.id]
       })
   }else{
-    users.socketId.push(client.id)
+    var userIndex = users.findIndex(user =>  user.userId == userId)
+    users[userIndex].socketId.push(client.id)
   }
   //send user online user list
   io.sockets.emit('chat-list-response', { users });
