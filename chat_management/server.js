@@ -89,7 +89,7 @@ io.on("connection", async function (client) {
         socketId: [client.id]
       })
   }else{
-    var userIndex = users.findIndex(user =>  user.userId == userId)
+    var userIndex = users.findIndex(user =>  user.userId == userDetails.user_name)
     users[userIndex].socketId.push(client.id)
   }
   //send user online user list
