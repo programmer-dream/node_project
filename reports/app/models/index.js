@@ -75,6 +75,7 @@ db.Guardian = require("../../../vls/app/models/Guardian.js")(sequelize, Sequeliz
 db.SubjectList = require("../../../query_management/app/models/SubjectList.js")(sequelize, Sequelize);
 db.Classes = require("../../../student_attendance/app/models/Classes.js")(sequelize, Sequelize);
 db.StudentAttendance = require("../../../student_attendance/app/models/StudentAttendance.js")(sequelize, Sequelize);
+db.Subject = require("../../../query_management/app/models/Subject.js")(sequelize, Sequelize);
 
 
 db.Exams = require("./Exams.js")(sequelize, Sequelize);
@@ -88,5 +89,6 @@ db.Student.belongsTo(db.Guardian,{foreignKey:'parent_vls_id', as:'guardian'})
 db.Student.hasMany(db.Marks,{foreignKey:'student_id', as:'marks'})
 db.Student.hasMany(db.StudentAttendance,{foreignKey:'student_id', as:'attendance'})
 db.Marks.belongsTo(db.Exams,{foreignKey:'exam_id', as:'exam'})
+db.Classes.hasMany(db.Marks,{foreignKey:'class_id', as:'marks'})
 
 module.exports = db;

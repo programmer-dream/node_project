@@ -9,10 +9,12 @@ const Sequelize  = db.Sequelize;
 const Exams      = db.Exams;
 const Marks      = db.Marks;
 const Student    = db.Student;
+const Subject    = db.Subject;
 const SubjectList    = db.SubjectList;
 const Authentication = db.Authentication;
 const AcademicYear   = db.AcademicYear;
 const Guardian   	 = db.Guardian;
+const Classes   	 = db.Classes;
 const StudentAttendance = db.StudentAttendance;
 
 
@@ -22,7 +24,8 @@ module.exports = {
   dashboardList,
   sendExamResult,
   sendAttendanceResult,
-  subjectPerformance
+  subjectPerformance,
+  classPerformance
 };
 
 
@@ -152,6 +155,11 @@ async function getExamMarks(params , user , query){
  * API for list exams
  */
 async function dashboardList(params , user){
+
+  if(user.role != 'student'){
+  	return response = await classPerformance(params, user)
+  }
+
   let authentication = await Authentication.findByPk(user.id)
   let branchId       = authentication.branch_vls_id
 
@@ -162,10 +170,22 @@ async function dashboardList(params , user){
 			             ['id', 'desc']
 			            ]
 	              })
-   
+	//latest exam
+	let letestExam = await Exams.findOne({
+		where : { school_id : authentication.school_id ,
+				  academic_year_id : academicYear.id
+				},
+		order : [
+		     		['test_id', 'desc']
+		    	],
+		attributes : ['test_id']    	
+	})
+	//latest exam
+
   let whereConditions = {
   	branch_vls_id : branchId,
-  	academic_year_id : academicYear.id
+  	academic_year_id : academicYear.id,
+  	test_id : letestExam.test_id
   }
 
   //return academicYear
@@ -194,11 +214,8 @@ async function dashboardList(params , user){
   if(params.search) 
     search = params.search
 
-  if(params.orderBy)
-     orderBy = params.orderBy
-
-  if(params.test_id)
-  		whereConditions.test_id = params.test_id
+  // if(params.orderBy)
+  //    orderBy = params.orderBy
 
   let exams = await Exams.findAll({
 			  	limit  : limit,
@@ -307,7 +324,7 @@ async function sendAttendanceResult(body, user){
  */
 async function subjectPerformance(params, user){
   if(!params.student_vls_id) throw 'student_vls_id field is required'
-	//Auth user
+  //Auth user
   let authentication = await Authentication.findByPk(user.id)
   //branch
   let branchId       = authentication.branch_vls_id
@@ -354,4 +371,92 @@ async function subjectPerformance(params, user){
 			  	
   	})
   	return { success: true, message: "Exam performance", data : exams}
+}
+
+/**
+ * API for get overall performance of class wise 
+ */
+async function classPerformance(params, user){
+	//Auth user
+	let authentication = await Authentication.findByPk(user.id)
+	//branch
+	let branchId       = authentication.branch_vls_id
+	//acadminc year
+	let academicYear  = await AcademicYear.findOne({
+	                where:{ school_id : authentication.school_id },
+	                order : [
+			             		['id', 'desc']
+			            	]
+	              	})
+	//latest exam
+	let letestExam = await Exams.findOne({
+		where : { school_id : authentication.school_id ,
+				  academic_year_id : academicYear.id
+				},
+		order : [
+             		['test_id', 'desc']
+            	],
+        attributes : ['test_id']    	
+	})
+	let marksFilter = { exam_id : letestExam.test_id }
+	let classFilter =  { school_id : authentication.school_id }
+	if(params.test_id)
+		marksFilter.exam_id = params.test_id
+
+	if(params.test_id == 'all')
+		marksFilter = {}
+
+	if(params.section_id)
+		marksFilter.section_id = params.section_id
+
+	if(params.class_id)
+		classFilter.class_vls_id = params.class_id
+
+	//latest exam
+	if(params.subject_code)
+		marksFilter.subject_code = params.subject_code
+
+	let classData = await Classes.findAll({
+		where : classFilter,
+		attributes : ['name'],
+		group : ['class_id','subject_code'],
+		include: [{ 
+	                model:Marks,
+	                as:'marks',
+	                where : marksFilter,
+	                attributes: [
+					 	[ Sequelize.fn('SUM', Sequelize.col('exam_total_mark')), 'total_marks' ],
+					 	[ Sequelize.fn('SUM', Sequelize.col('obtain_total_mark')), 'obtain_marks' ]
+					 ],
+	                include: [{ 
+		                model:SubjectList,
+		                as:'subject',
+		                attributes : ['subject_name']
+	             	}],
+	             }]
+
+	})
+	let classPerformance = {}
+  	await Promise.all(
+    	classData.map(async classObj => {
+    		 classObj = classObj.toJSON()
+    		 marks  = classObj.marks
+    		 marks.forEach(function (markObj){
+    		 	let total_marks  = parseInt(markObj.total_marks)
+				let obtain_marks = parseInt(markObj.obtain_marks)
+				let percentage   = parseFloat(obtain_marks * 100 / total_marks).toFixed(2)
+				if(!classPerformance[classObj.name]) 
+					classPerformance[classObj.name] = []
+
+				let subObj = { 
+							   subject_name : markObj.subject.subject_name ,
+							   percentage   : percentage
+							 }
+				classPerformance[classObj.name].push(subObj)
+				//console.log(percentage)
+    		 }) 
+    	})
+    )
+    
+	return { success: true, message: "class performance", data : classPerformance}
 }
