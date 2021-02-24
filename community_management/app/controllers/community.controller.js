@@ -234,7 +234,7 @@ async function update(req){
  * API for save community 
  */
 async function updateCommunity(data, id, auth){
-  data.user_list     = JSON.stringify(data.user_list)
+
   data.tags          = JSON.stringify(data.tags)
 
   let community = await CommunityChat.findByPk(id)
