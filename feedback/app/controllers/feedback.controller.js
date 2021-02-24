@@ -139,6 +139,9 @@ async function list(params , user){
   if(params.feedback_type)
      whereCondition.feedback_type = params.feedback_type
 
+  if(params.orderBy) 
+    orderBy = params.orderBy
+
   let allFeedback = await Feedback.findAll({
     limit : limit,
     offset: offset,
