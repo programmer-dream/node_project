@@ -86,14 +86,31 @@ io.on("connection", async function (client) {
         userId: userDetails.user_name,
         userVlsId : decoded.userVlsId,
         userType : decoded.role,
-        socketId: client.id
+        socketId: [client.id]
       })
+  }else{
+    users.socketId.push(client.id)
   }
   //send user online user list
   io.sockets.emit('chat-list-response', { users });
 
   client.on('disconnect', function (data) {
-    users = users.filter(user => user.socketId !== client.id)
+    users = users.filter(user => {
+      var clientId = client.id
+      var userSocketIds = user.socketId
+      if(userSocketIds.includes(clientId)){
+          if(userSocketIds.length > 1){
+              const index = userSocketIds.indexOf(clientId);
+                if (index > -1) {
+                  userSocketIds.splice(index, 1);
+                }
+                user.socketId = userSocketIds
+                return user
+            }
+        }else{
+          return user
+        }
+    })
     //send user online user list
     io.sockets.emit('chat-list-response', { users });
   })
@@ -126,11 +143,11 @@ app.post("/chat/create",[
     chatController.create(req)
           .then((chat) => {
             if(chat){
-              console.log(reciverUserDetails, "reciverUserDetails reciverUserDetails")
               const user = findUser(reciverUserDetails.user_name)
               if (user) {
-                console.log(user, "inuser, inuser")
-                io.to(user.socketId).emit('receivedMessageObject', chat);
+                user.socketId.map(socketId => {
+                  io.to(socketId).emit('receivedMessageObject', chat);
+                })
               }
               res.json(chat)
             }else{
