@@ -126,7 +126,9 @@ io.on("connection", async function (client) {
 
     const user = findUser(data.userId)
     if (user) {
-      socket.broadcast.to(user.socketId).emit('seenMessage', {seen: true});
+      user.socketId.map(socketId => {
+        socket.broadcast.to(socketId).emit('seenMessage', {seen: true});
+      })
     }
   });
 
