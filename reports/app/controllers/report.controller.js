@@ -399,18 +399,25 @@ async function classPerformance(params, user){
         attributes : ['test_id']    	
 	})
 	let marksFilter = { exam_id : letestExam.test_id }
-
+	let classFilter =  { school_id : authentication.school_id }
 	if(params.test_id)
 		marksFilter.exam_id = params.test_id
 
 	if(params.test_id == 'all')
 		marksFilter = {}
+
+	if(params.section_id)
+		marksFilter.section_id = params.section_id
+
+	if(params.class_id)
+		classFilter.class_vls_id = params.class_id
+
 	//latest exam
 	if(params.subject_code)
 		marksFilter.subject_code = params.subject_code
 
 	let classData = await Classes.findAll({
-		where : { school_id : authentication.school_id },
+		where : classFilter,
 		attributes : ['name'],
 		group : ['class_id','subject_code'],
 		include: [{ 
