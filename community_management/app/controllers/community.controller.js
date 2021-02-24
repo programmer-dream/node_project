@@ -77,7 +77,21 @@ async function saveCommunity(data, user, classStudents, auth){
   data.tags          = JSON.stringify(data.tags)
   
   data.user_list     = JSON.stringify(allStudents)
-  
+
+  //add principal
+  let principal = await Employee.findOne({
+    where : {
+        branch_vls_id : user.branch_vls_id,
+        isPrincipal   : 1
+    },
+    attributes : ['faculty_vls_id']
+  })
+  let principalObj = { id  : principal.faculty_vls_id,
+                       type: 'employee'
+                     }
+  data.group_admin_user_id_list.push(principalObj)
+    //add principal
+
   data.group_admin_user_id_list = JSON.stringify(data.group_admin_user_id_list)
   
   let createdCommunity = await CommunityChat.create(data)
@@ -438,7 +452,13 @@ async function addUserList(userList){
           case 'employee' : 
               dbUser = await Employee.findOne({
                 where : { faculty_vls_id : user.id},
-                attributes: [['faculty_vls_id','id'],'name','photo']
+                attributes: [
+                        ['faculty_vls_id','id'],
+                        'name',
+                        'photo',
+                        'isPrincipal',
+                        'isAdmin'
+                      ]
               })
               dbUser = dbUser.toJSON()
               dbUser.type = "employee"
@@ -450,6 +470,8 @@ async function addUserList(userList){
               })
               dbUser = dbUser.toJSON()
               dbUser.type = "student"
+              dbUser.isPrincipal = null
+              dbUser.isAdmin     = null
           break;
         }
         allUser.push(dbUser)
