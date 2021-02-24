@@ -80,7 +80,7 @@ io.on("connection", async function (client) {
   const user = findUser(userDetails.user_name)
   if(decoded.role != "student")
     decoded.role = "employee"
-  
+
   if(!user){
     users.push({
         userId: userDetails.user_name,
@@ -126,8 +126,10 @@ app.post("/chat/create",[
     chatController.create(req)
           .then((chat) => {
             if(chat){
+              console.log(reciverUserDetails, "reciverUserDetails reciverUserDetails")
               const user = findUser(reciverUserDetails.user_name)
               if (user) {
+                console.log(user, "inuser, inuser")
                 io.to(user.socketId).emit('receivedMessageObject', chat);
               }
               res.json(chat)
