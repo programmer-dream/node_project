@@ -399,6 +399,12 @@ async function classPerformance(params, user){
         attributes : ['test_id']    	
 	})
 	let marksFilter = { exam_id : letestExam.test_id }
+
+	if(params.test_id)
+		marksFilter.exam_id = params.test_id
+
+	if(params.test_id == 'all')
+		marksFilter = {}
 	//latest exam
 	if(params.subject_code)
 		marksFilter.subject_code = params.subject_code
