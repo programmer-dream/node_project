@@ -210,7 +210,7 @@ async function create(req){
 
     let notification = await Notification.create(customNotification)
 
-    return { success: true, message: "Notification read successfully", data : notification}
+    return { success: true, message: "Notification created successfully", data : notification}
 }
 
 
@@ -276,7 +276,7 @@ async function update(req){
     
     notification =  await notification.update(customNotification)
     
-    return { success: true, message: "Notification read successfully", data : notification}
+    return { success: true, message: "Notification updated successfully", data : notification}
 }
 
 

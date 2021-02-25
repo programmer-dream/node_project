@@ -6,6 +6,7 @@ const path       = require('path')
 const mailer     = require('../helper/nodemailer')
 const Op 	 	 = db.Sequelize.Op;
 const Sequelize  = db.Sequelize;
+const sequelize  = db.sequelize;
 const Exams      = db.Exams;
 const Marks      = db.Marks;
 const Student    = db.Student;
@@ -398,63 +399,47 @@ async function classPerformance(params, user){
             	],
         attributes : ['test_id']    	
 	})
-	let marksFilter = { exam_id : letestExam.test_id }
-	let classFilter =  { school_id : authentication.school_id }
+	let exam_id   =  "AND `marks`.`exam_id` = "+letestExam.test_id
+
+	let school_id = authentication.school_id 
+
 	if(params.test_id)
-		marksFilter.exam_id = params.test_id
+		exam_id = "AND `marks`.`exam_id` = "+params.test_id
 
 	if(params.test_id == 'all')
-		marksFilter = {}
+		exam_id = ''
 
+	let section = ''
 	if(params.section_id)
-		marksFilter.section_id = params.section_id
+		section = 'AND `marks`.`section_id` = '+params.section_id
 
+	let classFilter = ''
 	if(params.class_id)
-		classFilter.class_vls_id = params.class_id
+		classFilter = 'AND `classes`.`class_vls_id` = '+params.class_id
 
 	//latest exam
 	if(params.subject_code)
 		marksFilter.subject_code = params.subject_code
 
-	let classData = await Classes.findAll({
-		where : classFilter,
-		attributes : ['name'],
-		group : ['class_id','subject_code'],
-		include: [{ 
-	                model:Marks,
-	                as:'marks',
-	                where : marksFilter,
-	                attributes: [
-					 	[ Sequelize.fn('SUM', Sequelize.col('exam_total_mark')), 'total_marks' ],
-					 	[ Sequelize.fn('SUM', Sequelize.col('obtain_total_mark')), 'obtain_marks' ]
-					 ],
-	                include: [{ 
-		                model:SubjectList,
-		                as:'subject',
-		                attributes : ['subject_name']
-	             	}],
-	             }]
+	let classData = await sequelize.query("SELECT `classes`.`class_vls_id`, `classes`.`name`, SUM(`exam_total_mark`) AS `total_marks`, SUM(`obtain_total_mark`) AS `obtain_marks`, `marks->subject`.`id` AS `marks.subject.id`, `marks->subject`.`subject_name` AS `subject_name` FROM `classes` AS `classes` INNER JOIN `marks` AS `marks` ON `classes`.`class_vls_id` = `marks`.`class_id` "+exam_id+" "+section+" LEFT OUTER JOIN `subject_list` AS `marks->subject` ON `marks`.`subject_code` = `marks->subject`.`code` WHERE `classes`.`school_id` = "+school_id+" "+classFilter+" GROUP BY `class_id`, `subject_code`, `marks.subject.id`", { type: Sequelize.QueryTypes.SELECT });
 
-	})
+	
+	// return classData
 	let classPerformance = {}
   	await Promise.all(
     	classData.map(async classObj => {
-    		 classObj = classObj.toJSON()
-    		 marks  = classObj.marks
-    		 marks.forEach(function (markObj){
-    		 	let total_marks  = parseInt(markObj.total_marks)
-				let obtain_marks = parseInt(markObj.obtain_marks)
-				let percentage   = parseFloat(obtain_marks * 100 / total_marks).toFixed(2)
-				if(!classPerformance[classObj.name]) 
-					classPerformance[classObj.name] = []
+		 	let total_marks  = parseInt(classObj.total_marks)
+			let obtain_marks = parseInt(classObj.obtain_marks)
+			let percentage   = parseFloat(obtain_marks * 100 / total_marks).toFixed(2)
+			if(!classPerformance[classObj.name]) 
+				classPerformance[classObj.name] = []
 
-				let subObj = { 
-							   subject_name : markObj.subject.subject_name ,
-							   percentage   : percentage
-							 }
-				classPerformance[classObj.name].push(subObj)
-				//console.log(percentage)
-    		 }) 
+			let subObj = { 
+						   subject_name : classObj.subject_name ,
+						   percentage   : percentage
+						 }
+			classPerformance[classObj.name].push(subObj)
+
     	})
     )
     
