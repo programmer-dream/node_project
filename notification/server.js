@@ -5,10 +5,27 @@ const cors = require("cors");
 const path = require("path");
 const jwt = require('./app/helper/jwt');
 const errorHandler = require('./app/helper/error-handler');
+
+const jwtPackage = require('jsonwebtoken');
+const config = require("../config/env.js");
+const helper = require("./app/helper");
+const upload  = helper.upload;
+const secret = config.secret;
+const notificationController = require("./app/controllers/notification.controller");
+
+const authController = require("../vls/app/controllers/auth.controller");
+
 require('dotenv').config()
 
 const app = express();
-
+//socket code
+var http = require("http").Server(app);
+var io = require("socket.io")(http,{
+  cors: {
+    origin: '*',
+  }
+});
+//socket code
 var corsOptions = {
   origin: "*"
 };
@@ -27,7 +44,95 @@ app.use(jwt());
 // const db = require("./app/models");
 // db.sequelize.sync();
 app.get("/",function(req, res){
-	res.send('landing page');
+	//res.send('landing page');
+	res.sendFile(__dirname + "/index.html");
+});
+let users = []
+
+function findUser(userId) {
+  return users.find(user =>  user.userId == userId)
+
+}
+
+//socket code
+io.on("connection", async function (client) {
+  console.log("connected");
+  let token = client.handshake.query.token
+
+  if (!token) {
+    console.log("refused a session atempt with token not present");
+    client.disconnect(true);
+    return;
+  }
+  let decoded;
+  try {
+    decoded = jwtPackage.verify(token, secret)
+  }
+  catch(reason) {
+    console.log("refused a session atempt with an invalid token");
+    client.disconnect(true);
+    return;
+  }
+
+  const userDetails = await authController.getById(decoded.userId);
+  console.log(userDetails.user_name, "client.user")
+  const user = findUser(userDetails.user_name)
+  if(decoded.role != "student")
+    decoded.role = "employee"
+
+  if(!user){
+    users.push({
+        userId: userDetails.user_name,
+        userVlsId : decoded.userVlsId,
+        userType : decoded.role,
+        socketId: [client.id]
+      })
+  }else{
+    var userIndex = users.findIndex(user =>  user.userId == userDetails.user_name)
+    users[userIndex].socketId.push(client.id)
+  }
+  //send user online user list
+  io.sockets.emit('getNotificaion', { noty :'test notification' });
+  //io.sockets.emit('onlineUser', { users });
+
+  client.on('disconnect', function (data) {
+    users = users.filter(user => {
+      var clientId = client.id
+      var userSocketIds = user.socketId
+      if(userSocketIds.includes(clientId)){
+          if(userSocketIds.length > 1){
+              const index = userSocketIds.indexOf(clientId);
+                if (index > -1) {
+                  userSocketIds.splice(index, 1);
+                }
+                user.socketId = userSocketIds
+                return user
+            }
+        }else{
+          return user
+        }
+    })
+    //send user online user list
+    //io.sockets.emit('onlineUser', { users });
+  })
+  //read notification
+  client.on('readNotification', async function (data) {
+
+    let body = {
+        chatIds :[ data.notificationId ]
+      }
+
+    await notificationController.readNotifications(body)
+
+    const user = findUser(data.userId)
+    if (user) {
+      user.socketId.map(socketId => {
+        socket.broadcast.to(socketId).emit('seenNotifcation', {seen: true});
+      })
+    }
+  });
+  
+
 });
 
 // api routes
@@ -39,6 +144,6 @@ app.use(errorHandler);
 
 // set port, listen for requests
 const PORT = process.env.PORT || 3010;
-app.listen(PORT, () => {
+http.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
 });
