@@ -10,6 +10,7 @@ router.get("/list/",list);
 router.get("/dashboardList/",dashboardList);
 router.get("/:id/getExamMarks",getExamMarks);
 router.get("/subjectPerformance",subjectPerformance);
+router.get("/classPerformance",classPerformance);
 
 //Post
 router.post("/sendExamResult",sendExamResult);
@@ -58,6 +59,12 @@ function sendAttendanceResult(req, res, next) {
 // Function for assignment details
 function subjectPerformance(req, res, next) {
     reportController.subjectPerformance(req.query, req.user)
+        .then(exam => exam ? res.json(exam) : res.status(400).json({ status: "error", message: 'Error while getting send attenance marks' }))
+        .catch(err => next(err));
+}
+// Function for assignment details
+function classPerformance(req, res, next) {
+    reportController.classPerformance(req.query, req.user)
         .then(exam => exam ? res.json(exam) : res.status(400).json({ status: "error", message: 'Error while getting send attenance marks' }))
         .catch(err => next(err));
 }
