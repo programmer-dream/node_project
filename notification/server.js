@@ -38,7 +38,7 @@ app.use('/notification', require('./app/routes/notification.routes'));
 app.use(errorHandler);
 
 // set port, listen for requests
-const PORT = process.env.PORT || 3010;
+const PORT = process.env.PORT || 3011;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
 });
