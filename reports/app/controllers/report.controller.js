@@ -156,9 +156,13 @@ async function getExamMarks(params , user , query){
  * API for list exams
  */
 async function dashboardList(params , user){
-
-  if(user.role != 'student'){
+  
+  if(user.role != 'student' && user.role != 'guardian'){
   	return response = await classPerformance(params, user)
+  }
+
+  if(user.role == 'guardian'){
+  	if(!params.student_vls_id) throw 'student_vls_id field is required'
   }
 
   let authentication = await Authentication.findByPk(user.id)
@@ -204,6 +208,15 @@ async function dashboardList(params , user){
   	 joinWhere.student_id          = user.userVlsId
   	 joinWhere.academic_year_id    = academicYear.id
   	 limit 						   = 1 
+  }
+  
+  if(params.student_vls_id){
+	let student = await Student.findByPk(params.student_vls_id)
+
+	 joinWhere.class_id            = student.class_id
+	 joinWhere.student_id          = student.student_vls_id
+	 joinWhere.academic_year_id    = academicYear.id
+	 limit 						   = 1
   }
 
   if(params.size)
