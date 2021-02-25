@@ -335,7 +335,7 @@ async function getWhereCondition(user , userObj){
                     section_id : student.section_id,
                     users : { [Op.eq]: null }
                  },{
-                    users : userObj
+                    users : { [Op.like]: `%`+userObj+`%`}
                  }]
       }
       break;
@@ -369,7 +369,7 @@ async function getWhereCondition(user , userObj){
                     section_id : { [Op.in]: section },
                     users : { [Op.eq]: null }
                  },{
-                    users : userObj
+                    users : { [Op.like]: `%`+userObj+`%`}
                  }]
         }
       break;
