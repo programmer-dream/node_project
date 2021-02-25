@@ -16,6 +16,10 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.TEXT,
         allowNull: false
       },
+      description: {
+        type: Sequelize.TEXT,
+        allowNull: true
+      },
       event_type: {
         type: Sequelize.STRING
       },
