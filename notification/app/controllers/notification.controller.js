@@ -38,7 +38,8 @@ async function list(params , user){
   let offset  = 0
   let orderBy = 'desc';
 
-  let userObj = '{"id":'+user.userVlsId+',"type":"'+user.role+'"}';
+  let notiType = await getType(user.role)
+  let userObj = '{"id":'+user.userVlsId+',"type":"'+notiType+'"}';
 
   let whereCondition = await getWhereCondition(user , userObj)
   //console.log(whereCondition ,'whereCondition')
@@ -72,6 +73,19 @@ async function list(params , user){
   return { success: true, message: "Notification list", data: allNotifications}
 };
 
+/**
+ * API for list user chat created  
+ */
+async function getType(role){
+  switch(role){
+    case 'student': return 'student'
+      break;
+    case 'guardian': return 'guardian'
+      break;
+    default : return 'employee'
+      break;  
+  }
+}
 
 /**
  * API for notification read by 
