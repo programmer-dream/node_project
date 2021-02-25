@@ -25,7 +25,8 @@ module.exports = {
   create,
   customList,
   update,
-  deleteNotification
+  deleteNotification,
+  unreadCount
 };
 
 
@@ -390,3 +391,29 @@ async function getWhereCondition(user , userObj){
   return whereCondition
 }
     
+
+/**
+ * API for  unread count notification
+ */
+async function unreadCount( user ){
+  let notiType = await getType(user.role)
+
+  let userObj = '{"id":'+user.userVlsId+',"type":"'+notiType+'"}';
+  let whereCondition = await getWhereCondition(user , userObj)
+  
+  let notifications = await Notification.findAll({
+    where : whereCondition,
+  })
+
+  let unreadCount = 0
+  await Promise.all(
+    notifications.map(async notification => {
+      notification = notification.toJSON()
+      let is_read =   await isRead(notification.notification_vls_id , user.userVlsId, user.role)
+      if(!is_read)
+         unreadCount++
+    })
+  )
+    return { success: true, message: "Notification count",data :unreadCount }
+
+}

@@ -14,6 +14,7 @@ router.post("/create/",[
 //Get 
 router.get("/list/",list);
 router.get("/customList/",customList);
+router.get("/unreadCount/",unreadCount);
 
 //put
 router.put("/update/:id",update);
@@ -62,5 +63,12 @@ function update(req, res, next) {
 function deleteNotification(req, res, next) {
     notificationController.deleteNotification(req.params.id)
         .then(notification => notification ? res.json(notification) : res.status(400).json({ status: "error", message: 'Error while update notification' }))
+        .catch(err => next(err));
+}
+
+// Function for unreadCount notification
+function unreadCount(req, res, next) {
+    notificationController.unreadCount(req.user)
+        .then(notification => notification ? res.json(notification) : res.status(400).json({ status: "error", message: 'Error while listing notification' }))
         .catch(err => next(err));
 }
