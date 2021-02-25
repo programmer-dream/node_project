@@ -402,7 +402,12 @@ async function classPerformance(params, user){
 	let exam_id   =  "AND `marks`.`exam_id` = "+letestExam.test_id
 
 	let school_id = authentication.school_id 
+	
+	let studentFilter = ''
+	if(params.student_id)
+		studentFilter = "AND `marks`.`student_id` = "+params.student_id
 
+	
 	if(params.test_id)
 		exam_id = "AND `marks`.`exam_id` = "+params.test_id
 
@@ -417,11 +422,16 @@ async function classPerformance(params, user){
 	if(params.class_id)
 		classFilter = 'AND `classes`.`class_vls_id` = '+params.class_id
 
+	if(params.student_id){
+  	 let student = await Student.findByPk(params.student_id)
+	  	 classFilter = 'AND `classes`.`class_vls_id` = '+student.class_id
+	}
+	let subjectFilter = ''
 	//latest exam
 	if(params.subject_code)
-		marksFilter.subject_code = params.subject_code
+		subjectFilter = 'AND `marks`.`subject_code` = '+params.subject_code
 
-	let classData = await sequelize.query("SELECT `classes`.`class_vls_id`, `classes`.`name`, SUM(`exam_total_mark`) AS `total_marks`, SUM(`obtain_total_mark`) AS `obtain_marks`, `marks->subject`.`id` AS `marks.subject.id`, `marks->subject`.`subject_name` AS `subject_name` FROM `classes` AS `classes` INNER JOIN `marks` AS `marks` ON `classes`.`class_vls_id` = `marks`.`class_id` "+exam_id+" "+section+" LEFT OUTER JOIN `subject_list` AS `marks->subject` ON `marks`.`subject_code` = `marks->subject`.`code` WHERE `classes`.`school_id` = "+school_id+" "+classFilter+" GROUP BY `class_id`, `subject_code`, `marks.subject.id`", { type: Sequelize.QueryTypes.SELECT });
+	let classData = await sequelize.query("SELECT `classes`.`class_vls_id`, `classes`.`name`, SUM(`exam_total_mark`) AS `total_marks`, SUM(`obtain_total_mark`) AS `obtain_marks`, `marks->subject`.`id` AS `marks.subject.id`, `marks->subject`.`subject_name` AS `subject_name` FROM `classes` AS `classes` INNER JOIN `marks` AS `marks` ON `classes`.`class_vls_id` = `marks`.`class_id` "+exam_id+" "+section+" "+studentFilter+" "+subjectFilter+" LEFT OUTER JOIN `subject_list` AS `marks->subject` ON `marks`.`subject_code` = `marks->subject`.`code` WHERE `classes`.`school_id` = "+school_id+" "+classFilter+" GROUP BY `class_id`, `subject_code`, `marks.subject.id`", { type: Sequelize.QueryTypes.SELECT });
 
 	
 	// return classData
