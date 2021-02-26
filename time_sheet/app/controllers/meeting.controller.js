@@ -280,10 +280,31 @@ async function update(req){
  * API for meeting delete 
  */
 async function deleteMeeting(meetingId, user){
+  let meetingData = await Meeting.findByPk(meetingId)
+  let roleType = 'employee'
+      if(meetingData.attendee_type == 'parent')
+        roleType = 'guardian'
+  //notification
+    let users = [{
+      id: meetingData.attendee_vls_id,
+      type: roleType
+    }]
   let meeting  = await Meeting.destroy({
 				    where: { id: meetingId }
 				  })
-
+  let notificatonData = {}
+    notificatonData.branch_vls_id = meetingData.branch_id
+    notificatonData.school_vls_id = meetingData.school_id
+    notificatonData.status        = 'important'
+    notificatonData.message       = '{name} deleted schedule meeting with you.'
+    notificatonData.notificaton_type = 'meeting'
+    notificatonData.notificaton_type_id = meetingData.id
+    notificatonData.start_date    = meetingData.date
+    notificatonData.users         = JSON.stringify(users)
+    notificatonData.added_by      = user.userVlsId
+    notificatonData.added_type    = user.role
+    notificatonData.event_type    = 'deleted'
+    await Notification.create(notificatonData)
   if(!meeting) throw 'Meeting Not found'
   return { success: true, message: "Meeting deleted successfully" }
 };

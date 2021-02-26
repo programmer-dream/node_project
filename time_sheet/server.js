@@ -170,6 +170,44 @@ app.put("/meeting/update/:id",[
           });
 });
 
+// update meeting 
+app.delete("/meeting/delete/:id",async function(req , res){
+   meetingController.deleteMeeting(req.params.id, req.user)
+          .then((meeting) => {
+            if(meeting){
+              //create event
+              io.sockets.emit('getNotificaion', { event :'meeting_delete' });
+              //create event
+              res.json(meeting)
+            }else{
+              res.status(400).json({ status: "error", message: 'Error while delete meeting' })
+            }
+          })
+          .catch( (err) => {
+            console.log(err, "err")
+            res.status(400).json({ status: "error", message: "Something went wrong" }) 
+          });
+});
+
+// attend meeting 
+app.put("/meeting/attend/:id",async function(req , res){
+   meetingController.attendMeeting(req.params.id, req.body, req.user)
+          .then((meeting) => {
+            if(meeting){
+              //create event
+              io.sockets.emit('getNotificaion', { event :'meeting_attend' });
+              //create event
+              res.json(meeting)
+            }else{
+              res.status(400).json({ status: "error", message: 'Error while attend meeting' })
+            }
+          })
+          .catch( (err) => {
+            console.log(err, "err")
+            res.status(400).json({ status: "error", message: "Something went wrong" }) 
+          });
+});
+
 // api routes
 app.use('/timeSheet', require('./app/routes/timeSheet.routes'));
 app.use('/meeting', require('./app/routes/meeting.routes'));
