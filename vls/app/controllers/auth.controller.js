@@ -125,7 +125,7 @@ async function resetPassword(body, user) {
 
   let auth = await Authentication.findByPk(user.id);
   let response = await checkPasswordCriteria(body.password, user.role, auth.name)
-  if(response.isError) throw response.error.message
+  if(response.isError) throw response.error.join(',')
   
   if(!auth) throw 'User not found'
 
@@ -335,7 +335,7 @@ async function updatePasswordWithForgetPwd(body) {
   let updatedPassword = bcrypt.hashSync(newPassword, 8)
 
   let response = await checkPasswordCriteria(newPassword, user.roles.slug, user.name)
-  if(response.isError) throw response.error.message
+  if(response.isError) throw response.error.join(',')
 
   allPwd.forEach(function (item, index){
       isTrue = bcrypt.compareSync(newPassword, item)
