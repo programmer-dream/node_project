@@ -96,8 +96,6 @@ io.on("connection", async function (client) {
     users[userIndex].socketId.push(client.id)
   }
   //send user online user list
-  //io.sockets.emit('getNotificaion', { event :'test_event' });
-  //io.sockets.emit('onlineUser', { users }); 
 
   client.on('disconnect', function (data) {
     users = users.filter(user => {
@@ -117,26 +115,8 @@ io.on("connection", async function (client) {
         }
     })
     //send user online user list
-    //io.sockets.emit('onlineUser', { users });
   })
-  //read notification
-  client.on('readNotification', async function (data) {
-
-    let body = {
-        chatIds :[ data.notificationId ]
-      }
-
-    await notificationController.readNotifications(body)
-
-    const user = findUser(data.userId)
-    if (user) {
-      user.socketId.map(socketId => {
-        socket.broadcast.to(socketId).emit('seenNotifcation', {seen: true});
-      })
-    }
-  });
   
-
 });
 
 // create notification  
