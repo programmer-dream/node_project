@@ -180,7 +180,26 @@ app.delete("/meeting/delete/:id",async function(req , res){
               //create event
               res.json(meeting)
             }else{
-              res.status(400).json({ status: "error", message: 'Error while updating meeting' })
+              res.status(400).json({ status: "error", message: 'Error while delete meeting' })
+            }
+          })
+          .catch( (err) => {
+            console.log(err, "err")
+            res.status(400).json({ status: "error", message: "Something went wrong" }) 
+          });
+});
+
+// attend meeting 
+app.put("/meeting/attend/:id",async function(req , res){
+   meetingController.attendMeeting(req.params.id, req.body, req.user)
+          .then((meeting) => {
+            if(meeting){
+              //create event
+              io.sockets.emit('getNotificaion', { event :'meeting_attend' });
+              //create event
+              res.json(meeting)
+            }else{
+              res.status(400).json({ status: "error", message: 'Error while attend meeting' })
             }
           })
           .catch( (err) => {
