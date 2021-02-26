@@ -122,8 +122,7 @@ io.on("connection", async function (client) {
 // create notification  
 app.post("/notification/create/",[
   check('message','message field is required.').not().isEmpty(),
-  check('status','status field is required.').not().isEmpty(),
-  check('close_date','close_date field is required.').not().isEmpty()
+  check('status','status field is required.').not().isEmpty()
   ],async function(req, res){
    notificationController.create(req)
           .then((notification) => {
@@ -145,8 +144,7 @@ app.post("/notification/create/",[
 // create notification  
 app.put("/notification/update/:id/",[
   check('message','message field is required.').not().isEmpty(),
-  check('status','status field is required.').not().isEmpty(),
-  check('close_date','close_date field is required.').not().isEmpty()
+  check('status','status field is required.').not().isEmpty()
   ],async function(req, res){
    notificationController.update(req)
           .then((notification) => {
