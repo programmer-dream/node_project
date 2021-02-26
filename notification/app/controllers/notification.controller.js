@@ -222,7 +222,6 @@ async function create(req){
     customNotification.added_by   = user.userVlsId
     customNotification.added_type = user.role
     customNotification.start_date = moment().format('YYYY-MM-DD HH:mm:ss')
-    customNotification.close_date = moment(req.body.close_date).format('YYYY-MM-DD')
 
     let notification = await Notification.create(customNotification)
 
