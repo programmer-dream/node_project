@@ -44,6 +44,7 @@ async function list(params , user){
 
   let whereCondition = await getWhereCondition(user , userObj)
   //console.log(whereCondition ,'whereCondition')
+  //return 'done'
   if(params.size)
      limit = parseInt(params.size)
   if(params.page)
@@ -365,7 +366,8 @@ async function getWhereCondition(user , userObj){
                     users : { [Op.eq]: null }
                  },{
                     class_id : { [Op.in]: classes },
-                    users : { [Op.eq]: null }
+                    users : { [Op.eq]: null },
+                    section_id : { [Op.eq]: null }
                  },{
                     section_id : { [Op.in]: section },
                     users : { [Op.eq]: null }
@@ -384,6 +386,36 @@ async function getWhereCondition(user , userObj){
                  },{
                     school_vls_id : authUser.school_id,
                     users : { [Op.eq]: null }
+                 }]
+      }
+      break;
+    case 'guardian': 
+      let classIds  = await Student.findAll({
+        where : { parent_vls_id : user.userVlsId },
+        attributes: ['class_id']
+      }).then(student => student.map(student => student.class_id));
+
+      let sectionIds  = await Student.findAll({
+        where : { parent_vls_id : user.userVlsId },
+        attributes: ['section_id']
+      }).then(student => student.map(student => student.section_id));
+
+      whereCondition = {
+          [Op.or]:[{
+                    branch_vls_id: authUser.branch_vls_id,
+                    users : { [Op.eq]: null }
+                 },{
+                    school_vls_id : authUser.school_id,
+                    users : { [Op.eq]: null }
+                 },{
+                    class_id : { [Op.in]: classIds },
+                    users : { [Op.eq]: null },
+                    section_id : { [Op.eq]: null }
+                 },{
+                    section_id : { [Op.in]: sectionIds },
+                    users : { [Op.eq]: null }
+                 },{
+                    users : { [Op.like]: `%`+userObj+`%`}
                  }]
       }
       break;
