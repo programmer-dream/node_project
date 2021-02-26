@@ -103,6 +103,86 @@ io.on("connection", async function (client) {
 
 });
 
+// Create community 
+app.post("/community/create",[
+  upload.fields([{
+        name:'file',maxCount:1
+    }])
+  ],async function(req, res){
+   communityController.create(req)
+          .then((community) => {
+            if(community){
+              //create event
+              io.sockets.emit('getNotificaion', { event :'community_created' });
+              //create event
+              res.json(community)
+            }else{
+              res.status(400).json({ status: "error", message: 'Error while creating chat' })
+            }
+          })
+          .catch( (err) => {
+            console.log(err, "err")
+            res.status(400).json({ status: "error", message: "Something went wrong" }) 
+          });
+});
+
+// update community 
+app.put("/community/update/:id",async function(req, res){
+   communityController.update(req)
+          .then((community) => {
+            if(community){
+              //create event
+              io.sockets.emit('getNotificaion', { event :'community_updated' });
+              //create event
+              res.json(community)
+            }else{
+              res.status(400).json({ status: "error", message: 'Error while creating chat' })
+            }
+          })
+          .catch( (err) => {
+            console.log(err, "err")
+            res.status(400).json({ status: "error", message: "Something went wrong" }) 
+          });
+});
+
+// add user community 
+app.put("/community/:id/addUsers",async function(req, res){
+   communityController.addUsers(req.params.id, req.body, req.user )
+          .then((community) => {
+            if(community){
+              //create event
+              io.sockets.emit('getNotificaion', { event :'community_addUsers' });
+              //create event
+              res.json(community)
+            }else{
+              res.status(400).json({ status: "error", message: 'Error while creating chat' })
+            }
+          })
+          .catch( (err) => {
+            console.log(err, "err")
+            res.status(400).json({ status: "error", message: "Something went wrong" }) 
+          });
+});
+
+// add addAdmins community 
+app.put("/community/:id/addAdmins",async function(req, res){
+   communityController.addAdmins(req.params.id, req.body, req.user)
+          .then((community) => {
+            if(community){
+              //create event
+              io.sockets.emit('getNotificaion', { event :'community_addAdmins' });
+              //create event
+              res.json(community)
+            }else{
+              res.status(400).json({ status: "error", message: 'Error while creating chat' })
+            }
+          })
+          .catch( (err) => {
+            console.log(err, "err")
+            res.status(400).json({ status: "error", message: "Something went wrong" }) 
+          });
+});
+
 // Create chat route
 app.post("/community/comment/create",[
   upload.fields([{
@@ -117,6 +197,7 @@ app.post("/community/comment/create",[
           .then((comment) => {
             if(comment){
               io.sockets.in(community).emit('chatMessage', comment);
+
               res.json(comment)
             }else{
               res.status(400).json({ status: "error", message: 'Error while creating chat' })
