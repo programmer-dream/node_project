@@ -72,7 +72,7 @@ async function list(params , user){
       allNotifications.push(notification)
     })
   )
-  
+
   allNotifications.sort(function(a,b) {
     return b.notification_vls_id - a.notification_vls_id;
   });
@@ -220,6 +220,10 @@ async function create(req){
 
     let user = req.user
     let customNotification = req.body
+
+    if(customNotification.users)
+        customNotification.users = JSON.stringify(customNotification.users)
+
     customNotification.notificaton_type = 'custom_notification'
     customNotification.event_type       = 'created'
     customNotification.notificaton_type_id = 0
