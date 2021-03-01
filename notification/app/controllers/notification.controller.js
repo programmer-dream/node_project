@@ -38,7 +38,7 @@ async function list(params , user){
   let limit   = 10
   let offset  = 0
   let orderBy = 'desc';
-
+  //return user
   let notiType = await getType(user.role)
   let userObj = '{"id":'+user.userVlsId+',"type":"'+notiType+'"}';
 
@@ -72,6 +72,10 @@ async function list(params , user){
       allNotifications.push(notification)
     })
   )
+  
+  allNotifications.sort(function(a,b) {
+    return b.notification_vls_id - a.notification_vls_id;
+  });
   return { success: true, message: "Notification list", data: allNotifications}
 };
 
@@ -385,6 +389,8 @@ async function getWhereCondition(user , userObj){
                  },{
                     school_vls_id : authUser.school_id,
                     users : { [Op.eq]: null }
+                 },{
+                    users : { [Op.like]: `%`+userObj+`%`}
                  }]
       }
       break;
