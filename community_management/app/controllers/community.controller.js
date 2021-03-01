@@ -120,7 +120,7 @@ async function saveCommunity(data, user, classStudents, auth){
 /**
  * API for view community 
  */
-async function view(id){
+async function view(id, user){
 
   let userCommunity   = await CommunityChat.findByPk(id)
 
@@ -130,6 +130,16 @@ async function view(id){
 
   let userList   = JSON.parse(userCommunity.user_list)
   let adminsList = JSON.parse(userCommunity.group_admin_user_id_list)
+
+  let userType = await getType(user.role)
+
+  let allUser = userList.concat(adminsList)
+
+  let isAuthorised =  allUser.filter( singleUser => {
+       return singleUser.id == user.userVlsId && singleUser.type == userType
+    }).length == 1;
+
+  if(!isAuthorised) throw 'Unauthorised user'
 
   communityJSON.users_list_details = await addUserList(userList);
   communityJSON.admin_list_details = await addUserList(adminsList);
@@ -637,5 +647,20 @@ function comparer2(otherArray){
     return otherArray.filter(function(other){
       return other.id == current.id && other.type == current.type
     }).length == 1;
+  }
+}
+
+
+/**
+ * API for list user chat created  
+ */
+async function getType(role){
+  switch(role){
+    case 'student': return 'student'
+      break;
+    case 'guardian': return 'guardian'
+      break;
+    default : return 'employee'
+      break;  
   }
 }
