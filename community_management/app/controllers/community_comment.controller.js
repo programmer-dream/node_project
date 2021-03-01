@@ -4,7 +4,7 @@ const moment     = require("moment");
 const bcrypt     = require("bcryptjs");
 const path       = require('path')
 const imageThumbnail = require('image-thumbnail');
-const config = require("../../../config/env.js");
+const fs       = require('fs')
 
 const Op         = db.Sequelize.Op;
 const Sequelize  = db.Sequelize;
@@ -13,6 +13,7 @@ const CommunityChat = db.CommunityChat;
 const Student    = db.Student;
 const Employee   = db.Employee;
 const CommunityCommunication   = db.CommunityCommunication;
+const config = require("../../../config/env.js");
 
 
 
