@@ -36,6 +36,12 @@ module.exports = (sequelize, Sequelize) => {
         file_url: {
           type: Sequelize.STRING
         },
+        file_type: {
+          type: Sequelize.STRING
+        },
+        image_thumbnail: {
+          type: Sequelize.STRING
+        },
         created_at: {
           allowNull: false,
           type: Sequelize.DATE

@@ -3,6 +3,8 @@ const db         = require("../models");
 const moment     = require("moment");
 const bcrypt     = require("bcryptjs");
 const path       = require('path')
+const imageThumbnail = require('image-thumbnail');
+
 const Op         = db.Sequelize.Op;
 const Sequelize  = db.Sequelize;
 const User       = db.Authentication;
@@ -20,6 +22,19 @@ module.exports = {
   view,
   deleteComment,
 };
+
+/**
+ * API for check file type  
+ */
+async function isImage(file){
+  let ext     = ['.jpeg','.jpg','.png','.gif']
+  let fileExt = path.extname(file)
+
+  if(ext.includes(fileExt)) return 'image'
+
+  return 'document'
+}
+
 /**
  * API for create new comment
  */
@@ -30,6 +45,21 @@ async function create(req){
 
   if(req.files.file && req.files.file.length > 0){
       req.body.file_url  = req.body.uplodedPath + req.files.file[0].filename;
+      req.body.file_type  = await isImage(req.files.file[0].originalname);
+      
+      if(req.body.file_type == 'image'){
+        let options = { width: 150, height: 150 , responseType: 'base64'}  
+        let dirpath = config.pdf_path+req.body.file_url
+
+        const thumbnail = await imageThumbnail(dirpath, options);
+        let imageBuffer = new Buffer(thumbnail, 'base64');
+
+        let fileName = req.body.uplodedPath+"thumb_"+Date.now()+'.png';
+        fs.writeFileSync(config.pdf_path+fileName, imageBuffer, 'utf8');
+
+        req.body.image_thumbnail = fileName
+      }
+
   }
   req.body.sender_user_vls_id = req.user.userVlsId
   req.body.sender_type        = req.user.role  
