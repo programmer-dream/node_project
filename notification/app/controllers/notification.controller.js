@@ -296,7 +296,8 @@ async function update(req){
     }
 
     let customNotification = req.body
-    
+    if(customNotification.users)
+        customNotification.users = JSON.stringify(customNotification.users)
     notification =  await notification.update(customNotification)
     
     return { success: true, message: "Notification updated successfully", data : notification}
