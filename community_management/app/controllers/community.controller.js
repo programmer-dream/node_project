@@ -324,7 +324,6 @@ async function addUsers(id, body , user){
   notificatonData.start_date    = community.start_date
   notificatonData.added_by      = user.userVlsId
   notificatonData.added_type    = user.role
-  notificatonData.users         = community.user_list
   
   if(updatedUsers.deletedUsers.length){
     let msg = updatedUsers.deletedUsers.length+' user'
@@ -332,8 +331,15 @@ async function addUsers(id, body , user){
         msg = updatedUsers.deletedUsers.length+' users'
 
     notificatonData.event_type    = 'deleted'
-    notificatonData.message = '{name} deleted '+msg+' from community'
+    notificatonData.message = '{name} removed you from a community'
+    notificatonData.users   = JSON.stringify(updatedUsers.deletedUsers)
     await Notification.create(notificatonData)
+    if(updatedUsers.oldUsers.length){
+      //for already user
+      notificatonData.message = '{name} removed '+msg+' from a community'
+      notificatonData.users   = JSON.stringify(updatedUsers.oldUsers)
+      await Notification.create(notificatonData)
+    }
   }
   if(updatedUsers.addedUsers.length){
     let msg = updatedUsers.addedUsers.length+' user'
@@ -341,8 +347,16 @@ async function addUsers(id, body , user){
         msg = updatedUsers.addedUsers.length+' users'
 
     notificatonData.event_type    = 'added'
-    notificatonData.message = '{name} added '+msg+' in community'
+    //for new user
+    notificatonData.message = '{name} added you in community'
+    notificatonData.users   = JSON.stringify(updatedUsers.addedUsers)
     await Notification.create(notificatonData)
+    if(updatedUsers.oldUsers.length){
+      //for already user
+      notificatonData.message = '{name} added '+msg+' in community'
+      notificatonData.users   = JSON.stringify(updatedUsers.oldUsers)
+      await Notification.create(notificatonData)
+    }
   }
   //notification
 
@@ -392,8 +406,15 @@ async function addAdmins(id, body, user){
           msg = updatedUsers.deletedUsers.length+' admin'
 
       notificatonData.event_type    = 'deleted'
-      notificatonData.message = '{name} deleted '+msg+' from community'
+      notificatonData.message = '{name} removed you from community'
+      notificatonData.users   = JSON.stringify(updatedUsers.deletedUsers)
       await Notification.create(notificatonData)
+      if(updatedUsers.oldUsers.length){
+        //for already user
+        notificatonData.message = '{name} removed '+msg+' from a community'
+        notificatonData.users   = JSON.stringify(updatedUsers.oldUsers)
+        await Notification.create(notificatonData)
+      }
     }
     if(updatedUsers.addedUsers.length){
       let msg = updatedUsers.addedUsers.length+' admin'
@@ -401,8 +422,15 @@ async function addAdmins(id, body, user){
           msg = updatedUsers.addedUsers.length+' admins'
 
       notificatonData.event_type    = 'added'
-      notificatonData.message = '{name} added '+msg+' in community'
+      notificatonData.message = '{name} added you as admin in a community'
+      notificatonData.users   = JSON.stringify(updatedUsers.addedUsers)
       await Notification.create(notificatonData)
+      if(updatedUsers.oldUsers.length){
+        //for already user
+        notificatonData.message = '{name} added '+msg+' in a community'
+        notificatonData.users   = JSON.stringify(updatedUsers.oldUsers)
+        await Notification.create(notificatonData)
+      }
     }
     //notification
   
@@ -590,8 +618,9 @@ async function usersUpdated(oldUsers , newUsers){
 
   var deletedUsers = oldUsersArr.filter(comparer(newUsersArr));
   var addedUsers = newUsersArr.filter(comparer(oldUsersArr));
+  var oldUsers = newUsersArr.filter(comparer2(oldUsersArr));
 
-  return { deletedUsers , addedUsers}
+  return { deletedUsers , addedUsers , oldUsers }
 }
 
 
@@ -600,5 +629,13 @@ function comparer(otherArray){
     return otherArray.filter(function(other){
       return other.id == current.id && other.type == current.type
     }).length == 0;
+  }
+}
+
+function comparer2(otherArray){
+  return function(current){
+    return otherArray.filter(function(other){
+      return other.id == current.id && other.type == current.type
+    }).length == 1;
   }
 }
