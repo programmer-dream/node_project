@@ -100,7 +100,7 @@ async function saveCommunity(data, user, classStudents, auth){
     notificatonData.branch_vls_id = data.branch_vls_id
     notificatonData.school_vls_id = data.school_vls_id
     notificatonData.status        = 'general'
-    notificatonData.message       = '{name} added you in a community.'
+    notificatonData.message       = '{name} added you in '+createdCommunity.group_name+' community'
     notificatonData.notificaton_type = 'community'
     notificatonData.notificaton_type_id = createdCommunity.community_chat_vls_id
     notificatonData.start_date    = data.start_date
@@ -110,7 +110,7 @@ async function saveCommunity(data, user, classStudents, auth){
     notificatonData.event_type    = 'added'
     await Notification.create(notificatonData)
     notificatonData.users         = data.group_admin_user_id_list
-    notificatonData.message = '{name} added you as admin in a community'
+    notificatonData.message = '{name} added you as admin in '+createdCommunity.group_name+' community'
     await Notification.create(notificatonData)
     //notification
   return createdCommunity
@@ -331,12 +331,12 @@ async function addUsers(id, body , user){
         msg = updatedUsers.deletedUsers.length+' users'
 
     notificatonData.event_type    = 'deleted'
-    notificatonData.message = '{name} removed you from a community'
+    notificatonData.message = '{name} removed you from '+community.group_name+' community'
     notificatonData.users   = JSON.stringify(updatedUsers.deletedUsers)
     await Notification.create(notificatonData)
     if(updatedUsers.oldUsers.length){
       //for already user
-      notificatonData.message = '{name} removed '+msg+' from a community'
+      notificatonData.message = '{name} removed '+msg+' from '+community.group_name+' community'
       notificatonData.users   = JSON.stringify(updatedUsers.oldUsers)
       await Notification.create(notificatonData)
     }
@@ -348,12 +348,12 @@ async function addUsers(id, body , user){
 
     notificatonData.event_type    = 'added'
     //for new user
-    notificatonData.message = '{name} added you in community'
+    notificatonData.message = '{name} added you in '+community.group_name+' community'
     notificatonData.users   = JSON.stringify(updatedUsers.addedUsers)
     await Notification.create(notificatonData)
     if(updatedUsers.oldUsers.length){
       //for already user
-      notificatonData.message = '{name} added '+msg+' in community'
+      notificatonData.message = '{name} added '+msg+' in '+community.group_name+' community'
       notificatonData.users   = JSON.stringify(updatedUsers.oldUsers)
       await Notification.create(notificatonData)
     }
@@ -406,12 +406,12 @@ async function addAdmins(id, body, user){
           msg = updatedUsers.deletedUsers.length+' admin'
 
       notificatonData.event_type    = 'deleted'
-      notificatonData.message = '{name} removed you from community'
+      notificatonData.message = '{name} removed you from '+community.group_name+' community'
       notificatonData.users   = JSON.stringify(updatedUsers.deletedUsers)
       await Notification.create(notificatonData)
       if(updatedUsers.oldUsers.length){
         //for already user
-        notificatonData.message = '{name} removed '+msg+' from a community'
+        notificatonData.message = '{name} removed '+msg+' from  '+community.group_name+' community'
         notificatonData.users   = JSON.stringify(updatedUsers.oldUsers)
         await Notification.create(notificatonData)
       }
@@ -422,12 +422,12 @@ async function addAdmins(id, body, user){
           msg = updatedUsers.addedUsers.length+' admins'
 
       notificatonData.event_type    = 'added'
-      notificatonData.message = '{name} added you as admin in a community'
+      notificatonData.message = '{name} added you as admin in '+community.group_name+' community'
       notificatonData.users   = JSON.stringify(updatedUsers.addedUsers)
       await Notification.create(notificatonData)
       if(updatedUsers.oldUsers.length){
         //for already user
-        notificatonData.message = '{name} added '+msg+' in a community'
+        notificatonData.message = '{name} added '+msg+' in '+community.group_name+' community'
         notificatonData.users   = JSON.stringify(updatedUsers.oldUsers)
         await Notification.create(notificatonData)
       }
