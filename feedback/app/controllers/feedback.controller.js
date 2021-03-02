@@ -82,9 +82,14 @@ async function view(params , user){
                   }]
               }]
   })
+
   feedback = feedback.toJSON()
-  feedback.feedback_user = await getUser(feedback.user_vls_id , feedback.user_type)
   if(!feedback) throw 'Feedback not found'
+
+  feedback.feedback_user = await getUser(feedback.user_vls_id , feedback.user_type)
+
+  if(feedback.related_to && feedback.related_to != "")
+    feedback.feedback_related_user = await getUser(feedback.related_to, feedback.related_type)
 
   return { success: true, message: "Feedback view", data: feedback}
 };
@@ -164,6 +169,9 @@ async function list(params , user){
     allFeedback.map(async feedback => {
       feedback = feedback.toJSON()
       feedback.feedback_user = await getUser(feedback.user_vls_id , feedback.user_type)
+      if(feedback.related_to && feedback.related_to != "")
+        feedback.feedback_related_user = await getUser(feedback.related_to, feedback.related_type)
+
       feedbackArr.push(feedback)
     })
   )
