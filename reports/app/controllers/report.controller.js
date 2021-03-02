@@ -444,10 +444,10 @@ async function classPerformance(params, user){
 	if(params.subject_code)
 		subjectFilter = 'AND `marks`.`subject_code` = '+params.subject_code
 
-	let classData = await sequelize.query("SELECT `classes`.`class_vls_id`, `classes`.`name`, SUM(`exam_total_mark`) AS `total_marks`, SUM(`obtain_total_mark`) AS `obtain_marks`, `marks->subject`.`id` AS `marks.subject.id`, `marks->subject`.`subject_name` AS `subject_name` FROM `classes` AS `classes` INNER JOIN `marks` AS `marks` ON `classes`.`class_vls_id` = `marks`.`class_id` "+exam_id+" "+section+" "+studentFilter+" "+subjectFilter+" LEFT OUTER JOIN `subject_list` AS `marks->subject` ON `marks`.`subject_code` = `marks->subject`.`code` WHERE `classes`.`school_id` = "+school_id+" "+classFilter+" GROUP BY `class_id`, `subject_code`, `marks.subject.id`", { type: Sequelize.QueryTypes.SELECT });
+	let classData = await sequelize.query("SELECT `classes`.`class_vls_id`, `classes`.`name`, SUM(`exam_total_mark`) AS `total_marks`, SUM(`obtain_total_mark`) AS `obtain_marks`, `marks->subject`.`id` AS `marks.subject.id`, `marks->subject`.`subject_name` AS `subject_name`, `exams`.`test_type` as title FROM `classes` AS `classes` INNER JOIN `marks` AS `marks` ON `classes`.`class_vls_id` = `marks`.`class_id` "+exam_id+" "+section+" "+studentFilter+" "+subjectFilter+" LEFT OUTER JOIN `subject_list` AS `marks->subject` ON `marks`.`subject_code` = `marks->subject`.`code` LEFT OUTER JOIN `exams` ON `marks`.`exam_id` = `exams`.`test_id` WHERE `classes`.`school_id` = "+school_id+" "+classFilter+" GROUP BY `class_id`, `subject_code`, `marks.subject.id`", { type: Sequelize.QueryTypes.SELECT });
 
 	
-	// return classData
+	return classData
 	let classPerformance = {}
   	await Promise.all(
     	classData.map(async classObj => {
@@ -459,7 +459,8 @@ async function classPerformance(params, user){
 
 			let subObj = { 
 						   subject_name : classObj.subject_name ,
-						   percentage   : percentage
+						   percentage   : percentage,
+						   title : 'testing'
 						 }
 			classPerformance[classObj.name].push(subObj)
 
