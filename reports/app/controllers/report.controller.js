@@ -353,7 +353,7 @@ async function subjectPerformance(params, user){
   let authentication = await Authentication.findByPk(user.id)
   //branch
   let branchId       = authentication.branch_vls_id
-  let orderBy 		 = 'desc' 
+  let orderBy 		 = 'asc' 
   //acadminc year
   let academicYear  = await AcademicYear.findOne({
 	                where:{school_id:authentication.school_id},
