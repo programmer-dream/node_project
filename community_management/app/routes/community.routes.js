@@ -19,7 +19,7 @@ module.exports = router;
 
 // Function for view community	
 function view(req, res, next) {
-    communityController.view(req.params.id)
+    communityController.view(req.params.id, req.user)
         .then(community => community ? res.json(community) : res.status(400).json({ status: "error", message: 'Error while getting chat' }))
         .catch(err => next(err));
 }
