@@ -189,12 +189,11 @@ async function viewChat(params , user){
   let userChat = await Chat.findAll({
               limit:limit,
               offset:offset,
-              order: [
-                       ['chat_vls_id', 'DESC']
-                     ],
               where : whereCondition    
             })
+
   userchat = await addChatUser(userChat);
+  
   userchat.sort(function(a,b) {
     return b.chat_vls_id - a.chat_vls_id;
   });
