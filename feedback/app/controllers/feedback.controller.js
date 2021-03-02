@@ -144,6 +144,12 @@ async function list(params , user){
   if(params.feedback_type)
      whereCondition.feedback_type = params.feedback_type
 
+   if(params.related_to)
+     whereCondition.related_to = params.related_to
+
+   if(params.related_type)
+     whereCondition.related_type = params.related_type
+
   if(params.orderBy) 
     orderBy = params.orderBy
 
