@@ -72,7 +72,7 @@ async function view(id){
 /**
  * API for list comment according to school and student
  */
-  async function list(params){
+async function list(params){
   let community_chat_vls_id   = params.community_chat_vls_id
   if(!community_chat_vls_id) throw 'community_chat_vls_id is required'
 
@@ -95,7 +95,9 @@ async function view(id){
     whereCondition.community_chat_communication_vls_id = {[Op.lt]: params.id}
     offset = 0
   }
-  
+  let count = await CommunityCommunication.count({
+          where:whereCondition
+  })
   let comments  = await CommunityCommunication.findAll({  
                       limit:limit,
                       offset:offset,
@@ -106,7 +108,7 @@ async function view(id){
                       });
   let comentWithUser = await setUsers(comments)
 
-  return { success: true, message: "All Comment data", data:comentWithUser }
+  return { success: true, message: "All Comment data", total : count, data:comentWithUser }
 };
 
 
