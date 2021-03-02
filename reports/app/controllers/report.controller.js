@@ -91,13 +91,20 @@ async function list(params , user){
 async function getExamMarks(params , user , query){
 	let id = params.id
 	let whereConditions = { exam_id : id}
+
+	if(id == 'all')
+		whereConditions = {}
+
 	let includeArray = [{ 
 			                model:SubjectList,
 			                as:'subject',
 			                attributes: ['subject_name'],
 			                
-			              }
-	            	    ]
+			            },{ 
+			                model:Exams,
+			                as:'exam',
+			                attributes: ['test_type','test_id']
+			            }]
   	if(user.role == 'student'){
 	  	let student = await Student.findByPk(user.userVlsId)
 	  	
@@ -124,30 +131,34 @@ async function getExamMarks(params , user , query){
 
 	let subjectMarks = await Marks.findAll({
 		where : whereConditions,
-		include: includeArray
+		include: includeArray,
 	})
 
-	let overallMarks = await Marks.findOne({
-		where : whereConditions,
-		 attributes: [
-		 	[ Sequelize.fn('SUM', Sequelize.col('exam_total_mark')), 'total_marks' ],
-		 	[ Sequelize.fn('SUM', Sequelize.col('obtain_total_mark')), 'obtain_marks' ]
-		 ]
-	})
-	
-	let marks = overallMarks.toJSON()
+	let classPerformance = {}
+  	await Promise.all(
+    	subjectMarks.map(async subjectMark => {
+    		let testName = subjectMark.exam.test_type
+    		let subjectName = subjectMark.subject.subject_name
 
-	let total_marks  = parseInt(marks.total_marks)
-	let obtain_marks = parseInt(marks.obtain_marks)
-	let percentage   = parseFloat(obtain_marks * 100 / total_marks).toFixed(2)
+    		if(!classPerformance[testName])
+    			classPerformance[testName] = {}
 
-	let final_marks = {
-		total_marks : marks.total_marks,
-		obtain_marks : marks.obtain_marks,
-		percentage : percentage
-	}
+    		if(!classPerformance[testName][subjectName])
+    			classPerformance[testName][subjectName] = {}
+
+    if(!classPerformance[testName][subjectName]['exam_total_mark'])
+    	classPerformance[testName][subjectName]['exam_total_mark'] = 0 
+
+    	classPerformance[testName][subjectName]['exam_total_mark'] += subjectMark.exam_total_mark
+
+    if(!classPerformance[testName][subjectName]['obtain_total_mark'])
+    	classPerformance[testName][subjectName]['obtain_total_mark'] = 0 
+
+    	classPerformance[testName][subjectName]['obtain_total_mark'] += subjectMark.obtain_total_mark
+    })
+   )
 	
-	return { success: true, message: "Exam list", data : {final_marks,subjectMarks}
+	return { success: true, message: "Exam list", data : classPerformance
 	}
 }
 
