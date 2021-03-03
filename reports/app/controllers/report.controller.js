@@ -491,7 +491,12 @@ async function overAllPerformance(query, user){
 	let sectionId   	= null
 	let whereConditions = {}
 	let innerWhere      = {}
-
+	let includeArray    = []
+	let sectionObj		= { 
+				            model:Section,
+				            as:'section',
+				            attributes:['id','name']
+					       }
 	if(query.test_id)
 		testId = query.test_id
 
@@ -501,21 +506,17 @@ async function overAllPerformance(query, user){
 	if(query.class_vls_id)
 		whereConditions.class_vls_id = query.class_vls_id
 
-	if(query.section_id)
-		innerWhere.id = query.section_id
+	if(query.section_id){
+		sectionObj.where = { id : query.section_id }
+	}
+	includeArray.push(sectionObj)
 
- 	// return data
 	let allClasses = await Classes.findAll({
-		where : whereConditions,
+		where      : whereConditions,
 		attributes : ['class_vls_id','name'],
-		include : [{ 
-		                model:Section,
-		                as:'section',
-		                attributes:['id','name'],
-		                where : innerWhere
-		            }]
+		include    : includeArray
 	})
-	//return allClasses
+	
 	let overAllPerformance = {}
   	await Promise.all(
     	allClasses.map(async (classObj, classIndex)=> {
