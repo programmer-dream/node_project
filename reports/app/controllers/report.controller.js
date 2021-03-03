@@ -355,10 +355,9 @@ async function subjectPerformance(params, user){
   let branchId       = authentication.branch_vls_id
 
   if(user.role =='school-admin'){
-  	if(!params.branch_id) throw 'branch_id field is required'
+  	if(!params.branch_vls_id) throw 'branch_vls_id field is required'
 
-  	 if(params.branch_id) 
-  	 	branchId = params.branch_id
+  	branchId = params.branch_vls_id
   }
 
   if(!params.student_vls_id) throw 'student_vls_id field is required'
@@ -497,7 +496,7 @@ async function overAllPerformance(query, user){
 
 	if(!query.school_id) throw 'school_id field is required'
 
-	if(!query.branch_id) throw 'branch_id field is required'
+	if(!query.branch_vls_id) throw 'branch_vls_id field is required'
 
 	let testId      	= 'all'
 	let subjectCode 	= null
@@ -526,8 +525,8 @@ async function overAllPerformance(query, user){
 	if(query.school_id)
 		whereConditions.school_id = query.school_id
 
-	if(query.branch_id)
-		whereConditions.branch_vls_id = query.branch_id
+	if(query.branch_vls_id)
+		whereConditions.branch_vls_id = query.branch_vls_id
 	
 
 	includeArray.push(sectionObj)
