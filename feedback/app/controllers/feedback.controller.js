@@ -105,6 +105,7 @@ async function list(params , user){
   let search = ''
   let schoolVlsId   = params.schoolVlsId
   let branchVlsId   = params.branch_vls_id
+  let students = []
 
   if(!schoolVlsId) throw 'schoolVlsId is required'
   if(!branchVlsId) throw 'branchVlsId is required'
@@ -144,11 +145,29 @@ async function list(params , user){
   if(params.feedback_type)
      whereCondition.feedback_type = params.feedback_type
 
+   if(params.class_id){
+    students = await Student.findAll({ where : {class_id : params.class_id},
+        attributes: ['student_vls_id']
+        }).then(student => student.map(student => student.student_vls_id));
+   }
+
+   if(params.section_id){
+    if(!params.class_id) throw "class_id is required when selecting section"
+
+    students = await Student.findAll({ where : {class_id : params.class_id, section_id: params.section_id},
+        attributes: ['student_vls_id']
+        }).then(student => student.map(student => student.student_vls_id));;
+   }
+
+
    if(params.related_to){
       if(!params.related_type) throw 'related_type is required with related_to'
-        
+
       whereCondition.related_to = params.related_to
       whereCondition.related_type = params.related_type
+   }else if(students.length > 0){
+      whereCondition.related_to = { [Op.in] : students }
+      whereCondition.related_type = "student"
    }
 
   if(params.orderBy) 
