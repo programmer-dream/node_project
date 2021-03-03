@@ -294,12 +294,23 @@ async function update(req){
     if(!targetId){
       throw "Please add atleast one id { school_vls_id , branch_vls_id, class_id, section_id }for send notification"
     }
+    //remove read by
+    await NotificationReadBy.destroy({
+        where : { notification_vls_id: id }
+    })
 
+    await Notification.destroy({
+        where : { notification_vls_id: id }
+    })
+    notification = notification.toJSON()
+    delete notification.notification_vls_id
+    //remove read by
+    notification =  await Notification.create(notification)
     let customNotification = req.body
+
     if(customNotification.users)
         customNotification.users = JSON.stringify(customNotification.users)
-    notification =  await notification.update(customNotification)
-    
+    notification.update(customNotification)
     return { success: true, message: "Notification updated successfully", data : notification}
 }
 
