@@ -350,11 +350,21 @@ async function sendAttendanceResult(body, user){
  * API for get overall performance of subject 
  */
 async function subjectPerformance(params, user){
+  let branchId       = authentication.branch_vls_id
+
+  if(user.role =='school-admin'){
+  	if(!params.branch_id) throw 'branch_id field is required'
+
+  	 if(params.branch_id) 
+  	 	branchId = params.branch_id
+  }
+
   if(!params.student_vls_id) throw 'student_vls_id field is required'
   //Auth user
   let authentication = await Authentication.findByPk(user.id)
   //branch
-  let branchId       = authentication.branch_vls_id
+
+
   let orderBy 		 = 'desc' 
   //acadminc year
   let academicYear  = await AcademicYear.findOne({
