@@ -531,8 +531,6 @@ async function overAllPerformance(query, user){
 	    			overAllPerformance[className]['sections'] = true
 	    	}else{
 				let data = await getExamData(testId,classObj.class_vls_id, null , subjectCode)
-				console.log(testId,classObj.class_vls_id, null , subjectCode)
-		    	console.log(data)
 	    		overAllPerformance[className] = data
 
 	    		if(!overAllPerformance[className]['sections'])
