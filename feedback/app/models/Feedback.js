@@ -45,6 +45,14 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.STRING,
         allowNull: false
       },
+      related_to: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      related_type: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
       open_to_comment: {
         type: Sequelize.BOOLEAN,
         allowNull: false,

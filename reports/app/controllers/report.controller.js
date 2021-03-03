@@ -362,7 +362,7 @@ async function subjectPerformance(params, user){
 
   if(!params.student_vls_id) throw 'student_vls_id field is required'
 
-  let orderBy 		 = 'desc' 
+  let orderBy 		 = 'asc' 
   //acadminc year
   let academicYear  = await AcademicYear.findOne({
 	                where:{school_id:authentication.school_id},

@@ -137,9 +137,9 @@ async function view(id, user){
 
   let isAuthorised =  allUser.filter( singleUser => {
        return singleUser.id == user.userVlsId && singleUser.type == userType
-    }).length == 1;
+    });
 
-  if(!isAuthorised) throw 'Unauthorised user'
+  if(isAuthorised.length < 1) throw 'Unauthorised user'
 
   communityJSON.users_list_details = await addUserList(userList);
   communityJSON.admin_list_details = await addUserList(adminsList);
