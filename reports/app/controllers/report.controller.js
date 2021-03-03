@@ -11,6 +11,7 @@ const Exams      = db.Exams;
 const Marks      = db.Marks;
 const Student    = db.Student;
 const Subject    = db.Subject;
+const Section    = db.Section;
 const SubjectList    = db.SubjectList;
 const Authentication = db.Authentication;
 const AcademicYear   = db.AcademicYear;
@@ -26,7 +27,8 @@ module.exports = {
   sendExamResult,
   sendAttendanceResult,
   subjectPerformance,
-  classPerformance
+  classPerformance,
+  overAllPerformance
 };
 
 
@@ -477,4 +479,127 @@ async function classPerformance(params, user){
     )
     
 	return { success: true, message: "class performance", data : classPerformance}
+}
+
+
+/**
+ * API for get overall performance  
+ */
+async function overAllPerformance(query, user){
+	let testId      = 'all'
+	let subjectCode = null
+	let sectionId   = null
+	let whereConditions = {}
+	if(query.test_id)
+		testId = query.test_id
+
+	if(query.subjectCode)
+		subjectCode = query.subject_code
+
+	if(query.class_vls_id)
+		whereConditions.class_vls_id = query.class_vls_id
+ 	// let data = await getExamData(1 , 1 , 1)
+ 	// return data
+	let allClasses = await Classes.findAll({
+		where : whereConditions,
+		attributes : ['class_vls_id','name'],
+		include : [{ 
+		                model:Section,
+		                as:'section',
+		                attributes:['id','name']
+		            }]
+	})
+	//return allClasses
+	let overAllPerformance = {}
+  	await Promise.all(
+    	allClasses.map(async (classObj, classIndex)=> {
+    		classObj = classObj.toJSON()
+    		let className  = classObj.name
+    		let sectionArr = classObj.section
+    		if(!overAllPerformance[className])
+    			overAllPerformance[className] = {}
+
+    		if(sectionArr.length){
+    			await Promise.all(
+	    			sectionArr.map(async (section, index)=> {
+		    			let data = await getExamData(testId,classObj.class_vls_id, section.id , subjectCode)
+			    		  if(!overAllPerformance[className][section.name])
+			    		   overAllPerformance[className][section.name] = data
+		    		})
+	    		)
+	    		if(!overAllPerformance[className]['sections'])
+	    			overAllPerformance[className]['sections'] = true
+	    	}else{
+				let data = await getExamData(testId,classObj.class_vls_id, null , subjectCode)
+				console.log(testId,classObj.class_vls_id, null , subjectCode)
+		    	console.log(data)
+	    		overAllPerformance[className] = data
+
+	    		if(!overAllPerformance[className]['sections'])
+	    			overAllPerformance[className]['sections'] = false
+	    	}
+    	})
+    )
+    return overAllPerformance
+	return { success: true, message: "overall performance", data : allClasses} 
+}
+
+/**
+ * API for get data 
+ */
+async function getExamData(testId , classId , sectionId = null , subjectCode = null ){
+	let whereConditions = { exam_id : testId}
+
+	if(testId == 'all')
+		whereConditions = {}
+
+	let includeArray = [{ 
+			                model:SubjectList,
+			                as:'subject',
+			                attributes: ['subject_name'],
+			                
+			            },{ 
+			                model:Exams,
+			                as:'exam',
+			                attributes: ['test_type','test_id']
+			            }]
+  	
+	whereConditions.class_id   = classId
+
+	if(sectionId)
+		whereConditions.section_id = sectionId
+
+	if(subjectCode) 
+		whereConditions.subject_code = subjectCode
+
+	let subjectMarks = await Marks.findAll({
+		where : whereConditions,
+		include: includeArray,
+	})
+
+	let classPerformance = {}
+  	await Promise.all(
+    	subjectMarks.map(async subjectMark => {
+    		let testName = subjectMark.exam.test_type
+    		let subjectName = subjectMark.subject.subject_name
+
+    		if(!classPerformance[testName])
+    			classPerformance[testName] = {}
+
+    		if(!classPerformance[testName][subjectName])
+    			classPerformance[testName][subjectName] = {}
+
+    if(!classPerformance[testName][subjectName]['exam_total_mark'])
+    	classPerformance[testName][subjectName]['exam_total_mark'] = 0 
+
+    	classPerformance[testName][subjectName]['exam_total_mark'] += subjectMark.exam_total_mark
+
+    if(!classPerformance[testName][subjectName]['obtain_total_mark'])
+    	classPerformance[testName][subjectName]['obtain_total_mark'] = 0 
+
+    	classPerformance[testName][subjectName]['obtain_total_mark'] += subjectMark.obtain_total_mark
+    })
+   )
+	
+	return classPerformance;
 }

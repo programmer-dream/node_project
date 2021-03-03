@@ -11,6 +11,7 @@ router.get("/dashboardList/",dashboardList);
 router.get("/:id/getExamMarks",getExamMarks);
 router.get("/subjectPerformance",subjectPerformance);
 router.get("/classPerformance",classPerformance);
+router.get("/overAllPerformance",overAllPerformance);
 
 //Post
 router.post("/sendExamResult",sendExamResult);
@@ -65,6 +66,13 @@ function subjectPerformance(req, res, next) {
 // Function for assignment details
 function classPerformance(req, res, next) {
     reportController.classPerformance(req.query, req.user)
+        .then(exam => exam ? res.json(exam) : res.status(400).json({ status: "error", message: 'Error while getting send attenance marks' }))
+        .catch(err => next(err));
+}
+
+// Function for assignment details
+function overAllPerformance(req, res, next) {
+    reportController.overAllPerformance(req.query, req.user)
         .then(exam => exam ? res.json(exam) : res.status(400).json({ status: "error", message: 'Error while getting send attenance marks' }))
         .catch(err => next(err));
 }
