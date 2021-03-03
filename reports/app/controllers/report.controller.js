@@ -486,19 +486,24 @@ async function classPerformance(params, user){
  * API for get overall performance  
  */
 async function overAllPerformance(query, user){
-	let testId      = 'all'
-	let subjectCode = null
-	let sectionId   = null
+	let testId      	= 'all'
+	let subjectCode 	= null
+	let sectionId   	= null
 	let whereConditions = {}
+	let innerWhere      = {}
+
 	if(query.test_id)
 		testId = query.test_id
 
-	if(query.subjectCode)
+	if(query.subject_code)
 		subjectCode = query.subject_code
 
 	if(query.class_vls_id)
 		whereConditions.class_vls_id = query.class_vls_id
- 	// let data = await getExamData(1 , 1 , 1)
+
+	if(query.section_id)
+		innerWhere.id = query.section_id
+
  	// return data
 	let allClasses = await Classes.findAll({
 		where : whereConditions,
@@ -506,7 +511,8 @@ async function overAllPerformance(query, user){
 		include : [{ 
 		                model:Section,
 		                as:'section',
-		                attributes:['id','name']
+		                attributes:['id','name'],
+		                where : innerWhere
 		            }]
 	})
 	//return allClasses
@@ -538,8 +544,8 @@ async function overAllPerformance(query, user){
 	    	}
     	})
     )
-    return overAllPerformance
-	return { success: true, message: "overall performance", data : allClasses} 
+    //return overAllPerformance
+	return { success: true, message: "overall performance", data : overAllPerformance} 
 }
 
 /**
@@ -569,7 +575,7 @@ async function getExamData(testId , classId , sectionId = null , subjectCode = n
 
 	if(subjectCode) 
 		whereConditions.subject_code = subjectCode
-
+	//console.log(whereConditions , 'whereConditions', subjectCode)
 	let subjectMarks = await Marks.findAll({
 		where : whereConditions,
 		include: includeArray,
