@@ -1072,10 +1072,13 @@ async function studentCount(userId, currentYear, currentMonth, currentDay){
 			 		}
 			 		if(!subjectWistAttendance['subjects'])
 			 			subjectWistAttendance['subjects'] = {}
-			 		
+
 			 		subjectWistAttendance['subjects'][subject] = {present : presentCount, absent : absentCount}
 		 		})	
 			)
+		}else{
+			if(!subjectWistAttendance['subjects'])
+			 subjectWistAttendance['subjects'] = {}
 		}
 		return subjectWistAttendance
 	}
