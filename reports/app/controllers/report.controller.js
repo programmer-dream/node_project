@@ -39,9 +39,10 @@ async function list(params , user){
   let authentication = await Authentication.findByPk(user.id)
   let branchId       = authentication.branch_vls_id
 
-  let whereConditions = {
-  	branch_vls_id : branchId
-  }
+  let whereConditions = {}
+
+  if(branchId) 
+  	whereConditions.branch_vls_id = branchId
 
   let joinWhere = {}
   if(user.role == 'student'){
@@ -49,6 +50,11 @@ async function list(params , user){
 
   	 joinWhere.class_id            = student.class_id
   	 joinWhere.student_id          = user.userVlsId
+  }else{
+
+  	if(!params.class_id) throw 'class_id field is required'
+  		joinWhere.class_id    = params.class_id
+
   }
 
   let limit   = 10
