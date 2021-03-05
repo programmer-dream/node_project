@@ -27,7 +27,6 @@ module.exports = {
 };
 
 
-
 /**
  * API for create new feedback
  */
@@ -169,6 +168,8 @@ async function list(params , user){
    }else if(students.length > 0){
       whereCondition.related_to = { [Op.in] : students }
       whereCondition.related_type = "student"
+   }else if(students.length < 1 && (params.section_id || params.class_id)){
+      whereCondition.related_to = null
    }
 
   if(params.orderBy) 
