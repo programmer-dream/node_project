@@ -220,7 +220,7 @@ app.put("/assignment/releaseAssignment",[
     check('is_released','is_released field is required.').not().isEmpty(),
     check('assignment_id','assignment_id field is required.').not().isEmpty()
     ],async function(req, res){
-   assignmentController.releaseAssignment(req.body)
+   assignmentController.releaseAssignment(req.body, req.user)
           .then((assignment) => {
             if(assignment){
               //create event

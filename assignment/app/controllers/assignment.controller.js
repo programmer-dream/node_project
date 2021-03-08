@@ -836,12 +836,28 @@ async function updateMarks(body, user){
 /**
  * API for release assignment
  */
-async function releaseAssignment(body){
+async function releaseAssignment(body, user){
     let assignmentData = { is_released : body.is_released }
     let assignment = await Assignment.findByPk(body.assignment_id)
     if(!assignment) throw 'Assignment not found'
 
+    let assignedStudent = await getStudentList(assignment)
     await assignment.update(assignmentData);
+    //
+    let notificatonData = {}
+    notificatonData.branch_vls_id = assignment.branch_vls_id
+    notificatonData.school_vls_id = assignment.school_vls_id
+    notificatonData.status        = 'general'
+    notificatonData.message       = '{name} published new assignment for {subjectname}'
+    notificatonData.notificaton_type = 'assignment'
+    notificatonData.notificaton_type_id = assignment.assignment_vls_id
+    notificatonData.start_date    = assignment.assignment_date
+    notificatonData.close_date    = assignment.assignment_completion_date
+    notificatonData.users         = JSON.stringify(assignedStudent)
+    notificatonData.added_by      = user.userVlsId
+    notificatonData.added_type    = user.role
+    notificatonData.event_type    = 'published'
+    await Notification.create(notificatonData)
 
     return { success: true, message: "Assignment updated successfully"}
 }
