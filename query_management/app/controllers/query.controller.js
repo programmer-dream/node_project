@@ -332,22 +332,6 @@ async function deleteQuery(id , user) {
       where:{query_vls_id: id}
     })
 
-  //notifaction code
-  let notificatonData = {}
-  let users = await querySubjectTeacher(query.subject_code)
-  notificatonData.branch_vls_id = query.branch_vls_id
-  notificatonData.school_vls_id = query.school_vls_id
-  notificatonData.status        = 'general'
-  notificatonData.message       = '{name} deleted query for {subjectname}.'
-  notificatonData.notificaton_type = 'query'
-  notificatonData.notificaton_type_id = query.query_vls_id
-  notificatonData.start_date    = query.query_date
-  notificatonData.users         = JSON.stringify(users)
-  notificatonData.added_by      = user.userVlsId
-  notificatonData.added_type    = user.role
-  notificatonData.event_type    = 'deleted'
-  await Notification.create(notificatonData)
-
   return { success:true, message:"Query deleted successfully!"}
   
 };
