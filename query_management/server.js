@@ -194,7 +194,7 @@ app.delete("/query/delete/:id",async function(req, res){
           .then((query) => {
             if(query){
               //create event
-              io.sockets.emit('getNotificaion', { event :'query_deleted' });
+              //io.sockets.emit('getNotificaion', { event :'query_deleted' });
               //create event
               res.json(query)
             }else{
