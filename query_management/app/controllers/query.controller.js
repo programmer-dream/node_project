@@ -435,6 +435,7 @@ async function queryResponse(body, user){
   if(!body.response) throw'response is required'
 
   let canResponses = await canResponse(body.queryId, user)
+  
   if(!canResponses.success) throw "User can not add/update to this query"
 
   try{
@@ -451,11 +452,27 @@ async function queryResponse(body, user){
                               query_vls_id : queryId
                              }
                     });
-  let respondedBy = await Employee.findOne({
-    where : {faculty_vls_id:user.userVlsId},
-    attributes: ['faculty_vls_id','name','photo']
-  });
-  
+    let respondedBy = await Employee.findOne({
+      where : {faculty_vls_id:user.userVlsId},
+      attributes: ['faculty_vls_id','name','photo']
+    });
+
+    let dbQuery = await StudentQuery.findByPk(queryId);
+    let users = [{ 'id': dbQuery.student_vls_id, 'type': 'student'}]
+    let notificatonData = {}
+    notificatonData.branch_vls_id = dbQuery.branch_vls_id
+    notificatonData.school_vls_id = dbQuery.school_vls_id
+    notificatonData.status        = 'general'
+    notificatonData.message       = '{name} answered on your query'
+    notificatonData.notificaton_type = 'query'
+    notificatonData.notificaton_type_id = dbQuery.query_vls_id
+    notificatonData.start_date    = dbQuery.query_date
+    notificatonData.users         = JSON.stringify(users)
+    notificatonData.added_by      = user.userVlsId
+    notificatonData.added_type    = user.role
+    notificatonData.event_type    = 'answered'
+    await Notification.create(notificatonData)
+
   if(num != 1) throw 'Query not found'
   
   return { success: true, message: "Response updated successfully" ,respondedBy:respondedBy};

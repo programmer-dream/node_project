@@ -207,6 +207,25 @@ app.delete("/query/delete/:id",async function(req, res){
           });
 });
 
+// response query  
+app.post("/query/response",async function(req, res){
+   queryController.queryResponse(req.body, req.user)
+          .then((query) => {
+            if(query){
+              //create event
+              io.sockets.emit('getNotificaion', { event :'query_answered' });
+              //create event
+              res.json(query)
+            }else{
+              res.status(400).json({ status: "error", message: 'Error while answer on query' })
+            }
+          })
+          .catch( (err) => {
+            console.log(err, "err")
+            res.status(400).json({ status: "error", message: "Something went wrong" }) 
+          });
+});
+
 // api routes
 app.use('/query', require('./app/routes/query.routes'));
 app.use('/query/comment', require('./app/routes/comment.routes'));
