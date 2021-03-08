@@ -33,7 +33,8 @@ module.exports = {
   statusUpdate,
   canResponse,
   dashboardCount,
-  teacherQueryList
+  teacherQueryList,
+  listAllSubject
 };
 
 
@@ -394,6 +395,35 @@ async function listSubject(params, user){
     let wherecondition = { branch_vls_id: { [Op.eq]: null } }
     if(params.branch_vls_id && params.branch_vls_id != "null" )
       wherecondition = {branch_vls_id:params.branch_vls_id}
+
+    let subjects  = await SubjectList.findAll({
+                        where:wherecondition,
+                        attributes: ['id','subject_name','code']
+                      });
+
+    return { success: true, message: "list subject data", data:subjects }
+
+  }catch(err){
+    throw err.message
+  }
+};
+
+
+/**
+ * API for get list subjects
+ */
+async function listAllSubject(params, user){
+
+  if(user.role == "super-admin") throw 'school id is required'
+  
+  try{
+    let school_id = params.school_id
+    let userData = await Users.findOne({ where: { user_name: user.userId } });
+    if(user.role != "super-admin") school_id = user.school_id
+
+    let wherecondition = { school_vls_id: school_id }
+    if(userData.branch_vls_id && userData.branch_vls_id != null )
+      wherecondition = { branch_vls_id: userData.branch_vls_id }
 
     let subjects  = await SubjectList.findAll({
                         where:wherecondition,

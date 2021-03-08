@@ -11,6 +11,7 @@ router.get("/view/:id",viewQuery);
 router.get("/list",queryList);
 router.get("/listFaculty/branch/:id",listFaculty);
 router.get("/listSubject/",listSubject);
+router.get("/listAllSubject/",listAllSubject);
 router.get("/getRatingLikes/:id",getRatingLikes);
 router.get("/canResponse/:id",canResponse);
 router.get("/dashboardCount",dashboardCount);
@@ -62,6 +63,14 @@ function listSubject(req, res, next) {
         .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while listing subject' }))
         .catch(err => next(err));
 }
+
+// Function for list subjects 
+function listAllSubject(req, res, next) {
+    queryController.listAllSubject(req.query, req.user)
+        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while listing all subject' }))
+        .catch(err => next(err));
+}
+
 // Function for add reponse to query
 function queryResponse(req, res, next) {
     queryController.queryResponse(req.body, req.user)
