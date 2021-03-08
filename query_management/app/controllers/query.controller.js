@@ -421,7 +421,8 @@ async function listAllSubject(params, user){
   try{
     let school_id = params.school_id
     let userData = await Users.findOne({ where: { user_name: user.userId } });
-    if(user.role != "super-admin") school_id = user.school_id
+    if(user.role != "super-admin") 
+      school_id = userData.school_id
 
     let wherecondition = { school_vls_id: school_id }
     if(userData.branch_vls_id && userData.branch_vls_id != null )
