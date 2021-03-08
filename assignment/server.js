@@ -135,7 +135,7 @@ app.post("/assignment/create/",[
           .then((assignment) => {
             if(assignment){
               //create event
-              io.sockets.emit('getNotificaion', { event :'assignment_created' });
+              //io.sockets.emit('getNotificaion', { event :'assignment_created' });
               //create event
               res.json(assignment)
             }else{
@@ -208,6 +208,27 @@ app.put("/assignment/changeAssignmentStatus/:student_assignment_id",async functi
               res.json(assignment)
             }else{
               res.status(400).json({ status: "error", message: 'Error while change assignment status' })
+            }
+          })
+          .catch( (err) => {
+            console.log(err, "err")
+            res.status(400).json({ status: "error", message: "Something went wrong" }) 
+          });
+});
+
+app.put("/assignment/releaseAssignment",[
+    check('is_released','is_released field is required.').not().isEmpty(),
+    check('assignment_id','assignment_id field is required.').not().isEmpty()
+    ],async function(req, res){
+   assignmentController.releaseAssignment(req.body)
+          .then((assignment) => {
+            if(assignment){
+              //create event
+              io.sockets.emit('getNotificaion', { event :'assignment_published' });
+              //create event
+              res.json(assignment)
+            }else{
+              res.status(400).json({ status: "error", message: 'Error while updating assignment' })
             }
           })
           .catch( (err) => {

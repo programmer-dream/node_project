@@ -21,15 +21,7 @@ router.get("/list/",list);
 router.get("/dashboardData/",dashboardData);
 
 // //Put
-
-// router.put("/changeAssignmentStatus/:student_assignment_id",changeAssignmentStatus)
-
 router.put("/updateMarks",updateMarks)
-
-router.put("/releaseAssignment",[
-    check('is_released','is_released field is required.').not().isEmpty(),
-    check('assignment_id','assignment_id field is required.').not().isEmpty()
-    ],releaseAssignment)
 
 router.put("/updateQuestion/:id",[
     check('question','question field is required.').not().isEmpty(),
@@ -43,7 +35,6 @@ router.put("/submitAssignment/:student_assignment_id",[
         name:'file',maxCount:1
     }])
     ],submitAssignment);
-
 
 // DELETE
 router.delete("/delete/:id",deleteAssignment);
@@ -88,13 +79,6 @@ function submitAssignment(req, res, next) {
         .catch(err => next(err));
 }
 
-// // Function for assign to student 
-// function changeAssignmentStatus(req, res, next) {
-//     assignmentController.changeAssignmentStatus(req.params, req.user, req.body)
-//         .then(assignment => assignment ? res.json(assignment) : res.status(400).json({ status: "error", message: 'Error while deleting assignment' }))
-//         .catch(err => next(err));
-// }
-
 // Function for create assignment question 
 function createAssignmentQuestion(req, res, next) {
     assignmentController.createAssignmentQuestion(req)
@@ -125,12 +109,6 @@ function questionResponse(req, res, next) {
 function updateMarks(req, res, next) {
     assignmentController.updateMarks(req.body, req.user)
         .then(assignment => assignment ? res.json(assignment) : res.status(400).json({ status: "error", message: 'Error while update assignment question' }))
-        .catch(err => next(err));
-}
-// Function for release assignment 
-function releaseAssignment(req, res, next) {
-    assignmentController.releaseAssignment(req.body)
-        .then(assignment => assignment ? res.json(assignment) : res.status(400).json({ status: "error", message: 'Error while release assignment' }))
         .catch(err => next(err));
 }
 
