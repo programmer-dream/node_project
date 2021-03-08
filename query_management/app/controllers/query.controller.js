@@ -315,12 +315,14 @@ async function update(req){
 /**
  * API for delete query
  */
-async function deleteQuery(id) {
+async function deleteQuery(id , user) {
+  let query = await StudentQuery.findByPk(id)
+
+  if(!query) throw 'Query not found'
+
   let num = await StudentQuery.destroy({
       where: { query_vls_id: id }
     })
-
-  if(num != 1) throw 'Query not found'
 
   await Ratings.destroy({
       where:{query_vls_id: id}
@@ -329,6 +331,22 @@ async function deleteQuery(id) {
   await Comment.destroy({
       where:{query_vls_id: id}
     })
+
+  //notifaction code
+  let notificatonData = {}
+  let users = await querySubjectTeacher(query.subject_code)
+  notificatonData.branch_vls_id = query.branch_vls_id
+  notificatonData.school_vls_id = query.school_vls_id
+  notificatonData.status        = 'general'
+  notificatonData.message       = '{name} deleted query for {subjectname}.'
+  notificatonData.notificaton_type = 'query'
+  notificatonData.notificaton_type_id = query.query_vls_id
+  notificatonData.start_date    = query.query_date
+  notificatonData.users         = JSON.stringify(users)
+  notificatonData.added_by      = user.userVlsId
+  notificatonData.added_type    = user.role
+  notificatonData.event_type    = 'deleted'
+  await Notification.create(notificatonData)
 
   return { success:true, message:"Query deleted successfully!"}
   
@@ -491,6 +509,7 @@ async function getRatingLikes(id, user) {
  * API for status update query
  */
 async function statusUpdate(id, user, body) {
+
   //if(user.role != 'student') throw 'unauthorised user'
   let whereCondition = { query_vls_id : id }
   let status = "Rejected"
@@ -520,7 +539,14 @@ async function statusUpdate(id, user, body) {
 
     let notificatonData = {}
     let dbQuery = await StudentQuery.findByPk(id)
-    let users = await querySubjectTeacher(query.subject_code)
+    let users   = {}
+
+    if(user.role == 'student'){
+      users = await querySubjectTeacher(query.subject_code)
+    }else{
+      users = [{ 'id': query.student_vls_id, 'type': 'student'}]
+    }
+
     notificatonData.branch_vls_id = dbQuery.branch_vls_id
     notificatonData.school_vls_id = dbQuery.school_vls_id
     notificatonData.status        = 'general'

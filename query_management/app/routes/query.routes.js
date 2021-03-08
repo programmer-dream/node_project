@@ -16,7 +16,6 @@ router.get("/canResponse/:id",canResponse);
 router.get("/dashboardCount",dashboardCount);
 router.get("/teacherQueryList",teacherQueryList);
 //Delete
-router.delete("/delete/:id",deleteQuery);
 router.delete("/multipleDelete/",deleteMultipleQuery);
 
 //Put
@@ -40,12 +39,6 @@ function listFaculty(req, res, next) {
 function viewQuery(req, res, next) {
     queryController.view(req.params.id)
         .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while viewing query' }))
-        .catch(err => next(err));
-}
-// Function for delete query details
-function deleteQuery(req, res, next) {
-    queryController.deleteQuery(req.params.id)
-        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while deleting query' }))
         .catch(err => next(err));
 }
 
