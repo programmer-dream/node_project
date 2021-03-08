@@ -4,7 +4,7 @@ const queryController = require("../controllers/query.controller");
 const { check } = require('express-validator');
 
 //Post
-router.post("/response",queryResponse);
+// router.post("/response",queryResponse);
 
 //Get 
 router.get("/view/:id",viewQuery);
@@ -17,7 +17,6 @@ router.get("/canResponse/:id",canResponse);
 router.get("/dashboardCount",dashboardCount);
 router.get("/teacherQueryList",teacherQueryList);
 //Delete
-router.delete("/delete/:id",deleteQuery);
 router.delete("/multipleDelete/",deleteMultipleQuery);
 
 //Put
@@ -43,12 +42,6 @@ function viewQuery(req, res, next) {
         .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while viewing query' }))
         .catch(err => next(err));
 }
-// Function for delete query details
-function deleteQuery(req, res, next) {
-    queryController.deleteQuery(req.params.id)
-        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while deleting query' }))
-        .catch(err => next(err));
-}
 
 // Function for delete multiple query details
 function deleteMultipleQuery(req, res, next) {
@@ -71,24 +64,13 @@ function listAllSubject(req, res, next) {
         .catch(err => next(err));
 }
 
-// Function for add reponse to query
-function queryResponse(req, res, next) {
-    queryController.queryResponse(req.body, req.user)
-        .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while updating query response' }))
-        .catch(err => next(err));
-}
 // Function for get rating and likes for query
 function getRatingLikes(req, res, next) {
     queryController.getRatingLikes(req.params.id , req.user)
         .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while getting query like & ratting' }))
         .catch(err => next(err));
 }
-// // Function for status update query
-// function statusUpdate(req, res, next) {
-//     queryController.statusUpdate(req.params.id , req.user, req.body)
-//         .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while getting query like & ratting' }))
-//         .catch(err => next(err));
-// }
+
 // Function for user can response
 function canResponse(req, res, next) {
     queryController.canResponse(req.params.id , req.user)
