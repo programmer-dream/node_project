@@ -58,9 +58,33 @@ async function view(id){
 /**
  * API for view school
  */
-async function list(user){
-  
-  let schools = await SchoolDetails.findAll()
+async function list(params , user){
+  let limit   = 10
+  let offset  = 0
+  let orderBy = 'desc';
+  let search = ''
+
+  if(params.search) 
+    search = params.search
+
+  if(params.orderBy == 'asc') 
+     orderBy = params.orderBy
+
+  let whereCondition = {
+      [Op.or]:{
+              school_name: { 
+                  [Op.like]: `%`+search+`%`
+                }
+           }
+    };
+  let schools = await SchoolDetails.findAll({
+    limit : limit,
+    offset: offset,
+    where : whereCondition,
+    order : [
+             ['school_id', orderBy]
+            ]
+  })
   
   return { success: true, message: "School list", data : schools}
 };
@@ -138,10 +162,34 @@ async function viewBranch(id){
 /**
  * API for view school
  */
-async function listBranch(id , user){
+async function listBranch(id , user, params){
+  let limit   = 10
+  let offset  = 0
+  let orderBy = 'desc';
+  let search  = ''
+
+  if(params.search) 
+    search = params.search
+
+  if(params.orderBy == 'asc') 
+     orderBy = params.orderBy
   
+  let whereCondition = {
+      [Op.or]:{
+              branch_name: { 
+                  [Op.like]: `%`+search+`%`
+                }
+           },
+      school_id : id
+    };
+
   let branches = await Branch.findAll({
-  	where : { school_id : id}
+  	  limit : limit,
+      offset: offset,
+      where : whereCondition,
+      order : [
+               ['branch_vls_id', orderBy]
+              ]
   })
   
   return { success: true, message: "Branch list", data : branches}
