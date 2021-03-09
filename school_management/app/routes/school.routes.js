@@ -20,6 +20,17 @@ router.post("/branch/create",[
     check('school_id','school_id field is required.').not().isEmpty(),
     ],createBranch);
 
+router.post("/createUser",[
+    check('name','name field is required.').not().isEmpty(),
+    check('phone','phone field is required.').not().isEmpty(),
+    check('email','email field is required.').not().isEmpty(),
+    check('present_address','present_address field is required.').not().isEmpty(),
+    check('type','type field is required.').not().isEmpty(),
+    check('school_id','school_id field is required.').not().isEmpty(),
+    check('password','password field is required.').not().isEmpty(),
+    check('branch_vls_id','branch_vls_id field is required.').not().isEmpty()
+    ],createUser);
+
 //Post
 router.get("/view/:id",viewSchool);
 router.get("/branch/view/:id",viewBranch);
@@ -108,7 +119,7 @@ function updateSchoolSettings(req, res, next) {
         .catch(err => next(err));
 }
 
-// Function for setting school
+// Function for setting branch
 function updateBranchSettings(req, res, next) {
     schoolController.updateBranchSettings(req.params.id, req.body)
         .then(school => school ? res.json(school) : res.status(400).json({ status: "error", message: 'Error while updating school settings' }))
@@ -119,5 +130,12 @@ function updateBranchSettings(req, res, next) {
 function createBranch(req, res, next) {
     schoolController.createBranch(req)
         .then(branch => branch ? res.json(branch) : res.status(400).json({ status: "error", message: 'Error while creating branch' }))
+        .catch(err => next(err));
+}
+
+// Function for create user
+function createUser(req, res, next) {
+    schoolController.createUser(req)
+        .then(user => user ? res.json(user) : res.status(400).json({ status: "error", message: 'Error while creating user' }))
         .catch(err => next(err));
 }
