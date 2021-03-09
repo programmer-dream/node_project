@@ -81,7 +81,7 @@ async function deleteSchool(id){
   let school = await SchoolDetails.findByPk(id)
   if(!school) throw 'school not found'
 
-  await school.destroy()
+  await school.update({is_deleted : 1})
   	
   return { success: true, message: "School deleted successfully", }
 };
