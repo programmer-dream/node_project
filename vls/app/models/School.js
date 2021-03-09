@@ -7,8 +7,8 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.INTEGER
       },
       school_vls_id: {
-        allowNull: false,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        defaultValue : 0
       },
       school_name: {
         allowNull: false,
