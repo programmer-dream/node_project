@@ -15,8 +15,8 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.INTEGER
       },
       school_vls_id: {
-        allowNull: false,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        defaultValue: 0
       },
       branch_name: {
         allowNull: false,
@@ -110,6 +110,11 @@ module.exports = (sequelize, Sequelize) => {
       updated_at: {
         allowNull: false,
         type: Sequelize.DATE
+      },
+      is_deleted: {
+        allowNull: false,
+        type: Sequelize.BOOLEAN,
+        defaultValue: 0
       } 
   },{
     tableName: 'branch_details',
