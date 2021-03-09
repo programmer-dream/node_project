@@ -235,5 +235,12 @@ async function createUser(req){
                   }
 
   let authUser  = await User.create(userData)
-  return { success: true, message: "user created successfully", data : employee}
+  authUser = await User.findOne({
+    where : { auth_vls_id : authUser.auth_vls_id },
+    include: [{ 
+                model:Employee,
+                as:'employee'
+              }]
+  })
+  return { success: true, message: "user created successfully", data : authUser}
 };

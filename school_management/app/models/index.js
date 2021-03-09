@@ -72,5 +72,7 @@ db.Authentication = require("../../../vls/app/models/Authentication.js")(sequeli
 db.Role = require("../../../vls/app/models/Role.js")(sequelize, Sequelize);
 
 //relation
+db.Authentication.belongsTo(db.Employee,{foreignKey:'user_vls_id',as:'employee'})
+
 
 module.exports = db;
