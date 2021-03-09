@@ -100,6 +100,11 @@ module.exports = (sequelize, Sequelize) => {
       updated_at: {
         allowNull: false,
         type: Sequelize.DATE
+      },
+      is_deleted: {
+        allowNull: false,
+        type: Sequelize.BOOLEAN,
+        defaultValue: 0
       }
   },{
     tableName: 'school',
