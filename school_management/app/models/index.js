@@ -69,6 +69,7 @@ db.SchoolDetails = require("../../../vls/app/models/School.js")(sequelize, Seque
 db.Branch = require("../../../vls/app/models/Branch.js")(sequelize, Sequelize);
 db.Employee = require("../../../vls/app/models/Employee.js")(sequelize, Sequelize);
 db.Authentication = require("../../../vls/app/models/Authentication.js")(sequelize, Sequelize);
+db.Role = require("../../../vls/app/models/Role.js")(sequelize, Sequelize);
 
 //relation
 
