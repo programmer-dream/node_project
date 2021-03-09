@@ -16,7 +16,8 @@
     "start:reports": "yarn workspace reports start",
     "start:feedback": "yarn workspace feedback start",
     "start:notification": "yarn workspace notification start",
-    "start": "concurrently --kill-others-on-fail \"yarn start:vls\" \"yarn start:query\" \"yarn start:library\" \"yarn start:video_library\" \"yarn start:attendance\" \"yarn start:time_sheet\" \"yarn start:assignment\" \"yarn start:chat_management\" \"yarn start:community_management\" \"yarn start:reports\" \"yarn start:feedback\" \"yarn start:notification\"",
+    "start:school_management": "yarn workspace school_management start",
+    "start": "concurrently --kill-others-on-fail \"yarn start:vls\" \"yarn start:query\" \"yarn start:library\" \"yarn start:video_library\" \"yarn start:attendance\" \"yarn start:time_sheet\" \"yarn start:assignment\" \"yarn start:chat_management\" \"yarn start:community_management\" \"yarn start:reports\" \"yarn start:feedback\" \"yarn start:notification\" \"yarn start:school_management\"",
     "dev:vls": "yarn workspace vls dev",
     "dev:query": "yarn workspace query_management dev",
     "dev:library": "yarn workspace learning_library dev",
@@ -29,7 +30,8 @@
     "dev:reports": "yarn workspace reports dev",
     "dev:feedback": "yarn workspace feedback dev",
     "dev:notification": "yarn workspace notification dev",
-    "dev": "concurrently --kill-others-on-fail \"yarn dev:vls\" \"yarn dev:query\" \"yarn dev:library\" \"yarn dev:video_library\" \"yarn dev:attendance\" \"yarn dev:time_sheet\" \"yarn dev:assignment\" \"yarn dev:chat_management\" \"yarn dev:community_management\" \"yarn dev:reports\" \"yarn dev:feedback\" \"yarn dev:notification\""
+    "dev:school_management": "yarn workspace school_management dev",
+    "dev": "concurrently --kill-others-on-fail \"yarn dev:vls\" \"yarn dev:query\" \"yarn dev:library\" \"yarn dev:video_library\" \"yarn dev:attendance\" \"yarn dev:time_sheet\" \"yarn dev:assignment\" \"yarn dev:chat_management\" \"yarn dev:community_management\" \"yarn dev:reports\" \"yarn dev:feedback\" \"yarn dev:notification\" \"yarn dev:school_management\""
   },
   "keywords": [],
   "author": "",
@@ -47,7 +49,8 @@
     "community_management",
     "reports",
     "feedback",
-    "notification"
+    "notification",
+    "school_management"
   ],
   "dependencies": {
     "concurrently": "^5.3.0",
