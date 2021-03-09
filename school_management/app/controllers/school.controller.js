@@ -9,6 +9,7 @@ const User       = db.Authentication;
 const Employee   = db.Employee;
 const sequelize  = db.sequelize;
 const SchoolDetails  = db.SchoolDetails;
+const Branch  		 = db.Branch;
 
 
 module.exports = {
@@ -17,7 +18,13 @@ module.exports = {
   list,
   update,
   deleteSchool,
-  schoolSettingUpdate
+  schoolSettingUpdate,
+  createBranch,
+  viewBranch,
+  listBranch,
+  updateBranch,
+  deleteBranch,
+  updateBranchSettings
 };
 
 
@@ -43,7 +50,7 @@ async function view(id){
   
   let school = await SchoolDetails.findByPk(id)
   
-  return { success: true, message: "School created successfully", data : school}
+  return { success: true, message: "School view", data : school}
 };
 
 /**
@@ -53,7 +60,7 @@ async function list(user){
   
   let schools = await SchoolDetails.findAll()
   
-  return { success: true, message: "School created successfully", data : schools}
+  return { success: true, message: "School list", data : schools}
 };
 
 
@@ -88,7 +95,7 @@ async function deleteSchool(id){
 
 
 /**
- * API for create a school
+ * API for update school settings
  */
 async function schoolSettingUpdate(id, body){
   let school = await SchoolDetails.findByPk(id)
@@ -96,5 +103,87 @@ async function schoolSettingUpdate(id, body){
 
   await school.update(body)
   
-  return { success: true, message: "School created successfully", data : school}
+  return { success: true, message: "School settings updated successfully", data : school}
+};
+
+
+/**
+ * API for create a Branch
+ */
+async function createBranch(req){
+  const errors = validationResult(req);
+  if(errors.array().length) throw errors.array()
+
+  let data                = req.body
+  let branch = await Branch.create(data)
+  //updated branch data
+  branch.update({'school_vls_id':branch.school_id})
+  return { success: true, message: "Branch created successfully", data : branch}
+};
+
+
+/**
+ * API for view branch
+ */
+async function viewBranch(id){
+  
+  let branch = await Branch.findByPk(id)
+  
+  return { success: true, message: "Branch view", data : branch}
+};
+
+
+/**
+ * API for view school
+ */
+async function listBranch(id , user){
+  
+  let branches = await Branch.findAll({
+  	where : { school_id : id}
+  })
+  
+  return { success: true, message: "Branch list", data : branches}
+};
+
+
+/**
+ * API for update a school
+ */
+async function updateBranch(req, id){
+  const errors = validationResult(req);
+  if(errors.array().length) throw errors.array()
+
+  let branch = await Branch.findByPk(id)
+  if(!branch) throw 'Branch not found'
+
+  let data   = req.body
+  await branch.update(data)
+  
+  return { success: true, message: "Branch updated successfully", data : branch}
+};
+
+
+/**
+ * API for delete school
+ */
+async function deleteBranch(id){
+  let branch = await Branch.findByPk(id)
+  if(!branch) throw 'Branch not found'
+
+  await branch.update({is_deleted : 1})
+  	
+  return { success: true, message: "Branch deleted successfully" }
+};
+
+
+/**
+ * API for update branch settings
+ */
+async function updateBranchSettings(id, body){
+  let branch = await Branch.findByPk(id)
+  if(!branch) throw 'Branch not found'
+
+  await branch.update(body)
+  
+  return { success: true, message: "Branch settings updated successfully", data : branch}
 };
