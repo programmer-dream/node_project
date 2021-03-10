@@ -72,14 +72,14 @@ function viewBranch(req, res, next) {
 
 // Function for list school
 function listSchool(req, res, next) {
-    schoolController.list(req.user)
+    schoolController.list(req.query , req.user)
         .then(school => school ? res.json(school) : res.status(400).json({ status: "error", message: 'Error while viewing school' }))
         .catch(err => next(err));
 }
 
 // Function for list branch
 function listBranch(req, res, next) {
-    schoolController.listBranch(req.params.id, req.user)
+    schoolController.listBranch(req.params.id, req.user, req.query)
         .then(branch => branch ? res.json(branch) : res.status(400).json({ status: "error", message: 'Error while viewing branch' }))
         .catch(err => next(err));
 }
