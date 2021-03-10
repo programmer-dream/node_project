@@ -49,10 +49,28 @@ async function create(req){
  * API for view school
  */
 async function view(id){
-  
   let school = await SchoolDetails.findByPk(id)
-  
-  return { success: true, message: "School view", data : school}
+  if(!school) throw 'School not found'
+
+  let role = await Role.findOne({
+      where : { slug :'school-admin' },
+      attributes: ['id']
+    })
+
+  let users = await User.findAll({
+    where : { 
+      role_id : role.id,
+      school_id : school.school_id  
+    },
+    attributes: {
+      exclude: ['password','old_passwords','forget_pwd_token']
+    },
+    include: [{ 
+                model:Employee,
+                as:'employee'
+              }]
+  })
+  return { success: true, message: "School view", data : {school , users}}
 };
 
 /**
@@ -158,10 +176,28 @@ async function createBranch(req){
  * API for view branch
  */
 async function viewBranch(id){
-  
   let branch = await Branch.findByPk(id)
-  
-  return { success: true, message: "Branch view", data : branch}
+  if(!branch) throw 'branch not found'
+
+  let role = await Role.findOne({
+      where : { slug :'branch-admin' },
+      attributes: ['id']
+    })
+
+  let users = await User.findAll({
+    where : { 
+      role_id       : role.id,
+      branch_vls_id :  id 
+    },
+    attributes: {
+      exclude: ['password','old_passwords','forget_pwd_token']
+    },
+    include: [{ 
+                model:Employee,
+                as:'employee'
+              }]
+  })
+  return { success: true, message: "Branch view", data : {branch, users}}
 };
 
 
@@ -179,7 +215,7 @@ async function listBranch(id , user, params){
 
   if(params.orderBy == 'asc') 
      orderBy = params.orderBy
-   
+
   if(params.size)
      limit = parseInt(params.size)
    
