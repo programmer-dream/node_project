@@ -34,6 +34,12 @@ router.post("/createUser",[
     check('password','password field is required.').not().isEmpty()
     ],createUser);
 
+router.put("/updateUser/:id",[
+    upload.fields([{
+        name:'photo',maxCount:1
+    }])
+    ],updateUser);
+
 //Post
 router.get("/view/:id",viewSchool);
 router.get("/branch/view/:id",viewBranch);
@@ -49,6 +55,7 @@ router.put("/branch/:id/updateSettings/",updateBranchSettings);
 //Post
 router.delete("/delete/:id",deleteSchool);
 router.delete("/branch/delete/:id",deleteBranch);
+router.delete("/deleteUser/:id",deleteUser);
 
 module.exports = router;
 
@@ -140,5 +147,19 @@ function createBranch(req, res, next) {
 function createUser(req, res, next) {
     schoolController.createUser(req)
         .then(user => user ? res.json(user) : res.status(400).json({ status: "error", message: 'Error while creating user' }))
+        .catch(err => next(err));
+}
+
+// Function for create user
+function updateUser(req, res, next) {
+    schoolController.updateUser(req.params.id, req)
+        .then(user => user ? res.json(user) : res.status(400).json({ status: "error", message: 'Error while creating user' }))
+        .catch(err => next(err));
+}
+
+// Function for delete user
+function deleteUser(req, res, next) {
+    schoolController.deleteUser(req.params.id)
+        .then(branch => branch ? res.json(branch) : res.status(400).json({ status: "error", message: 'Error while deleting school' }))
         .catch(err => next(err));
 }
