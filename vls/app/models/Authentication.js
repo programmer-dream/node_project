@@ -43,6 +43,9 @@ module.exports = (sequelize, Sequelize) => {
     },
     name: {
       type: Sequelize.INTEGER
+    },
+    photo: {
+      type: Sequelize.STRING
     }
   },{
     tableName: 'users',

@@ -2,7 +2,8 @@ const express = require('express');
 const router = express.Router()
 const schoolController = require("../controllers/school.controller");
 const { check } = require('express-validator');
-
+const helper = require("../helper");
+const upload  = helper.upload;
 //Post
 router.post("/create",[
     check('school_name','school_name field is required.').not().isEmpty(),
@@ -21,15 +22,23 @@ router.post("/branch/create",[
     ],createBranch);
 
 router.post("/createUser",[
+    upload.fields([{
+        name:'photo',maxCount:1
+    }]),
     check('name','name field is required.').not().isEmpty(),
     check('phone','phone field is required.').not().isEmpty(),
     check('email','email field is required.').not().isEmpty(),
     check('present_address','present_address field is required.').not().isEmpty(),
     check('type','type field is required.').not().isEmpty(),
     check('school_id','school_id field is required.').not().isEmpty(),
-    check('password','password field is required.').not().isEmpty(),
-    check('branch_vls_id','branch_vls_id field is required.').not().isEmpty()
+    check('password','password field is required.').not().isEmpty()
     ],createUser);
+
+router.put("/updateUser/:id",[
+    upload.fields([{
+        name:'photo',maxCount:1
+    }])
+    ],updateUser);
 
 //Post
 router.get("/view/:id",viewSchool);
@@ -46,6 +55,7 @@ router.put("/branch/:id/updateSettings/",updateBranchSettings);
 //Post
 router.delete("/delete/:id",deleteSchool);
 router.delete("/branch/delete/:id",deleteBranch);
+router.delete("/deleteUser/:id",deleteUser);
 
 module.exports = router;
 
@@ -137,5 +147,19 @@ function createBranch(req, res, next) {
 function createUser(req, res, next) {
     schoolController.createUser(req)
         .then(user => user ? res.json(user) : res.status(400).json({ status: "error", message: 'Error while creating user' }))
+        .catch(err => next(err));
+}
+
+// Function for create user
+function updateUser(req, res, next) {
+    schoolController.updateUser(req.params.id, req)
+        .then(user => user ? res.json(user) : res.status(400).json({ status: "error", message: 'Error while creating user' }))
+        .catch(err => next(err));
+}
+
+// Function for delete user
+function deleteUser(req, res, next) {
+    schoolController.deleteUser(req.params.id)
+        .then(branch => branch ? res.json(branch) : res.status(400).json({ status: "error", message: 'Error while deleting school' }))
         .catch(err => next(err));
 }
