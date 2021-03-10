@@ -70,6 +70,12 @@ async function list(params , user){
   if(params.orderBy == 'asc') 
      orderBy = params.orderBy
 
+  if(params.size)
+     limit = parseInt(params.size)
+
+  if(params.page)
+      offset = 0 + (parseInt(params.page) - 1) * limit
+
   let whereCondition = {
       [Op.or]:{
               school_name: { 
@@ -173,7 +179,13 @@ async function listBranch(id , user, params){
 
   if(params.orderBy == 'asc') 
      orderBy = params.orderBy
-  
+   
+  if(params.size)
+     limit = parseInt(params.size)
+   
+  if(params.page)
+      offset = 0 + (parseInt(params.page) - 1) * limit
+
   let whereCondition = {
       [Op.or]:{
               branch_name: { 
