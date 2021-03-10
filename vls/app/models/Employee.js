@@ -137,6 +137,11 @@ module.exports = (sequelize, Sequelize) => {
           get () {
               return 'employee'
           }
+      },
+      is_deleted: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: 0
       } 
   },{
     tableName: 'employees',

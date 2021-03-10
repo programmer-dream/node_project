@@ -402,11 +402,11 @@ async function deleteUser(id){
   let user = await User.findByPk(id)
   if(!user) throw 'user not found'
 
-  await Employee.destroy({
+  await Employee.update({ is_deleted : 1},{
     where : {faculty_vls_id : user.user_vls_id}
   })
 
-  await user.destroy()
+  await user.update({ is_deleted : 1})
     
   return { success: true, message: "User deleted successfully" }
 }
