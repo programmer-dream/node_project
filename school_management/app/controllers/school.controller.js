@@ -295,6 +295,9 @@ async function createUser(req){
   if(errors.array().length) throw errors.array()
 
   let data          = req.body
+  if(req.files.photo && req.files.photo.length > 0){
+        data.photo  = req.body.uplodedPath + req.files.photo[0].filename;
+  }
   let school_id     = data.school_id
   let branch_vls_id = data.branch_vls_id
   let role          = {}
@@ -327,7 +330,8 @@ async function createUser(req){
                     password      : password,
                     recovery_email_id : data.email,
                     old_passwords : JSON.stringify([password]),
-                    name          : data.name
+                    name          : data.name,
+                    photo         : data.photo
                   }
 
   let authUser  = await User.create(userData)

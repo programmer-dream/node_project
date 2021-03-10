@@ -14,10 +14,8 @@ let storage = multer.diskStorage({
   let dirpath     = config.pdf_path
   let uplodedPath;
   
-  let schoolVlsId = req.body.school_vls_id
-  let branchVlsId = req.body.branch_vls_id
-  if(!schoolVlsId) cb("schoolVlsId is requeried")
-  if(!branchVlsId) cb("branchVlsId is requeried")
+  let schoolVlsId = req.body.school_id
+  if(!schoolVlsId) cb("school_id is requeried")
 
   let school  = await SchoolDetails.findOne({
           where:{school_vls_id:schoolVlsId}
@@ -25,12 +23,7 @@ let storage = multer.diskStorage({
   var school_name = school.school_name;
   school_name = school_name.replace(/\s+/g, '-').toLowerCase();
 
-  let branch  = await Branch.findOne({
-          where:{branch_vls_id:branchVlsId}
-  })
-  var branch_name = branch.branch_name;
-  branch_name = branch_name.replace(/\s+/g, '-').toLowerCase();
-  uplodedPath = "/"+school_name+"/"+branch_name+"/assignment/"
+  uplodedPath = "/"+school_name+"/profile_pic/"
   dirpath = dirpath + uplodedPath
   req.body.uplodedPath = uplodedPath
 

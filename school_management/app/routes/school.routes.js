@@ -2,7 +2,8 @@ const express = require('express');
 const router = express.Router()
 const schoolController = require("../controllers/school.controller");
 const { check } = require('express-validator');
-
+const helper = require("../helper");
+const upload  = helper.upload;
 //Post
 router.post("/create",[
     check('school_name','school_name field is required.').not().isEmpty(),
@@ -21,14 +22,16 @@ router.post("/branch/create",[
     ],createBranch);
 
 router.post("/createUser",[
+    upload.fields([{
+        name:'photo',maxCount:1
+    }]),
     check('name','name field is required.').not().isEmpty(),
     check('phone','phone field is required.').not().isEmpty(),
     check('email','email field is required.').not().isEmpty(),
     check('present_address','present_address field is required.').not().isEmpty(),
     check('type','type field is required.').not().isEmpty(),
     check('school_id','school_id field is required.').not().isEmpty(),
-    check('password','password field is required.').not().isEmpty(),
-    check('branch_vls_id','branch_vls_id field is required.').not().isEmpty()
+    check('password','password field is required.').not().isEmpty()
     ],createUser);
 
 //Post
