@@ -57,7 +57,7 @@ async function view(id){
       attributes: ['id']
     })
 
-  let user = await User.findAll({
+  let users = await User.findAll({
     where : { 
       role_id : role.id,
       school_id : school.school_id  
@@ -70,7 +70,7 @@ async function view(id){
                 as:'employee'
               }]
   })
-  return { success: true, message: "School view", data : {school , user}}
+  return { success: true, message: "School view", data : {school , users}}
 };
 
 /**
