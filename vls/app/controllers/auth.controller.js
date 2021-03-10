@@ -51,6 +51,11 @@ async function signIn(userDetails) {
                               attributes: ['id','name', 'slug']
                             }]
                     })
+  let isActive = await isSchoolBranchActive(user)
+  
+  if(!isActive)
+      return {status: "error", message : 'Your school or branch not active yet' };
+
   if(user  && bcrypt.compareSync(userDetails.password, user.password) ){
     // expire token with time
     // let token = jwt.sign({id: Authentication.authVlsId,}, config.secret, {expiresIn: 86400});  // 24 hours
@@ -584,4 +589,31 @@ async function checkPasswordCriteria(password, role, name) {
         isError = true
 
     return {isError : isError, error: finalErr, message: "Password criteria not matches"}
+}
+
+
+/**
+ * API for check school branch active 
+ */
+async function isSchoolBranchActive(user) {
+  let isActive = true
+  //school check
+  let isSchoolDeleted = await School.findOne({ 
+                          where : { 
+                            school_id : user.school_id,
+                            is_deleted : 1 
+                          } 
+                        })
+  //branch check
+  let isBranchDeleted = await Branch.findOne({ 
+    where : { 
+      branch_vls_id : user.branch_vls_id,
+      is_deleted : 1 
+     } 
+  })
+  
+  if(isSchoolDeleted || isBranchDeleted )
+      isActive = false
+
+   return isActive
 }
