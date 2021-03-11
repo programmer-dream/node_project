@@ -93,7 +93,7 @@ async function list(params , user){
 	            ]
             });
 
-	return { success: true, message: "Ticket view", data : tickets}
+	return { success: true, message: "Ticket listing", data : tickets}
 }
 
 
@@ -110,7 +110,7 @@ async function update(req){
       ticket_data.attachment = req.body.uplodedPath + req.files.file[0].filename;
   }
 
-  let user        = req.user
+  let user       = req.user
   let ticketId   = req.params.id
    //create ticket
   ticket = await Ticket.findByPk(ticketId);
