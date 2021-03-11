@@ -185,13 +185,19 @@ async function updatedSubject(notification){
         break;
       default : return notification.message
   }
-  let code = type.subject_code
-  let subject = await SubjectList.findOne({
-            where : {code : code },
-             attributes: ['subject_name']
-          })
+  
   let message = notification.message
-  return message.replace("{subjectname}", subject.subject_name);
+  if(type){
+    let code = type.subject_code
+    let subject = await SubjectList.findOne({
+              where : {code : code },
+               attributes: ['subject_name']
+            })
+  
+    return message.replace("{subjectname}", subject.subject_name);
+  }
+  
+  return message
 }
 
 /**
