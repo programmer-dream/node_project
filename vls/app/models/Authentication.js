@@ -46,6 +46,11 @@ module.exports = (sequelize, Sequelize) => {
     },
     photo: {
       type: Sequelize.STRING
+    },
+    is_deleted: {
+      type: Sequelize.BOOLEAN,
+      allowNull: false,
+      defaultValue: 0
     }
   },{
     tableName: 'users',
