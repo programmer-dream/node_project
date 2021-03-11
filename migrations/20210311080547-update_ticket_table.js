@@ -9,7 +9,7 @@ module.exports = {
                 allowNull: false
     });
     await queryInterface.addColumn('tickets', 'user_type', {
-                type: Sequelize.INTEGER,
+                type: Sequelize.STRING,
                 allowNull: false,
     });
     await queryInterface.addColumn('tickets', 'ticket_priorty', {
@@ -29,7 +29,11 @@ module.exports = {
                 allowNull: false
     });
     await queryInterface.addColumn('tickets', 'assigned_user_type', {
-                type: Sequelize.INTEGER,
+                type: Sequelize.STRING,
+                allowNull: false
+    });
+    await queryInterface.addColumn('tickets', 'ticket_text', {
+                type: Sequelize.TEXT('long'),
                 allowNull: false
     });
   },

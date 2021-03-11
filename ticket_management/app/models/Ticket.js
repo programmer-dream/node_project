@@ -54,7 +54,10 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.STRING,
         allowNull: false
       },
-      
+      ticket_text: {
+        type: Sequelize.TEXT('long'),
+        allowNull: false
+      }
   },{
     tableName: 'tickets',
     createdAt: 'created_at',
