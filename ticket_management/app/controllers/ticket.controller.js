@@ -31,6 +31,11 @@ async function create(req){
   if(errors.array().length) throw errors.array()
 
   let ticket_data = req.body
+
+  if(req.files.file && req.files.file.length > 0){
+      ticket_data.attachment = req.body.uplodedPath + req.files.file[0].filename;
+  }
+
   let user        = req.user
   //modify data
   ticket_data.user_id        = user.userVlsId
@@ -41,7 +46,7 @@ async function create(req){
   ticket_data.open_date      = moment().format('YYYY-MM-DD HH:mm:ss')
    //create ticket
   ticket = await Ticket.create(ticket_data);
-
+  
   return { success: true, message: "Ticket created successfully", data : ticket}
 };
 
@@ -100,6 +105,11 @@ async function update(req){
   if(errors.array().length) throw errors.array()
 
   let ticket_data = req.body
+
+  if(req.files.file && req.files.file.length > 0){
+      ticket_data.attachment = req.body.uplodedPath + req.files.file[0].filename;
+  }
+
   let user        = req.user
   let ticketId   = req.params.id
    //create ticket

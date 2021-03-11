@@ -8,7 +8,7 @@ const upload  = helper.upload;
 //POST 
 router.post("/create",[
     upload.fields([{
-        name:'photo',maxCount:1
+        name:'file',maxCount:1
     }])
     ],createTicket);
 
@@ -19,7 +19,7 @@ router.get("/list/",list);
 //GET
 router.put("/update/:id",[
     upload.fields([{
-        name:'photo',maxCount:1
+        name:'file',maxCount:1
     }])
     ],update);
 
