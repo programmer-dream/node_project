@@ -19,7 +19,8 @@ module.exports = {
   view,
   list,
   update,
-  deleteTicket
+  deleteTicket,
+  dashboardCount
 };
 
 
@@ -132,4 +133,19 @@ async function deleteTicket(id){
 	ticket.destroy();
 
 	return { success: true, message: "Ticket deleted successfully"}
+}
+
+
+/**
+ * API for view dashboardCount
+ */
+async function dashboardCount(id){
+  let ticket = await Ticket.count({
+    attributes: [
+                  [ Sequelize.fn('COUNT', Sequelize.col('status')), 'total_count' ]
+                ],
+    group:['status']
+  });
+
+  return { success: true, message: "dashboard count", data : ticket}
 }

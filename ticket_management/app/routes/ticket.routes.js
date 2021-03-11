@@ -15,6 +15,7 @@ router.post("/create",[
 //GET
 router.get("/view/:id",view);
 router.get("/list/",list);
+router.get("/dashboardCount/",dashboardCount);
 
 //GET
 router.put("/update/:id",[
@@ -45,6 +46,13 @@ function view(req, res, next) {
 // Function for view ticket
 function list(req, res, next) {
     ticketController.list(req.query, req.user)
+        .then(ticket => ticket ? res.json(ticket) : res.status(400).json({ status: "error", message: 'Error while creating ticket' }))
+        .catch(err => next(err));
+}
+
+// Function for view ticket
+function dashboardCount(req, res, next) {
+    ticketController.dashboardCount(req.query, req.user)
         .then(ticket => ticket ? res.json(ticket) : res.status(400).json({ status: "error", message: 'Error while creating ticket' }))
         .catch(err => next(err));
 }
