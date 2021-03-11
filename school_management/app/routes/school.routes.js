@@ -42,6 +42,7 @@ router.put("/updateUser/:id",[
 
 //Post
 router.get("/view/:id",viewSchool);
+router.get("/viewUser/:id",viewUser);
 router.get("/branch/view/:id",viewBranch);
 router.get("/list/",listSchool);
 router.get("/:id/branchList/",listBranch);
@@ -69,6 +70,13 @@ function createSchool(req, res, next) {
 // Function for view school
 function viewSchool(req, res, next) {
     schoolController.view(req.params.id)
+        .then(school => school ? res.json(school) : res.status(400).json({ status: "error", message: 'Error while viewing school' }))
+        .catch(err => next(err));
+}
+
+// Function for view school
+function viewUser(req, res, next) {
+    schoolController.viewUser(req.params.id)
         .then(school => school ? res.json(school) : res.status(400).json({ status: "error", message: 'Error while viewing school' }))
         .catch(err => next(err));
 }
