@@ -231,8 +231,7 @@ async function listBranch(id , user, params){
                   [Op.like]: `%`+search+`%`
                 }
            },
-      school_id : id,
-      is_deleted : 0
+      school_id : id
     };
 
   let branches = await Branch.findAll({
