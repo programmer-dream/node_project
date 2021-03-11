@@ -28,7 +28,8 @@ module.exports = {
   updateBranchSettings,
   createUser,
   updateUser,
-  deleteUser
+  deleteUser,
+  viewUser
 };
 
 
@@ -409,4 +410,25 @@ async function deleteUser(id){
   await user.update({ is_deleted : 1})
     
   return { success: true, message: "User deleted successfully" }
+}
+
+
+/**
+ * API for view school
+ */
+async function viewUser(id){
+
+  authUser = await User.findOne({
+    where : { auth_vls_id : id },
+    attributes: {
+      exclude: ['password','old_passwords','forget_pwd_token']
+    },
+    include: [{ 
+                model:Employee,
+                as:'employee'
+              }]
+  })
+  if(!authUser) throw 'User not found'
+    
+  return { success: true, message: "View user", data:authUser }
 }
