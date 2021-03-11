@@ -57,14 +57,12 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.STRING
       },
       father_name: {
-        allowNull: false,
         type: Sequelize.STRING
       },
       father_qualification: {
         type: Sequelize.STRING
       },
       mother_name: {
-        allowNull: false,
         type: Sequelize.STRING
       },
       mother_qualification: {
