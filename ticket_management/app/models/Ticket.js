@@ -60,6 +60,11 @@ module.exports = (sequelize, Sequelize) => {
       },
       resolved_date: {
         type: Sequelize.DATE
+      },
+      is_comment: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: 0
       }
   },{
     tableName: 'tickets',

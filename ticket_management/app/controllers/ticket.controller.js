@@ -75,13 +75,12 @@ async function list(params , user){
 
   if(user.role == 'super-admin'){
       whereCondition.ticket_type = 'infrastructure'
-  }else if(user.role != 'school-admin' && user.role != 'branch-admin'){
+  }else if(user.role != 'school-admin' && user.role != 'branch-admin' && user.role !='principal'){
       whereCondition.user_id   = user.userVlsId
       whereCondition.user_type = user.role
   }else{
       whereCondition.school_vls_id = authUser.school_id
   }
-
 
 	if(params.search) 
 	   search = params.search
