@@ -54,6 +54,9 @@ async function list(params , user){
 
   	if(!params.class_id) throw 'class_id field is required'
   		joinWhere.class_id    = params.class_id
+  	
+  	if(params.section_id) 
+  		joinWhere.section_id    = params.section_id
 
   }
 
