@@ -20,7 +20,6 @@ async function profile(user){
   if(user.role == 'student'){
 
   	let student = await Student.findOne({ 
-                    attributes: ['name', 'phone', 'email', 'present_address', 'photo'],
                     where: { student_vls_id: user.userVlsId },
                     include: [{ 
                               model:Branch,
@@ -38,7 +37,6 @@ async function profile(user){
   }else if(user.role == 'guardian'){
 
   	let guardian = await Guardian.findOne({ 
-                    attributes: ['name', 'phone', 'email', 'present_address', 'photo'],
                     where: { parent_vls_id: user.userVlsId },
                     include: [{ 
                               model:Branch,
@@ -56,7 +54,6 @@ async function profile(user){
   }else{
 
   	let employee = await Employee.findOne({ 
-                    attributes: ['name', 'phone', 'email', 'present_address', 'photo'],
                     where: { faculty_vls_id: user.userVlsId },
                     include: [{ 
                               model:Branch,
