@@ -1,11 +1,12 @@
 const { validationResult } = require('express-validator');
 const db = require("../models");
 const Op = db.Sequelize.Op;
-const Sequelize = db.Sequelize;
+const Sequelize     = db.Sequelize;
 const TicketComment = db.TicketComment;
-const Student  = db.Student;
-const Employee = db.Employee;
-const Ticket   = db.Ticket;
+const Student       = db.Student;
+const Employee      = db.Employee;
+const Ticket        = db.Ticket;
+const Guardian      = db.Guardian;
 
 module.exports = {
   create,
@@ -37,6 +38,8 @@ async function create(req){
 
       if(req.user.role === 'student'){  
           user  = await Student.findByPk(createdComment.user_vls_id)
+      }else if(req.user.role === 'guardian'){
+          user  = await Guardian.findByPk(createdComment.user_vls_id)
       }else{
           user  = await Employee.findByPk(createdComment.user_vls_id)
       }
@@ -61,7 +64,10 @@ async function create(req){
  * API for view comment
  */
 async function view(id){
-  let comment    = await TicketComment.findByPk(id)           
+
+  let comment    = await TicketComment.findByPk(id)
+  if(!comment) throw 'Comment not found' 
+
   return { success: true, message: "View Comment details", data:comment }
 };
 
@@ -130,6 +136,8 @@ async function setUsers(comments){
           item.user = user
           if(item.user_type === 'student'){
             user  = await Student.findByPk(item.user_vls_id)
+          }else if(item.user_type === 'guardian'){
+            user  = await Guardian.findByPk(item.user_vls_id)
           }else{
             user  = await Employee.findByPk(item.user_vls_id)
           }
@@ -177,6 +185,8 @@ async function update(req){
 
       if(req.user.role === 'student'){
           user  = await Student.findByPk(comment.user_vls_id)
+      }else if(req.user.role === 'guardian'){
+          user  = await Guardian.findByPk(createdComment.user_vls_id)
       }else{
           user  = await Employee.findByPk(comment.user_vls_id)
       }

@@ -73,6 +73,7 @@ db.Role = require("../../../vls/app/models/Role.js")(sequelize, Sequelize);
 db.Ticket = require("./Ticket.js")(sequelize, Sequelize);
 db.TicketComment = require("./TicketComment.js")(sequelize, Sequelize);
 db.Student = require("../../../vls/app/models/Student.js")(sequelize, Sequelize);
+db.Guardian = require("../../../vls/app/models/Guardian.js")(sequelize, Sequelize);
 
 //relation
 db.Authentication.belongsTo(db.Employee,{foreignKey:'user_vls_id',as:'employee'})
