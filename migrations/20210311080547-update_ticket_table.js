@@ -2,8 +2,8 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.removeColumn('tickets', 'ticket_owner')
-    await queryInterface.removeColumn('tickets', 'ticker_owner_vls_id')
+    // await queryInterface.removeColumn('tickets', 'ticket_owner')
+    // await queryInterface.removeColumn('tickets', 'ticker_owner_vls_id')
     await queryInterface.addColumn('tickets', 'user_id', {
                 type: Sequelize.INTEGER,
                 allowNull: false
@@ -32,9 +32,12 @@ module.exports = {
                 type: Sequelize.STRING,
                 allowNull: false
     });
-    await queryInterface.addColumn('tickets', 'ticket_text', {
+    await queryInterface.addColumn('tickets', 'description', {
                 type: Sequelize.TEXT('long'),
                 allowNull: false
+    });
+    await queryInterface.addColumn('tickets', 'resolved_date', {
+                type: Sequelize.DATE
     });
   },
 

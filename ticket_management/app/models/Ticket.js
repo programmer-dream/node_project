@@ -42,7 +42,7 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.ENUM('new', 'assigned', 'wip', 'resolved'),
         allowNull: false
       },
-      status: {
+      ticket_type: {
         type: Sequelize.ENUM('application', 'infrastructure'),
         allowNull: false
       },
@@ -54,9 +54,12 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.STRING,
         allowNull: false
       },
-      ticket_text: {
+      description: {
         type: Sequelize.TEXT('long'),
         allowNull: false
+      },
+      resolved_date: {
+        type: Sequelize.DATE
       }
   },{
     tableName: 'tickets',

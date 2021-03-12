@@ -41,7 +41,7 @@ async function create(req){
   //modify data
   ticket_data.user_id        = user.userVlsId
   ticket_data.user_type      = user.role
-  ticket_data.ticket_type    = 'application'
+  ticket_data.ticket_type    = await getTicketType(user)
   ticket_data.status      	 = 'new'
   ticket_data.ticket_priorty = 'minor'
   ticket_data.open_date      = moment().format('YYYY-MM-DD HH:mm:ss')
@@ -70,21 +70,31 @@ async function list(params , user){
 	let offset  = 0
 	let orderBy = 'desc';
 	let search  = ''
-
+  let authUser = await User.findByPk(user.userVlsId)
 	let whereCondition  = {}
 
+  if(user.role == 'super-admin'){
+      whereCondition.ticket_type = 'infrastructure'
+  }else if(user.role != 'school-admin' && user.role != 'branch-admin'){
+      whereCondition.user_id   = user.userVlsId
+      whereCondition.user_type = user.role
+  }else{
+      whereCondition.school_vls_id = authUser.school_id
+  }
+
+
 	if(params.search) 
-		search = params.search
+	   search = params.search
 
 	if(params.orderBy == 'asc') 
-	 	orderBy = params.orderBy
+	 	 orderBy = params.orderBy
 
 	if(params.size)
-	 	limit = parseInt(params.size)
+	 	 limit = parseInt(params.size)
 
 	if(params.page)
-	  	offset = 0 + (parseInt(params.page) - 1) * limit
-
+	   offset = 0 + (parseInt(params.page) - 1) * limit
+  
 	let tickets = await Ticket.findAll({
 		limit : limit,
 	    offset: offset,
@@ -148,4 +158,15 @@ async function dashboardCount(id){
   });
 
   return { success: true, message: "dashboard count", data : ticket}
+}
+
+
+/**
+ * API for get ticket type 
+ */
+async function getTicketType(user){
+  if(user.role == 'school-admin' || user.role == 'branch-admin')
+    return 'infrastructure'
+
+  return 'application'  
 }
