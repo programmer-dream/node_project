@@ -392,6 +392,9 @@ async function subjectPerformance(params, user){
   	 joinWhere.student_id          = student.student_vls_id
   	 joinWhere.academic_year_id    = academicYear.id
 
+  	 if(student.section_id && student.section_id > 0)
+  	 	joinWhere.section_id       = student.section_id 
+
   	 if(params.subject_code) 
   	 	joinWhere.subject_code     = params.subject_code  
    }
