@@ -455,7 +455,7 @@ async function manageUserSettings(userDetails) {
   let permissionArray = config.permissionsArray.split(',')
 
   let userSettings = userDetails.userSetting
-  
+
   if(!userSettings){
     userSettings = {}
   }else{
@@ -467,16 +467,16 @@ async function manageUserSettings(userDetails) {
   await Promise.all(
     permissionArray.map( item => {
 
-        if( userDetails.school[item] == null || userDetails.school[item] == 'no' ){
+        if( userDetails.school[item] == null || userDetails.school[item].toLowerCase() == 'no' ){
           userSettings[item] = 'no'
-        }else if( userDetails.school[item] == 'yes' ){
+        }else if( userDetails.school[item].toLowerCase() == 'yes' ){
           userSettings[item] = 'yes'
         }
 
         if( userSettings[item] == 'yes' ){
-          if( userDetails.branch[item] == null || userDetails.branch[item] == 'no' ){
+          if( userDetails.branch[item] == null || userDetails.branch[item].toLowerCase() == 'no' ){
             userSettings[item] = 'no'
-          }else if( userDetails.branch[item] == 'yes' ){
+          }else if( userDetails.branch[item].toLowerCase() == 'yes' ){
             userSettings[item] = 'yes'
           }
         }
