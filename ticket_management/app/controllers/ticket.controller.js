@@ -178,30 +178,23 @@ async function getTicketType(user){
  */
 async function getRating(id, user) {
   try{
-    let avg = null;
-    
     //get rating avg
     let ratings = await TicketRating.findOne({
       attributes: [
-                    [ Sequelize.fn('SUM', Sequelize.col('ratings')), 'total_ratings' ],
-                    [ Sequelize.fn('COUNT', Sequelize.col('ratings')), 'total_count' ]
+                    [ Sequelize.fn('AVG', Sequelize.col('ratings')), 'total_ratings' ]
                   ],
       where:{ticket_vls_id:id},
       group:['ticket_vls_id']
     })
-
-    if(ratings){
-    //get rating 
-      let ratingData = ratings.toJSON();
-      avg = parseInt(ratingData.total_ratings) / ratingData.total_count
-    }
-
+    ratings = ratings.toJSON()
+    let avg = ratings.total_ratings
+    
     userRating  = await TicketRating.findOne({
       attributes: ['ratings'],
       where:{ticket_vls_id:id,user_vls_id:user.userVlsId}
     })
 
-    return { success:true, message:"Rating data",avg:avg,data:userRating};
+    return { success:true, message:"Rating data",avg:avg, data:userRating};
   }catch(err){
     throw err.message
   }
