@@ -16,6 +16,7 @@ router.post("/create",[
 router.get("/view/:id",view);
 router.get("/list/",list);
 router.get("/dashboardCount/",dashboardCount);
+router.get("/getRating/:id",getRating);
 
 //GET
 router.put("/update/:id",[
@@ -67,6 +68,13 @@ function update(req, res, next) {
 // Function for delete ticket
 function deleteTicket(req, res, next) {
     ticketController.deleteTicket(req.params.id)
+        .then(ticket => ticket ? res.json(ticket) : res.status(400).json({ status: "error", message: 'Error while creating ticket' }))
+        .catch(err => next(err));
+}
+
+// Function for get rating
+function getRating(req, res, next) {
+    ticketController.getRating(req.params.id ,req.user)
         .then(ticket => ticket ? res.json(ticket) : res.status(400).json({ status: "error", message: 'Error while creating ticket' }))
         .catch(err => next(err));
 }

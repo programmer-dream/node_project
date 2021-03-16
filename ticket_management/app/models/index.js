@@ -72,6 +72,7 @@ db.Authentication = require("../../../vls/app/models/Authentication.js")(sequeli
 db.Role = require("../../../vls/app/models/Role.js")(sequelize, Sequelize);
 db.Ticket = require("./Ticket.js")(sequelize, Sequelize);
 db.TicketComment = require("./TicketComment.js")(sequelize, Sequelize);
+db.TicketRating = require("./TicketRating.js")(sequelize, Sequelize);
 db.Student = require("../../../vls/app/models/Student.js")(sequelize, Sequelize);
 db.Guardian = require("../../../vls/app/models/Guardian.js")(sequelize, Sequelize);
 

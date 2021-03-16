@@ -40,6 +40,7 @@ app.get("/",function(req, res){
 // api routes
 app.use('/ticket', require('./app/routes/ticket.routes'));
 app.use('/ticket/comment', require('./app/routes/comment.routes'));
+app.use('/ticket/rating', require('./app/routes/rating.routes'));
 
 
 // global error handler

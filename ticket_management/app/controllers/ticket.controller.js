@@ -12,6 +12,7 @@ const SchoolDetails= db.SchoolDetails;
 const Branch  		 = db.Branch;
 const Role         = db.Role;
 const Ticket         = db.Ticket;
+const TicketRating   = db.TicketRating;
 
 
 module.exports = {
@@ -20,7 +21,8 @@ module.exports = {
   list,
   update,
   deleteTicket,
-  dashboardCount
+  dashboardCount,
+  getRating
 };
 
 
@@ -169,3 +171,38 @@ async function getTicketType(user){
 
   return 'application'  
 }
+
+
+/**
+ * API for get rating & likes
+ */
+async function getRating(id, user) {
+  try{
+    let avg = null;
+    
+    //get rating avg
+    let ratings = await TicketRating.findOne({
+      attributes: [
+                    [ Sequelize.fn('SUM', Sequelize.col('ratings')), 'total_ratings' ],
+                    [ Sequelize.fn('COUNT', Sequelize.col('ratings')), 'total_count' ]
+                  ],
+      where:{ticket_vls_id:id},
+      group:['ticket_vls_id']
+    })
+
+    if(ratings){
+    //get rating 
+      let ratingData = ratings.toJSON();
+      avg = parseInt(ratingData.total_ratings) / ratingData.total_count
+    }
+
+    userRating  = await TicketRating.findOne({
+      attributes: ['ratings'],
+      where:{ticket_vls_id:id,user_vls_id:user.userVlsId}
+    })
+
+    return { success:true, message:"Rating data",avg:avg,data:userRating};
+  }catch(err){
+    throw err.message
+  }
+};
