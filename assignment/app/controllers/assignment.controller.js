@@ -317,7 +317,7 @@ async function list(params , user){
   }
   
   let assignments = await Assignment.findAll({
-    //where : whereCodition,
+    where : whereCodition,
     include: [{ 
                 model:Employee,
                 as:'addedBY',
