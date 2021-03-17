@@ -82,7 +82,7 @@ function getRating(req, res, next) {
 
 // Function for export excel
 function exportTickets(req, res, next) {
-    ticketController.exportTickets(req.params)
+    ticketController.exportTickets(req.query)
         .then(ticket => ticket ? res.json(ticket) : res.status(400).json({ status: "error", message: 'Error while creating ticket' }))
         .catch(err => next(err));
 }

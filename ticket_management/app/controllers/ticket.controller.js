@@ -209,12 +209,13 @@ async function getRating(id, user) {
 async function exportTickets(params){
     let startDate = params.startDate
     let endDate   = params.endDate
-
+    
     let tickets = await Ticket.findAll({
-                    // where : {open_date:{ 
-                    //               [Op.between]: [startDate, endDate]
-                    //             }
-                    //         }
+                    where : {
+                      [Op.and]: [
+                            sequelize.where(sequelize.fn('date', sequelize.col('open_date')), '>=', startDate),
+                            sequelize.where(sequelize.fn('date', sequelize.col('open_date')), '<=', endDate),
+                        ]}
                   })
     let workBook = new exceljs.Workbook();
     let workSheet = workBook.addWorksheet('Tickets');
@@ -234,5 +235,5 @@ async function exportTickets(params){
     })
     workBook.xlsx.writeFile('tickets.xlsx')
 
-    return 'done'
+    return tickets
 }
