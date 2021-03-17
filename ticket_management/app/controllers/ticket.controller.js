@@ -3,6 +3,7 @@ const db 	 	     = require("../models");
 const moment 	   = require("moment");
 const bcrypt     = require("bcryptjs");
 const path       = require('path')
+const exceljs    = require('exceljs')
 const Op 	 	     = db.Sequelize.Op;
 const Sequelize  = db.Sequelize;
 const User       = db.Authentication;
@@ -22,7 +23,8 @@ module.exports = {
   update,
   deleteTicket,
   dashboardCount,
-  getRating
+  getRating,
+  exportTickets
 };
 
 
@@ -188,7 +190,7 @@ async function getRating(id, user) {
     })
     ratings = ratings.toJSON()
     let avg = ratings.total_ratings
-    
+
     userRating  = await TicketRating.findOne({
       attributes: ['ratings'],
       where:{ticket_vls_id:id,user_vls_id:user.userVlsId}
@@ -199,3 +201,38 @@ async function getRating(id, user) {
     throw err.message
   }
 };
+
+
+/**
+ * API for export data 
+ */
+async function exportTickets(params){
+    let startDate = params.startDate
+    let endDate   = params.endDate
+
+    let tickets = await Ticket.findAll({
+                    // where : {open_date:{ 
+                    //               [Op.between]: [startDate, endDate]
+                    //             }
+                    //         }
+                  })
+    let workBook = new exceljs.Workbook();
+    let workSheet = workBook.addWorksheet('Tickets');
+    workSheet.columns = [
+      {header:'TicketId',key:'ticket_vls_id'},
+      {header:'Title',key:'subject'},
+      {header:'Description',key:'description'},
+      {header:'Created Date',key:'created_at'}
+    ]
+
+    let count = 1;
+    tickets.forEach(ticket=>{
+      workSheet.addRow(ticket);
+    })
+    workSheet.getRow(1).eachCell((cell)=>{
+      cell.font = { bold : true };  
+    })
+    workBook.xlsx.writeFile('tickets.xlsx')
+
+    return 'done'
+}
