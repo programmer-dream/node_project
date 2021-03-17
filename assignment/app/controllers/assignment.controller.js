@@ -317,7 +317,7 @@ async function list(params , user){
   }
   
   let assignments = await Assignment.findAll({
-    where : whereCodition,
+    //where : whereCodition,
     include: [{ 
                 model:Employee,
                 as:'addedBY',
@@ -386,16 +386,21 @@ async function list(params , user){
               })
             assingmentData.studentAssignment = studentAssignment
              if(!Array.isArray(studentIds) ||  studentIds.length < 0 ){
-              if( status && assingmentData.assignment_status == status){
+
+              if(!studentAssignment && status =='New'){
                 finalAssignment.push(assingmentData)
-              }else{
+              }else if( status && studentAssignment && studentAssignment.assignment_status == status){
+                finalAssignment.push(assingmentData)
+              }else if(!status){
                 finalAssignment.push(assingmentData)
               }
              }else if(Array.isArray(studentIds) &&  studentIds.length > 0 && studentIds.includes(user.userVlsId)){
 
-                if(status && assingmentData.assignment_status == status){
+                if(!studentAssignment && status =='New'){
                   finalAssignment.push(assingmentData)
-                }else{
+                }else if(status && studentAssignment && studentAssignment.assignment_status == status){
+                  finalAssignment.push(assingmentData)
+                }else if(!status){
                   finalAssignment.push(assingmentData)
                 }
              }
