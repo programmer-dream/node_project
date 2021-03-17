@@ -244,10 +244,10 @@ async function view(params , user){
  */
 async function list(params , user){
   let assignmentState  = params.assignmentState
-  let branch_id         = params.branch_vls_id
+  let branch_id        = params.branch_vls_id
   let studentID        = user.userVlsId
   let search           = ""
-
+  let status           = null
   if(user.role == 'guardian')
     studentID = params.student_id
 
@@ -275,6 +275,9 @@ async function list(params , user){
       [Op.gt]: sequelize.where(sequelize.fn('date', sequelize.col('assignment_completion_date')), '>', currentDate)
     }
   }
+
+  if(params.status)
+      status = params.status
 
   if(params.section_id)
     whereCodition.section_id = params.section_id
@@ -383,9 +386,18 @@ async function list(params , user){
               })
             assingmentData.studentAssignment = studentAssignment
              if(!Array.isArray(studentIds) ||  studentIds.length < 0 ){
-              finalAssignment.push(assingmentData)
-             }else if(Array.isArray(studentIds) &&  studentIds.length > 0 && studentIds.includes(user.userVlsId)){
+              if( status && assingmentData.assignment_status == status){
                 finalAssignment.push(assingmentData)
+              }else{
+                finalAssignment.push(assingmentData)
+              }
+             }else if(Array.isArray(studentIds) &&  studentIds.length > 0 && studentIds.includes(user.userVlsId)){
+
+                if(status && assingmentData.assignment_status == status){
+                  finalAssignment.push(assingmentData)
+                }else{
+                  finalAssignment.push(assingmentData)
+                }
              }
           }
       }else{
