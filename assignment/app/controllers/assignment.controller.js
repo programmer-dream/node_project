@@ -389,6 +389,9 @@ async function list(params , user){
 
               if(!studentAssignment && status =='New'){
                 finalAssignment.push(assingmentData)
+              }else if(status == 'Closed' && assignmentState == "past"){
+                if(studentAssignment && studentAssignment.assignment_status == 'Inprogress')
+                    finalAssignment.push(assingmentData)
               }else if( status && studentAssignment && studentAssignment.assignment_status == status){
                 finalAssignment.push(assingmentData)
               }else if(!status){
@@ -398,6 +401,9 @@ async function list(params , user){
 
                 if(!studentAssignment && status =='New'){
                   finalAssignment.push(assingmentData)
+                }else if(status == 'Closed' && assignmentState == "past"){
+                  if(studentAssignment && studentAssignment.assignment_status == 'Inprogress')
+                    finalAssignment.push(assingmentData)
                 }else if(status && studentAssignment && studentAssignment.assignment_status == status){
                   finalAssignment.push(assingmentData)
                 }else if(!status){
