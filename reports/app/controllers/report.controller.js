@@ -709,13 +709,12 @@ async function topClassPerformer(whereConditions){
 		attributes:[
                     [ Sequelize.fn('SUM', Sequelize.col('exam_total_mark')), 'exam_total_mark' ],
                     [ Sequelize.fn('SUM', Sequelize.col('obtain_total_mark')), 'obtain_total_mark' ],
-                    'student_id',
-                    'student.name'
+                    'student_id'
                   ],
         include: [{ 
 	                model:Student,
 	                as:'student',
-	                attributes:['name']
+	                attributes:['name','photo']
 	            }],
 		group:['student_id'],
 		order : [
