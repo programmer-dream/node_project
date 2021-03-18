@@ -326,7 +326,7 @@ async function mergeStudentAttendence(students, subjectCode){
 				year			: currentYear,
 				month			: currentMonth
 			}
-	    	if(subjectCode || subjectCode != '')
+	    	if(subjectCode)
 	    		whereCondtion.subject_code = subjectCode
 
 		    //return whereCondtion
