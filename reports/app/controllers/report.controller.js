@@ -691,8 +691,10 @@ async function topThreePerformer(params, user){
     		whereConditions.class_id =  getClass.class_vls_id
     		let studentData = await topClassPerformer(whereConditions)
 
-    		getClass.students = studentData
-    		classesPerformance.push(getClass)
+    		if(studentData.length){
+    			getClass.students = studentData
+    			classesPerformance.push(getClass)
+    		}
     	})
     )
 
