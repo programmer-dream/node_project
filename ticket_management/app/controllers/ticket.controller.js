@@ -215,19 +215,23 @@ async function exportTickets(params){
                       [Op.and]: [
                             sequelize.where(sequelize.fn('date', sequelize.col('open_date')), '>=', startDate),
                             sequelize.where(sequelize.fn('date', sequelize.col('open_date')), '<=', endDate),
-                        ]}
+                        ]},
+                        attributes:['ticket_vls_id','subject','description','created_at']
                   })
-    let workBook = new exceljs.Workbook();
+
+    let workBook  = new exceljs.Workbook();
     let workSheet = workBook.addWorksheet('Tickets');
 
     workSheet.columns = [
-      {header:'TicketId',key:'ticket_vls_id'},
-      {header:'Title',key:'subject'},
-      {header:'Description',key:'description'},
-      {header:'Created Date',key:'created_at'}
+      {header:'TicketId',key:'ticket_vls_id',width:10},
+      {header:'Title',key:'subject',width:20},
+      {header:'Description',key:'description',width:30},
+      {header:'Created Date',key:'created_at',width:12}
     ]
-
+    
     tickets.forEach(ticket=>{
+      ticket = ticket.toJSON()
+      ticket.created_at = moment(ticket.created_at).format('DD/MM/YYYY');
       workSheet.addRow(ticket);
     })
 
@@ -236,6 +240,6 @@ async function exportTickets(params){
     })
 
     let buffer = await workBook.xlsx.writeBuffer()
-
+    
     return { success : true, message : "File", data : buffer };
 }
