@@ -219,6 +219,7 @@ async function exportTickets(params){
                   })
     let workBook = new exceljs.Workbook();
     let workSheet = workBook.addWorksheet('Tickets');
+    
     workSheet.columns = [
       {header:'TicketId',key:'ticket_vls_id'},
       {header:'Title',key:'subject'},
@@ -226,14 +227,15 @@ async function exportTickets(params){
       {header:'Created Date',key:'created_at'}
     ]
 
-    let count = 1;
     tickets.forEach(ticket=>{
       workSheet.addRow(ticket);
     })
+
     workSheet.getRow(1).eachCell((cell)=>{
       cell.font = { bold : true };  
     })
-    workBook.xlsx.writeFile('tickets.xlsx')
 
-    return tickets
+    let buffer = await workBook.xlsx.writeBuffer()
+
+    return buffer
 }
