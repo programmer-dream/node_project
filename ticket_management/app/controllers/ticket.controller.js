@@ -219,7 +219,7 @@ async function exportTickets(params){
                   })
     let workBook = new exceljs.Workbook();
     let workSheet = workBook.addWorksheet('Tickets');
-    
+
     workSheet.columns = [
       {header:'TicketId',key:'ticket_vls_id'},
       {header:'Title',key:'subject'},
@@ -237,5 +237,5 @@ async function exportTickets(params){
 
     let buffer = await workBook.xlsx.writeBuffer()
 
-    return buffer
+    return { success : true, message : "File", data : buffer };
 }
