@@ -12,6 +12,7 @@ router.get("/:id/getExamMarks",getExamMarks);
 router.get("/subjectPerformance",subjectPerformance);
 router.get("/classPerformance",classPerformance);
 router.get("/overAllPerformance",overAllPerformance);
+router.get("/topThreePerformer",topThreePerformer);
 
 //Post
 router.post("/sendExamResult",sendExamResult);
@@ -74,5 +75,12 @@ function classPerformance(req, res, next) {
 function overAllPerformance(req, res, next) {
     reportController.overAllPerformance(req.query, req.user)
         .then(exam => exam ? res.json(exam) : res.status(400).json({ status: "error", message: 'Error while getting send attenance marks' }))
+        .catch(err => next(err));
+}
+
+// Function for top Three Perfromer details
+function topThreePerformer(req, res, next) {
+    reportController.topThreePerformer(req.query, req.user)
+        .then(exam => exam ? res.json(exam) : res.status(400).json({ status: "error", message: 'Error while getting top three performer' }))
         .catch(err => next(err));
 }

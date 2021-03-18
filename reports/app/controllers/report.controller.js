@@ -28,7 +28,8 @@ module.exports = {
   sendAttendanceResult,
   subjectPerformance,
   classPerformance,
-  overAllPerformance
+  overAllPerformance,
+  topThreePerformer
 };
 
 
@@ -639,4 +640,90 @@ async function getExamData(testId , classId , sectionId = null , subjectCode = n
    )
 	
 	return classPerformance;
+}
+
+
+/**
+ * API for top Three Perfromer data 
+ */
+async function topThreePerformer(params, user){
+	if(!params.school_vls_id) throw 'school_vls_id is required'
+	if(!params.branch_vls_id) throw 'branch_vls_id is required'
+
+	let school_vls_id = params.school_vls_id
+	let branch_vls_id = params.branch_vls_id
+	// if(user.role == 'teacher'){
+
+	// }
+	//current academin year
+	let academicYear  = await AcademicYear.findOne({
+		                where:{ school_id : school_vls_id },
+		                order : [
+				             		['id', 'desc']
+				            	],
+				        attributes:['id','session_year']
+		              	})
+	
+	//latest exam
+	let letestExam = await Exams.findOne({
+		where : { school_id : school_vls_id ,
+				  academic_year_id : academicYear.id
+				},
+		order : [
+             		['test_id', 'desc']
+            	],
+        attributes : ['test_id']    	
+	})
+
+	let allClasses = await Classes.findAll({
+		where : { branch_vls_id : branch_vls_id },
+		attributes:['class_vls_id','name']
+	})
+
+	//where condition
+	let whereConditions = { exam_id : letestExam.test_id}
+
+	let classesPerformance = []
+	await Promise.all(
+    	allClasses.map(async getClass => {
+    		getClass = getClass.toJSON()
+    		//modify condition
+    		whereConditions.class_id =  getClass.class_vls_id
+    		let studentData = await topClassPerformer(whereConditions)
+
+    		if(studentData.length){
+    			getClass.students = studentData
+    			classesPerformance.push(getClass)
+    		}
+    	})
+    )
+
+	return { success: true, message: "Top three performance", data : classesPerformance}
+}
+
+/**
+ * API for top Three Perfromer data 
+ */
+async function topClassPerformer(whereConditions){
+
+	let allMarks = await Marks.findAll({
+		where : whereConditions,
+		attributes:[
+                    [ Sequelize.fn('SUM', Sequelize.col('exam_total_mark')), 'exam_total_mark' ],
+                    [ Sequelize.fn('SUM', Sequelize.col('obtain_total_mark')), 'obtain_total_mark' ],
+                    'student_id'
+                  ],
+        include: [{ 
+	                model:Student,
+	                as:'student',
+	                attributes:['name','photo']
+	            }],
+		group:['student_id'],
+		order : [
+	             	[Sequelize.fn('SUM', Sequelize.col('obtain_total_mark')), 'desc']
+	            ],
+	    limit : 3
+	})
+
+	return allMarks
 }
