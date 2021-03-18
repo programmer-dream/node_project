@@ -681,7 +681,10 @@ async function topThreePerformer(params, user){
 	})
 
 	//where condition
-	let whereConditions = { exam_id : letestExam.test_id}
+	let whereConditions = { 
+		exam_id   : letestExam.test_id,
+		school_id : school_vls_id
+	}
 
 	let classesPerformance = []
 	await Promise.all(
