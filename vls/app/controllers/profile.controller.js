@@ -1,5 +1,5 @@
 const { validationResult } = require('express-validator');
-const db = require("../models");
+const db = require("../../../models");
 
 const Student = db.Student;
 const Guardian = db.Guardian;

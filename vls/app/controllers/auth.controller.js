@@ -1,4 +1,4 @@
-const db = require("../models");
+const db = require("../../../models");
 const mailer = require('../../../helpers/nodemailer')
 const config = require("../../../config/env.js");
 const Authentication = db.Authentication;
