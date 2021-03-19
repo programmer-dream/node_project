@@ -2,8 +2,6 @@ const expressJwt = require('express-jwt');
 const config = require("../config/env.js");
 const authController = require("../vls/app/controllers/auth.controller");
 
-module.exports = jwt;
-
 function jwt() {
     const secret = config.secret;
     return expressJwt({ secret, isRevoked, algorithms: ['sha1', 'RS256', 'HS256'] }).unless({
@@ -28,3 +26,5 @@ async function isRevoked(req, payload, done) {
 
     done();
 };
+
+module.exports = jwt;
