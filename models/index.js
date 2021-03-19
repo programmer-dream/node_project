@@ -74,6 +74,7 @@ db.Employee = require("./Employee.js")(sequelize, Sequelize);
 db.Branch = require("./Branch.js")(sequelize, Sequelize);
 db.UserSetting = require("./UserSetting.js")(sequelize, Sequelize);
 db.LibraryHistory = require("./LibraryHistory.js")(sequelize, Sequelize);
+db.Users = require("./Authentication.js")(sequelize, Sequelize);
 
 /*********** query management ***********/
 db.StudentQuery = require("./StudentQuery.js")(sequelize, Sequelize);
