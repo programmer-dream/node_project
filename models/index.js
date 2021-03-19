@@ -73,6 +73,7 @@ db.Guardian = require("./Guardian.js")(sequelize, Sequelize);
 db.Employee = require("./Employee.js")(sequelize, Sequelize);
 db.Branch = require("./Branch.js")(sequelize, Sequelize);
 db.UserSetting = require("./UserSetting.js")(sequelize, Sequelize);
+db.LibraryHistory = require("./LibraryHistory.js")(sequelize, Sequelize);
 
 /*********** query management ***********/
 db.StudentQuery = require("./StudentQuery.js")(sequelize, Sequelize);
@@ -169,7 +170,6 @@ db.Student.belongsTo(db.Guardian,{foreignKey:'parent_vls_id',as:'parent'})
 db.Branch.belongsTo(db.SchoolDetails,{foreignKey:'school_vls_id',as:'school'})
 
 /*********** assignment management ***********/
-db.Student.belongsTo(db.Guardian,{foreignKey:'parent_vls_id',as:'parent'})
 db.Assignment.belongsTo(db.Employee,{foreignKey:'added_by',as:'addedBY'})
 db.Assignment.belongsTo(db.Classes,{foreignKey:'assignment_class_id',as:'class'})
 db.Assignment.belongsTo(db.SubjectList,{foreignKey:'subject_code',targetKey:'code',as:'subjectList'})
@@ -178,10 +178,8 @@ db.Assignment.hasMany(db.AssignmentQuestions,{foreignKey:'assignment_vls_id',as:
 db.StudentAssignment.hasMany(db.AssignmentQuestions,{foreignKey:'assignment_vls_id', sourceKey:'assignment_vls_id', as:'assignmentQuestionResponse'})
 db.AssignmentQuestions.hasOne(db.StudentAssignmentResponse,{foreignKey:'question_id',as:'questionResponse'})
 
-/*********** chat management ***********/
-db.Student.belongsTo(db.Guardian,{foreignKey:'parent_vls_id',as:'parent'})
+/********** chat management **********/
 db.Employee.hasMany(db.Subject,{foreignKey:'teacher_id',as:'subject'})
-db.Authentication.belongsTo(db.Role,{foreignKey:'role_id',as:'roles'})
 
 /*********** timesheet management ***********/
 db.Routine.belongsTo(db.SubjectList,{foreignKey:'subject_code',targetKey:'code',as:'subjectList'})
@@ -189,7 +187,6 @@ db.Routine.belongsTo(db.SubjectList,{foreignKey:'subject_code',targetKey:'code',
 db.ExamSchedule.belongsTo(db.SubjectList,{foreignKey:'subject_code',targetKey:'code',as:'subject'})
 db.Routine.belongsTo(db.Employee,{foreignKey:'teacher_id',as:'teacher'})
 db.ExamSchedule.belongsTo(db.Exam,{foreignKey:'exam_vls_id',as:'exam'})
-db.Student.belongsTo(db.Guardian,{foreignKey:'parent_vls_id',as:'parent'})
 db.Meeting.belongsTo(db.Employee,{foreignKey:'meeting_author_vls_id',as:'addedBy'})
 db.Assignment.belongsTo(db.SubjectList,{foreignKey:'subject_code',targetKey:'code',as:'subject'})
 
@@ -203,7 +200,6 @@ db.Notification.belongsTo(db.NotificationReadBy,{foreignKey:'notification_vls_id
 /*********** reports management ***********/
 db.Exams.hasMany(db.Marks,{foreignKey:'exam_id',as:'marks'})
 db.Marks.belongsTo(db.SubjectList,{foreignKey:'subject_code',targetKey : 'code', as:'subject'})
-db.StudentAttendance.belongsTo(db.SubjectList,{foreignKey:'subject_code',targetKey : 'code', as:'subject'})
 db.Marks.belongsTo(db.Student,{foreignKey:'student_id', as:'student'})
 db.Student.belongsTo(db.Guardian,{foreignKey:'parent_vls_id', as:'guardian'})
 db.Student.hasMany(db.Marks,{foreignKey:'student_id', as:'marks'})
@@ -214,10 +210,7 @@ db.Classes.hasMany(db.Section,{foreignKey:'class_id', as:'section'})
 
 /*********** school management ***********/
 db.Authentication.belongsTo(db.Employee,{foreignKey:'user_vls_id',as:'employee'})
-/*********** ticket management ***********/
-db.Authentication.belongsTo(db.Employee,{foreignKey:'user_vls_id',as:'employee'})
-/*********** community management ***********/
-db.Student.belongsTo(db.Guardian,{foreignKey:'parent_vls_id',as:'parent'})
+
 /*********** learning library management ***********/
 db.LearningLibrary.belongsTo(db.SubjectList,{foreignKey:'subject_code',targetKey:'code',as:'subjectList'})
 db.LibraryHistory.belongsTo(db.LearningLibrary,{foreignKey:'Learning_library_vls_id', as:'learningLibraryHistory'})

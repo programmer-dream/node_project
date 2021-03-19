@@ -3,7 +3,7 @@ const multer = require('multer');
 const fs = require('fs');
 const path = require('path')
 const config = require("../../../config/env.js");
-const db = require("../models");
+const db = require("../../../models");
 const SchoolDetails = db.SchoolDetails;
 const Branch        = db.Branch;
 
