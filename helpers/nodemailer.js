@@ -1,5 +1,5 @@
 var nodemailer = require('nodemailer')
-const config = require("../../../config/env.js");
+const config = require("../config/env.js");
 async function mailer(email,subject,html) {
     console.log(' in nodemailer params ->>', email, ' -->> end <---');
     var transporter = nodemailer.createTransport({

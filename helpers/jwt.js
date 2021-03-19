@@ -1,6 +1,6 @@
 const expressJwt = require('express-jwt');
-const config = require("../../../config/env.js");
-const authController = require("../controllers/auth.controller");
+const config = require("../config/env.js");
+const authController = require("../vls/app/controllers/auth.controller");
 
 module.exports = jwt;
 

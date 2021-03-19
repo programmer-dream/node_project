@@ -3,8 +3,8 @@ const express = require('express');
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const path = require("path");
-const jwt = require('./app/helper/jwt');
-const errorHandler = require('./app/helper/error-handler');
+const jwt = require('../helpers/jwt');
+const errorHandler = require('../helpers/error-handler');
 require('dotenv').config()
 
 const jwtPackage = require('jsonwebtoken');
