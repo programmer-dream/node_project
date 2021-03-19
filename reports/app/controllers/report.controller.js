@@ -1,9 +1,9 @@
 const { validationResult } = require('express-validator');
-const db 	 	 = require("../models");
+const db 	 	 = require("../../../models");
 const moment 	 = require("moment");
 const bcrypt     = require("bcryptjs");
 const path       = require('path')
-const mailer     = require('../helper/nodemailer')
+const mailer     = require('../../../helpers/nodemailer')
 const Op 	 	 = db.Sequelize.Op;
 const Sequelize  = db.Sequelize;
 const sequelize  = db.sequelize;

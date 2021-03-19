@@ -1,7 +1,7 @@
 const { validationResult } = require('express-validator');
-const db = require("../models");
+const db = require("../../../models");
 const Op = db.Sequelize.Op;
-const Ratings = db.Ratings;
+const Ratings = db.LibraryRatings;
 
 module.exports = {
   addUpdateLikes,
