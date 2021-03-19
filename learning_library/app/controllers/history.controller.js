@@ -1,12 +1,12 @@
 const { validationResult } = require('express-validator');
-const db = require("../models");
+const db = require("../../../models");
 const Op = db.Sequelize.Op;
 const Sequelize = db.Sequelize;
 const LibraryHistory = db.LibraryHistory;
 const LearningLibrary = db.LearningLibrary;
 const VideoLearningLibrary = db.VideoLearningLibrary;
-const Ratings = db.Ratings;
-const VideoRatings = db.VideoRatings;
+const Ratings = db.LibraryRatings;
+const VideoRatings = db.VideoLibraryRatings;
 const sequelize = db.sequelize;
 
 module.exports = {
