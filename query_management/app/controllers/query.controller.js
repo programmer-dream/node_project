@@ -508,8 +508,7 @@ async function getRatingLikes(id, user) {
     //get like count
     let like  = await Ratings.count({
       where:{ likes        : 1,
-              query_vls_id : id,
-              user_role :user.role
+              query_vls_id : id
             }
     })
     //get rating avg
