@@ -3,6 +3,7 @@ const db 	 	     = require("../../../models");
 const moment 	   = require("moment");
 const bcrypt     = require("bcryptjs");
 const path       = require('path')
+const exceljs    = require('exceljs')
 const Op 	 	     = db.Sequelize.Op;
 const Sequelize  = db.Sequelize;
 const User       = db.Authentication;
@@ -22,7 +23,9 @@ module.exports = {
   update,
   deleteTicket,
   dashboardCount,
-  getRating
+  getRating,
+  exportTickets,
+  changeStatus
 };
 
 
@@ -39,15 +42,34 @@ async function create(req){
       ticket_data.attachment = req.body.uplodedPath + req.files.file[0].filename;
   }
 
-  let user        = req.user
+  let user                   = req.user
   //modify data
   ticket_data.user_id        = user.userVlsId
   ticket_data.user_type      = user.role
   ticket_data.ticket_type    = await getTicketType(user)
   ticket_data.status      	 = 'new'
-  ticket_data.ticket_priorty = 'minor'
   ticket_data.open_date      = moment().format('YYYY-MM-DD HH:mm:ss')
-   //create ticket
+
+  slug = 'branch-admin'
+  if(user.role == 'school-admin' || user.role == 'branch-admin')
+     slug = 'super-admin'
+  
+  //get branch admin
+  let role = await Role.findOne({
+    where : { slug : slug },
+    attributes : ['id']
+  })
+
+  let getUser = await User.findOne({
+    where: { 
+              role_id   : role.id
+           }
+  })
+
+  ticket_data.assigned_user_id   = getUser.user_vls_id
+  ticket_data.assigned_user_type = 'employee'
+  
+  //create ticket
   ticket = await Ticket.create(ticket_data);
   
   return { success: true, message: "Ticket created successfully", data : ticket}
@@ -76,7 +98,7 @@ async function list(params , user){
 	let whereCondition  = {}
 
   if(user.role == 'super-admin'){
-      whereCondition.ticket_type = 'infrastructure'
+      whereCondition.assigned_user_id = user.userVlsId
   }else if(user.role != 'school-admin' && user.role != 'branch-admin' && user.role !='principal'){
       whereCondition.user_id   = user.userVlsId
       whereCondition.user_type = user.role
@@ -188,7 +210,7 @@ async function getRating(id, user) {
     })
     ratings = ratings.toJSON()
     let avg = ratings.total_ratings
-    
+
     userRating  = await TicketRating.findOne({
       attributes: ['ratings'],
       where:{ticket_vls_id:id,user_vls_id:user.userVlsId}
@@ -198,4 +220,81 @@ async function getRating(id, user) {
   }catch(err){
     throw err.message
   }
+};
+
+
+/**
+ * API for export data 
+ */
+async function exportTickets(params){
+    let startDate = params.startDate
+    let endDate   = params.endDate
+    
+    let tickets = await Ticket.findAll({
+                    where : {
+                      [Op.and]: [
+                            sequelize.where(sequelize.fn('date', sequelize.col('open_date')), '>=', startDate),
+                            sequelize.where(sequelize.fn('date', sequelize.col('open_date')), '<=', endDate),
+                        ]},
+                        attributes:['ticket_vls_id','subject','description','created_at']
+                  })
+
+    let workBook  = new exceljs.Workbook();
+    let workSheet = workBook.addWorksheet('Tickets');
+
+    workSheet.columns = [
+      {header:'TicketId',key:'ticket_vls_id',width:10},
+      {header:'Title',key:'subject',width:20},
+      {header:'Description',key:'description',width:30},
+      {header:'Created Date',key:'created_at',width:12}
+    ]
+    
+    tickets.forEach(ticket=>{
+      ticket = ticket.toJSON()
+      ticket.created_at = moment(ticket.created_at).format('DD/MM/YYYY');
+      workSheet.addRow(ticket);
+    })
+
+    workSheet.getRow(1).eachCell((cell)=>{
+      cell.font = { bold : true };  
+    })
+
+    let buffer = await workBook.xlsx.writeBuffer()
+    
+    return { success : true, message : "File", data : buffer };
+}
+
+
+/**
+ * API for get rating & likes
+ */
+async function changeStatus(id, body, user) {
+
+    let status = body.status
+    if(!status) 'status field is required'
+
+    let ticket = await Ticket.findByPk(id)
+
+    updatedData = {status: status}
+
+    if(body.exalted){
+      let role = await Role.findOne({
+        where : { slug : 'super-admin' },
+        attributes : ['id']
+      })
+
+      let getUser = await User.findOne({
+        where: { 
+                  role_id   : role.id
+               }
+      })
+      updatedData.assigned_user_id   = getUser.user_vls_id
+      updatedData.status             = 'assigned'
+    }
+    
+    if(ticket)
+       ticket.update(updatedData)
+
+    return { success:true, message:"Ticket status updated", data: ticket};
+  
 };
