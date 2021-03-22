@@ -41,15 +41,31 @@ async function create(req){
       ticket_data.attachment = req.body.uplodedPath + req.files.file[0].filename;
   }
 
-  let user        = req.user
+  let user                   = req.user
   //modify data
   ticket_data.user_id        = user.userVlsId
   ticket_data.user_type      = user.role
   ticket_data.ticket_type    = await getTicketType(user)
   ticket_data.status      	 = 'new'
-  ticket_data.ticket_priorty = 'minor'
   ticket_data.open_date      = moment().format('YYYY-MM-DD HH:mm:ss')
-   //create ticket
+
+  //get branch admin
+  let role = await Role.findOne({
+    where : { slug : 'branch-admin' },
+    attributes : ['id']
+  })
+
+  let branchUser = await User.findOne({
+    where: { 
+              school_id :  ticket_data.school_vls_id,
+              role_id   : role.id
+           }
+  })
+  
+  ticket_data.assigned_user_id = branchUser.user_vls_id
+  ticket_data.assigned_user_type = 'employee'
+
+  //create ticket
   ticket = await Ticket.create(ticket_data);
   
   return { success: true, message: "Ticket created successfully", data : ticket}
