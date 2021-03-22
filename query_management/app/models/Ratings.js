@@ -15,6 +15,9 @@ module.exports = (sequelize, Sequelize) => {
       user_vls_id: {
         type: Sequelize.BIGINT
       },
+      user_role:{
+        type: Sequelize.STRING
+      },
       query_vls_id: {
         type: Sequelize.INTEGER
       }
