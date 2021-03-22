@@ -24,7 +24,8 @@ module.exports = {
   deleteTicket,
   dashboardCount,
   getRating,
-  exportTickets
+  exportTickets,
+  changeStatus
 };
 
 
@@ -262,3 +263,38 @@ async function exportTickets(params){
     
     return { success : true, message : "File", data : buffer };
 }
+
+
+/**
+ * API for get rating & likes
+ */
+async function changeStatus(id, body, user) {
+
+    let status = body.status
+    if(!status) 'status field is required'
+
+    let ticket = await Ticket.findByPk(id)
+
+    updatedData = {status: status}
+
+    if(body.exalted){
+      let role = await Role.findOne({
+        where : { slug : 'super-admin' },
+        attributes : ['id']
+      })
+
+      let getUser = await User.findOne({
+        where: { 
+                  role_id   : role.id
+               }
+      })
+      updatedData.assigned_user_id   = getUser.user_vls_id
+      updatedData.status             = 'assigned'
+    }
+    
+    if(ticket)
+       ticket.update(updatedData)
+
+    return { success:true, message:"Ticket status updated", data: ticket};
+  
+};
