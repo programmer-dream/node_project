@@ -49,22 +49,25 @@ async function create(req){
   ticket_data.status      	 = 'new'
   ticket_data.open_date      = moment().format('YYYY-MM-DD HH:mm:ss')
 
+  slug = 'branch-admin'
+  if(user.role == 'school-admin' || user.role == 'branch-admin')
+     slug = 'super-admin'
+  
   //get branch admin
   let role = await Role.findOne({
-    where : { slug : 'branch-admin' },
+    where : { slug : slug },
     attributes : ['id']
   })
 
-  let branchUser = await User.findOne({
+  let getUser = await User.findOne({
     where: { 
-              school_id :  ticket_data.school_vls_id,
               role_id   : role.id
            }
   })
-  
-  ticket_data.assigned_user_id = branchUser.user_vls_id
-  ticket_data.assigned_user_type = 'employee'
 
+  ticket_data.assigned_user_id   = getUser.user_vls_id
+  ticket_data.assigned_user_type = 'employee'
+  
   //create ticket
   ticket = await Ticket.create(ticket_data);
   
@@ -94,7 +97,7 @@ async function list(params , user){
 	let whereCondition  = {}
 
   if(user.role == 'super-admin'){
-      whereCondition.ticket_type = 'infrastructure'
+      whereCondition.assigned_user_id = user.userVlsId
   }else if(user.role != 'school-admin' && user.role != 'branch-admin' && user.role !='principal'){
       whereCondition.user_id   = user.userVlsId
       whereCondition.user_type = user.role
