@@ -95,7 +95,20 @@ async function list(params , user){
 	let orderBy = 'desc';
 	let search  = ''
   let authUser = await User.findByPk(user.userVlsId)
-	let whereCondition  = {}
+
+  if(params.search) 
+     search = params.search
+
+  let whereCondition = {
+      [Op.or]:{
+                description: { 
+                  [Op.like]: `%`+search+`%`
+                },
+                subject : { 
+                  [Op.like]: `%`+search+`%` 
+                }
+           }
+    };
 
   if(user.role == 'super-admin'){
       whereCondition.assigned_user_id = user.userVlsId
@@ -105,9 +118,6 @@ async function list(params , user){
   }else{
       whereCondition.school_vls_id = authUser.school_id
   }
-
-	if(params.search) 
-	   search = params.search
 
 	if(params.orderBy == 'asc') 
 	 	 orderBy = params.orderBy
