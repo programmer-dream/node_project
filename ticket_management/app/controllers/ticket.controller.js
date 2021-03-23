@@ -227,8 +227,12 @@ async function getRating(id, user) {
       where:{ticket_vls_id:id},
       group:['ticket_vls_id']
     })
-    ratings = ratings.toJSON()
-    let avg = ratings.total_ratings
+
+    let avg = 0
+    if(ratings){
+      ratings = ratings.toJSON()
+      avg     = ratings.total_ratings
+    }
 
     userRating  = await TicketRating.findOne({
       attributes: ['ratings'],
