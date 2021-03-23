@@ -17,12 +17,14 @@ async function addUpdateLikes(req){
   if(!req.user) throw 'User not found'
 
   try{
-    req.body.user_vls_id = req.user.userVlsId 
+    req.body.user_vls_id = req.user.userVlsId
+    req.body.user_type   = req.user.role 
     // Check if user exists in table
     let userEntry = await Ratings.findOne({ 
                         where : { 
                           user_vls_id : req.body.user_vls_id, 
-                          video_learning_library_vls_id  : req.body.video_learning_library_vls_id  
+                          video_learning_library_vls_id  : req.body.video_learning_library_vls_id,
+                          user_type: req.user.role  
                         } 
                       })
 

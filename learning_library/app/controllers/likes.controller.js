@@ -17,11 +17,13 @@ async function addUpdateLikes(req){
 
   try{
     req.body.user_vls_id = req.user.userVlsId 
+    req.body.user_type   = req.user.role 
     // Check if user exists in table
     let userEntry = await Ratings.findOne({ 
                           where : { 
                             user_vls_id : req.body.user_vls_id, 
-                            learning_library_vls_id : req.body.learning_library_vls_id 
+                            learning_library_vls_id : req.body.learning_library_vls_id,
+                            user_type: req.user.role
                           } 
                         })
 
