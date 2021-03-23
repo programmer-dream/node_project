@@ -119,6 +119,15 @@ async function list(params , user){
       whereCondition.school_vls_id = authUser.school_id
   }
 
+  if(params.ticket_priorty) 
+     whereCondition.ticket_priorty = params.ticket_priorty
+
+  if(params.status) 
+     whereCondition.status = params.status
+  
+  if(params.ticket_type)
+     whereCondition.ticket_type = params.ticket_type
+
 	if(params.orderBy == 'asc') 
 	 	 orderBy = params.orderBy
 
