@@ -42,6 +42,9 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.INTEGER
     },
     name: {
+      type: Sequelize.STRING
+    },
+    rewards_points: {
       type: Sequelize.INTEGER
     },
     photo: {

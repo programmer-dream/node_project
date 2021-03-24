@@ -70,6 +70,12 @@ async function profile(user){
 
   }
 
+  let userDetails = await Authentication.findOne({ 
+                      attributes: [ 'rewards_points' ],
+                      where: { user_name: user.userId },
+                    })
+  userPorfile.rewards_points = userDetails.rewards_points
+
   return { success: true, message: "profie data", data : userPorfile};
 };
 

@@ -43,7 +43,7 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: false
       },
       ticket_type: {
-        type: Sequelize.ENUM('application', 'infrastructure'),
+        type: Sequelize.ENUM('application','infrastructure','rewards'),
         allowNull: false
       },
       assigned_user_id: {
