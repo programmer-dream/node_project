@@ -1,5 +1,5 @@
 const { validationResult } = require('express-validator');
-const updateRewardsPoints = require('../../../helpers/update-rewards')
+const {updateRewardsPoints} = require('../../../helpers/update-rewards')
 const db 	 	     = require("../../../models");
 const moment 	   = require("moment");
 const bcrypt     = require("bcryptjs");
