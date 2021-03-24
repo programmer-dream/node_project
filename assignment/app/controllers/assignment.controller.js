@@ -34,7 +34,8 @@ module.exports = {
   questionResponse,
   updateMarks,
   releaseAssignment,
-  dashboardData
+  dashboardData,
+  dashboardCount
 };
 
 
@@ -1139,4 +1140,44 @@ async function getStudentList(assignment){
       )
   }
   return studentsArr
+}
+
+
+/**
+ * API for dashboard Count
+ */
+async function dashboardCount(params, user){
+  let whereCondition = {}
+  
+  if(user.role =='student'){
+     whereCondition.student_vls_id = user.userVlsId
+  }
+
+      whereCondition.assignment_status = 'New'
+  let newAss = await StudentAssignment.count({where: whereCondition})
+      whereCondition.assignment_status = 'Inprogress'
+  let inprogressAss = await StudentAssignment.count({where: whereCondition})
+      whereCondition.assignment_status = 'Submitted'
+  let submittedAss = await StudentAssignment.count({where: whereCondition})
+      whereCondition.assignment_status = 'ValidationInprogress'
+  let validationInprogressAss = await StudentAssignment.count({where: whereCondition})
+      whereCondition.assignment_status = 'Approved'
+  let approvedAss = await StudentAssignment.count({where: whereCondition})
+      whereCondition.assignment_status = 'Rejected'
+  let rejectedAss = await StudentAssignment.count({where: whereCondition})
+      whereCondition.assignment_status = 'Closed'
+  let closedAss = await StudentAssignment.count({where: whereCondition})
+
+
+  let allCounts = {
+    new                   : newAss,
+    inprogress            : inprogressAss,
+    submitted             : submittedAss,
+    validationInprogress  : validationInprogressAss,
+    approved              : approvedAss,
+    rejected              : rejectedAss,
+    closed                : closedAss
+  }
+
+  return { success: true, message: "dashboard count", data : allCounts}
 }

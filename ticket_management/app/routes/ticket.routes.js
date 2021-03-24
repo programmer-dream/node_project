@@ -53,7 +53,7 @@ function list(req, res, next) {
         .catch(err => next(err));
 }
 
-// Function for view ticket
+// Function for dashboard count
 function dashboardCount(req, res, next) {
     ticketController.dashboardCount(req.query, req.user)
         .then(ticket => ticket ? res.json(ticket) : res.status(400).json({ status: "error", message: 'Error while dashboard ticket' }))
