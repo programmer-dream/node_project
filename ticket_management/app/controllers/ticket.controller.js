@@ -46,7 +46,6 @@ async function create(req){
   //modify data
   ticket_data.user_id        = user.userVlsId
   ticket_data.user_type      = user.role
-  ticket_data.ticket_type    = await getTicketType(user)
   ticket_data.status      	 = 'new'
   ticket_data.open_date      = moment().format('YYYY-MM-DD HH:mm:ss')
 
@@ -223,17 +222,6 @@ async function dashboardCount(params, user){
     resolved  : resolvedTicketes
   }
   return { success: true, message: "dashboard count", data : allCounts}
-}
-
-
-/**
- * API for get ticket type 
- */
-async function getTicketType(user){
-  if(user.role == 'school-admin' || user.role == 'branch-admin')
-    return 'infrastructure'
-
-  return 'application'  
 }
 
 
