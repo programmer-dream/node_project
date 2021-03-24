@@ -1,4 +1,5 @@
 const { validationResult } = require('express-validator');
+const updateRewardsPoints = require('../../../helpers/update-rewards')
 const db 	 	     = require("../../../models");
 const moment 	   = require("moment");
 const bcrypt     = require("bcryptjs");
@@ -71,7 +72,7 @@ async function create(req){
   
   //create ticket
   ticket = await Ticket.create(ticket_data);
-  
+  await updateRewardsPoints(user, 1, "increment")
   return { success: true, message: "Ticket created successfully", data : ticket}
 };
 

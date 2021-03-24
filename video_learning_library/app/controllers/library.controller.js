@@ -1,4 +1,5 @@
 const { validationResult } = require('express-validator');
+const updateRewardsPoints = require('../../../helpers/update-rewards')
 const db = require("../../../models");
 const Op = db.Sequelize.Op;
 const Sequelize = db.Sequelize;
@@ -103,7 +104,8 @@ async function view(id, user){
       learningLibrary.isSubjectExist = isSubjectExist
 
     }
-
+    
+    await updateRewardsPoints(user, 1, "increment")
   //return branchSubjects     
   return { success: true, message: "Video Learning library details", data:learningLibrary };
 };

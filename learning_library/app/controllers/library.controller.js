@@ -1,4 +1,5 @@
 const { validationResult } = require('express-validator');
+const updateRewardsPoints = require('../../../helpers/update-rewards')
 const db = require("../../../models");
 const Op = db.Sequelize.Op;
 const Sequelize = db.Sequelize;
@@ -58,7 +59,7 @@ async function create(req){
 /**
  * API for view query
  */
-async function view(id){
+async function view(id , user){
   let learningLibrary    = await LearningLibrary.findOne({
     where : {learning_library_vls_id : id},
     include: [{ 
@@ -66,7 +67,9 @@ async function view(id){
                 as:'subjectList',
                 attributes: ['id','subject_name','code']
             }]
-  })      
+  })   
+
+    await updateRewardsPoints(user, 1, "increment")
   return { success: true, message: "Learning library details", data:learningLibrary }
 };
 

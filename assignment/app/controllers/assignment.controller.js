@@ -3,6 +3,7 @@ const db 	 	     = require("../../../models");
 const moment 	   = require("moment");
 const bcrypt     = require("bcryptjs");
 const path       = require('path')
+const updateRewardsPoints = require('../../../helpers/update-rewards')
 const Op 	 	     = db.Sequelize.Op;
 const Sequelize  = db.Sequelize;
 const User       = db.Authentication;
@@ -59,6 +60,7 @@ async function create(req){
     assignmentData.assignment_completion_date = moment(assignmentData.assignment_completion_date).format('YYYY-MM-DD')
     
   	let assignment = await Assignment.create(assignmentData)
+
     //notification
     let assignedStudent = await getStudents(assignmentData)
     notificatonData.branch_vls_id = assignmentData.branch_vls_id
@@ -77,6 +79,11 @@ async function create(req){
     //notification
   	if(!assignment) throw 'Assignment not created'
 
+    if(assignment.assignment_type == 'offline'){
+        await updateRewardsPoints(user, 1, "increment")
+      }else{
+        await updateRewardsPoints(user, 2, "increment")
+      }
   	return { success: true, message: "Assignment created successfully", data:assignment }
 };
 
@@ -586,6 +593,16 @@ async function submitAssignment(req){
 
     if(!assignment[0]) throw 'Assignment not found'
 
+    let studentAssignment  = await StudentAssignment.findByPk(id)
+    if(studentAssignment.assignment_status == 'Submitted'){
+      //get assignment 
+      let mainAssignment  = await Assignment.findByPk(assignmentDa.assignment_vls_id)
+      if(mainAssignment.assignment_type == 'offline'){
+        await updateRewardsPoints(user, 1, "increment")
+      }else{
+        await updateRewardsPoints(user, 2, "increment")
+      }
+    }
     return { success: true, message: "Assignment updated successfully"}
 };
 
@@ -855,6 +872,7 @@ async function updateMarks(body, user){
             student_assignment_id : studentAssignmentId
         }
     })
+    await updateRewardsPoints(user, 1, "increment")
     return { success: true, message: "marks updated successfully"}
 };
 

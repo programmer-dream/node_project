@@ -73,8 +73,8 @@ async function create(req){
     notificatonData.added_type    = user.role
     notificatonData.event_type    = 'created'
     await Notification.create(notificatonData)
-    await updateRewardsPoints(user, 1, "increment")
     
+    await updateRewardsPoints(user, 1, "increment")
     //notification
   return { success: true, message: "Query created successfully", data:createdQuery }
 };
