@@ -23,7 +23,8 @@ module.exports = {
   deleteFeedback,
   closeFeedback,
   setMeeting,
-  deleteMultiFeedback
+  deleteMultiFeedback,
+  dashboardCount
 };
 
 
@@ -435,3 +436,28 @@ async function getfeedbackUser(feedback){
   }
   return userObj 
 }
+
+
+/**
+ * API for dashboard Count
+ */
+async function dashboardCount(params, user){
+  let whereCondition = {}
+  
+  if(user.role =='student' || user.role =='guardian'){
+     whereCondition.user_vls_id = user.userVlsId
+     whereCondition.user_type   = user.role
+  }
+  
+      whereCondition.status = 'open'
+  let openFeedback = await Feedback.count({where: whereCondition})
+      whereCondition.status = 'closed'
+  let closedFeedback = await Feedback.count({where: whereCondition})
+  
+  let allCounts = {
+    open    : openFeedback,
+    closed  : closedFeedback
+  }
+  return { success: true, message: "dashboard count", data : allCounts}
+}
+
