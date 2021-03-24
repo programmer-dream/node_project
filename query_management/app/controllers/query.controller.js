@@ -1,4 +1,5 @@
 const { validationResult } = require('express-validator');
+const updateRewardsPoints = require('../../../helpers/update-rewards')
 const db = require("../../../models");
 const Op = db.Sequelize.Op;
 const Sequelize = db.Sequelize;
@@ -72,6 +73,8 @@ async function create(req){
     notificatonData.added_type    = user.role
     notificatonData.event_type    = 'created'
     await Notification.create(notificatonData)
+    await updateRewardsPoints(user, 1, "increment")
+    
     //notification
   return { success: true, message: "Query created successfully", data:createdQuery }
 };
@@ -979,3 +982,4 @@ async function querySubjectTeacher(code){
   )
   return teachers
 }
+
