@@ -89,8 +89,14 @@ async function create(req){
 /**
  * API for view ticket
  */
-async function view(id){
+async function view(id, user){
 	let ticket = await Ticket.findByPk(id);
+
+  if(user.role != 'school-admin' && user.role != 'branch-admin' && user.role != 'super-admin'){
+    if(ticket.user_id != user.userVlsId || ticket.user_type != user.role){
+      throw 'You are not authorised '
+    }
+  }
 
 	return { success: true, message: "Ticket view", data : ticket}
 }

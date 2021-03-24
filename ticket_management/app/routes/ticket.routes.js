@@ -41,7 +41,7 @@ function createTicket(req, res, next) {
 
 // Function for view ticket
 function view(req, res, next) {
-    ticketController.view(req.params.id)
+    ticketController.view(req.params.id, req.user)
         .then(ticket => ticket ? res.json(ticket) : res.status(400).json({ status: "error", message: 'Error while view ticket' }))
         .catch(err => next(err));
 }
