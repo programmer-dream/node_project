@@ -316,13 +316,14 @@ async function exportTickets(params){
 async function changeStatus(id, body, user) {
 
     let status = body.status
-    if(!status) 'status field is required'
+    if(!status && !body.exalted) throw 'status field is required'
 
     let ticket = await Ticket.findByPk(id)
     
     updatedData = {status: status}
 
     if(body.exalted){
+
       let role = await Role.findOne({
         where : { slug : 'super-admin' },
         attributes : ['id']
@@ -333,10 +334,11 @@ async function changeStatus(id, body, user) {
                   role_id   : role.id
                }
       })
+
       updatedData.assigned_user_id   = getUser.user_vls_id
       updatedData.status             = 'assigned'
     }
-    
+
     if(ticket)
        ticket.update(updatedData)
 
