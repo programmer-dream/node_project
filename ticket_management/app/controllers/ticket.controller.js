@@ -1,5 +1,5 @@
 const { validationResult } = require('express-validator');
-const updateRewardsPoints = require('../../../helpers/update-rewards')
+const {updateRewardsPoints , getUserRewardsPoint, updateReedeemPoint} = require('../../../helpers/update-rewards')
 const db 	 	     = require("../../../models");
 const moment 	   = require("moment");
 const bcrypt     = require("bcryptjs");
@@ -34,11 +34,20 @@ module.exports = {
  * API for create ticket
  */
 async function create(req){
+
   const errors = validationResult(req);
   if(errors.array().length) throw errors.array()
 
   let ticket_data = req.body
-
+  
+  if(ticket_data.redeem_point){
+     let point = await getUserRewardsPoint(req.user)
+     
+     if(ticket_data.redeem_point > point) throw "You don't have sufficient points to redeem"
+     let redeemPoint = ticket_data.redeem_point
+     await updateReedeemPoint(req.user, redeemPoint)
+  }
+  
   if(req.files.file && req.files.file.length > 0){
       ticket_data.attachment = req.body.uplodedPath + req.files.file[0].filename;
   }
@@ -72,6 +81,7 @@ async function create(req){
   
   //create ticket
   ticket = await Ticket.create(ticket_data);
+
   await updateRewardsPoints(user, 1, "increment")
   return { success: true, message: "Ticket created successfully", data : ticket}
 };

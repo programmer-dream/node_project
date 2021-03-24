@@ -61,6 +61,10 @@ module.exports = (sequelize, Sequelize) => {
       resolved_date: {
         type: Sequelize.DATE
       },
+      redeem_point: {
+        type: Sequelize.FLOAT,
+        allowNull: false
+      },
       is_comment: {
         type: Sequelize.BOOLEAN,
         allowNull: false,
