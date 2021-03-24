@@ -319,7 +319,7 @@ async function changeStatus(id, body, user) {
     if(!status) 'status field is required'
 
     let ticket = await Ticket.findByPk(id)
-
+    
     updatedData = {status: status}
 
     if(body.exalted){
@@ -340,6 +340,37 @@ async function changeStatus(id, body, user) {
     if(ticket)
        ticket.update(updatedData)
 
+     if(ticket.ticket_type =='rewards' && ticket.status =='resolved'){
+        let reqPoint = ticket.redeem_point
+        let userId   = ticket.user_id
+        let user_type = ticket.user_type
+        let dbUser = await getUserName(userId , user_type)
+        
+        await updateReedeemPoint(dbUser, reqPoint , true)
+    }
+
     return { success:true, message:"Ticket status updated", data: ticket};
   
 };
+
+
+/**
+ * API for get user name 
+ */
+async function getUserName(userId , user_type) {
+
+  let role  = await Role.findOne({
+    where : {slug : user_type}
+  })
+
+  let userData = await User.findOne({
+      where : {
+            user_vls_id :  userId,
+            role_id     : role.id
+      }
+    })
+
+  user = { userId : userData.user_name}
+
+  return user
+}
