@@ -1,4 +1,5 @@
 const { validationResult } = require('express-validator');
+const updateRewardsPoints = require('../../../helpers/update-rewards')
 const db 	 	     = require("../../../models");
 const moment 	   = require("moment");
 const bcrypt     = require("bcryptjs");
@@ -60,7 +61,7 @@ async function create(req){
     await Notification.create(notificatonData)
     //notification
   	if(!feedback) throw 'Feedback not created'
-
+    await updateRewardsPoints(user, 0.5, "increment")
   	return { success: true, message: "Feedback created successfully", data:feedback }
 };
 

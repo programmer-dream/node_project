@@ -18,4 +18,37 @@ async function updateRewardsPoints(user,points,type) {
 
 }
 
-module.exports = updateRewardsPoints;
+async function getUserRewardsPoint(user) {
+    let userPoint = await Users.findOne({ 
+       where: { user_name: user.userId },
+       attributes:['rewards_points']
+    });
+
+    return userPoint.rewards_points
+}
+
+async function updateReedeemPoint(user, points , resolved = false) {
+    if(!resolved){
+        let pointsDecrement = Sequelize.literal("rewards_points - "+points)
+        let pointsIncrement = Sequelize.literal("rewards_request + "+points)
+
+        await Users.update({ 
+          rewards_points  : pointsDecrement,
+          rewards_request : pointsIncrement,
+          }, 
+          { where: { user_name: user.userId }
+        });
+    }else{
+        let pointsDecrement = Sequelize.literal("rewards_request - "+points)
+        let pointsIncrement = Sequelize.literal("point_redeemed + "+points)
+
+        await Users.update({ 
+          rewards_request  : pointsDecrement,
+          point_redeemed   : pointsIncrement,
+          }, 
+          { where: { user_name: user.userId }
+        });
+    }
+}
+
+module.exports = { updateRewardsPoints, getUserRewardsPoint, updateReedeemPoint };

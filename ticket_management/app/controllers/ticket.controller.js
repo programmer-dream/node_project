@@ -1,4 +1,5 @@
 const { validationResult } = require('express-validator');
+const {updateRewardsPoints , getUserRewardsPoint, updateReedeemPoint} = require('../../../helpers/update-rewards')
 const db 	 	     = require("../../../models");
 const moment 	   = require("moment");
 const bcrypt     = require("bcryptjs");
@@ -33,11 +34,20 @@ module.exports = {
  * API for create ticket
  */
 async function create(req){
+
   const errors = validationResult(req);
   if(errors.array().length) throw errors.array()
 
   let ticket_data = req.body
-
+  
+  if(ticket_data.redeem_point){
+     let point = await getUserRewardsPoint(req.user)
+     
+     if(ticket_data.redeem_point > point) throw "You don't have sufficient points to redeem"
+     let redeemPoint = ticket_data.redeem_point
+     await updateReedeemPoint(req.user, redeemPoint)
+  }
+  
   if(req.files.file && req.files.file.length > 0){
       ticket_data.attachment = req.body.uplodedPath + req.files.file[0].filename;
   }
@@ -70,7 +80,8 @@ async function create(req){
   
   //create ticket
   ticket = await Ticket.create(ticket_data);
-  
+
+  await updateRewardsPoints(user, 1, "increment")
   return { success: true, message: "Ticket created successfully", data : ticket}
 };
 
@@ -308,7 +319,7 @@ async function changeStatus(id, body, user) {
     if(!status) 'status field is required'
 
     let ticket = await Ticket.findByPk(id)
-
+    
     updatedData = {status: status}
 
     if(body.exalted){
@@ -329,6 +340,37 @@ async function changeStatus(id, body, user) {
     if(ticket)
        ticket.update(updatedData)
 
+     if(ticket.ticket_type =='rewards' && ticket.status =='resolved'){
+        let reqPoint = ticket.redeem_point
+        let userId   = ticket.user_id
+        let user_type = ticket.user_type
+        let dbUser = await getUserName(userId , user_type)
+        
+        await updateReedeemPoint(dbUser, reqPoint , true)
+    }
+
     return { success:true, message:"Ticket status updated", data: ticket};
   
 };
+
+
+/**
+ * API for get user name 
+ */
+async function getUserName(userId , user_type) {
+
+  let role  = await Role.findOne({
+    where : {slug : user_type}
+  })
+
+  let userData = await User.findOne({
+      where : {
+            user_vls_id :  userId,
+            role_id     : role.id
+      }
+    })
+
+  user = { userId : userData.user_name}
+
+  return user
+}

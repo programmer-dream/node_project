@@ -1,4 +1,5 @@
 const { validationResult } = require('express-validator');
+const updateRewardsPoints = require('../../../helpers/update-rewards')
 const db = require("../../../models");
 const moment = require("moment");
 const Op = db.Sequelize.Op;
@@ -39,7 +40,7 @@ module.exports = {
 async function create(req, user){
 	if(user.role =='student' || user.role =='guardian') 
 		throw 'Unauthorised User'
-
+	let tokenUser = user
 	const errors = validationResult(req);
 	if(errors.array().length) throw errors.array()
 
@@ -77,6 +78,7 @@ async function create(req, user){
 
   	let finalStudentArray = await mergeStudents(user, day, absentStudent, presentStudentArray, 'A', subject_code)
   	
+  	await updateRewardsPoints(tokenUser, 0.2, "increment")
   return { success: true, message: "Student attendance created successfully", data:finalStudentArray};
 };
 
@@ -373,7 +375,7 @@ function getDate(type) {
 async function addLeaveReason(req, user){
 	if(user.role !='guardian') 
 		throw 'Unauthorised User'
-	
+
 	const errors = validationResult(req);
 	if(errors.array().length) throw errors.array()
 	
@@ -402,7 +404,7 @@ async function addLeaveReason(req, user){
 
 	let studentAbsent = await StudentAbsent.create(reasonData)
 	if(!studentAbsent) throw 'Leave reason not updated'
-
+	await updateRewardsPoints(user, 0.1, "increment")
 	return { success: true, message: "Student leave reason added successfully", data:studentAbsent};
 };
 
