@@ -191,15 +191,38 @@ async function deleteTicket(id){
 /**
  * API for view dashboardCount
  */
-async function dashboardCount(id){
-  let ticket = await Ticket.count({
-    attributes: [
-                  [ Sequelize.fn('COUNT', Sequelize.col('status')), 'total_count' ]
-                ],
-    group:['status']
-  });
+async function dashboardCount(params, user){
+  let whereCondition = {}
+  whereCondition[Op.or] = [{ 
+                  user_id: user.userVlsId,
+                  user_type : user.role
+                }]
+  if(user.role =='super-admin' || user.role =='branch-admin'){
+     whereCondition[Op.or] = [{ 
+                  user_id: user.userVlsId,
+                  user_type : user.role
+                },{ 
+                  assigned_user_id: user.userVlsId
+                }]
 
-  return { success: true, message: "dashboard count", data : ticket}
+  }
+  
+      whereCondition.status = 'new'
+  let newTicketes = await Ticket.count({where: whereCondition})
+      whereCondition.status = 'assigned'
+  let assignedTicketes = await Ticket.count({where: whereCondition})
+      whereCondition.status = 'wip'
+  let wipTicketes = await Ticket.count({where: whereCondition})
+      whereCondition.status = 'resolved'
+  let resolvedTicketes = await Ticket.count({where: whereCondition})
+  
+  let allCounts = {
+    new       : newTicketes,
+    assigned  : assignedTicketes,
+    wip       : wipTicketes,
+    resolved  : resolvedTicketes
+  }
+  return { success: true, message: "dashboard count", data : allCounts}
 }
 
 
