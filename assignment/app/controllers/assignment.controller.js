@@ -350,7 +350,9 @@ async function list(params , user){
     assignments.map(async assignment => {
         let assingmentData = assignment.toJSON()
         assingmentData.submittedCount = await getSubmittedCount(assignment.assignment_vls_id)
+        assingmentData.total_assignee = await getTotalAssigneeCount(assignment)
         let studentIds = JSON.parse(assignment.student_vls_ids)
+
         //start add question array 
         let assignmentQuestion = assingmentData.assignmentQuestion
         assignmentQuestion.forEach(function(item, index){
@@ -1017,7 +1019,7 @@ async function getAssignmentCount(params){
 }
 
 /**
- * API for current Week assignment
+ * function to get submission for particular assignment
  */
 async function getSubmittedCount(assignmentId){
   let submitted = await StudentAssignment.count({
@@ -1027,6 +1029,28 @@ async function getSubmittedCount(assignmentId){
     }
   })
   return submitted
+}
+
+/**
+ * function to get total assignee for particular assignment
+ */
+async function getTotalAssigneeCount(assignment){
+  let totalAssigneeCount = 0
+  let whereCodition = {}
+  let studentIds = JSON.parse(assignment.student_vls_ids)
+  if(studentIds && studentIds.length > 0){
+    totalAssigneeCount = studentIds.length
+  }else{
+    whereCodition.class_id = assignment.assignment_class_id
+    if(assignment.section_id || assignment.section_id > 1)
+      whereCodition.section_id = assignment.section_id
+
+    totalAssigneeCount = await Student.count({
+                      where : whereCodition
+                    })
+  }
+
+  return totalAssigneeCount
 }
 
 /**
