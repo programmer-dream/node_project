@@ -97,6 +97,26 @@ async function view(id, user){
       throw 'You are not authorised '
     }
   }
+  if(ticket){
+    let role = await Role.findAll({
+      where : {slug : { [Op.in]: ['guardian','student'] } },
+      attributes: ['id']
+    }).then(roles => roles.map( role => role.id));
+    
+    ticket = ticket.toJSON()
+    let authUser = await User.findOne({
+        where : { 
+            user_vls_id : ticket.assigned_user_id,
+            role_id : { [Op.notIn]: role }
+        },
+        include: [{ 
+                    model:Role,
+                    as:'roles',
+                    attributes: ['slug']
+                  }]
+      })
+      ticket.assigned_role = authUser.roles.slug
+  }
 
 	return { success: true, message: "Ticket view", data : ticket}
 }
