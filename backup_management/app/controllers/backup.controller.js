@@ -17,7 +17,8 @@ const School  		= db.SchoolDetails;
 module.exports = {
   academicYears,
   exportData,
-  importData
+  importData,
+  listDirectories
 };
 
 
@@ -96,31 +97,31 @@ async function exportData(params , user){
 			'users' : 'school_id ='+school_vls_id,	
 			'user_settings' : 'school_vls_id ='+school_vls_id,	
 		}
-			// let delQuery = await deleteQuery(whereObject)
-			// let fileName = dirpath+'/dump_'+schoolName+'.sql'
+			let delQuery = await deleteQuery(whereObject)
+			let fileName = dirpath+'/dump_'+schoolName+'.sql'
 
-			// mysqlDump({
-			//     connection: {
-			//         host: dbConfig.development.host,
-			//         user: dbConfig.development.username,
-			//         password: dbConfig.development.password,
-			//         database: dbConfig.development.database
-			// 	    },
-			// 	dumpToFile: dirpath+'/dump_'+schoolName+'.sql',
-			// 	dump:{
-			// 	    	schema : false,
-			// 	    	tables : exportTables,
-			// 	    	data:{
-			// 	    		maxRowsPerInsertStatement:100,
-			// 	    		where:whereObject
-			// 	    	}
-			// 	}
-			// })
-			// //add delete query
-			// var data = fs.readFileSync(fileName);
-			// var fd = fs.openSync(fileName, 'w+');
-			// fs.writeSync(fd, delQuery, 0, delQuery.length, 0); 
-			// fs.writeSync(fd, data, 0, data.length, delQuery.length);
+			mysqlDump({
+			    connection: {
+			        host: dbConfig.development.host,
+			        user: dbConfig.development.username,
+			        password: dbConfig.development.password,
+			        database: dbConfig.development.database
+				    },
+				dumpToFile: dirpath+'/dump_'+schoolName+'.sql',
+				dump:{
+				    	schema : false,
+				    	tables : exportTables,
+				    	data:{
+				    		maxRowsPerInsertStatement:100,
+				    		where:whereObject
+				    	}
+				}
+			})
+			//add delete query
+			var data = fs.readFileSync(fileName);
+			var fd = fs.openSync(fileName, 'w+');
+			fs.writeSync(fd, delQuery, 0, delQuery.length, 0); 
+			fs.writeSync(fd, data, 0, data.length, delQuery.length);
 	  })
     )
     //all school dump
@@ -193,3 +194,29 @@ async function deleteQuery(object){
 	});
 	return conbineQuerys+"/* ------ Delete query ------ */ \n"
 }
+
+
+/**
+ * API for  import data
+ */
+async function listDirectories(params , user){	
+	const uploadsFolder = './uploads';
+	let allDirectories = {}
+	let dir = fs.readdirSync(uploadsFolder);
+
+	dir.forEach(dir => {
+		if(!dir.includes('.DS_Store')){
+		    if(!allDirectories.dir)
+		    	allDirectories[dir] = []
+		    if(fs.lstatSync('./uploads/'+dir).isDirectory()){
+		    	let dirIn = fs.readdirSync('./uploads/'+dir);
+		    	dirIn.forEach(file => {
+		    		if(file.includes('.sql'))
+		    			allDirectories[dir].push(file)
+		    	})
+		    }
+		}
+	});
+
+ 	return { success: true, message: "List directories ", data : allDirectories }
+};
