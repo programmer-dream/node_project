@@ -96,9 +96,13 @@ async function view(id, user){
 
   if(user.role != 'school-admin' && user.role != 'branch-admin' && user.role != 'super-admin'){
     if(ticket.user_id != user.userVlsId || ticket.user_type != user.role){
-      throw 'You are not authorised '
+      throw 'You are not authorised'
     }
   }
+  if(user.role == 'school-admin' || user.role == 'branch-admin'){
+    if(ticket.ticket_type == 'rewards') throw 'You are not authorised'
+  }
+
   if(ticket){
     let role = await Role.findAll({
       where : {slug : { [Op.in]: ['guardian','student'] } },
