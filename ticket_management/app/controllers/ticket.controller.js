@@ -62,7 +62,9 @@ async function create(req){
   slug = 'branch-admin'
   if(user.role == 'school-admin' || user.role == 'branch-admin')
      slug = 'super-admin'
-  
+
+  if(ticket_data.redeem_point)
+      slug = 'super-admin'
   //get branch admin
   let role = await Role.findOne({
     where : { slug : slug },
@@ -153,6 +155,7 @@ async function list(params , user){
       whereCondition.user_type = user.role
   }else{
       whereCondition.school_vls_id = authUser.school_id
+      whereCondition.ticket_type = { [Op.ne] : 'rewards'}
   }
 
   if(params.ticket_priorty) 
