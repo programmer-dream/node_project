@@ -83,7 +83,9 @@ async function create(req){
   //create ticket
   ticket = await Ticket.create(ticket_data);
 
-  await updateRewardsPoints(user, 1, "increment")
+  if(ticket.ticket_type != 'rewards')
+      await updateRewardsPoints(user, 1, "increment")
+
   return { success: true, message: "Ticket created successfully", data : ticket}
 };
 
