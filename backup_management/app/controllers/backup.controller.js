@@ -35,8 +35,9 @@ async function academicYears(params , user){
  * API for  export data
  */
 async function exportData(params , user){
-	let date = moment().format('YYYY_MM_DD')
-	
+	let date 		  = moment().format('YYYY_MM_DD')
+	let school_vls_id = 1
+	let exportTables  = ['academic_years','assignment','']
 	mysqlDump({
     connection: {
         host: 'localhost',
@@ -47,11 +48,12 @@ async function exportData(params , user){
 	dumpToFile: './uploads/dump_'+date+'.sql',
 	dump:{
 	    	schema : false,
-	    	//tables:['assignment']
+	    	tables : exportTables,
 	    	data:{
 	    		maxRowsPerInsertStatement:100,
 	    		where:{
-	    			'assignment' : 'school_vls_id = 1'
+	    			'academic_years' : 'school_id ='+school_vls_id,
+	    			'assignment'     : 'school_vls_id ='+school_vls_id
 	    		}
 	    	}
 	}
