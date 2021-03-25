@@ -772,6 +772,9 @@ async function questionResponse(req){
         if(!question.assignment_vls_id)
             throw 'assignment_vls_id field is required'
 
+        if(!question.school_vls_id)
+            throw 'school_vls_id field is required'
+
         if(question.question_type !='form' ){
             if(Array.isArray(response)){
               response = JSON.stringify(response)
