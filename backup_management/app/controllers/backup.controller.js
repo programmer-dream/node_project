@@ -1,11 +1,12 @@
 const { validationResult } = require('express-validator');
 const db 	 	 = require("../../../models");
-const dbConfig = require("../../../config/database.js");
+const dbConfig 	 = require("../../../config/database.js");
+const env 		 = require("../../../config/env.js");
 const moment 	 = require("moment");
 const bcrypt     = require("bcryptjs");
 const path       = require('path')
 const mysqlDump  = require('mysqldump')
-const Importer = require('mysql-import');
+const { exec } = require('child_process');
 const fs 		 = require('fs');
 const Op 	 	 = db.Sequelize.Op;
 const Sequelize  = db.Sequelize;
@@ -38,8 +39,9 @@ async function academicYears(params , user){
  * API for  export data
  */
 async function exportData(params , user){
-	let date 		  = moment().format('YYYY_MM_DD')
-	let allSchool     = await School.findAll({
+	let date 		  	= moment().format('YYYY_MM_DD')
+	let conectionParmas = await getDbParams()
+	let allSchool     	= await School.findAll({
 		attributes: ['school_id','school_name']
 	})
 	let exportTables  = ['academic_years','assignment','assignment_questions','branch_details','chat','classes','comments','community_chat', 'community_chat_communicaiton','community_rating_like','employees','exams','exam_schedules','feedback','guardians','learning_library','learning_library_comments','marks','meetings','notification','notification_read_by','rating_like_learning_library','rating_like_query','routines','sections','student_absent','students','student_assignment','student_assignment_response','student_attendances','student_learning_library','student_query','subjects','subject_list','tickets','ticket_comments','ticket_rating','users','user_settings']
@@ -101,12 +103,7 @@ async function exportData(params , user){
 			let fileName = dirpath+'/dump_'+schoolName+'.sql'
 
 			mysqlDump({
-			    connection: {
-			        host: dbConfig.development.host,
-			        user: dbConfig.development.username,
-			        password: dbConfig.development.password,
-			        database: dbConfig.development.database
-				    },
+			    connection: conectionParmas,
 				dumpToFile: dirpath+'/dump_'+schoolName+'.sql',
 				dump:{
 				    	schema : false,
@@ -126,12 +123,7 @@ async function exportData(params , user){
     )
     //all school dump
     mysqlDump({
-	    connection: {
-	        host: dbConfig.development.host,
-	        user: dbConfig.development.username,
-	        password: dbConfig.development.password,
-	        database: dbConfig.development.database
-		    },
+	    connection: conectionParmas,
 		dumpToFile: dirpath+'/all_db_'+date+'.sql',
 		dump:{
 			schema : {
@@ -150,33 +142,28 @@ async function exportData(params , user){
 /**
  * API for  import data
  */
-async function importData(params , user){	
-	const host 		= 'localhost';
-	const dbuser 	= 'root';
-	const password 	= 'Password@123';
-	const database 	= 'backup_vls';
+async function importData(params , user){
+	if(!params.directory) throw 'directory is required'
+	if(!params.filename) throw 'filename is required'
+		
+	let conectionParmas = await getDbParams()
 
-	// exec(`mysql -u${importTo.user} -p${importTo.password} -h ${importTo.host} ${importTo.database} < ${dumpFile}`, (err, stdout, stderr) => {
- //        if (err) { console.error(`exec error: ${err}`); return; }
+	const host 		= conectionParmas.host;
+	const dbuser 	= conectionParmas.user;
+	const password 	= conectionParmas.password;
+	const database 	= conectionParmas.database;
 
- //        console.log(`The import has finished.`);
-	// });
-	const uploadsFolder = './uploads/backup_2021_03_25';
+	let dir      	= params.directory
+	let file      	= params.filename
+	let dumpFile 	= './uploads/'+dir+"/"+file;
+	
+	exec(`mysql -u${dbuser} -p${password} -h ${host} ${database} < ${dumpFile}`, (err, stdout, stderr) => {
+        if (err) { console.error(`exec error: ${err}`); return; }
 
-	// let allFiles = []
-	// fs.promise.readdir(uploadsFolder, (err, files) => {
-	// 	allFiles.push(files)
-	// 	console.log(allFiles)
-	// })
-	let allFiles = []
-	let files = fs.readdirSync(uploadsFolder);
-
-	files.forEach(file => {
-		if(file.includes('.sql'))
-	    	allFiles.push(file);
+        console.log(`The import has finished.`);
 	});
 
- 	return { success: true, message: "Data imported ", data : allFiles }
+ 	return { success: true, message: "Data imported " }
 };
 
 
@@ -220,3 +207,25 @@ async function listDirectories(params , user){
 
  	return { success: true, message: "List directories ", data : allDirectories }
 };
+
+/**
+ * API for  get db params 
+ */
+function getDbParams(){
+	let environment = env.environmnet
+	let dbParams = {}
+
+	if(environment == "production"){
+		dbParams.host= dbConfig.production.host
+        dbParams.user= dbConfig.production.username
+        dbParams.password= dbConfig.production.password
+        dbParams.database= dbConfig.production.database
+	}else{
+		dbParams.host= dbConfig.development.host
+        dbParams.user= dbConfig.development.username
+        dbParams.password= dbConfig.development.password
+        dbParams.database= dbConfig.development.database 
+	}
+
+	return dbParams
+}
