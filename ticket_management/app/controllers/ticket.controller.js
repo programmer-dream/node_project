@@ -83,7 +83,9 @@ async function create(req){
   //create ticket
   ticket = await Ticket.create(ticket_data);
 
-  await updateRewardsPoints(user, 1, "increment")
+  if(ticket.ticket_type != 'rewards')
+      await updateRewardsPoints(user, 1, "increment")
+
   return { success: true, message: "Ticket created successfully", data : ticket}
 };
 
@@ -96,9 +98,13 @@ async function view(id, user){
 
   if(user.role != 'school-admin' && user.role != 'branch-admin' && user.role != 'super-admin'){
     if(ticket.user_id != user.userVlsId || ticket.user_type != user.role){
-      throw 'You are not authorised '
+      throw 'You are not authorised'
     }
   }
+  if(user.role == 'school-admin' || user.role == 'branch-admin'){
+    if(ticket.ticket_type == 'rewards') throw 'You are not authorised'
+  }
+
   if(ticket){
     let role = await Role.findAll({
       where : {slug : { [Op.in]: ['guardian','student'] } },
