@@ -78,7 +78,7 @@ async function create(req, user){
 
   	let finalStudentArray = await mergeStudents(user, day, absentStudent, presentStudentArray, 'A', subject_code)
   	
-  	await updateRewardsPoints(tokenUser, 0.2, "increment")
+  	await updateRewardsPoints(tokenUser, 'add_attendance', "increment")
   return { success: true, message: "Student attendance created successfully", data:finalStudentArray};
 };
 
@@ -404,7 +404,7 @@ async function addLeaveReason(req, user){
 
 	let studentAbsent = await StudentAbsent.create(reasonData)
 	if(!studentAbsent) throw 'Leave reason not updated'
-	await updateRewardsPoints(user, 0.1, "increment")
+	await updateRewardsPoints(user, 'add_absence_remarks', "increment")
 	return { success: true, message: "Student leave reason added successfully", data:studentAbsent};
 };
 

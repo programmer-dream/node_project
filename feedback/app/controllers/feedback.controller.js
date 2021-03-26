@@ -61,7 +61,7 @@ async function create(req){
     await Notification.create(notificatonData)
     //notification
   	if(!feedback) throw 'Feedback not created'
-    await updateRewardsPoints(user, 0.5, "increment")
+    await updateRewardsPoints(user, 'create_feedback', "increment")
   	return { success: true, message: "Feedback created successfully", data:feedback }
 };
 

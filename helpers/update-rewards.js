@@ -4,13 +4,20 @@ const Sequelize = db.Sequelize;
 const Users   = db.Users;
 const School = db.SchoolDetails;
 const Branch = db.Branch;
+const VlsRewards   = db.VlsRewards;
+
+
 /**
  * API for update reward point
  */
-async function updateRewardsPoints(user,points,type) {
+async function updateRewardsPoints(user,pointType,type) {
     let isEnabled = await isSettingEnabled(user)
 
     if(isEnabled == 'no') return true
+
+    let vlsPoints = await VlsRewards.findOne()
+
+    let points = vlsPoints[pointType]
 
     let pointsUpdate = ""
     if(type == "increment"){
@@ -18,6 +25,8 @@ async function updateRewardsPoints(user,points,type) {
     }else if(type == "decrement"){
         pointsUpdate = Sequelize.literal("rewards_points - "+points)
     }
+
+    
 
     await Users.update({ 
       rewards_points: pointsUpdate }, 
