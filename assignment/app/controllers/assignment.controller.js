@@ -80,10 +80,10 @@ async function create(req){
   	if(!assignment) throw 'Assignment not created'
 
     if(assignment.assignment_type == 'offline'){
-        await updateRewardsPoints(user, 1, "increment")
-      }else{
-        await updateRewardsPoints(user, 2, "increment")
-      }
+        await updateRewardsPoints(user, 'add_offline_assignment', "increment")
+    }else{
+        await updateRewardsPoints(user, 'add_online_assignment', "increment")
+    }
   	return { success: true, message: "Assignment created successfully", data:assignment }
 };
 
@@ -598,9 +598,9 @@ async function submitAssignment(req){
       //get assignment 
       let mainAssignment  = await Assignment.findByPk(assignmentDa.assignment_vls_id)
       if(mainAssignment.assignment_type == 'offline'){
-        await updateRewardsPoints(user, 1, "increment")
+        await updateRewardsPoints(user, 'submit_offline_assignment', "increment")
       }else{
-        await updateRewardsPoints(user, 2, "increment")
+        await updateRewardsPoints(user, 'submit_online_assignment', "increment")
       }
     }
     return { success: true, message: "Assignment updated successfully"}
@@ -872,7 +872,7 @@ async function updateMarks(body, user){
             student_assignment_id : studentAssignmentId
         }
     })
-    await updateRewardsPoints(user, 1, "increment")
+    await updateRewardsPoints(user, 'each_student_assessment', "increment")
     return { success: true, message: "marks updated successfully"}
 };
 

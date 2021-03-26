@@ -60,7 +60,7 @@ async function create(req){
 
   let createdChat = await saveChat(data, user)
 
-  await updateRewardsPoints(tokenUser, 0.1, "increment")
+  await updateRewardsPoints(tokenUser,'chat_per_message', "increment")
 	return { success: true, message: "Chat created successfully", chat : createdChat}
 };
 

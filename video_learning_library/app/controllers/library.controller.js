@@ -105,7 +105,7 @@ async function view(id, user){
 
     }
     
-    await updateRewardsPoints(user, 1, "increment")
+    await updateRewardsPoints(user, 'watch_online_video', "increment")
   //return branchSubjects     
   return { success: true, message: "Video Learning library details", data:learningLibrary };
 };

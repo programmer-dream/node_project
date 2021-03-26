@@ -13,9 +13,9 @@ const sequelize  = db.sequelize;
 const SchoolDetails= db.SchoolDetails;
 const Branch  		 = db.Branch;
 const Role         = db.Role;
-const Ticket         = db.Ticket;
-const TicketRating   = db.TicketRating;
-
+const Ticket       = db.Ticket;
+const TicketRating = db.TicketRating;
+const VlsRewards   = db.VlsRewards;
 
 module.exports = {
   create,
@@ -42,7 +42,12 @@ async function create(req){
   
   if(ticket_data.redeem_point){
      let point = await getUserRewardsPoint(req.user)
-     
+     let minPoint = await VlsRewards.findOne({
+      attributes:['min_point_redeemed']
+     })
+     minPoint = minPoint.min_point_redeemed
+     if(ticket_data.redeem_point < minPoint) throw "Min "+minPoint+" points to redeem"
+
      if(ticket_data.redeem_point > point) throw "You don't have sufficient points to redeem"
      let redeemPoint = ticket_data.redeem_point
      await updateReedeemPoint(req.user, redeemPoint)
@@ -84,7 +89,7 @@ async function create(req){
   ticket = await Ticket.create(ticket_data);
 
   if(ticket.ticket_type != 'rewards')
-      await updateRewardsPoints(user, 1, "increment")
+      await updateRewardsPoints(user, 'create_support_ticket', "increment")
 
   return { success: true, message: "Ticket created successfully", data : ticket}
 };
@@ -372,6 +377,7 @@ async function changeStatus(id, body, user) {
 
       updatedData.assigned_user_id   = getUser.user_vls_id
       updatedData.status             = 'assigned'
+      updatedData.ticket_type        = 'infrastructure'
     }
 
     if(ticket)

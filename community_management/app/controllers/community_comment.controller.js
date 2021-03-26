@@ -87,7 +87,7 @@ async function create(req){
     commentWithUser = createdComment.toJSON()
     commentWithUser.user = user
   }
-    await updateRewardsPoints(tokenUser, 0.2, "increment")
+    await updateRewardsPoints(tokenUser, 'community_per_message', "increment")
   return { success: true, message: "Comment created successfully", data:commentWithUser }
   
 

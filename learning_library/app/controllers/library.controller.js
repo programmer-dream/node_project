@@ -69,7 +69,7 @@ async function view(id , user){
             }]
   })   
 
-    await updateRewardsPoints(user, 1, "increment")
+    await updateRewardsPoints(user, 'view_learning_library', "increment")
   return { success: true, message: "Learning library details", data:learningLibrary }
 };
 
