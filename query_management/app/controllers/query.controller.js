@@ -532,7 +532,11 @@ async function getRatingLikes(id, user) {
 
     userRating  = await Ratings.findOne({
       attributes: ['ratings','likes'],
-      where:{query_vls_id:id,user_vls_id:user.userVlsId}
+      where:{ 
+            query_vls_id  : id,
+            user_vls_id   : user.userVlsId,
+            user_role     : user.role,
+          }
     })
 
     return { success:true, message:"Rating & like data",like:like,avg:avg,data:userRating};

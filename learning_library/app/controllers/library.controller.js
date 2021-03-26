@@ -312,8 +312,10 @@ async function getRatingLikes(id, user) {
     } 
       whereCondition.learning_library_vls_id = id
 
-    if(user)
-      whereCondition.user_vls_id = user.userVlsId
+    if(user){
+      whereCondition.user_vls_id  = user.userVlsId
+      whereCondition.user_type    = user.role
+    }
 
     userRating  = await Ratings.findOne({
       attributes : ['ratings','likes'],
