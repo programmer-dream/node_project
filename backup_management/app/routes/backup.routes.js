@@ -10,7 +10,7 @@ const upload  = helper.upload;
 router.get("/academicYears/",academicYears);
 router.get("/listDirectories/",listDirectories);
 router.get("/exportData/",exportData);
-router.post("/importData/",importData);
+router.get("/importData/",importData);
 
 module.exports = router;
 
