@@ -12,6 +12,7 @@ function jwt() {
             '/auth/forgetPassword',
             '/auth/updatePassword',
             '/auth/verifyOTP',
+            '/'
         ]
     });
 }

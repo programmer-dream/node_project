@@ -140,6 +140,11 @@ db.VideoLibraryComment = require("./VideoLibraryComment.js")(sequelize, Sequeliz
 /*********** vls rewards management ***********/
 db.VlsRewards = require("./VlsRewards.js")(sequelize, Sequelize);
 
+/*********** vls passion and interest management ***********/
+db.PassionInterest = require("./PassionInterest.js")(sequelize, Sequelize);
+db.PassionComment = require("./PassionComments.js")(sequelize, Sequelize);
+db.PassionAcceptedBy = require("./PassionAcceptedBy.js")(sequelize, Sequelize);
+
 /*********** Relation management between tables ***********/
 
 /*********** vls management ***********/
