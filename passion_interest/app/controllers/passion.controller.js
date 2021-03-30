@@ -209,7 +209,7 @@ async function getStudents(passionArr){
 
 
 /**
- * API for is student 
+ * API for is accpeted check 
  */
 async function isAccepted(passionId , user){
     let isAccepted = await PassionAcceptedBy.findOne({
@@ -225,7 +225,7 @@ async function isAccepted(passionId , user){
 }
 
 /**
- * API for is student 
+ * API for accept blog 
  */
 async function acceptBlog(body , user){
     if(!body.passion_vls_id) throw 'passion_vls_id is required'
