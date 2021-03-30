@@ -79,7 +79,7 @@ async function view(id, user){
 
   if(!accepted) throw 'You are not accpeted this blog yet'
 
-	return { success: true, message: "Ticket view", data : passionInterest}
+	return { success: true, message: "Passion view", data : passionInterest}
 }
 
 
