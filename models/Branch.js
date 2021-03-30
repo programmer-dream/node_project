@@ -115,6 +115,10 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: false,
         type: Sequelize.BOOLEAN,
         defaultValue: 0
+      },
+      passion_support: {
+        type: Sequelize.ENUM('yes','no'),
+        defaultValue: 'no'
       } 
   },{
     tableName: 'branch_details',
