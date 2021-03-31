@@ -18,6 +18,9 @@ module.exports = (sequelize, Sequelize) => {
       learning_library_vls_id: {
         type: Sequelize.INTEGER
       },
+      school_vls_id: {
+        type: Sequelize.INTEGER
+      },
       user_type:{
         type: Sequelize.STRING
       }
