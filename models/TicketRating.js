@@ -18,6 +18,9 @@ module.exports = (sequelize, Sequelize) => {
       ticket_vls_id: {
         type: Sequelize.INTEGER
       },
+      school_vls_id: {
+        type: Sequelize.INTEGER
+      },
       created_at: {
         allowNull: false,
         type: Sequelize.DATE

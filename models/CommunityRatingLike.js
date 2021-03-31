@@ -15,6 +15,9 @@ module.exports = (sequelize, Sequelize) => {
       user_vls_id: {
         type: Sequelize.BIGINT
       },
+      school_vls_id: {
+        type: Sequelize.INTEGER
+      },
       user_type: {
         type: Sequelize.STRING
       },

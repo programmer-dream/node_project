@@ -14,6 +14,10 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.INTEGER,
         allowNull: false
       },
+      school_vls_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false
+      },
       created_at: {
         allowNull: false,
         type: Sequelize.DATE

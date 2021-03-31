@@ -98,13 +98,15 @@ async function getType(role){
  */
 async function readNotifications(body, user){
   let notificationIds = body.notificationIds
+  let school_vls_id   = body.school_vls_id
   let readByArray = []
   if(Array.isArray(notificationIds) && notificationIds.length){
       notificationIds.forEach(function(id){
         let obj = {
           notification_vls_id : id,
           user_vls_id : user.userVlsId,
-          user_type : user.role
+          user_type : user.role,
+          school_vls_id : school_vls_id
         }
         readByArray.push(obj)
       })

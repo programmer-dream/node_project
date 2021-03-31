@@ -79,11 +79,6 @@ async function create(req){
     //notification
   	if(!assignment) throw 'Assignment not created'
 
-    if(assignment.assignment_type == 'offline'){
-        await updateRewardsPoints(user, 'add_offline_assignment', "increment")
-    }else{
-        await updateRewardsPoints(user, 'add_online_assignment', "increment")
-    }
   	return { success: true, message: "Assignment created successfully", data:assignment }
 };
 
@@ -699,7 +694,7 @@ async function createAssignmentQuestion(req){
         }
     })
   )
-  
+  //return allQuestion
   let AssignQuest = await AssignmentQuestions.bulkCreate(allQuestion)
 
   if(!AssignQuest) throw 'Assignment Question not created'
@@ -789,6 +784,9 @@ async function questionResponse(req){
 
         if(!question.assignment_vls_id)
             throw 'assignment_vls_id field is required'
+
+        if(!question.school_vls_id)
+            throw 'school_vls_id field is required'
 
         if(question.question_type !='form' ){
             if(Array.isArray(response)){
@@ -903,6 +901,12 @@ async function releaseAssignment(body, user){
     notificatonData.event_type    = 'published'
     await Notification.create(notificatonData)
 
+    if(assignment.assignment_type == 'offline'){
+        await updateRewardsPoints(user, 'add_offline_assignment', "increment")
+    }else{
+        await updateRewardsPoints(user, 'add_online_assignment', "increment")
+    }
+    
     return { success: true, message: "Assignment updated successfully"}
 }
 
