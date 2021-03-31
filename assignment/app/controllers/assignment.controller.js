@@ -79,11 +79,6 @@ async function create(req){
     //notification
   	if(!assignment) throw 'Assignment not created'
 
-    if(assignment.assignment_type == 'offline'){
-        await updateRewardsPoints(user, 'add_offline_assignment', "increment")
-    }else{
-        await updateRewardsPoints(user, 'add_online_assignment', "increment")
-    }
   	return { success: true, message: "Assignment created successfully", data:assignment }
 };
 
@@ -906,6 +901,12 @@ async function releaseAssignment(body, user){
     notificatonData.event_type    = 'published'
     await Notification.create(notificatonData)
 
+    if(assignment.assignment_type == 'offline'){
+        await updateRewardsPoints(user, 'add_offline_assignment', "increment")
+    }else{
+        await updateRewardsPoints(user, 'add_online_assignment', "increment")
+    }
+    
     return { success: true, message: "Assignment updated successfully"}
 }
 
