@@ -64,6 +64,9 @@ module.exports = (sequelize, Sequelize) => {
       reject_comment: {
         type: Sequelize.INTEGER
       },
+      school_vls_id: {
+        type: Sequelize.INTEGER
+      },
       is_comment: {
         type: Sequelize.BOOLEAN
       }

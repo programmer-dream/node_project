@@ -17,6 +17,9 @@ module.exports = (sequelize, Sequelize) => {
       },
       query_vls_id: {
         type: Sequelize.INTEGER
+      },
+      school_vls_id: {
+        type: Sequelize.INTEGER
       }
   },{
       tableName: 'rating_like_query',

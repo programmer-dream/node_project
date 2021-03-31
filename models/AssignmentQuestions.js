@@ -34,6 +34,10 @@ module.exports = (sequelize, Sequelize) => {
         choice4: {
           type: Sequelize.STRING
         },
+        school_vls_id: {
+          type: Sequelize.INTEGER,
+          allowNull: false,
+        },
         created_at: {
           allowNull: false,
           type: Sequelize.DATE

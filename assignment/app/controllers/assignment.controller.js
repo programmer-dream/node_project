@@ -648,12 +648,10 @@ async function changeAssignmentStatus(params, user, body){
 async function createAssignmentQuestion(req){
   let allQuestion  =  req.body
   let assingmentId = req.params.assignment_vls_id
-  let school_vls_id     = req.params.school_vls_id
 
   await Promise.all(
     allQuestion.map(async (question, qIndex) => {
         allQuestion[qIndex]['assignment_vls_id'] = assingmentId
-        allQuestion[qIndex]['school_vls_id']     = school_vls_id
 
         if(!question.question)
             throw 'Question field is required'
@@ -681,7 +679,7 @@ async function createAssignmentQuestion(req){
         }
     })
   )
-  
+  //return allQuestion
   let AssignQuest = await AssignmentQuestions.bulkCreate(allQuestion)
 
   if(!AssignQuest) throw 'Assignment Question not created'
