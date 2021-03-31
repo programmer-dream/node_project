@@ -18,6 +18,10 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.INTEGER,
         allowNull: false
       },
+      school_vls_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false
+      },
       question_type: {
         type: Sequelize.ENUM('form', 'choice', 'multiple_checklist'),
         allowNull: false
