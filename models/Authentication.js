@@ -42,7 +42,16 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.INTEGER
     },
     name: {
-      type: Sequelize.INTEGER
+      type: Sequelize.STRING
+    },
+    rewards_points: {
+      type: Sequelize.FLOAT
+    },
+    rewards_request: {
+      type: Sequelize.FLOAT
+    },
+    point_redeemed: {
+      type: Sequelize.FLOAT
     },
     photo: {
       type: Sequelize.STRING

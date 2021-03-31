@@ -19,6 +19,7 @@ router.post("/questionResponse",questionResponse)
 router.get("/view/:id",view);
 router.get("/list/",list);
 router.get("/dashboardData/",dashboardData);
+router.get("/dashboardCount/",dashboardCount);
 
 // //Put
 router.put("/updateMarks",updateMarks)
@@ -116,5 +117,12 @@ function updateMarks(req, res, next) {
 function dashboardData(req, res, next) {
     assignmentController.dashboardData(req.user, req.query)
         .then(assignment => assignment ? res.json(assignment) : res.status(400).json({ status: "error", message: 'Error while geting current weeek assignment' }))
+        .catch(err => next(err));
+}
+
+// Function for dashboard count 
+function dashboardCount(req, res, next) {
+    assignmentController.dashboardCount(req.query, req.user)
+        .then(assignment => assignment ? res.json(assignment) : res.status(400).json({ status: "error", message: 'Error while dashboard assignment' }))
         .catch(err => next(err));
 }

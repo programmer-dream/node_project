@@ -1,4 +1,5 @@
 const { validationResult } = require('express-validator');
+const {updateRewardsPoints} = require('../../../helpers/update-rewards')
 const db         = require("../../../models");
 const moment     = require("moment");
 const bcrypt     = require("bcryptjs");
@@ -44,7 +45,7 @@ async function create(req){
   const errors = validationResult(req);
   if(errors.array().length) throw errors.array()
   //if(!req.user) throw 'User not found'
-
+  let tokenUser = req.user
   if(req.files.file && req.files.file.length > 0){
       req.body.file_url  = req.body.uplodedPath + req.files.file[0].filename;
       req.body.file_type  = await isImage(req.files.file[0].originalname);
@@ -86,6 +87,7 @@ async function create(req){
     commentWithUser = createdComment.toJSON()
     commentWithUser.user = user
   }
+    await updateRewardsPoints(tokenUser, 'community_per_message', "increment")
   return { success: true, message: "Comment created successfully", data:commentWithUser }
   
 

@@ -137,6 +137,8 @@ db.VideoLibraryRatings = require("./VideoLibraryRatings.js")(sequelize, Sequeliz
 db.VideoLibraryComment = require("./VideoLibraryComment.js")(sequelize, Sequelize);
 
 
+/*********** vls rewards management ***********/
+db.VlsRewards = require("./VlsRewards.js")(sequelize, Sequelize);
 
 /*********** Relation management between tables ***********/
 

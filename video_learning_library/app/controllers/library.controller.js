@@ -1,4 +1,5 @@
 const { validationResult } = require('express-validator');
+const {updateRewardsPoints} = require('../../../helpers/update-rewards')
 const db = require("../../../models");
 const Op = db.Sequelize.Op;
 const Sequelize = db.Sequelize;
@@ -103,7 +104,8 @@ async function view(id, user){
       learningLibrary.isSubjectExist = isSubjectExist
 
     }
-
+    
+    await updateRewardsPoints(user, 'watch_online_video', "increment")
   //return branchSubjects     
   return { success: true, message: "Video Learning library details", data:learningLibrary };
 };
@@ -370,8 +372,10 @@ async function getRatingLikes(id, user) {
     }
       whereCondition.video_learning_library_vls_id = id
 
-    if(user)
-      whereCondition.user_vls_id = user.userVlsId
+    if(user){
+      whereCondition.user_vls_id  = user.userVlsId
+      whereCondition.user_type    = user.role
+    }
 
     userRating  = await Ratings.findOne({
       attributes : ['ratings','likes'],

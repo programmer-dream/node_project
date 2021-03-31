@@ -1,4 +1,5 @@
 const { validationResult } = require('express-validator');
+const {updateRewardsPoints} = require('../../../helpers/update-rewards')
 const db 	 	     = require("../../../models");
 const moment 	   = require("moment");
 const bcrypt     = require("bcryptjs");
@@ -35,10 +36,10 @@ module.exports = {
  * API for create chat 
  */
 async function create(req){
-  let user = req.user
+  let tokenUser = req.user
   let data = req.body
   
-  user = await getUser(user.id)
+  user = await getUser(tokenUser.id)
 
   if(req.files.file && req.files.file.length > 0){
       data.attachment      = req.body.uplodedPath + req.files.file[0].filename;
@@ -58,7 +59,8 @@ async function create(req){
   }
 
   let createdChat = await saveChat(data, user)
-  
+
+  await updateRewardsPoints(tokenUser,'chat_per_message', "increment")
 	return { success: true, message: "Chat created successfully", chat : createdChat}
 };
 

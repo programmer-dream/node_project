@@ -20,6 +20,8 @@ module.exports = (sequelize, Sequelize) => {
       },
       school_vls_id: {
         type: Sequelize.INTEGER
+      user_type:{
+        type: Sequelize.STRING
       }
   },{
       tableName: 'rating_like_learning_library',

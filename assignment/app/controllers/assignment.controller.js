@@ -3,6 +3,7 @@ const db 	 	     = require("../../../models");
 const moment 	   = require("moment");
 const bcrypt     = require("bcryptjs");
 const path       = require('path')
+const { updateRewardsPoints } = require('../../../helpers/update-rewards')
 const Op 	 	     = db.Sequelize.Op;
 const Sequelize  = db.Sequelize;
 const User       = db.Authentication;
@@ -34,7 +35,8 @@ module.exports = {
   questionResponse,
   updateMarks,
   releaseAssignment,
-  dashboardData
+  dashboardData,
+  dashboardCount
 };
 
 
@@ -58,6 +60,7 @@ async function create(req){
     assignmentData.assignment_completion_date = moment(assignmentData.assignment_completion_date).format('YYYY-MM-DD')
     
   	let assignment = await Assignment.create(assignmentData)
+
     //notification
     let assignedStudent = await getStudents(assignmentData)
     notificatonData.branch_vls_id = assignmentData.branch_vls_id
@@ -76,6 +79,11 @@ async function create(req){
     //notification
   	if(!assignment) throw 'Assignment not created'
 
+    if(assignment.assignment_type == 'offline'){
+        await updateRewardsPoints(user, 'add_offline_assignment', "increment")
+    }else{
+        await updateRewardsPoints(user, 'add_online_assignment', "increment")
+    }
   	return { success: true, message: "Assignment created successfully", data:assignment }
 };
 
@@ -350,7 +358,9 @@ async function list(params , user){
     assignments.map(async assignment => {
         let assingmentData = assignment.toJSON()
         assingmentData.submittedCount = await getSubmittedCount(assignment.assignment_vls_id)
+        assingmentData.total_assignee = await getTotalAssigneeCount(assignment)
         let studentIds = JSON.parse(assignment.student_vls_ids)
+
         //start add question array 
         let assignmentQuestion = assingmentData.assignmentQuestion
         assignmentQuestion.forEach(function(item, index){
@@ -583,6 +593,16 @@ async function submitAssignment(req){
 
     if(!assignment[0]) throw 'Assignment not found'
 
+    let studentAssignment  = await StudentAssignment.findByPk(id)
+    if(studentAssignment.assignment_status == 'Submitted'){
+      //get assignment 
+      let mainAssignment  = await Assignment.findByPk(assignmentDa.assignment_vls_id)
+      if(mainAssignment.assignment_type == 'offline'){
+        await updateRewardsPoints(user, 'submit_offline_assignment', "increment")
+      }else{
+        await updateRewardsPoints(user, 'submit_online_assignment', "increment")
+      }
+    }
     return { success: true, message: "Assignment updated successfully"}
 };
 
@@ -855,6 +875,7 @@ async function updateMarks(body, user){
             student_assignment_id : studentAssignmentId
         }
     })
+    await updateRewardsPoints(user, 'each_student_assessment', "increment")
     return { success: true, message: "marks updated successfully"}
 };
 
@@ -1020,7 +1041,7 @@ async function getAssignmentCount(params){
 }
 
 /**
- * API for current Week assignment
+ * function to get submission for particular assignment
  */
 async function getSubmittedCount(assignmentId){
   let submitted = await StudentAssignment.count({
@@ -1030,6 +1051,28 @@ async function getSubmittedCount(assignmentId){
     }
   })
   return submitted
+}
+
+/**
+ * function to get total assignee for particular assignment
+ */
+async function getTotalAssigneeCount(assignment){
+  let totalAssigneeCount = 0
+  let whereCodition = {}
+  let studentIds = JSON.parse(assignment.student_vls_ids)
+  if(studentIds && studentIds.length > 0){
+    totalAssigneeCount = studentIds.length
+  }else{
+    whereCodition.class_id = assignment.assignment_class_id
+    if(assignment.section_id || assignment.section_id > 1)
+      whereCodition.section_id = assignment.section_id
+
+    totalAssigneeCount = await Student.count({
+                      where : whereCodition
+                    })
+  }
+
+  return totalAssigneeCount
 }
 
 /**
@@ -1142,4 +1185,44 @@ async function getStudentList(assignment){
       )
   }
   return studentsArr
+}
+
+
+/**
+ * API for dashboard Count
+ */
+async function dashboardCount(params, user){
+  let whereCondition = {}
+  
+  if(user.role =='student'){
+     whereCondition.student_vls_id = user.userVlsId
+  }
+
+      whereCondition.assignment_status = 'New'
+  let newAss = await StudentAssignment.count({where: whereCondition})
+      whereCondition.assignment_status = 'Inprogress'
+  let inprogressAss = await StudentAssignment.count({where: whereCondition})
+      whereCondition.assignment_status = 'Submitted'
+  let submittedAss = await StudentAssignment.count({where: whereCondition})
+      whereCondition.assignment_status = 'ValidationInprogress'
+  let validationInprogressAss = await StudentAssignment.count({where: whereCondition})
+      whereCondition.assignment_status = 'Approved'
+  let approvedAss = await StudentAssignment.count({where: whereCondition})
+      whereCondition.assignment_status = 'Rejected'
+  let rejectedAss = await StudentAssignment.count({where: whereCondition})
+      whereCondition.assignment_status = 'Closed'
+  let closedAss = await StudentAssignment.count({where: whereCondition})
+
+
+  let allCounts = {
+    new                   : newAss,
+    inprogress            : inprogressAss,
+    submitted             : submittedAss,
+    validationInprogress  : validationInprogressAss,
+    approved              : approvedAss,
+    rejected              : rejectedAss,
+    closed                : closedAss
+  }
+
+  return { success: true, message: "dashboard count", data : allCounts}
 }

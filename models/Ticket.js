@@ -43,7 +43,7 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: false
       },
       ticket_type: {
-        type: Sequelize.ENUM('application', 'infrastructure'),
+        type: Sequelize.ENUM('application','infrastructure','rewards'),
         allowNull: false
       },
       assigned_user_id: {
@@ -60,6 +60,9 @@ module.exports = (sequelize, Sequelize) => {
       },
       resolved_date: {
         type: Sequelize.DATE
+      },
+      redeem_point: {
+        type: Sequelize.FLOAT
       },
       is_comment: {
         type: Sequelize.BOOLEAN,

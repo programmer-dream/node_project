@@ -61,7 +61,7 @@ function update(req, res, next) {
 }
 // Function for view query details
 function view(req, res, next) {
-    libraryController.view(req.params.id)
+    libraryController.view(req.params.id, req.user)
         .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while viewing comment' }))
         .catch(err => next(err));
 }

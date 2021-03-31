@@ -7,6 +7,7 @@ const Employee = db.Employee;
 const Branch = db.Branch;
 const SchoolDetails = db.SchoolDetails;
 const Authentication = db.Authentication;
+const VlsRewards   = db.VlsRewards;
 
 module.exports = {
   profile,
@@ -69,6 +70,17 @@ async function profile(user){
   	userPorfile = employee.toJSON();
 
   }
+  let minPoint = await VlsRewards.findOne({
+      attributes:['min_point_redeemed']
+     })
+  let userDetails = await Authentication.findOne({ 
+                      attributes: [ 'rewards_points', 'rewards_request', 'point_redeemed' ],
+                      where: { user_name: user.userId },
+                    })
+  userPorfile.rewards_points = userDetails.rewards_points
+  userPorfile.rewards_request = userDetails.rewards_request
+  userPorfile.point_redeemed = userDetails.point_redeemed
+  userPorfile.min_point_redeemed = minPoint.min_point_redeemed
 
   return { success: true, message: "profie data", data : userPorfile};
 };

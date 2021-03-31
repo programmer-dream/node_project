@@ -1,4 +1,5 @@
 const { validationResult } = require('express-validator');
+const {updateRewardsPoints} = require('../../../helpers/update-rewards')
 const db 	 	     = require("../../../models");
 const moment 	   = require("moment");
 const bcrypt     = require("bcryptjs");
@@ -23,7 +24,8 @@ module.exports = {
   deleteFeedback,
   closeFeedback,
   setMeeting,
-  deleteMultiFeedback
+  deleteMultiFeedback,
+  dashboardCount
 };
 
 
@@ -59,7 +61,7 @@ async function create(req){
     await Notification.create(notificatonData)
     //notification
   	if(!feedback) throw 'Feedback not created'
-
+    await updateRewardsPoints(user, 'create_feedback', "increment")
   	return { success: true, message: "Feedback created successfully", data:feedback }
 };
 
@@ -435,3 +437,28 @@ async function getfeedbackUser(feedback){
   }
   return userObj 
 }
+
+
+/**
+ * API for dashboard Count
+ */
+async function dashboardCount(params, user){
+  let whereCondition = {}
+  
+  if(user.role =='student' || user.role =='guardian'){
+     whereCondition.user_vls_id = user.userVlsId
+     whereCondition.user_type   = user.role
+  }
+  
+      whereCondition.status = 'open'
+  let openFeedback = await Feedback.count({where: whereCondition})
+      whereCondition.status = 'closed'
+  let closedFeedback = await Feedback.count({where: whereCondition})
+  
+  let allCounts = {
+    open    : openFeedback,
+    closed  : closedFeedback
+  }
+  return { success: true, message: "dashboard count", data : allCounts}
+}
+

@@ -1,4 +1,5 @@
 const { validationResult } = require('express-validator');
+const {updateRewardsPoints} = require('../../../helpers/update-rewards')
 const db = require("../../../models");
 const Op = db.Sequelize.Op;
 const Sequelize = db.Sequelize;
@@ -72,6 +73,8 @@ async function create(req){
     notificatonData.added_type    = user.role
     notificatonData.event_type    = 'created'
     await Notification.create(notificatonData)
+    
+    await updateRewardsPoints(user, 'create_query', "increment")
     //notification
   return { success: true, message: "Query created successfully", data:createdQuery }
 };
@@ -507,7 +510,9 @@ async function getRatingLikes(id, user) {
     let avg = null;
     //get like count
     let like  = await Ratings.count({
-      where:{likes:1,query_vls_id:id}
+      where:{ likes        : 1,
+              query_vls_id : id
+            }
     })
     //get rating avg
     let ratings = await Ratings.findOne({
@@ -527,7 +532,11 @@ async function getRatingLikes(id, user) {
 
     userRating  = await Ratings.findOne({
       attributes: ['ratings','likes'],
-      where:{query_vls_id:id,user_vls_id:user.userVlsId}
+      where:{ 
+            query_vls_id  : id,
+            user_vls_id   : user.userVlsId,
+            user_role     : user.role,
+          }
     })
 
     return { success:true, message:"Rating & like data",like:like,avg:avg,data:userRating};
@@ -977,3 +986,4 @@ async function querySubjectTeacher(code){
   )
   return teachers
 }
+
