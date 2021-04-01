@@ -6,7 +6,7 @@ const helper = require("../helper");
 const upload  = helper.upload;
 
 //POSt
-router.post("/accpet",[
+router.post("/accept",[
     check('passion_vls_id','passion_vls_id field is required.').not().isEmpty(),
     ],accept);
 //GET

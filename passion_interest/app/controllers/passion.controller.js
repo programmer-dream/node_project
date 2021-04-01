@@ -256,5 +256,5 @@ async function acceptBlog(body , user){
       }
     )
 
-    return { success: true, message: "Passion deleted successfully",data:isAccepted} 
+    return { success: true, message: "Passion accepted successfully",data:isAccepted} 
 }
