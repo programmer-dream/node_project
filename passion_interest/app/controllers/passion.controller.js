@@ -118,16 +118,18 @@ async function list(params , user){
       attributes: ['interest']
      })
      student = student.toJSON()
-     interestArr = JSON.parse(student.interest)
+     if(student.interest != ''){
+       interestArr = JSON.parse(student.interest)
 
-     let orArray = []
-     interestArr.forEach(function (passion){
-        orArray.push(Sequelize.where(Sequelize.fn('LOWER', Sequelize.col('passion_type')), 'LIKE', '%'+passion+'%'))
-     })
+       let orArray = []
+       interestArr.forEach(function (passion){
+          orArray.push(Sequelize.where(Sequelize.fn('LOWER', Sequelize.col('passion_type')), 'LIKE', '%'+passion+'%'))
+       })
 
-     whereCondition.passion_type = {
-        [Op.or]:orArray
-      }
+       whereCondition.passion_type = {
+          [Op.or]:orArray
+        }
+    }
   }
   
   
@@ -163,7 +165,7 @@ async function list(params , user){
   allPassions.sort(function(a,b) {
     return b.passion_vls_id - a.passion_vls_id;
   });
-  
+
 	return { success: true, message: "Passion listing", data : allPassions}
 }
 
