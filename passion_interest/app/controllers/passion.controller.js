@@ -75,9 +75,10 @@ async function create(req){
 async function view(id, user){
 	let passionInterest = await PassionInterest.findByPk(id);
 
-  let accepted = await isAccepted(id , user)
-
-  if(!accepted) throw 'You are not accpeted this blog yet'
+  if(user.role !='super-admin'){
+    let accepted = await isAccepted(id , user)
+    if(!accepted) throw 'You are not accpeted this blog yet'
+  }
 
 	return { success: true, message: "Passion view", data : passionInterest}
 }
