@@ -306,13 +306,12 @@ async function deleteMeeting(meetingId, user){
     notificatonData.event_type    = 'deleted'
     await Notification.create(notificatonData)
 
-    let notification = await Notification.findOne({
+    await Notification.update({is_deleted: 1},{
       where:{ 
               notificaton_type   :  'meeting',
               notificaton_type_id:  meetingData.id
             }
     });
-    notification.update({is_deleted: 1})
 
   if(!meeting) throw 'Meeting Not found'
   return { success: true, message: "Meeting deleted successfully" }
