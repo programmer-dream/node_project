@@ -253,7 +253,13 @@ async function deleteFeedback(id){
   let feedback  = await Feedback.destroy({
 				    where: { feedback_id : id }
 				  })
-
+  await Notification.update({is_deleted: 1},{
+      where:{ 
+              notificaton_type   :  'feedback',
+              notificaton_type_id:  id
+            }
+    });
+  
   if(!feedback) throw 'Feedback Not found'
   return { success: true, message: "Feedback deleted successfully" }
 };

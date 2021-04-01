@@ -328,6 +328,13 @@ async function deleteQuery(id , user) {
       where: { query_vls_id: id }
     })
 
+  await Notification.update({is_deleted: 1},{
+      where:{ 
+              notificaton_type   :  'query',
+              notificaton_type_id:  id
+            }
+  });
+
   await Ratings.destroy({
       where:{query_vls_id: id}
     })

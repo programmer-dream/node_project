@@ -298,7 +298,14 @@ async function updateCommunity(data, id, auth){
  */
 async function deleteCommunity(id){
     let chat  = await CommunityChat.destroy({ where: { community_chat_vls_id : id } })
-    
+
+    await Notification.update({is_deleted: 1},{
+      where:{ 
+              notificaton_type   :  'community',
+              notificaton_type_id:  id
+            }
+    });
+
     if(!chat) throw 'Community Not found'
 
   return { success: true, message: "Community deleted successfully" }

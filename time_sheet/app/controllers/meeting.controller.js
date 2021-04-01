@@ -305,6 +305,14 @@ async function deleteMeeting(meetingId, user){
     notificatonData.added_type    = user.role
     notificatonData.event_type    = 'deleted'
     await Notification.create(notificatonData)
+
+    await Notification.update({is_deleted: 1},{
+      where:{ 
+              notificaton_type   :  'meeting',
+              notificaton_type_id:  meetingData.id
+            }
+    });
+
   if(!meeting) throw 'Meeting Not found'
   return { success: true, message: "Meeting deleted successfully" }
 };
