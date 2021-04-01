@@ -156,6 +156,7 @@ async function getUserWithMessage(userId , type , message){
     case 'teacher': 
     case 'branch-admin': 
     case 'school-admin': 
+    case 'super-admin': 
     case 'principal': 
         user = await Employee.findOne({
           where : { faculty_vls_id : userId },
