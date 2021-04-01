@@ -202,6 +202,13 @@ async function deletePassion(id){
 	let passion = await PassionInterest.findByPk(id);
 	if(!passion) throw 'Passion and interst not found'
 
+  let notification = await Notification.findOne({
+    where:{ 
+            notificaton_type   :  'blog',
+            notificaton_type_id:  passion.passion_vls_id
+          }
+  });
+  notification.update({is_deleted: 1})
   //delete all comment
   await PassionComment.destroy({
     where:{ passion_vls_id:  passion.passion_vls_id}

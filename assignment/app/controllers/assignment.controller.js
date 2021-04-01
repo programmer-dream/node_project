@@ -471,6 +471,15 @@ async function update(req){
  * API for assignment delete 
  */
 async function deleteAssignment(assignmentId, user){
+
+  let notification = await Notification.findOne({
+    where:{ 
+            notificaton_type   :  'assignment',
+            notificaton_type_id:  assignmentId
+          }
+  });
+  notification.update({is_deleted: 1})
+
   let assignment  = await Assignment.destroy({
 				    where: { assignment_vls_id: assignmentId }
 				  })

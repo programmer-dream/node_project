@@ -58,6 +58,11 @@ module.exports = (sequelize, Sequelize) => {
       section_id: {
         type: Sequelize.INTEGER
       },
+      is_deleted: {
+        type: Sequelize.TINYINT(1),
+        allowNull: false,
+        defaultValue: 0
+      },
       created_at: {
         allowNull: false,
         type: Sequelize.DATE
