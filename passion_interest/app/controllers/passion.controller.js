@@ -110,7 +110,7 @@ async function list(params , user){
                 }
            }
     };
-    
+
   let interestArr
   if(user.role == 'student'){
      let student = await Student.findOne({
@@ -129,7 +129,7 @@ async function list(params , user){
         [Op.or]:orArray
       }
   }
-  console.log(whereCondition)
+  
   if(params.status) 
      whereCondition.status = params.status
   
