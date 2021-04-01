@@ -7,6 +7,9 @@ module.exports = {
                 allowNull: false,
                 defaultValue: 0
             });
+    await queryInterface.sequelize.query(
+    	"ALTER TABLE notification CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+    );
   },
 
   down: async (queryInterface, Sequelize) => {
