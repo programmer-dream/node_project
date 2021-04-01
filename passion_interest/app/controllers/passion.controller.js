@@ -34,14 +34,16 @@ module.exports = {
  * API for create passion
  */
 async function create(req){
-
+  let passionArray = {}
   const errors = validationResult(req);
   if(errors.array().length) throw errors.array()
 
   if(req.body.passion_type)
       req.body.passion_type = JSON.stringify(req.body.passion_type)
 
-  let passionArray        = JSON.parse(req.body.passion_type)
+  if(req.body.passion_type !=""){
+     passionArray = JSON.parse(req.body.passion_type)
+  }
   let user                = req.user
   let passion_data        = req.body
   passion_data.added_by   = user.userVlsId
@@ -108,8 +110,26 @@ async function list(params , user){
                 }
            }
     };
+    
+  let interestArr
+  if(user.role == 'student'){
+     let student = await Student.findOne({
+      where : { student_vls_id : user.userVlsId },
+      attributes: ['interest']
+     })
+     student = student.toJSON()
+     interestArr = JSON.parse(student.interest)
 
+     let orArray = []
+     interestArr.forEach(function (passion){
+        orArray.push(Sequelize.where(Sequelize.fn('LOWER', Sequelize.col('passion_type')), 'LIKE', '%'+passion+'%'))
+     })
 
+     whereCondition.passion_type = {
+        [Op.or]:orArray
+      }
+  }
+  console.log(whereCondition)
   if(params.status) 
      whereCondition.status = params.status
   
@@ -124,7 +144,7 @@ async function list(params , user){
 
 	if(params.page)
 	   offset = 0 + (parseInt(params.page) - 1) * limit
-  
+  console.log()
 	let passions = await PassionInterest.findAll({
 		limit : limit,
 	    offset: offset,
