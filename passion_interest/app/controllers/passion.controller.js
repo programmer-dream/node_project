@@ -160,6 +160,10 @@ async function list(params , user){
       })
   )
 
+  allPassions.sort(function(a,b) {
+    return b.passion_vls_id - a.passion_vls_id;
+  });
+  
 	return { success: true, message: "Passion listing", data : allPassions}
 }
 
