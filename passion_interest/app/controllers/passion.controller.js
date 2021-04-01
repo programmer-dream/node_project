@@ -177,8 +177,8 @@ async function update(req){
   const errors = validationResult(req);
   if(errors.array().length) throw errors.array()
 
-  let passionId    = req.params.id
-  
+  let passionId = req.params.id
+  let user      = req.user
   passion = await PassionInterest.findByPk(passionId);
 
   if(req.body.passion_type)
@@ -190,6 +190,23 @@ async function update(req){
       
   passion.update(passion_data)
 
+  let passionArray = JSON.parse(passion.passion_type)
+
+  if(Array.isArray(passionArray)){
+    let assignedStudent = await getStudents(passionArray)
+    let notificatonData           = {}
+    notificatonData.status        = 'general'
+    notificatonData.message       = '{name} updated a blog.'
+    notificatonData.notificaton_type = 'blog'
+    notificatonData.notificaton_type_id = passion.passion_vls_id
+    notificatonData.start_date    = moment().format('YYYY-MM-DD HH:mm:ss')
+    notificatonData.users         = JSON.stringify(assignedStudent)
+    notificatonData.added_by      = user.userVlsId
+    notificatonData.added_type    = user.role
+    notificatonData.event_type    = 'updated'
+    await Notification.create(notificatonData)
+  }
+
   return { success: true, message: "Passion updated successfully", data : passion }
 };
 
@@ -197,10 +214,32 @@ async function update(req){
 /**
  * API for delete Passion
  */
-async function deletePassion(id){
+async function deletePassion(id , user){
 
 	let passion = await PassionInterest.findByPk(id);
 	if(!passion) throw 'Passion and interst not found'
+
+  //delete all comment
+  await PassionComment.destroy({
+    where:{ passion_vls_id:  passion.passion_vls_id}
+  });
+
+  let passionArray = JSON.parse(passion.passion_type)
+
+  if(Array.isArray(passionArray)){
+    let assignedStudent = await getStudents(passionArray)
+    let notificatonData           = {}
+    notificatonData.status        = 'general'
+    notificatonData.message       = '{name} deleted a blog.'
+    notificatonData.notificaton_type = 'blog'
+    notificatonData.notificaton_type_id = passion.passion_vls_id
+    notificatonData.start_date    = moment().format('YYYY-MM-DD HH:mm:ss')
+    notificatonData.users         = JSON.stringify(assignedStudent)
+    notificatonData.added_by      = user.userVlsId
+    notificatonData.added_type    = user.role
+    notificatonData.event_type    = 'deleted'
+    await Notification.create(notificatonData)
+  }
 
   await Notification.update({is_deleted: 1},{
       where:{ 
@@ -208,11 +247,7 @@ async function deletePassion(id){
               notificaton_type_id:  passion.passion_vls_id
             }
   });
-  //delete all comment
-  await PassionComment.destroy({
-    where:{ passion_vls_id:  passion.passion_vls_id}
-  });
-
+  
 	passion.destroy();
 
 	return { success: true, message: "Passion deleted successfully"}
