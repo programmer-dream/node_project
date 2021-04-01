@@ -130,8 +130,6 @@ async function list(params , user){
       }
   }
   
-  if(params.status) 
-     whereCondition.status = params.status
   
   if(params.passion_type)
      whereCondition.passion_type = params.passion_type
@@ -144,7 +142,7 @@ async function list(params , user){
 
 	if(params.page)
 	   offset = 0 + (parseInt(params.page) - 1) * limit
-  console.log()
+  
 	let passions = await PassionInterest.findAll({
 		limit : limit,
 	    offset: offset,
