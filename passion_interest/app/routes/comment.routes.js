@@ -5,8 +5,6 @@ const { check } = require('express-validator');
 
 //Post
 router.post("/create",[
-    check('school_vls_id','school_vls_id field is required.').not().isEmpty(),
-    check('branch_vls_id','branch_vls_id field is required.').not().isEmpty(),
     check('passion_vls_id','passion_vls_id field is required.').not().isEmpty(),
     check('comment_body','comment_body field is required.').not().isEmpty()
     ],createComment);
@@ -19,8 +17,6 @@ router.delete("/delete/:id",deleteComment);
 
 //Put
 router.put("/update/:id",[
-    check('school_vls_id','school_vls_id field is required.').not().isEmpty(),
-    check('branch_vls_id','branch_vls_id field is required.').not().isEmpty(),
     check('passion_vls_id','passion_vls_id field is required.').not().isEmpty(),
     check('comment_body','comment_body field is required.').not().isEmpty()
     ],updateComment);

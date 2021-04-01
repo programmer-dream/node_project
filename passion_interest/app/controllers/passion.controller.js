@@ -75,12 +75,12 @@ async function create(req){
 async function view(id, user){
 	let passionInterest = await PassionInterest.findByPk(id);
 
-  if(user.role !='super-admin'){
-    let accepted = await isAccepted(id , user)
-    if(!accepted) throw 'You are not accpeted this blog yet'
-  }
+  let accepted = await isAccepted(id , user)
+    
+  passionInterest = passionInterest.toJSON()
+  passionInterest.is_accepted = accepted
 
-	return { success: true, message: "Passion view", data : passionInterest}
+	return { success: true, message: "Passion view", data : passionInterest }
 }
 
 
@@ -93,6 +93,7 @@ async function list(params , user){
 	let orderBy = 'desc';
 	let search  = ''
   let authUser = await User.findByPk(user.userVlsId)
+  let allPassions = []
 
   if(params.search) 
      search = params.search
@@ -124,7 +125,7 @@ async function list(params , user){
 	if(params.page)
 	   offset = 0 + (parseInt(params.page) - 1) * limit
   
-	let passion = await PassionInterest.findAll({
+	let passions = await PassionInterest.findAll({
 		limit : limit,
 	    offset: offset,
 	    where : whereCondition,
@@ -133,7 +134,15 @@ async function list(params , user){
 	            ]
             });
 
-	return { success: true, message: "Passion listing", data : passion}
+  await Promise.all(
+      passions.map(async passion => {
+        passion = passion.toJSON()
+        passion.is_accepted = await isAccepted(passion.passion_vls_id , user)
+        allPassions.push(passion)
+      })
+  )
+
+	return { success: true, message: "Passion listing", data : allPassions}
 }
 
 
