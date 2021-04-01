@@ -140,6 +140,44 @@ app.post("/blog/create/",[
           });
 });
 
+// update assignment  
+app.put("/blog/update/:id/", async function(req, res){
+   passionController.update(req)
+          .then((blog) => {
+            if(blog){
+              //create event
+              io.sockets.emit('getNotificaion', { event :'blog_updated' });
+              // create event
+              res.json(blog)
+            }else{
+              res.status(400).json({ status: "error", message: 'Error while updating blog' })
+            }
+          })
+          .catch( (err) => {
+            console.log(err, "err")
+            res.status(400).json({ status: "error", message: "Something went wrong" }) 
+          });
+});
+
+// delete assignment  
+app.delete("/blog/delete/:id", async function(req, res){
+   passionController.deletePassion(req.params.id, req.user)
+          .then((blog) => {
+            if(blog){
+              //create event
+              io.sockets.emit('getNotificaion', { event :'blog_deleted' });
+              // create event
+              res.json(blog)
+            }else{
+              res.status(400).json({ status: "error", message: 'Error while deleting blog' })
+            }
+          })
+          .catch( (err) => {
+            console.log(err, "err")
+            res.status(400).json({ status: "error", message: "Something went wrong" }) 
+          });
+});
+
 // api routes
 app.use('/blog', require('./app/routes/passion.routes'));
 app.use('/blog/comment', require('./app/routes/comment.routes'));
