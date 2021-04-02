@@ -90,8 +90,10 @@ async function profile(user){
   userPorfile.rewards_points = userDetails.rewards_points
   userPorfile.rewards_request = userDetails.rewards_request
   userPorfile.point_redeemed = userDetails.point_redeemed
-  userPorfile.min_point_redeemed = minPoint.min_point_redeemed
-
+  userPorfile.min_point_redeemed = 0
+  if(minPoint)
+      userPorfile.min_point_redeemed = minPoint.min_point_redeemed
+  
   return { success: true, message: "profie data", data : userPorfile};
 };
 
