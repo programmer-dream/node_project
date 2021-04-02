@@ -722,7 +722,8 @@ async function listParentChildren(params, user){
 								'name',
 								'father_name',
 								'mother_name',
-								'class_id'
+								'class_id',
+								'section_id'
 							]
 					});
     return { success: true, message: "List children", data:students }
