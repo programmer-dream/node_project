@@ -251,6 +251,10 @@ async function list(params , user){
   let studentID        = user.userVlsId
   let search           = ""
   let status           = null
+  let orderBy          = 'desc';
+  let limit            = 10
+  let offset           = 0
+
   if(user.role == 'guardian')
     studentID = params.student_id
 
@@ -297,6 +301,15 @@ async function list(params , user){
   if(params.serach)
     search = params.search
 
+  if(params.orderBy)
+     orderBy = params.orderBy
+
+  if(params.size)
+     limit = parseInt(params.size)
+
+  if(params.page)
+      offset = 0 + (parseInt(params.page) - 1) * limit
+
   whereCodition[Op.or] = { 
                   description: { 
                     [Op.like]: `%`+search+`%`
@@ -321,6 +334,11 @@ async function list(params , user){
   
   let assignments = await Assignment.findAll({
     where : whereCodition,
+    limit : limit,
+    offset: offset,
+    order: [
+             ['assignment_vls_id', orderBy]
+           ],
     include: [{ 
                 model:Employee,
                 as:'addedBY',
