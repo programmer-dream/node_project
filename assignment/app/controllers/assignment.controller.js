@@ -975,13 +975,17 @@ async function dashboardData(user , params){
   let filterAssignments = []
   if(user.role == 'student') {
     await Promise.all(
-        assignments.map(function( assignment){
+        assignments.map(async function( assignment){
+          assignment = assignment.toJSON()
           let idsArr = JSON.parse(assignment.student_vls_ids)
           if(Array.isArray(idsArr)){
-              if(idsArr.includes(user.userVlsId))
+              if(idsArr.includes(user.userVlsId)){
+                assignment.status = await assignmentProgress(assignment.assignment_vls_id, user)
                 filterAssignments.push(assignment)
+              }
               
           }else{
+            assignment.status = await assignmentProgress(assignment.assignment_vls_id, user)
             filterAssignments.push(assignment)
           }
         })
@@ -1235,3 +1239,18 @@ async function dashboardCount(params, user){
 
   return { success: true, message: "dashboard count", data : allCounts}
 }
+
+/**
+ * API for check student progress
+ */
+async function assignmentProgress(assignmentId, user){
+    let assignment = await StudentAssignment.findOne({
+      where : { assignment_vls_id : assignmentId ,
+                student_vls_id : user.userVlsId
+              },
+      attributes : ['assignment_status']
+    }) 
+    if(!assignment) return 'New'
+
+    return assignment.assignment_status
+} 
