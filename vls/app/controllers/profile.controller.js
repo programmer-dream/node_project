@@ -8,6 +8,8 @@ const Branch = db.Branch;
 const SchoolDetails = db.SchoolDetails;
 const Authentication = db.Authentication;
 const VlsRewards   = db.VlsRewards;
+const Section      = db.Section;
+const Classes      = db.Classes;
 
 module.exports = {
   profile,
@@ -31,6 +33,14 @@ async function profile(user){
                                 as:'schoolDetails',
                                 attributes: ['school_vls_id','school_name', 'address']
                               }]
+                            },{ 
+                              model:Section,
+                              as:'section',
+                              attributes: ['name']
+                            },{ 
+                              model:Classes,
+                              as:'classes',
+                              attributes: ['name']
                             }]
                     })
   	 userPorfile = student.toJSON();
