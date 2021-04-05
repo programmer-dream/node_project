@@ -18,6 +18,8 @@ const AcademicYear   = db.AcademicYear;
 const Guardian   	 = db.Guardian;
 const Classes   	 = db.Classes;
 const StudentAttendance = db.StudentAttendance;
+const SchoolDetails = db.SchoolDetails;
+const Employee 		= db.Employee;
 
 
 module.exports = {
@@ -101,6 +103,10 @@ async function list(params , user){
  * API for get marks
  */
 async function getExamMarks(params , user , query){
+	//return user
+	let avgObj = {}
+	let school_id = 0
+	let userData = {}
 	let id = params.id
 	let whereConditions = { exam_id : id}
 
@@ -118,10 +124,12 @@ async function getExamMarks(params , user , query){
 			                attributes: ['test_type','test_id']
 			            }]
   	if(user.role == 'student'){
+
 	  	let student = await Student.findByPk(user.userVlsId)
 	  	
 	  	whereConditions.class_id   = student.class_id
 	  	whereConditions.student_id = user.userVlsId
+	  	school_id = student.school_id
   	}else{
 
   		if(!query.class_id) throw 'class_id is required'	
@@ -139,8 +147,17 @@ async function getExamMarks(params , user , query){
 					        attributes: ['name','photo']
 					    }
 		includeArray.push(studentInclude)
-  	}
 
+		if(user.role != 'guardian'){
+			 userData = await Employee.findByPk(user.userVlsId)
+			 school_id = userData.school_vls_id
+		}else{
+			 userData = await Guardian.findByPk(user.userVlsId)
+			 school_id = userData.school_vls_id
+		}	
+
+  	}
+  	
 	let subjectMarks = await Marks.findAll({
 		where : whereConditions,
 		include: includeArray,
@@ -169,8 +186,29 @@ async function getExamMarks(params , user , query){
     	classPerformance[testName][subjectName]['obtain_total_mark'] += subjectMark.obtain_total_mark
     })
    )
-	
-	return { success: true, message: "Exam list", data : classPerformance
+
+  	let condition = {}
+  	let conditionStudent = {}
+
+  	conditionStudent.student_id = whereConditions.student_id
+  	if(id != 'all'){
+  		condition.exam_id 			= id
+  		conditionStudent.exam_id 	= id
+  	}
+
+  	if(whereConditions.section_id)
+  		condition.section_id = whereConditions.section_id
+
+  	condition.class_id 		= whereConditions.class_id
+
+
+	avgObj.top_student = await topStudentPerformer(condition)
+   	avgObj.call_avg = await classAvg(condition)
+   	avgObj.student_avg = await studentAvg(conditionStudent)
+   	let schoolInfo = await SchoolDetails.findByPk(school_id)
+   	
+
+	return { success: true, message: "Exam list", data : {exams:classPerformance, avg: avgObj, schoolInfo: schoolInfo}
 	}
 }
 
@@ -417,6 +455,7 @@ async function subjectPerformance(params, user){
 	            }]
 			  	
   	})
+   	
   	return { success: true, message: "Exam performance", data : exams}
 }
 
@@ -729,4 +768,66 @@ async function topClassPerformer(whereConditions){
 	})
 
 	return allMarks
+}
+
+
+/**
+ * API for top student Perfromer data 
+ */
+async function topStudentPerformer(whereCondition){
+	let allMarks = await Marks.findAll({
+		where : whereCondition,
+		attributes:[
+                    [ Sequelize.fn('SUM', Sequelize.col('exam_total_mark')), 'exam_total_mark' ],
+                    [ Sequelize.fn('SUM', Sequelize.col('obtain_total_mark')), 'obtain_total_mark' ],
+                    'student_id'
+                  ],
+        include: [{ 
+	                model:Student,
+	                as:'student',
+	                attributes:['name','photo']
+	            }],
+		group:['student_id'],
+		order : [
+	             	[Sequelize.fn('SUM', Sequelize.col('obtain_total_mark')), 'desc']
+	            ],
+	    limit : 1
+	})
+
+	return ( allMarks.length > 0 ) ? allMarks[0] : ""
+}
+
+
+
+/**
+ * API for get overall performance  
+ */
+async function classAvg(whereCondition){
+
+	let allMarks = await Marks.findAll({
+		where : whereCondition,
+		attributes:[
+                    [ Sequelize.fn('SUM', Sequelize.col('exam_total_mark')), 'exam_total_mark' ],
+                    [ Sequelize.fn('SUM', Sequelize.col('obtain_total_mark')), 'obtain_total_mark' ]
+                  ],
+		group:['marks.class_id']
+	})
+	return (allMarks.length > 0) ? allMarks[0] : ""
+}
+
+
+/**
+ * API for get overall performance  
+ */
+async function studentAvg(conditionStudent){
+
+	let allMarks = await Marks.findAll({
+		where : conditionStudent,
+		attributes:[
+                    [ Sequelize.fn('SUM', Sequelize.col('exam_total_mark')), 'exam_total_mark' ],
+                    [ Sequelize.fn('SUM', Sequelize.col('obtain_total_mark')), 'obtain_total_mark' ]
+                  ],
+		group:['student_id']
+	})
+	return (allMarks.length > 0) ? allMarks[0] : ""
 }

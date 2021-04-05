@@ -9,6 +9,9 @@ module.exports = (sequelize, Sequelize) => {
       branch_vls_id: {
         type: Sequelize.INTEGER
       },
+      school_vls_id: {
+        type: Sequelize.INTEGER
+      },
       name: {
         allowNull: false,
         type: Sequelize.STRING
