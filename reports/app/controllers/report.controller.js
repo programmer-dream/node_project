@@ -20,6 +20,7 @@ const Classes   	 = db.Classes;
 const StudentAttendance = db.StudentAttendance;
 const SchoolDetails = db.SchoolDetails;
 const Employee 		= db.Employee;
+const ExamSchedule  = db.ExamSchedule;
 
 
 module.exports = {
@@ -121,7 +122,12 @@ async function getExamMarks(params , user , query){
 			            },{ 
 			                model:Exams,
 			                as:'exam',
-			                attributes: ['test_type','test_id']
+			                attributes: ['test_type','test_id'],
+			                include : [{ 
+				                model:ExamSchedule,
+				                as:'schedule',
+				                attributes: ['exam_date','subject_code']
+			            	}]
 			            }]
   	if(user.role == 'student'){
 
@@ -183,13 +189,20 @@ async function getExamMarks(params , user , query){
 		where : whereConditions,
 		include: includeArray,
 	})
-
+	//return subjectMarks
 	let classPerformance = {}
   	await Promise.all(
     	subjectMarks.map(async subjectMark => {
-    		let testName = subjectMark.exam.test_type
+    		let testName    = subjectMark.exam.test_type
     		let subjectName = subjectMark.subject.subject_name
+    		let schedule 	= subjectMark.exam.schedule
+    		let sObj = {}
 
+    		if(schedule.length){
+	    		schedule.forEach(function (item){
+	    			sObj[item.subject_code] = item.exam_date
+	    		})
+    		}
     		if(!classPerformance[testName])
     			classPerformance[testName] = {}
 
@@ -207,6 +220,7 @@ async function getExamMarks(params , user , query){
     	classPerformance[testName][subjectName]['obtain_total_mark'] += subjectMark.obtain_total_mark
 
     	classPerformance[testName][subjectName]['remark'] = subjectMark.remark
+    	classPerformance[testName][subjectName]['date'] = sObj[subjectMark.subject_code]
     })
    )
 
