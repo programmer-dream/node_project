@@ -103,7 +103,7 @@ db.Chat = require("./Chat.js")(sequelize, Sequelize);
 db.Routine = require("./Routine.js")(sequelize, Sequelize);
 db.Meeting = require("./Meeting.js")(sequelize, Sequelize);
 db.ExamSchedule = require("./ExamSchedule.js")(sequelize, Sequelize);
-db.Exam = require("./Exam.js")(sequelize, Sequelize);
+//db.Exam = require("./Exam.js")(sequelize, Sequelize);
 
 /*********** feedback management ***********/
 db.Feedback = require("./Feedback.js")(sequelize, Sequelize);
@@ -196,7 +196,7 @@ db.Routine.belongsTo(db.SubjectList,{foreignKey:'subject_code',targetKey:'code',
 
 db.ExamSchedule.belongsTo(db.SubjectList,{foreignKey:'subject_code',targetKey:'code',as:'subject'})
 db.Routine.belongsTo(db.Employee,{foreignKey:'teacher_id',as:'teacher'})
-db.ExamSchedule.belongsTo(db.Exam,{foreignKey:'exam_vls_id',as:'exam'})
+db.Exams.hasMany(db.ExamSchedule,{foreignKey:'exam_vls_id',as:'schedule'})
 db.Meeting.belongsTo(db.Employee,{foreignKey:'meeting_author_vls_id',as:'addedBy'})
 db.Assignment.belongsTo(db.SubjectList,{foreignKey:'subject_code',targetKey:'code',as:'subject'})
 
