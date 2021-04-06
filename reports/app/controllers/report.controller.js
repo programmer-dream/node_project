@@ -214,16 +214,19 @@ async function getExamMarks(params , user , query){
   	let conditionStudent = {}
   	let exam = {}
   	let exam_name = ''
-  	conditionStudent.student_id = whereConditions.student_id
-  	if(id != 'all'){
-  		condition.exam_id 			= id
-  		conditionStudent.exam_id 	= id
-
-	   	exam = await Exams.findByPk(id)
-	   	exam_name = exam.test_type
-  	}
   	let schoolInfo = {}
-  	if(user.role == 'guardian'){
+  	
+  	if(user.role == 'guardian' || user.role == 'student'){
+  		conditionStudent.student_id = whereConditions.student_id
+
+	  	if(id != 'all'){
+	  		condition.exam_id 			= id
+	  		conditionStudent.exam_id 	= id
+
+		   	exam = await Exams.findByPk(id)
+		   	exam_name = exam.test_type
+	  	}
+
 	  	if(whereConditions.section_id)
 	  		condition.section_id = whereConditions.section_id
 
