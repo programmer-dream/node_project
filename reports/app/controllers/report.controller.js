@@ -147,20 +147,21 @@ async function getExamMarks(params , user , query){
   		if(query.section_id) 
   			whereConditions.section_id   = query.section_id
 
-  		if(!query.student_id) throw 'student_id is required'
+  		if(user.role == 'guardian'){
+  			if(!query.student_id) throw 'student_id is required'
   			whereConditions.student_id   = query.student_id
 
-  		student = await Student.findOne({
-	  		where : { student_vls_id : user.userVlsId},
-	  		include: [{ 
-	                	model:Classes,
-	                	as:'classes'
-	            	},{ 
-	                	model:Section,
-	                	as:'section'
-	            	}]
-	  	})
-  		
+	  		student = await Student.findOne({
+		  		where : { student_vls_id : user.userVlsId},
+		  		include: [{ 
+		                	model:Classes,
+		                	as:'classes'
+		            	},{ 
+		                	model:Section,
+		                	as:'section'
+		            	}]
+		  	})
+  		}
   		studentInclude = { 
 					        model:Student,
 					        as:'student',
@@ -221,31 +222,32 @@ async function getExamMarks(params , user , query){
 	   	exam = await Exams.findByPk(id)
 	   	exam_name = exam.test_type
   	}
+  	let schoolInfo = {}
+  	if(user.role == 'guardian'){
+	  	if(whereConditions.section_id)
+	  		condition.section_id = whereConditions.section_id
 
-  	if(whereConditions.section_id)
-  		condition.section_id = whereConditions.section_id
+	  	condition.class_id 		= whereConditions.class_id
 
-  	condition.class_id 		= whereConditions.class_id
+		avgObj.top_student = await topStudentPerformer(condition)
+	   	avgObj.class_avg = await classAvg(condition)
+	   	avgObj.student_avg = await studentAvg(conditionStudent)
+	   	schoolInfo = await SchoolDetails.findOne({
+	   		where : {school_id : school_id },
+	   		attributes : ['school_name','address']
+	   	})
+	   	schoolInfo = schoolInfo.toJSON()
+	   	schoolInfo.student_name = student.name
+	   	schoolInfo.exam_name = exam_name
+	   	schoolInfo.class_name = ''
+	   	schoolInfo.section_name = ''
+	   	
+	   	if(student.classes)
+	   		schoolInfo.class_name = student.classes.name
 
-	avgObj.top_student = await topStudentPerformer(condition)
-   	avgObj.class_avg = await classAvg(condition)
-   	avgObj.student_avg = await studentAvg(conditionStudent)
-   	let schoolInfo = await SchoolDetails.findOne({
-   		where : {school_id : school_id },
-   		attributes : ['school_name','address']
-   	})
-   	schoolInfo = schoolInfo.toJSON()
-   	schoolInfo.student_name = student.name
-   	schoolInfo.exam_name = exam_name
-   	schoolInfo.class_name = ''
-   	schoolInfo.section_name = ''
-   	
-   	if(student.classes)
-   		schoolInfo.class_name = student.classes.name
-
-   	if(student.section)
-   		schoolInfo.section_name = student.section.name
-
+	   	if(student.section)
+	   		schoolInfo.section_name = student.section.name
+	}
 
 	return { success: true, message: "Exam list", data : {exams:classPerformance, avg: avgObj, schoolInfo: schoolInfo}
 	}
