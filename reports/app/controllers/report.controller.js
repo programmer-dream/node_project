@@ -125,7 +125,16 @@ async function getExamMarks(params , user , query){
 			            }]
   	if(user.role == 'student'){
 
-	  	student = await Student.findByPk(user.userVlsId)
+	  	student = await Student.findOne({
+	  		where : { student_vls_id : user.userVlsId},
+	  		include: [{ 
+	                	model:Classes,
+	                	as:'classes'
+	            	},{ 
+	                	model:Section,
+	                	as:'section'
+	            	}]
+	  	})
 	  	
 	  	whereConditions.class_id   = student.class_id
 	  	whereConditions.student_id = user.userVlsId
@@ -141,8 +150,17 @@ async function getExamMarks(params , user , query){
   		if(!query.student_id) throw 'student_id is required'
   			whereConditions.student_id   = query.student_id
 
-  		student = await Student.findByPk(whereConditions.student_id)
-
+  		student = await Student.findOne({
+	  		where : { student_vls_id : user.userVlsId},
+	  		include: [{ 
+	                	model:Classes,
+	                	as:'classes'
+	            	},{ 
+	                	model:Section,
+	                	as:'section'
+	            	}]
+	  	})
+  		
   		studentInclude = { 
 					        model:Student,
 					        as:'student',
@@ -219,6 +237,14 @@ async function getExamMarks(params , user , query){
    	schoolInfo = schoolInfo.toJSON()
    	schoolInfo.student_name = student.name
    	schoolInfo.exam_name = exam_name
+   	schoolInfo.class_name = ''
+   	schoolInfo.section_name = ''
+   	
+   	if(student.classes)
+   		schoolInfo.class_name = student.classes.name
+
+   	if(student.section)
+   		schoolInfo.section_name = student.section.name
 
 
 	return { success: true, message: "Exam list", data : {exams:classPerformance, avg: avgObj, schoolInfo: schoolInfo}
