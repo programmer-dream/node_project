@@ -152,7 +152,7 @@ async function getExamMarks(params , user , query){
   			whereConditions.student_id   = query.student_id
 
 	  		student = await Student.findOne({
-		  		where : { student_vls_id : user.userVlsId},
+		  		where : { student_vls_id : whereConditions.student_id},
 		  		include: [{ 
 		                	model:Classes,
 		                	as:'classes'
