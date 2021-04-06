@@ -103,10 +103,10 @@ async function list(params , user){
  * API for get marks
  */
 async function getExamMarks(params , user , query){
-	//return user
 	let avgObj = {}
 	let school_id = 0
 	let userData = {}
+	let student = {}
 	let id = params.id
 	let whereConditions = { exam_id : id}
 
@@ -125,7 +125,7 @@ async function getExamMarks(params , user , query){
 			            }]
   	if(user.role == 'student'){
 
-	  	let student = await Student.findByPk(user.userVlsId)
+	  	student = await Student.findByPk(user.userVlsId)
 	  	
 	  	whereConditions.class_id   = student.class_id
 	  	whereConditions.student_id = user.userVlsId
@@ -138,8 +138,10 @@ async function getExamMarks(params , user , query){
   		if(query.section_id) 
   			whereConditions.section_id   = query.section_id
 
-  		if(query.student_id) 
+  		if(!query.student_id) throw 'student_id is required'
   			whereConditions.student_id   = query.student_id
+
+  		student = await Student.findByPk(whereConditions.student_id)
 
   		studentInclude = { 
 					        model:Student,
@@ -184,16 +186,22 @@ async function getExamMarks(params , user , query){
     	classPerformance[testName][subjectName]['obtain_total_mark'] = 0 
 
     	classPerformance[testName][subjectName]['obtain_total_mark'] += subjectMark.obtain_total_mark
+
+    	classPerformance[testName][subjectName]['remark'] = subjectMark.remark
     })
    )
 
   	let condition = {}
   	let conditionStudent = {}
-
+  	let exam = {}
+  	let exam_name = ''
   	conditionStudent.student_id = whereConditions.student_id
   	if(id != 'all'){
   		condition.exam_id 			= id
   		conditionStudent.exam_id 	= id
+
+	   	exam = await Exams.findByPk(id)
+	   	exam_name = exam.test_type
   	}
 
   	if(whereConditions.section_id)
@@ -201,12 +209,17 @@ async function getExamMarks(params , user , query){
 
   	condition.class_id 		= whereConditions.class_id
 
-
 	avgObj.top_student = await topStudentPerformer(condition)
-   	avgObj.call_avg = await classAvg(condition)
+   	avgObj.class_avg = await classAvg(condition)
    	avgObj.student_avg = await studentAvg(conditionStudent)
-   	let schoolInfo = await SchoolDetails.findByPk(school_id)
-   	
+   	let schoolInfo = await SchoolDetails.findOne({
+   		where : {school_id : school_id },
+   		attributes : ['school_name','address']
+   	})
+   	schoolInfo = schoolInfo.toJSON()
+   	schoolInfo.student_name = student.name
+   	schoolInfo.exam_name = exam_name
+
 
 	return { success: true, message: "Exam list", data : {exams:classPerformance, avg: avgObj, schoolInfo: schoolInfo}
 	}
@@ -780,13 +793,8 @@ async function topStudentPerformer(whereCondition){
 		attributes:[
                     [ Sequelize.fn('SUM', Sequelize.col('exam_total_mark')), 'exam_total_mark' ],
                     [ Sequelize.fn('SUM', Sequelize.col('obtain_total_mark')), 'obtain_total_mark' ],
-                    'student_id'
+                    [ Sequelize.fn('AVG', Sequelize.col('obtain_total_mark')), 'avg_total_mark' ]
                   ],
-        include: [{ 
-	                model:Student,
-	                as:'student',
-	                attributes:['name','photo']
-	            }],
 		group:['student_id'],
 		order : [
 	             	[Sequelize.fn('SUM', Sequelize.col('obtain_total_mark')), 'desc']
@@ -808,7 +816,8 @@ async function classAvg(whereCondition){
 		where : whereCondition,
 		attributes:[
                     [ Sequelize.fn('SUM', Sequelize.col('exam_total_mark')), 'exam_total_mark' ],
-                    [ Sequelize.fn('SUM', Sequelize.col('obtain_total_mark')), 'obtain_total_mark' ]
+                    [ Sequelize.fn('SUM', Sequelize.col('obtain_total_mark')), 'obtain_total_mark' ],
+                    [ Sequelize.fn('AVG', Sequelize.col('obtain_total_mark')), 'avg_total_mark' ]
                   ],
 		group:['marks.class_id']
 	})
@@ -825,7 +834,8 @@ async function studentAvg(conditionStudent){
 		where : conditionStudent,
 		attributes:[
                     [ Sequelize.fn('SUM', Sequelize.col('exam_total_mark')), 'exam_total_mark' ],
-                    [ Sequelize.fn('SUM', Sequelize.col('obtain_total_mark')), 'obtain_total_mark' ]
+                    [ Sequelize.fn('SUM', Sequelize.col('obtain_total_mark')), 'obtain_total_mark' ],
+                    [ Sequelize.fn('AVG', Sequelize.col('obtain_total_mark')), 'avg_total_mark' ]
                   ],
 		group:['student_id']
 	})
