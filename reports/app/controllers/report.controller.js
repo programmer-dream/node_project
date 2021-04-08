@@ -919,15 +919,15 @@ async function getPerformanceData(query, user){
 	
 	let examType = ''
 	let subject  = ''
-	let studentId = 0
+	let student_vls_id = 0
 
 	if(user.role == 'student'){
-		studentId = user.userVlsId
+		student_vls_id = user.userVlsId
 
 	}else{
-		
+
 		if(!query.student_id) throw 'student_id is required'
-			studentId = query.student_id
+			student_vls_id = query.student_id
 	}
 
 	if(query.examType) 
@@ -938,7 +938,7 @@ async function getPerformanceData(query, user){
 
 
 	let student = await Student.findOne({
-		where : { student_vls_id : user.studentId },
+		where : { student_vls_id : student_vls_id },
 		attributes : ['class_id','student_vls_id']
 	})
 	
