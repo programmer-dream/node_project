@@ -103,7 +103,7 @@ db.Chat = require("./Chat.js")(sequelize, Sequelize);
 db.Routine = require("./Routine.js")(sequelize, Sequelize);
 db.Meeting = require("./Meeting.js")(sequelize, Sequelize);
 db.ExamSchedule = require("./ExamSchedule.js")(sequelize, Sequelize);
-//db.Exam = require("./Exam.js")(sequelize, Sequelize);
+db.Exam = require("./Exam.js")(sequelize, Sequelize);
 
 /*********** feedback management ***********/
 db.Feedback = require("./Feedback.js")(sequelize, Sequelize);
