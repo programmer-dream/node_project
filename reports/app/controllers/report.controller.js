@@ -50,6 +50,10 @@ async function list(params , user){
   if(branchId) 
   	whereConditions.branch_vls_id = branchId
 
+
+  if(params.examType) 
+  	 whereConditions.test_type = params.examType
+
   let joinWhere = {}
   if(user.role == 'student'){
   	 let student = await Student.findByPk(user.userVlsId)
