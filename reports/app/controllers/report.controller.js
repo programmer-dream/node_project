@@ -491,7 +491,7 @@ async function subjectPerformance(params, user){
 
   if(params.examType) 
 	  whereConditions.test_type = params.examType
-	
+
   let joinWhere = {}
   if(params.student_vls_id){
   	 let student = await Student.findByPk(params.student_vls_id)
@@ -916,18 +916,29 @@ async function examDropdown(){
  * API for get exam type drop down  
  */
 async function getPerformanceData(query, user){ 
-	if(user.role != 'student') throw 'User not authorized '
 	
 	let examType = ''
 	let subject  = ''
+	let studentId = 0
+
+	if(user.role == 'student'){
+		studentId = user.userVlsId
+
+	}else{
+		
+		if(!query.student_id) throw 'student_id is required'
+			studentId = query.student_id
+	}
+
 	if(query.examType) 
 		examType = "AND `exams`.`test_type` = '"+query.examType+"'"
 
 	if(query.subject_code) 
 		subject = "AND `marks`.`subject_code` = '"+query.subject_code+"'"
 
+
 	let student = await Student.findOne({
-		where : { student_vls_id : user.userVlsId},
+		where : { student_vls_id : user.studentId },
 		attributes : ['class_id','student_vls_id']
 	})
 	
