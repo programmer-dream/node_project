@@ -197,7 +197,7 @@ db.Routine.belongsTo(db.SubjectList,{foreignKey:'subject_code',targetKey:'code',
 db.ExamSchedule.belongsTo(db.SubjectList,{foreignKey:'subject_code',targetKey:'code',as:'subject'})
 db.Routine.belongsTo(db.Employee,{foreignKey:'teacher_id',as:'teacher'})
 db.Exams.hasMany(db.ExamSchedule,{foreignKey:'exam_vls_id',as:'schedule'})
-db.Exam.hasMany(db.ExamSchedule,{foreignKey:'exam_vls_id',as:'schedule'})
+db.ExamSchedule.belongsTo(db.Exam,{foreignKey:'exam_vls_id', as:'exam'})
 db.Meeting.belongsTo(db.Employee,{foreignKey:'meeting_author_vls_id',as:'addedBy'})
 db.Assignment.belongsTo(db.SubjectList,{foreignKey:'subject_code',targetKey:'code',as:'subject'})
 
