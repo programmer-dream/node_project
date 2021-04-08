@@ -32,7 +32,9 @@ module.exports = {
   subjectPerformance,
   classPerformance,
   overAllPerformance,
-  topThreePerformer
+  topThreePerformer,
+  examDropdown,
+  getPerformanceData
 };
 
 
@@ -104,6 +106,7 @@ async function list(params , user){
  * API for get marks
  */
 async function getExamMarks(params , user , query){
+	
 	let avgObj = {}
 	let school_id = 0
 	let userData = {}
@@ -885,4 +888,91 @@ async function studentAvg(conditionStudent){
 		group:['student_id']
 	})
 	return (allMarks.length > 0) ? allMarks[0] : ""
+}
+
+
+/**
+ * API for get exam type drop down  
+ */
+async function examDropdown(){
+	let examType = await Exams.findAll({
+		attributes: [
+			[Sequelize.fn('DISTINCT', Sequelize.col('test_type')) ,'test_type'],
+		]
+	}).then(types => types.map(types => types.test_type));
+
+	return { success: true, message: "Exam types", data : examType}
+}
+
+
+/**
+ * API for get exam type drop down  
+ */
+async function getPerformanceData(query, user){ 
+	let whereConditions = {  }
+
+	let percentData = {}
+
+	percentData.classPercentage = await classPercentage(whereConditions)
+	//percentData.topPercentage   = await topPercentage(whereConditions)
+	//percentData.selfPercentage  = await selfPercentage(whereConditions)
+	
+	return { success: true, message: "Exam data", data : percentData}
+}
+
+
+/**
+ * API for get class percentage  
+ */
+async function classPercentage(whereConditions){
+	let exam = await Marks.findAll({
+			 where : whereConditions,
+	         attributes:[
+                    [ Sequelize.fn('SUM', Sequelize.col('exam_total_mark')), 'exam_total_mark' ],
+                    [ Sequelize.fn('SUM', Sequelize.col('obtain_total_mark')), 'obtain_total_mark' ],
+                    'exam_id'
+                  ],
+	    group:['class_id']
+	})
+
+	return exam
+}
+
+
+
+/**
+ * API for get top percentage  
+ */
+async function topPercentage(whereConditions){
+	let exam = await Marks.findAll({
+			 where : whereConditions,
+	         attributes:[
+                    [ Sequelize.fn('SUM', Sequelize.col('exam_total_mark')), 'exam_total_mark' ],
+                    [ Sequelize.fn('SUM', Sequelize.col('obtain_total_mark')), 'obtain_total_mark' ],
+                    'exam_id'
+                  ],
+	    group:['student_id'],
+	    order : [
+	             	[Sequelize.fn('SUM', Sequelize.col('obtain_total_mark')), 'desc']
+	            ],
+	    limit : 1
+	})
+	return exam
+}
+
+
+/**
+ * API for get self percentage  
+ */
+async function selfPercentage(whereConditions){
+	let exam = await Marks.findAll({
+			 where : whereConditions,
+	         attributes:[
+                    [ Sequelize.fn('SUM', Sequelize.col('exam_total_mark')), 'exam_total_mark' ],
+                    [ Sequelize.fn('SUM', Sequelize.col('obtain_total_mark')), 'obtain_total_mark' ],
+                    'exam_id'
+                  ],
+	    group:['student_id']
+	})
+	return exam
 }
