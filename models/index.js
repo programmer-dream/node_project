@@ -177,6 +177,7 @@ db.StudentAttendance.belongsTo(db.SubjectList,{foreignKey:'subject_code',targetK
 db.Student.belongsTo(db.Guardian,{foreignKey:'parent_vls_id',as:'parent'})
 db.Student.belongsTo(db.Section,{foreignKey:'section_id',as:'section'})
 db.Student.belongsTo(db.Classes,{foreignKey:'class_id',as:'classes'})
+db.Student.belongsTo(db.SchoolDetails,{foreignKey:'school_id',as:'school'})
 db.Branch.belongsTo(db.SchoolDetails,{foreignKey:'school_vls_id',as:'school'})
 
 /*********** assignment management ***********/
