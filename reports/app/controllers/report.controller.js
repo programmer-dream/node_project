@@ -488,6 +488,9 @@ async function subjectPerformance(params, user){
   	branch_vls_id : branchId,
   	academic_year_id : academicYear.id
   }
+
+  if(params.examType) 
+	  whereConditions.test_type = params.examType
 	
   let joinWhere = {}
   if(params.student_vls_id){
