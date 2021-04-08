@@ -493,8 +493,23 @@ async function subjectPerformance(params, user){
 	  whereConditions.test_type = params.examType
 
   let joinWhere = {}
+  let schoolInfo = {}
+
   if(params.student_vls_id){
-  	 let student = await Student.findByPk(params.student_vls_id)
+  	 let student = await Student.findOne({
+  	 	where : { student_vls_id : params.student_vls_id},
+  	 	include: [{ 
+                	model:Classes,
+                	as:'classes'
+            	},{ 
+                	model:Section,
+                	as:'section'
+            	},{ 
+                	model:SchoolDetails,
+                	as:'school'
+            	}]
+  	 })
+  	 
   	 joinWhere.class_id            = student.class_id
   	 joinWhere.student_id          = student.student_vls_id
   	 joinWhere.academic_year_id    = academicYear.id
@@ -503,7 +518,13 @@ async function subjectPerformance(params, user){
   	 	joinWhere.section_id       = student.section_id 
 
   	 if(params.subject_code) 
-  	 	joinWhere.subject_code     = params.subject_code  
+  	 	joinWhere.subject_code     = params.subject_code 
+  	 
+   	schoolInfo.school_name = student.school.school_name
+   	schoolInfo.address 	   = student.school.address
+   	schoolInfo.student     = student.name
+   	schoolInfo.class_name  = student.classes.name
+   	schoolInfo.section_name= student.section.name
    }
    
    let exams = await Exams.findAll({
@@ -524,7 +545,7 @@ async function subjectPerformance(params, user){
 			  	
   	})
    	
-  	return { success: true, message: "Exam performance", data : exams}
+  	return { success: true, message: "Exam performance", data : exams, schoolInfo: schoolInfo}
 }
 
 /**
