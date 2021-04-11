@@ -563,18 +563,17 @@ async function classPerformance(params, user){
 			             		['id', 'desc']
 			            	]
 	              	})
-	//latest exam
-	let letestExam = await Exams.findOne({
-		where : { school_id : authentication.school_id ,
-				  academic_year_id : academicYear.id
-				},
-		order : [
-             		['test_id', 'desc']
-            	],
-        attributes : ['test_id']    	
-	})
-	let exam_id   =  "AND `marks`.`exam_id` = "+letestExam.test_id
+	let academincId = academicYear.id
+	
+	let examFilter = ''
+	if(params.test_id)
+	 	examFilter   =  "AND `marks`.`exam_id` = "+params.test_id
 
+	let examType = ''
+	if(params.examType)
+	 	examType   =  "AND `exams`.`test_type` = '"+params.examType+"'"
+
+	
 	let school_id = authentication.school_id 
 	
 	let studentFilter = ''
@@ -605,8 +604,9 @@ async function classPerformance(params, user){
 	if(params.subject_code)
 		subjectFilter = 'AND `marks`.`subject_code` = '+params.subject_code
 
-	let classData = await sequelize.query("SELECT `classes`.`class_vls_id`, `classes`.`name`, SUM(`exam_total_mark`) AS `total_marks`, SUM(`obtain_total_mark`) AS `obtain_marks`, `marks->subject`.`id` AS `marks.subject.id`, `marks->subject`.`subject_name` AS `subject_name`, `exams`.`test_type` as title FROM `classes` AS `classes` INNER JOIN `marks` AS `marks` ON `classes`.`class_vls_id` = `marks`.`class_id` "+exam_id+" "+section+" "+studentFilter+" "+subjectFilter+" LEFT OUTER JOIN `subject_list` AS `marks->subject` ON `marks`.`subject_code` = `marks->subject`.`code` LEFT OUTER JOIN `exams` ON `marks`.`exam_id` = `exams`.`test_id` WHERE `classes`.`school_id` = "+school_id+" "+classFilter+" GROUP BY `class_id`, `subject_code`, `marks.subject.id`", { type: Sequelize.QueryTypes.SELECT });
-	
+	let classData = await sequelize.query("SELECT `classes`.`class_vls_id`, `classes`.`name`, `exams`.`test_type`, SUM(`exam_total_mark`) AS `total_marks`, SUM(`obtain_total_mark`) AS `obtain_marks` , AVG(`obtain_total_mark`) AS `class_avg` FROM `classes` AS `classes` INNER JOIN `marks` AS `marks` ON `classes`.`class_vls_id` = `marks`.`class_id` "+section+" "+studentFilter+" "+subjectFilter+" LEFT OUTER JOIN `subject_list` AS `marks->subject` ON `marks`.`subject_code` = `marks->subject`.`code` LEFT OUTER JOIN `exams` ON `marks`.`exam_id` = `exams`.`test_id` WHERE `classes`.`school_id` = "+school_id+" "+classFilter+" "+examFilter+" "+examType+" GROUP BY `class_id` ,`test_type`", { type: Sequelize.QueryTypes.SELECT });
+
+	//return classData
 	let classPerformance = {}
   	await Promise.all(
     	classData.map(async classObj => {
@@ -618,8 +618,11 @@ async function classPerformance(params, user){
 
 			let subObj = { 
 						   subject_name : classObj.subject_name ,
+						   total_marks  : classObj.total_marks ,
+						   obtain_marks : classObj.obtain_marks ,
 						   percentage   : percentage,
-						   title : classObj.title
+						   class_avg    : classObj.class_avg,
+						   test_type    : classObj.test_type
 						 }
 			classPerformance[classObj.name].push(subObj)
 
