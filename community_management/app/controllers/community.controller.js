@@ -237,6 +237,10 @@ async function list(params , user){
     })
    )
 
+  communityIds.sort(function(a,b) {
+    return b.community_chat_vls_id - a.community_chat_vls_id;
+  });
+  
   return { success: true, message: "Community list", data : communityIds}
 }
 
