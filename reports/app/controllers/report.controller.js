@@ -284,7 +284,7 @@ async function getExamMarks(params , user , query){
 async function dashboardList(params , user){
   
   if(user.role != 'student' && user.role != 'guardian'){
-  	return response = await classPerformance(params, user)
+  	return response = await internalClassPerformance(params, user)
   }
 
   if(user.role == 'guardian'){
@@ -551,7 +551,7 @@ async function subjectPerformance(params, user){
 /**
  * API for get overall performance of class wise 
  */
-async function classPerformance(params, user){
+async function InternalClassPerformance(params, user){
 	//Auth user
 	let authentication = await Authentication.findByPk(user.id)
 	//branch
@@ -625,6 +625,92 @@ async function classPerformance(params, user){
 						   class_avg    : classObj.class_avg,
 						   test_type    : classObj.test_type
 						 }
+
+			classPerformance[classObj.name].push(subObj)
+
+    	})
+    )
+    
+	return { success: true, message: "class performance", data : classPerformance}
+}
+
+
+/**
+ * API for get overall performance of class wise 
+ */
+async function classPerformance(params, user){
+	//Auth user
+	let authentication = await Authentication.findByPk(user.id)
+	//branch
+	let branchId       = authentication.branch_vls_id
+	//acadminc year
+	let academicYear  = await AcademicYear.findOne({
+	                where:{ school_id : authentication.school_id },
+	                order : [
+			             		['id', 'desc']
+			            	]
+	              	})
+	let academincId = academicYear.id
+
+	let examFilter = ''
+	if(params.test_id)
+	 	examFilter   =  "AND `marks`.`exam_id` = "+params.test_id
+
+	let examType = ''
+	if(params.examType)
+	 	examType   =  "AND `exams`.`test_type` = '"+params.examType+"'"
+	
+	let school_id = authentication.school_id 
+	
+	let studentFilter = ''
+	if(params.student_id)
+		studentFilter = "AND `marks`.`student_id` = "+params.student_id
+
+	
+	if(params.test_id)
+		exam_id = "AND `marks`.`exam_id` = "+params.test_id
+
+	if(params.test_id == 'all')
+		exam_id = ''
+
+	let section = ''
+	if(params.section_id)
+		section = 'AND `marks`.`section_id` = '+params.section_id
+
+	let classFilter = ''
+	if(params.class_id)
+		classFilter = 'AND `classes`.`class_vls_id` = '+params.class_id
+
+	if(params.student_id){
+  	 let student = await Student.findByPk(params.student_id)
+	  	 classFilter = 'AND `classes`.`class_vls_id` = '+student.class_id
+	}
+	let subjectFilter = ''
+	//latest exam
+	if(params.subject_code)
+		subjectFilter = 'AND `marks`.`subject_code` = '+params.subject_code
+
+	let classData = await sequelize.query("SELECT `classes`.`class_vls_id`, `classes`.`name`, `exams`.`test_type`, SUM(`exam_total_mark`) AS `total_marks`, SUM(`obtain_total_mark`) AS `obtain_marks` , AVG(`obtain_total_mark`) AS `class_avg` FROM `classes` AS `classes` INNER JOIN `marks` AS `marks` ON `classes`.`class_vls_id` = `marks`.`class_id` "+section+" "+studentFilter+" "+subjectFilter+" LEFT OUTER JOIN `subject_list` AS `marks->subject` ON `marks`.`subject_code` = `marks->subject`.`code` LEFT OUTER JOIN `exams` ON `marks`.`exam_id` = `exams`.`test_id` WHERE `classes`.`school_id` = "+school_id+" "+classFilter+" "+examFilter+" "+examType+" GROUP BY `class_id` ,`test_type`", { type: Sequelize.QueryTypes.SELECT });
+
+	//return classData
+	let classPerformance = {}
+  	await Promise.all(
+    	classData.map(async classObj => {
+		 	let total_marks  = parseInt(classObj.total_marks)
+			let obtain_marks = parseInt(classObj.obtain_marks)
+			let percentage   = parseFloat(obtain_marks * 100 / total_marks).toFixed(2)
+			if(!classPerformance[classObj.name]) 
+				classPerformance[classObj.name] = []
+
+			let subObj = { 
+						   subject_name : classObj.subject_name ,
+						   total_marks  : classObj.total_marks ,
+						   obtain_marks : classObj.obtain_marks ,
+						   percentage   : percentage,
+						   class_avg    : classObj.class_avg,
+						   test_type    : classObj.test_type
+						 }
+
 
 			classPerformance[classObj.name].push(subObj)
 
