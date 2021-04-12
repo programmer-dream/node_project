@@ -50,6 +50,10 @@ async function list(params , user){
   if(branchId) 
   	whereConditions.branch_vls_id = branchId
 
+
+  if(params.examType) 
+  	 whereConditions.test_type = params.examType
+
   let joinWhere = {}
   if(user.role == 'student'){
   	 let student = await Student.findByPk(user.userVlsId)
@@ -484,10 +488,28 @@ async function subjectPerformance(params, user){
   	branch_vls_id : branchId,
   	academic_year_id : academicYear.id
   }
-	
+
+  if(params.examType) 
+	  whereConditions.test_type = params.examType
+
   let joinWhere = {}
+  let schoolInfo = {}
+
   if(params.student_vls_id){
-  	 let student = await Student.findByPk(params.student_vls_id)
+  	 let student = await Student.findOne({
+  	 	where : { student_vls_id : params.student_vls_id},
+  	 	include: [{ 
+                	model:Classes,
+                	as:'classes'
+            	},{ 
+                	model:Section,
+                	as:'section'
+            	},{ 
+                	model:SchoolDetails,
+                	as:'school'
+            	}]
+  	 })
+  	 
   	 joinWhere.class_id            = student.class_id
   	 joinWhere.student_id          = student.student_vls_id
   	 joinWhere.academic_year_id    = academicYear.id
@@ -496,7 +518,13 @@ async function subjectPerformance(params, user){
   	 	joinWhere.section_id       = student.section_id 
 
   	 if(params.subject_code) 
-  	 	joinWhere.subject_code     = params.subject_code  
+  	 	joinWhere.subject_code     = params.subject_code 
+  	 
+   	schoolInfo.school_name = student.school.school_name
+   	schoolInfo.address 	   = student.school.address
+   	schoolInfo.student     = student.name
+   	schoolInfo.class_name  = student.classes.name
+   	schoolInfo.section_name= student.section.name
    }
    
    let exams = await Exams.findAll({
@@ -517,7 +545,7 @@ async function subjectPerformance(params, user){
 			  	
   	})
    	
-  	return { success: true, message: "Exam performance", data : exams}
+  	return { success: true, message: "Exam performance", data : exams, schoolInfo: schoolInfo}
 }
 
 /**
@@ -535,6 +563,7 @@ async function classPerformance(params, user){
 			             		['id', 'desc']
 			            	]
 	              	})
+	let academincId = academicYear.id
 	//latest exam
 	let letestExam = await Exams.findOne({
 		where : { school_id : authentication.school_id ,
@@ -546,7 +575,7 @@ async function classPerformance(params, user){
         attributes : ['test_id']    	
 	})
 	let exam_id   =  "AND `marks`.`exam_id` = "+letestExam.test_id
-
+	
 	let school_id = authentication.school_id 
 	
 	let studentFilter = ''
@@ -578,7 +607,8 @@ async function classPerformance(params, user){
 		subjectFilter = 'AND `marks`.`subject_code` = '+params.subject_code
 
 	let classData = await sequelize.query("SELECT `classes`.`class_vls_id`, `classes`.`name`, SUM(`exam_total_mark`) AS `total_marks`, SUM(`obtain_total_mark`) AS `obtain_marks`, `marks->subject`.`id` AS `marks.subject.id`, `marks->subject`.`subject_name` AS `subject_name`, `exams`.`test_type` as title FROM `classes` AS `classes` INNER JOIN `marks` AS `marks` ON `classes`.`class_vls_id` = `marks`.`class_id` "+exam_id+" "+section+" "+studentFilter+" "+subjectFilter+" LEFT OUTER JOIN `subject_list` AS `marks->subject` ON `marks`.`subject_code` = `marks->subject`.`code` LEFT OUTER JOIN `exams` ON `marks`.`exam_id` = `exams`.`test_id` WHERE `classes`.`school_id` = "+school_id+" "+classFilter+" GROUP BY `class_id`, `subject_code`, `marks.subject.id`", { type: Sequelize.QueryTypes.SELECT });
-	
+
+	//return classData
 	let classPerformance = {}
   	await Promise.all(
     	classData.map(async classObj => {
@@ -591,8 +621,11 @@ async function classPerformance(params, user){
 			let subObj = { 
 						   subject_name : classObj.subject_name ,
 						   percentage   : percentage,
-						   title : classObj.title
+						   title        : classObj.title,
+						   class_avg    : classObj.class_avg,
+						   test_type    : classObj.test_type
 						 }
+
 			classPerformance[classObj.name].push(subObj)
 
     	})
@@ -909,70 +942,127 @@ async function examDropdown(){
  * API for get exam type drop down  
  */
 async function getPerformanceData(query, user){ 
-	let whereConditions = {  }
-
-	let percentData = {}
-
-	percentData.classPercentage = await classPercentage(whereConditions)
-	//percentData.topPercentage   = await topPercentage(whereConditions)
-	//percentData.selfPercentage  = await selfPercentage(whereConditions)
 	
-	return { success: true, message: "Exam data", data : percentData}
-}
+	let examType = ''
+	let subject  = ''
+	let student_vls_id = 0
+
+	if(user.role == 'student'){
+		student_vls_id = user.userVlsId
+
+	}else{
+
+		if(!query.student_id) throw 'student_id is required'
+			student_vls_id = query.student_id
+	}
+
+	if(query.examType) 
+		examType = "AND `exams`.`test_type` = '"+query.examType+"'"
+
+	if(query.subject_code) 
+		subject = "AND `marks`.`subject_code` = '"+query.subject_code+"'"
 
 
-/**
- * API for get class percentage  
- */
-async function classPercentage(whereConditions){
-	let exam = await Marks.findAll({
-			 where : whereConditions,
-	         attributes:[
-                    [ Sequelize.fn('SUM', Sequelize.col('exam_total_mark')), 'exam_total_mark' ],
-                    [ Sequelize.fn('SUM', Sequelize.col('obtain_total_mark')), 'obtain_total_mark' ],
-                    'exam_id'
-                  ],
-	    group:['class_id']
+	let student = await Student.findOne({
+		where : { student_vls_id : student_vls_id },
+		attributes : ['class_id','student_vls_id']
 	})
+	
+	let studentId = student.student_vls_id
+	let classId   = student.class_id
 
-	return exam
-}
+	let percentData      = []
+	
+	let selfPercentageData  = await selfPercentage(studentId, examType,subject)
+	percentData.push(selfPercentageData)
 
+	let classPercentageData = await classPercentage(classId, examType, subject)
+	percentData.push(classPercentageData)
 
+	let topPercentageData   = await topPercentage(classId, examType,subject)
+	percentData.push(topPercentageData)
 
-/**
- * API for get top percentage  
- */
-async function topPercentage(whereConditions){
-	let exam = await Marks.findAll({
-			 where : whereConditions,
-	         attributes:[
-                    [ Sequelize.fn('SUM', Sequelize.col('exam_total_mark')), 'exam_total_mark' ],
-                    [ Sequelize.fn('SUM', Sequelize.col('obtain_total_mark')), 'obtain_total_mark' ],
-                    'exam_id'
-                  ],
-	    group:['student_id'],
-	    order : [
-	             	[Sequelize.fn('SUM', Sequelize.col('obtain_total_mark')), 'desc']
-	            ],
-	    limit : 1
-	})
-	return exam
+	let sortedPercentData = {}
+
+	await Promise.all(
+    	percentData.map(async pData => {
+    		pData.forEach(function(item ){
+				if(!sortedPercentData[item.test_type])
+					sortedPercentData[item.test_type] = []
+
+				sortedPercentData[item.test_type].push(item)
+			})
+    	})
+    )
+
+	return { success: true, message: "Exam data", data : sortedPercentData}
 }
 
 
 /**
  * API for get self percentage  
  */
-async function selfPercentage(whereConditions){
-	let exam = await Marks.findAll({
-			 where : whereConditions,
-	         attributes:[
-                    [ Sequelize.fn('SUM', Sequelize.col('exam_total_mark')), 'exam_total_mark' ],
-                    [ Sequelize.fn('SUM', Sequelize.col('obtain_total_mark')), 'obtain_total_mark' ],
-                    'exam_id'
-                  ],
-	    group:['student_id']
-	})
-	return exam
+async function selfPercentage(studentId, examCondition, subjectCondition){
+	
+	let rawData = await sequelize.query("SELECT `exams`.`test_type`, SUM(`exam_total_mark`) AS `exam_total_mark`, SUM(`obtain_total_mark`) AS `obtain_total_mark` FROM `exams` AS `exams` INNER JOIN `marks` AS `marks` ON `exams`.`test_id` = `marks`.`exam_id` AND `marks`.`student_id` = "+studentId+" "+examCondition+" "+subjectCondition+" GROUP BY `test_type`", { type: Sequelize.QueryTypes.SELECT });
+
+	let finalArr = []
+	await Promise.all(
+    	rawData.map(async exam => {
+    		let obtain  = parseFloat(exam.obtain_total_mark)
+    		let total   = parseFloat(exam.exam_total_mark)
+    		let percent = (obtain * 100) / total
+    		exam.percent= percent
+    		exam.type= 'My Average'
+    		finalArr.push(exam)
+    	})
+    )
+	return finalArr
+}
+
+
+/**
+ * API for get class percentage  
+ */
+async function classPercentage(classId, examCondition, subjectCondition){
+	
+	let rawData = await sequelize.query("SELECT `exams`.`test_type`, SUM(`exam_total_mark`) AS `exam_total_mark`, SUM(`obtain_total_mark`) AS `obtain_total_mark` FROM `exams` AS `exams` INNER JOIN `marks` AS `marks` ON `exams`.`test_id` = `marks`.`exam_id` AND `marks`.`class_id` = "+classId+" "+examCondition+" "+subjectCondition+" GROUP BY `test_type`", { type: Sequelize.QueryTypes.SELECT });
+
+	let finalArr = []
+	await Promise.all(
+    	rawData.map(async exam => {
+    		let obtain  = parseFloat(exam.obtain_total_mark)
+    		let total   = parseFloat(exam.exam_total_mark)
+    		let percent = (obtain * 100) / total
+    		exam.percent= percent
+    		exam.type= 'Class Average'
+    		finalArr.push(exam)
+    	})
+    )
+	return finalArr
+}
+
+/**
+ * API for top student Perfromer data 
+ */
+async function topPercentage(classId, examCondition, subjectCondition){
+	let limit = 3
+	if(examCondition != '')
+		limit = 1
+
+	let rawData = await sequelize.query("SELECT `exams`.`test_type`, SUM(`exam_total_mark`) AS `exam_total_mark`, SUM(`obtain_total_mark`) AS `obtain_total_mark` FROM `exams` AS `exams` INNER JOIN `marks` AS `marks` ON `exams`.`test_id` = `marks`.`exam_id` AND `marks`.`class_id` = "+classId+" "+examCondition+" "+subjectCondition+" GROUP BY `test_type`,`student_id` ORDER BY SUM(`obtain_total_mark`) DESC LIMIT "+limit+"", { type: Sequelize.QueryTypes.SELECT });
+
+	let finalArr = []
+	await Promise.all(
+    	rawData.map(async exam => {
+    		let obtain  = parseFloat(exam.obtain_total_mark)
+    		let total   = parseFloat(exam.exam_total_mark)
+    		let percent = (obtain * 100) / total
+    		exam.percent= percent
+    		exam.type= 'Top performer Average'
+    		finalArr.push(exam)
+    	})
+    )
+
+	return finalArr
 }
