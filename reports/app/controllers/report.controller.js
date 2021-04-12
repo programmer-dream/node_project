@@ -702,12 +702,23 @@ async function classPerformance(params, user){
 			if(!classPerformance[classObj.name]) 
 				classPerformance[classObj.name] = []
 
+			examType = "AND `exams`.`test_type` = '"+classObj.test_type+"'"
+
+			// if(query.subject_code) 
+			// 	subject = "AND `marks`.`subject_code` = '"+query.subject_code+"'"
+
+			let topPercentageData   = await topPercentage(
+				classObj.class_vls_id, 
+				examType,
+				subjectFilter
+			)
+			console.log(topPercentageData)
 			let subObj = { 
-						   subject_name : classObj.subject_name ,
 						   total_marks  : classObj.total_marks ,
 						   obtain_marks : classObj.obtain_marks ,
 						   percentage   : percentage,
 						   class_avg    : classObj.class_avg,
+						   top_avg      : topPercentageData[0].percent,
 						   test_type    : classObj.test_type
 						 }
 
