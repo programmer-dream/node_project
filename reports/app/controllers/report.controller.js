@@ -666,16 +666,14 @@ async function classPerformance(params, user){
 	if(params.student_id)
 		studentFilter = "AND `marks`.`student_id` = "+params.student_id
 
-	
+	let exam_id  = ''
 	if(params.test_id)
 		exam_id = "AND `marks`.`exam_id` = "+params.test_id
-
-	if(params.test_id == 'all')
-		exam_id = ''
 
 	let section = ''
 	if(params.section_id)
 		section = 'AND `marks`.`section_id` = '+params.section_id
+
 
 	let classFilter = ''
 	if(params.class_id)
@@ -694,40 +692,42 @@ async function classPerformance(params, user){
 
 	//return classData
 	let classPerformance = {}
-  	await Promise.all(
-    	classData.map(async classObj => {
-		 	let total_marks  = parseInt(classObj.total_marks)
-			let obtain_marks = parseInt(classObj.obtain_marks)
-			let percentage   = parseFloat(obtain_marks * 100 / total_marks).toFixed(2)
-			if(!classPerformance[classObj.name]) 
-				classPerformance[classObj.name] = []
 
-			examType = "AND `exams`.`test_type` = '"+classObj.test_type+"'"
+	let class_id 	= params.class_id
+	let section_id 	= params.section_id
+	let test_id 	= params.test_id
 
-			// if(query.subject_code) 
-			// 	subject = "AND `marks`.`subject_code` = '"+query.subject_code+"'"
+	if(classData.length > 0){
 
-			let topPercentageData   = await topPercentage(
-				classObj.class_vls_id, 
-				examType,
-				subjectFilter
-			)
-			console.log(topPercentageData)
-			let subObj = { 
-						   total_marks  : classObj.total_marks ,
-						   obtain_marks : classObj.obtain_marks ,
-						   percentage   : percentage,
-						   class_avg    : classObj.class_avg,
-						   top_avg      : topPercentageData[0].percent,
-						   test_type    : classObj.test_type
-						 }
+		let classObj = classData[0]
+		let subjData = await getSubjectData(class_id, section_id, test_id)
+		//return subjData
+	 	let total_marks  = parseInt(classObj.total_marks)
+		let obtain_marks = parseInt(classObj.obtain_marks)
+		let percentage   = parseFloat(obtain_marks * 100 / total_marks).toFixed(2)
+		examType = "AND `exams`.`test_type` = '"+classObj.test_type+"'"
 
 
-			classPerformance[classObj.name].push(subObj)
+		let topPercentageData   = await topPercentage(
+			classObj.class_vls_id, 
+			examType,
+			subjectFilter
+		)
+		
+		let subObj = { 
+					   total_marks  : classObj.total_marks ,
+					   obtain_marks : classObj.obtain_marks ,
+					   percentage   : percentage,
+					   class_avg    : classObj.class_avg,
+					   top_avg      : topPercentageData[0].percent,
+					   test_type    : classObj.test_type,
+					   subject_data : subjData
+					 }
 
-    	})
-    )
-    
+
+		classPerformance = subObj
+	}
+
 	return { success: true, message: "class performance", data : classPerformance}
 }
 
@@ -1162,4 +1162,14 @@ async function topPercentage(classId, examCondition, subjectCondition){
     )
 
 	return finalArr
+}
+
+/**
+ * API for top student Perfromer data 
+ */
+async function getSubjectData(class_id, section_id, exam_id){
+
+	let rawQuery = await sequelize.query("SELECT AVG(obtain_total_mark) AS avg_total, SUM(obtain_total_mark) AS obtain_total, SUM(exam_total_mark) AS exam_total_mark, subject_code ,subject_list.subject_name FROM `marks` left join subject_list on marks.subject_code = subject_list.code where class_id = "+class_id+" and section_id = "+section_id+" and exam_id = "+exam_id+" group by marks.subject_code, subject_name", { type: Sequelize.QueryTypes.SELECT })
+
+	return rawQuery
 }
