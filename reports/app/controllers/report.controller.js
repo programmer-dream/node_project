@@ -34,7 +34,8 @@ module.exports = {
   overAllPerformance,
   topThreePerformer,
   examDropdown,
-  getPerformanceData
+  getPerformanceData,
+  studentList
 };
 
 
@@ -1172,4 +1173,76 @@ async function getSubjectData(class_id, section_id, exam_id){
 	let rawQuery = await sequelize.query("SELECT AVG(obtain_total_mark) AS avg_total, SUM(obtain_total_mark) AS obtain_total, SUM(exam_total_mark) AS exam_total_mark, subject_code ,subject_list.subject_name FROM `marks` left join subject_list on marks.subject_code = subject_list.code where class_id = "+class_id+" and section_id = "+section_id+" and exam_id = "+exam_id+" group by marks.subject_code, subject_name", { type: Sequelize.QueryTypes.SELECT })
 
 	return rawQuery
+}
+
+
+/**
+ * API for top student list data 
+ */
+async function studentList(query, user){
+	let whereConditions = {}
+
+	if(query.class_id)
+		whereConditions.class_id = query.class_id
+
+	// if(query.section_id)
+	// 	whereConditions.section_id = query.section_id
+
+	// if(query.examType)
+	// 	whereConditions.class_id = query.examType
+
+	let innerWhere = {}
+	if(query.test_id)
+		innerWhere. test_id = query.test_id
+
+	let studentMarks = await Marks.findAll({
+		where : whereConditions,
+		attributes : ['student_id','exam_total_mark','obtain_total_mark','subject_code'],
+		include: [{ 
+	                model:Student,
+	                as:'student',
+	                attributes:['name']
+	            },{ 
+	                model:SubjectList,
+	                as:'subject',
+	                attributes:['subject_name']
+	            },{ 
+	                model:Exams,
+	                as:'exam',
+	                where : innerWhere,
+	                attributes:['test_type','title']
+	            }]
+	})
+	let finalArr   = []
+	let studentArr = []
+	let studnetObj = {}
+	await Promise.all(
+    	studentMarks.map(async exam => {
+    		if(!studnetObj[exam.student_id])
+    			studnetObj[exam.student_id] = []
+
+    		studnetObj[exam.student_id].push(exam.toJSON())
+    		if(!studentArr.includes(exam.student_id))
+    			studentArr.push(exam.student_id)
+    	})
+    )
+
+	studentArr.forEach(function(item){
+		let studentSubject = studnetObj[item]
+		let finalObj ={}
+		let obtain = 0
+		let total  = 0
+		studentSubject.forEach(function(obj){
+			console.log(obj.obtain_total_mark)
+			finalObj.name = obj.student.name
+			obtain += obj.obtain_total_mark
+			total += obj.exam_total_mark
+			finalObj[obj.subject.subject_name] = obj.obtain_total_mark
+		})
+		finalObj['total_obtain'] = parseFloat(obtain)
+		finalObj['total_marks'] = parseFloat(total)
+		finalObj['total_percentage'] = parseFloat(obtain) * 100 / parseFloat(total)
+		finalArr.push(finalObj)
+	})
+ 	return { success: true, message: "Exam data", data : finalArr}
 }

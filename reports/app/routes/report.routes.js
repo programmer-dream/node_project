@@ -15,6 +15,7 @@ router.get("/overAllPerformance",overAllPerformance);
 router.get("/topThreePerformer",topThreePerformer);
 router.get("/getExamTypes",getExamTypes);
 router.get("/getPerformanceData",getPerformanceData);
+router.get("/studentList",studentList);
 
 //Post
 router.post("/sendExamResult",sendExamResult);
@@ -98,6 +99,13 @@ function getExamTypes(req, res, next) {
 // Function for get perfromance data
 function getPerformanceData(req, res, next) {
     reportController.getPerformanceData(req.query, req.user)
+        .then(exam => exam ? res.json(exam) : res.status(400).json({ status: "error", message: 'Error while getting exam types' }))
+        .catch(err => next(err));
+}
+
+// Function for get perfromance data
+function studentList(req, res, next) {
+    reportController.studentList(req.query, req.user)
         .then(exam => exam ? res.json(exam) : res.status(400).json({ status: "error", message: 'Error while getting exam types' }))
         .catch(err => next(err));
 }
