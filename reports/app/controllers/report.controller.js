@@ -35,7 +35,8 @@ module.exports = {
   topThreePerformer,
   examDropdown,
   getPerformanceData,
-  studentList
+  studentList,
+  overAll
 };
 
 
@@ -1245,4 +1246,63 @@ async function studentList(query, user){
 		finalArr.push(finalObj)
 	})
  	return { success: true, message: "Exam data", data : finalArr}
+}
+
+
+/**
+ * API for top over all data 
+ */
+async function overAll(query, user){
+	let authentication = await Authentication.findByPk(user.id)
+  	let school_id      = authentication.school_id
+
+	if(!query.examType) throw 'examType is required'
+
+	let type = query.examType
+	
+	let whereConditions = { school_id : school_id }
+
+	let examIds = await Exams.findAll({
+		where: { test_type : type },
+		attributes : ['test_id']
+	}).then(exams => exams.map(exam => exam.test_id));
+
+	let marks = await Marks.findOne({
+		where : { exam_id : {[Op.in] : examIds }},
+		attributes : [
+			[ Sequelize.fn('SUM', Sequelize.col('exam_total_mark')), 'exam_total_mark' ],
+            [ Sequelize.fn('SUM', Sequelize.col('obtain_total_mark')), 'obtain_total_mark' ]
+		]
+	})
+
+	let maxMarks = await Marks.findOne({
+		where : { exam_id : {[Op.in] : examIds }},
+		attributes : [
+			[ Sequelize.fn('SUM', Sequelize.col('exam_total_mark')), 'exam_total_mark' ],
+            [ Sequelize.fn('SUM', Sequelize.col('obtain_total_mark')), 'obtain_total_mark' ],
+            'student_id'
+		],
+		include: [{ 
+	                model:Student,
+	                as:'student',
+	                attributes:['name','photo']
+	            }],
+		order : [
+	             	[Sequelize.fn('SUM', Sequelize.col('obtain_total_mark')), 'desc']
+	            ],
+		group : ['student_id'],
+		limit : 1
+	})
+	let topStudnet  = maxMarks.student
+	let totalPercentage = parseFloat(marks.obtain_total_mark) * 100 / parseFloat(marks.exam_total_mark)
+
+	let maxMarkPercentage = parseFloat(maxMarks.obtain_total_mark) * 100 / parseFloat(maxMarks.exam_total_mark)
+
+	let finalObj = {
+		total_percentage : totalPercentage,
+		max_percentage : maxMarkPercentage,
+		top_student : topStudnet
+	}
+
+	return { success: true, message: "Exam data", data : finalObj}
 }
