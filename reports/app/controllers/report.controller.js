@@ -36,7 +36,8 @@ module.exports = {
   examDropdown,
   getPerformanceData,
   studentList,
-  overAll
+  overAll,
+  overAllSubject
 };
 
 
@@ -1391,4 +1392,97 @@ async function classToper(examIds, class_id, section_id ){
     	})
     )
 	return topStudent
+}
+
+
+/**
+ * API for top over all subject data 
+ */
+async function overAllSubject(query, user){
+	let authentication = await Authentication.findByPk(user.id)
+  	let school_id      = authentication.school_id
+
+	if(!query.examType) throw 'examType is required'
+
+	let type = query.examType
+	
+	let whereConditions = { school_id : school_id }
+
+	let examIds = await Exams.findAll({
+		where: { test_type : type },
+		attributes : ['test_id']
+	}).then(exams => exams.map(exam => exam.test_id));
+
+	let marksCondition = {
+		 exam_id : {[Op.in] : examIds} 
+	}
+
+	if(query.subject_code)
+		marksCondition.subject_code = query.subject_code
+
+	let allSubject = await Marks.findAll({
+		where : marksCondition,
+		attributes : [
+			[ Sequelize.fn('SUM', Sequelize.col('exam_total_mark')), 'exam_total_mark' ],
+            [ Sequelize.fn('SUM', Sequelize.col('obtain_total_mark')), 'obtain_total_mark' ],
+            'subject_code'
+		],
+		include: [{ 
+	                model:SubjectList,
+	                as:'subject',
+	                attributes:['subject_name']
+	            }],
+		group : ['subject_code','subject.id','subject.subject_name']
+	})
+
+	let subjectArr = []
+  	await Promise.all(
+    	allSubject.map(async subject => {
+    		let subjectName = subject.subject.subject_name
+
+    		let percentage 	= parseFloat(subject.obtain_total_mark) * 100 / parseFloat(subject.exam_total_mark)
+
+    		let maxPercent = await subjectToper(examIds, subject.subject_code );
+
+    		let subjectObj  = {
+    			subject_name: subjectName,
+    			avg_percentage : percentage,
+    			max_percentage : maxPercent
+    		} 	
+    		subjectArr.push(subjectObj)
+
+    	})
+    )
+  	finalObj = { tiles_data : subjectArr}
+	return { success: true, message: "Exam data", data : finalObj}
+}
+
+
+/**
+ * API for top student Perfromer data 
+ */
+async function subjectToper(examIds, subjectCode ){
+	let whereCondition = {
+		exam_id : { [Op.in] : examIds },
+		subject_code : subjectCode
+	}
+
+	let toper = await Marks.findOne({
+		where : whereCondition,
+		attributes:[
+                    [ Sequelize.fn('SUM', Sequelize.col('exam_total_mark')), 'exam_total_mark' ],
+                    [ Sequelize.fn('SUM', Sequelize.col('obtain_total_mark')), 'obtain_total_mark' ],
+                    'student_id',
+                    'subject_code'
+                  ],
+		group:['student_id','subject_code'],
+		order : [
+	             	[Sequelize.fn('SUM', Sequelize.col('obtain_total_mark')), 'desc']
+	            ],
+	    limit : 1
+	})
+
+    let maxPercent 	= parseFloat(toper.obtain_total_mark) * 100 / parseFloat(toper.exam_total_mark)
+
+	return maxPercent
 }

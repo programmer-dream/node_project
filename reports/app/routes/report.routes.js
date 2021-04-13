@@ -17,6 +17,7 @@ router.get("/getExamTypes",getExamTypes);
 router.get("/getPerformanceData",getPerformanceData);
 router.get("/studentList",studentList);
 router.get("/overAll",overAll);
+router.get("/overAllSubject",overAllSubject);
 
 //Post
 router.post("/sendExamResult",sendExamResult);
@@ -114,6 +115,13 @@ function studentList(req, res, next) {
 // Function for get overAll data
 function overAll(req, res, next) {
     reportController.overAll(req.query, req.user)
+        .then(exam => exam ? res.json(exam) : res.status(400).json({ status: "error", message: 'Error while getting overAll' }))
+        .catch(err => next(err));
+}
+
+// Function for get overAll data
+function overAllSubject(req, res, next) {
+    reportController.overAllSubject(req.query, req.user)
         .then(exam => exam ? res.json(exam) : res.status(400).json({ status: "error", message: 'Error while getting overAll' }))
         .catch(err => next(err));
 }
