@@ -219,6 +219,8 @@ db.Student.hasMany(db.StudentAttendance,{foreignKey:'student_id', as:'attendance
 db.Marks.belongsTo(db.Exams,{foreignKey:'exam_id', as:'exam'})
 db.Classes.hasMany(db.Marks,{foreignKey:'class_id', as:'marks'})
 db.Classes.hasMany(db.Section,{foreignKey:'class_id', as:'section'})
+db.Marks.belongsTo(db.Classes,{foreignKey:'class_id', as:'classes'})
+db.Marks.belongsTo(db.Section,{foreignKey:'section_id', as:'section'})
 
 /*********** school management ***********/
 db.Authentication.belongsTo(db.Employee,{foreignKey:'user_vls_id',as:'employee'})

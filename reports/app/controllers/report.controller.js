@@ -1304,5 +1304,91 @@ async function overAll(query, user){
 		top_student : topStudnet
 	}
 
+	let maxClass = await Marks.findAll({
+		where : { exam_id : {[Op.in] : examIds }},
+		attributes : [
+			[ Sequelize.fn('SUM', Sequelize.col('exam_total_mark')), 'exam_total_mark' ],
+            [ Sequelize.fn('SUM', Sequelize.col('obtain_total_mark')), 'obtain_total_mark' ],
+            'class_id',
+            'section_id'
+		],
+		include: [{ 
+                	model:Classes,
+                	as:'classes',
+                	attributes:['name']
+            	},{ 
+                	model:Section,
+                	as:'section',
+                	attributes:['name']
+            	}],
+		group : ['class_id','section_id']
+	})
+
+	let classData = {}
+  	await Promise.all(
+    	maxClass.map(async classSection => {
+    		let className   = classSection.classes.name
+    		let sectionName = classSection.section.name
+
+    		let percentage 	= parseFloat(classSection.obtain_total_mark) * 100 / parseFloat(classSection.exam_total_mark)
+
+    		let class_toper = await classToper(
+    								examIds, 
+    								classSection.class_id, 
+    								classSection.section_id )
+    	console.log(class_toper)
+    		let maxObj		= {
+    							 max_avg : percentage,
+    							 topper : class_toper
+    						  }
+
+    		if(!classData[className+" ("+sectionName+")"])
+    			classData[className+" ("+sectionName+")"] = maxObj
+    	})
+    )
+    finalObj.class_data = classData
+
 	return { success: true, message: "Exam data", data : finalObj}
+}
+
+/**
+ * API for top student Perfromer data 
+ */
+async function classToper(examIds, class_id, section_id ){
+	let whereCondition = {
+		exam_id : { [Op.in] : examIds },
+		class_id : class_id,
+		section_id : section_id
+	}
+
+	let threeToper = await Marks.findAll({
+		where : whereCondition,
+		attributes:[
+                    [ Sequelize.fn('SUM', Sequelize.col('exam_total_mark')), 'exam_total_mark' ],
+                    [ Sequelize.fn('SUM', Sequelize.col('obtain_total_mark')), 'obtain_total_mark' ]
+                  ],
+		group:['student_id'],
+		include: [{ 
+	                model:Student,
+	                as:'student',
+	                attributes:['name']
+	            }],
+		order : [
+	             	[Sequelize.fn('SUM', Sequelize.col('obtain_total_mark')), 'desc']
+	            ],
+	    limit : 3
+	})
+
+	let topStudent = []
+  	await Promise.all(
+    	threeToper.map(async toper => {
+    		let percentage 	= parseFloat(toper.obtain_total_mark) * 100 / parseFloat(toper.exam_total_mark)
+
+    		let obj = {name : toper.student.name,
+    				   avg : percentage
+    				  }
+    		topStudent.push(obj)
+    	})
+    )
+	return topStudent
 }
