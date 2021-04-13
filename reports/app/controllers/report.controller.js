@@ -1454,10 +1454,8 @@ async function overAllSubject(query, user){
     	})
     )
 
-
-
     let maxClass = await Marks.findAll({
-		where : { exam_id : {[Op.in] : examIds }},
+		where : marksCondition,
 		attributes : [
 			[ Sequelize.fn('SUM', Sequelize.col('exam_total_mark')), 'exam_total_mark' ],
             [ Sequelize.fn('SUM', Sequelize.col('obtain_total_mark')), 'obtain_total_mark' ],
