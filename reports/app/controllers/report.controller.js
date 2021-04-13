@@ -1453,7 +1453,56 @@ async function overAllSubject(query, user){
 
     	})
     )
-  	finalObj = { tiles_data : subjectArr}
+
+
+
+    let maxClass = await Marks.findAll({
+		where : { exam_id : {[Op.in] : examIds }},
+		attributes : [
+			[ Sequelize.fn('SUM', Sequelize.col('exam_total_mark')), 'exam_total_mark' ],
+            [ Sequelize.fn('SUM', Sequelize.col('obtain_total_mark')), 'obtain_total_mark' ],
+            'class_id',
+            'section_id',
+            'subject_code'
+		],
+		include: [{ 
+                	model:Classes,
+                	as:'classes',
+                	attributes:['name']
+            	},{ 
+                	model:Section,
+                	as:'section',
+                	attributes:['name']
+            	},{ 
+                	model:SubjectList,
+                	as:'subject',
+                	attributes:['subject_name']
+            	}],
+		group : ['class_id','section_id','subject.id','subject_code']
+	})
+	//return maxClass
+    let classData = {}
+  	await Promise.all(
+    	maxClass.map(async classSection => {
+    		let className   = classSection.classes.name
+    		let sectionName = classSection.section.name
+    		let subjectName = classSection.subject.subject_name
+
+    		let percentage 	= parseFloat(classSection.obtain_total_mark) * 100 / parseFloat(classSection.exam_total_mark)
+
+      		let maxObj	= {
+      						subject_name: subjectName,
+    						max_avg : percentage
+    					  }
+
+    		if(!classData[className+" ("+sectionName+")"])
+    			classData[className+" ("+sectionName+")"] = []
+
+    			classData[className+" ("+sectionName+")"].push(maxObj)
+    	})
+    )
+
+  	finalObj = { tiles_data : subjectArr ,class_data : classData}
 	return { success: true, message: "Exam data", data : finalObj}
 }
 
