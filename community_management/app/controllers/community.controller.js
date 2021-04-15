@@ -352,6 +352,7 @@ async function addUsers(id, body , user){
         msg = updatedUsers.deletedUsers.length+' users'
 
     notificatonData.event_type    = 'deleted'
+    notificatonData.is_deleted    = 1
     notificatonData.message = '{name} removed you from '+community.group_name+' community'
     notificatonData.users   = JSON.stringify(updatedUsers.deletedUsers)
     await Notification.create(notificatonData)
