@@ -554,7 +554,7 @@ async function subjectPerformance(params, user){
 /**
  * API for get overall performance of class wise 
  */
-async function InternalClassPerformance(params, user){
+async function internalClassPerformance(params, user){
 	//Auth user
 	let authentication = await Authentication.findByPk(user.id)
 	//branch
