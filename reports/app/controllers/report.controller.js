@@ -706,7 +706,7 @@ async function classPerformance(params, user){
 		let obtain_marks = parseInt(classObj.obtain_marks)
 		let percentage   = parseFloat(obtain_marks * 100 / total_marks).toFixed(2)
 
-		let testId = null
+		let testId = null 
 		if(params.test_id)
 			testId = "AND `exams`.`test_id` = "+params.test_id
 
