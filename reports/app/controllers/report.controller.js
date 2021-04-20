@@ -669,10 +669,6 @@ async function classPerformance(params, user){
 	if(params.student_id)
 		studentFilter = "AND `marks`.`student_id` = "+params.student_id
 
-	let exam_id  = ''
-	if(params.test_id)
-		exam_id = "AND `marks`.`exam_id` = "+params.test_id
-
 	let section = ''
 	if(params.section_id)
 		section = 'AND `marks`.`section_id` = '+params.section_id
@@ -699,6 +695,7 @@ async function classPerformance(params, user){
 	let class_id 	= params.class_id
 	let section_id 	= params.section_id
 	let test_id 	= params.test_id
+	
 
 	if(classData.length > 0){
 
@@ -708,9 +705,14 @@ async function classPerformance(params, user){
 	 	let total_marks  = parseInt(classObj.total_marks)
 		let obtain_marks = parseInt(classObj.obtain_marks)
 		let percentage   = parseFloat(obtain_marks * 100 / total_marks).toFixed(2)
-		examType = "AND `exams`.`test_type` = '"+classObj.test_type+"'"
 
+		let testId = null
+		if(params.test_id)
+			testId = "AND `exams`.`test_id` = "+params.test_id
 
+		examType = "AND `exams`.`test_type` = '"+classObj.test_type+"' "
+		examType += testId
+		
 		let topPercentageData   = await topPercentage(
 			classObj.class_vls_id, 
 			examType,
