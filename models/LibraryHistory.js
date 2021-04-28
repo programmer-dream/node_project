@@ -30,6 +30,9 @@ module.exports = (sequelize, Sequelize) => {
     },
     subject_code: {
       type: Sequelize.STRING
+    },
+    school_vls_id:{
+      type: Sequelize.INTEGER,
     }
   },{
     tableName: 'student_learning_library',
