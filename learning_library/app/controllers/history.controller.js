@@ -198,6 +198,7 @@ async function addHistory(body, user){
         subject_code              : body.subject_code,
         last_visited_date         : body.visited_date,
         Learning_library_vls_id   : body.library_vls_id,
+        school_vls_id             : body.school_vls_id,
         topic                     : body.topic,
         student_vls_id            : user.userVlsId
   }
