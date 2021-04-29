@@ -61,21 +61,21 @@ async function create(req){
     
   	let assignment = await Assignment.create(assignmentData)
 
-    //notification
-    let assignedStudent = await getStudents(assignmentData)
-    notificatonData.branch_vls_id = assignmentData.branch_vls_id
-    notificatonData.school_vls_id = assignmentData.school_vls_id
-    notificatonData.status        = 'important'
-    notificatonData.message       = '{name} created new assignment for {subjectname}.'
-    notificatonData.notificaton_type = 'assignment'
-    notificatonData.notificaton_type_id = assignment.assignment_vls_id
-    notificatonData.start_date    = assignmentData.assignment_date
-    notificatonData.close_date    = assignmentData.assignment_completion_date
-    notificatonData.users         = JSON.stringify(assignedStudent)
-    notificatonData.added_by      = user.userVlsId
-    notificatonData.added_type    = user.role
-    notificatonData.event_type    = 'created'
-    await Notification.create(notificatonData)
+    // //notification
+    // let assignedStudent = await getStudents(assignmentData)
+    // notificatonData.branch_vls_id = assignmentData.branch_vls_id
+    // notificatonData.school_vls_id = assignmentData.school_vls_id
+    // notificatonData.status        = 'important'
+    // notificatonData.message       = '{name} created new assignment for {subjectname}.'
+    // notificatonData.notificaton_type = 'assignment'
+    // notificatonData.notificaton_type_id = assignment.assignment_vls_id
+    // notificatonData.start_date    = assignmentData.assignment_date
+    // notificatonData.close_date    = assignmentData.assignment_completion_date
+    // notificatonData.users         = JSON.stringify(assignedStudent)
+    // notificatonData.added_by      = user.userVlsId
+    // notificatonData.added_type    = user.role
+    // notificatonData.event_type    = 'created'
+    // await Notification.create(notificatonData)
     //notification
   	if(!assignment) throw 'Assignment not created'
 
