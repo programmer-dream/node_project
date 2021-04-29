@@ -26,14 +26,17 @@ async function viewHistory(params, user){
 
   if(library_type == "Text"){
     include = [{ 
-                      model:LearningLibrary,
-                      as:'learningLibraryHistory'
-                  }]
+                  model:LearningLibrary,
+                  as:'learningLibraryHistory',
+                  where: { learning_library_vls_id : { [Op.ne]: null } }
+              }]
   }else{
     include = [{ 
                   model:VideoLearningLibrary,
-                  as:'videoLearningLibraryHistory'
+                  as:'videoLearningLibraryHistory',
+                  where: { video_learning_library_vls_id : { [Op.ne]: null } }
               }]
+
   }
 
   let libraryHistory = await LibraryHistory.findAll({
@@ -61,7 +64,7 @@ async function viewHistory(params, user){
  */
 async function addRatingsAndLikesToHistory(libraryHistory, user) {
   await Promise.all(
-    libraryHistory.map(async item => {
+    libraryHistory.map(async (item, index) => {
         if(item.learningLibraryHistory){
           let libHistory = item.learningLibraryHistory
           data = await getRatingLikes(libHistory.learning_library_vls_id, user)
@@ -70,7 +73,7 @@ async function addRatingsAndLikesToHistory(libraryHistory, user) {
               avg       : data.avg,
               user_data : data.data
             }
-        }else{
+        }else if(item.videoLearningLibraryHistory){
           let libHistory = item.videoLearningLibraryHistory
           data = await getVideoRatingLikes(libHistory.video_learning_library_vls_id, user)
           item.videoLearningLibraryHistory.ratings = {
