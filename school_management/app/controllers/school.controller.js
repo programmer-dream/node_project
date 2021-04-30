@@ -325,16 +325,16 @@ async function createUser(req){
   delete data.school_id
   let employee  = await Employee.create(data)
   let userData  = {
-                    user_name     : Date.now(),
-                    user_vls_id   : employee.faculty_vls_id,
-                    school_id     : school_id,
-                    branch_vls_id : branch_vls_id,
-                    role_id       : role_id,
-                    password      : password,
+                    user_name         : Date.now(),
+                    user_vls_id       : employee.faculty_vls_id,
+                    school_vls_id     : school_id,
+                    branch_vls_id     : branch_vls_id,
+                    role_id           : role_id,
+                    password          : password,
                     recovery_email_id : data.email,
-                    old_passwords : JSON.stringify([password]),
-                    name          : data.name,
-                    photo         : data.photo
+                    old_passwords     : JSON.stringify([password]),
+                    name              : data.name,
+                    photo             : data.photo
                   }
 
   let authUser  = await User.create(userData)
