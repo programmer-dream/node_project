@@ -320,6 +320,7 @@ async function createUser(req){
   }
 
   let role_id = role.id
+  data.school_vls_id = school_id
   delete data.type
   delete data.password
   delete data.school_id
@@ -327,7 +328,7 @@ async function createUser(req){
   let userData  = {
                     user_name         : Date.now(),
                     user_vls_id       : employee.faculty_vls_id,
-                    school_vls_id     : school_id,
+                    school_id         : school_id,
                     branch_vls_id     : branch_vls_id,
                     role_id           : role_id,
                     password          : password,
@@ -375,7 +376,7 @@ async function updateUser(id, req){
                   }
 
   authUser.update(userData)
-
+  data.school_vls_id = school_id
   let employee  = await Employee.update(data,{
     where : {faculty_vls_id : authUser.user_vls_id}
   })
