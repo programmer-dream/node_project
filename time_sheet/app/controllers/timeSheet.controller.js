@@ -33,7 +33,10 @@ module.exports = {
 async function create(req){
   const errors = validationResult(req);
   if(errors.array().length) throw errors.array()
-
+  if(req.user.role == "school-admin"){
+    if( !req.body.school_id ) throw "school_id is required"
+    if( !req.body.branch_vls_id ) throw "branch_vls_id is required"
+  }
   //if(req.user.role != 'teacher' || req.user.role != 'principle') throw 'Unauthorized User'
   let timetable = req.body.timetable
   let timings   = await checkEnterTimings(timetable)
@@ -47,7 +50,13 @@ async function create(req){
                   })
 
   if(!academicYear) throw 'Academic year not found'
-  
+  let userSchoolID = user.school_id
+  let userBranchID = user.branch_vls_id
+  if(req.user.role == "school-admin"){
+    userSchoolID  = req.body.school_id
+    userBranchID  = req.body.branch_vls_id
+  }
+
   await Promise.all(
     timetable.map(async timetable => {
         let status     = 1
@@ -76,8 +85,8 @@ async function create(req){
         let body = {
               day              : moment(timetable.day, 'd').format('dddd'),
               class_id         : req.body.class_id,
-              school_vls_id    : user.school_id,
-              branch_vls_id    : user.branch_vls_id,
+              school_vls_id    : userSchoolID,
+              branch_vls_id    : userBranchID,
               teacher_id       : timetable.teacher_id,
               academic_year_id : academicYear.id,
               section_id       : section_id,
@@ -311,6 +320,10 @@ async function parentView(params , user){
 async function update(req){
   const errors = validationResult(req);
   if(errors.array().length) throw errors.array()
+  if(req.user.role == "school-admin"){
+    if( !req.body.school_id ) throw "school_id is required"
+    if( !req.body.branch_vls_id ) throw "branch_vls_id is required"
+  }
 
   let user       = await User.findByPk(req.user.id)
   let section_id = 0 
@@ -330,14 +343,20 @@ async function update(req){
 
   let day  =  moment(req.body.day, 'd').format('dddd');
   req.body.day = day
-  
-  let rdata = await getScheduleData(user.school_id, body.class_id, section_id, body.subject_code, body.start_time, body.end_time, day, id)
+  let userSchoolID = user.school_id
+  let userBranchID = user.branch_vls_id
+  if(req.user.role == "school-admin"){
+    userSchoolID  = req.body.school_id
+    userBranchID  = req.body.branch_vls_id
+  }
+
+  let rdata = await getScheduleData(userSchoolID, body.class_id, section_id, body.subject_code, body.start_time, body.end_time, day, id)
   
   let data        = req.body
   let routine     = {}
-  user            = await User.findByPk(req.user.id)
+
   academicYear    = await AcademicYear.findOne({
-                        where:{school_id : user.school_id}
+                        where:{school_id : userSchoolID}
                     })  
   if(!academicYear) throw 'Academic year not found'
 
