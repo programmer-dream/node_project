@@ -51,6 +51,8 @@ async function signIn(userDetails) {
                               attributes: ['id','name', 'slug']
                             }]
                     })
+
+  if(!user) throw "Oops, wrong credentials, please try again"
   let isActive = await isSchoolBranchActive(user)
   
   if(!isActive)
