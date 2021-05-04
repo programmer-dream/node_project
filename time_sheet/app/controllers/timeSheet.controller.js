@@ -103,7 +103,7 @@ async function create(req){
           timeData.push(body)
     })
   )
-  //return 'done'
+
   let routine = await Routine.bulkCreate(timeData);
   return { success: true, message: "Time sheet created successfully", data:routine }
 };
@@ -398,6 +398,7 @@ async function getScheduleData(school_id, class_id, section_id, subject_code, st
       school_vls_id  : school_id,
       day            : day
   }
+
   if(id){
     whereCondition.timesheet_id =  { [Op.ne]: id }
   }
@@ -406,7 +407,7 @@ async function getScheduleData(school_id, class_id, section_id, subject_code, st
     where : whereCondition,
           attributes: ['subject_code','start_time','end_time']
   })
-   
+
    let startTime  = moment(start_time, 'hh:mm')
    let endTime = moment(end_time, 'hh:mm')
 
@@ -415,9 +416,9 @@ async function getScheduleData(school_id, class_id, section_id, subject_code, st
         let beforeTime = moment(routine.start_time, 'hh:mm')
         let afterTime  = moment(routine.end_time, 'hh:mm')
 
-        if(beforeTime === startTime)
+        if(routine.start_time == start_time)
            throw `subject_code ${routine.subject_code} timings are overlapping with subject_code ${subject_code}`
-        
+
         if (startTime.isBetween(beforeTime, afterTime)) 
             throw `start_time subject_code ${routine.subject_code} timings are overlapping with subject_code ${subject_code}`
 
