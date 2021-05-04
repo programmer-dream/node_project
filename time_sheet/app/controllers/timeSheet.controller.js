@@ -43,19 +43,20 @@ async function create(req){
 
   let timeData  = []
 
-  user          = await User.findByPk(req.user.id)
+  let user          = await User.findByPk(req.user.id)
 
-  academicYear  = await AcademicYear.findOne({
-                    where:{school_id:user.school_id}
-                  })
-
-  if(!academicYear) throw 'Academic year not found'
   let userSchoolID = user.school_id
   let userBranchID = user.branch_vls_id
   if(req.user.role == "school-admin"){
     userSchoolID  = req.body.school_id
     userBranchID  = req.body.branch_vls_id
   }
+
+  academicYear  = await AcademicYear.findOne({
+                    where:{school_id:userSchoolID}
+                  })
+
+  if(!academicYear) throw 'Academic year not found'
 
   await Promise.all(
     timetable.map(async timetable => {
@@ -97,7 +98,7 @@ async function create(req){
               end_time         : timetable.end_time
           }
          
-          await getScheduleData(user.school_id, req.body.class_id, section_id, timetable.subject_code, timetable.start_time, timetable.end_time ,body.day)
+          await getScheduleData(userSchoolID, req.body.class_id, section_id, timetable.subject_code, timetable.start_time, timetable.end_time ,body.day)
 
           timeData.push(body)
     })
