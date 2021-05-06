@@ -1569,9 +1569,9 @@ async function schoolBranchCount(query, user){
 	    			let count = branch.users.length
 	    			delete school['branch'][bIndex]['users']
 	    			school['branch'][bIndex]['usersCount'] = count;
-	    			schoolUsers.push(school)
 	    		})
     		}
+    		schoolUsers.push(school)
     	})
     )
     
