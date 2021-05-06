@@ -21,6 +21,7 @@ const StudentAttendance = db.StudentAttendance;
 const SchoolDetails = db.SchoolDetails;
 const Employee 		= db.Employee;
 const ExamSchedule  = db.ExamSchedule;
+const Branch  = db.Branch;
 
 
 module.exports = {
@@ -37,7 +38,8 @@ module.exports = {
   getPerformanceData,
   studentList,
   overAll,
-  overAllSubject
+  overAllSubject,
+  schoolBranchCount
 };
 
 
@@ -1534,4 +1536,45 @@ async function subjectToper(examIds, subjectCode ){
     let maxPercent 	= parseFloat(toper.obtain_total_mark) * 100 / parseFloat(toper.exam_total_mark)
 
 	return maxPercent
+}
+
+/**
+ * API for get school branch counts 
+ */
+async function schoolBranchCount(query, user){
+	let totalSchoolsCount = await SchoolDetails.count();
+	let totalBranchesCount = await Branch.count();
+	let totalUsersCount   = await Authentication.count();
+	
+	let schools = await SchoolDetails.findAll({
+		attributes : ['school_id','school_name'],
+  	 	include: [{ 
+                	model:Branch,
+                	as:'branch',
+                	attributes : ['branch_vls_id','branch_name'],
+                	include: [{ 
+	                	model:Authentication,
+	                	as:'users',
+	                	attributes : ['auth_vls_id']
+	            	}]
+            	}]
+  	 })
+	let schoolUsers = []
+	await Promise.all(
+    	schools.map(async (school)=> {
+    		school       = school.toJSON()
+    		let branches = school.branch
+    		if(branches.length){
+	    		branches.map(async (branch ,bIndex)=> {
+	    			let count = branch.users.length
+	    			delete school['branch'][bIndex]['users']
+	    			school['branch'][bIndex]['usersCount'] = count;
+	    			schoolUsers.push(school)
+	    		})
+    		}
+    	})
+    )
+    
+    let finalData   = { totalSchoolsCount , totalBranchesCount, totalUsersCount, schoolUsers}
+	return { success: true, message: "Dashboard counts", data : finalData} 
 }
