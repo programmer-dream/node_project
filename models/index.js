@@ -156,7 +156,8 @@ db.Employee.belongsTo(db.Branch,{foreignKey:'branch_vls_id',as:'branchDetails'})
 db.Guardian.belongsTo(db.Branch,{foreignKey:'branch_vls_id',as:'branchDetailsGuardian'})
 db.Student.belongsTo(db.Branch,{foreignKey:'branch_vls_id',as:'branchDetailsStudent'})
 db.Branch.belongsTo(db.SchoolDetails,{foreignKey:'school_vls_id',as:'schoolDetails'})
-
+db.SchoolDetails.hasMany(db.Branch,{foreignKey:'school_id',as:'branch'})
+db.Branch.hasMany(db.Users,{foreignKey:'branch_vls_id',as:'users'})
 /*********** query management ***********/
 db.StudentQuery.belongsTo(db.Student,{foreignKey:'student_vls_id',as:'postedBy'})
 db.StudentQuery.belongsTo(db.Employee,{foreignKey:'faculty_vls_id',as:'respondedBy'})

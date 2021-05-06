@@ -32,6 +32,7 @@ app.get("/",function(req, res){
 
 // api routes
 app.use('/exam', require('./app/routes/report.routes'));
+app.use('/dashboard', require('./app/routes/dashboard.routes'));
 
 
 // global error handler
