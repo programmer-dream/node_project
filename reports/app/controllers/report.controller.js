@@ -21,7 +21,9 @@ const StudentAttendance = db.StudentAttendance;
 const SchoolDetails = db.SchoolDetails;
 const Employee 		= db.Employee;
 const ExamSchedule  = db.ExamSchedule;
-const Branch  = db.Branch;
+const Branch  		= db.Branch;
+const CommunityChat = db.CommunityChat;
+const Ticket 		= db.Ticket;
 
 
 module.exports = {
@@ -1542,9 +1544,13 @@ async function subjectToper(examIds, subjectCode ){
  * API for get school branch counts 
  */
 async function schoolBranchCount(query, user){
-	let totalSchoolsCount = await SchoolDetails.count();
+	let totalSchoolsCount  = await SchoolDetails.count();
 	let totalBranchesCount = await Branch.count();
-	let totalUsersCount   = await Authentication.count();
+	let totalUsersCount    = await Authentication.count();
+	let totalRaisedTickets = await Ticket.count()
+	let totalClosedTickets = await Ticket.count({
+									 where : { status : 'resolved'}
+								   });
 	
 	let schools = await SchoolDetails.findAll({
 		attributes : ['school_id','school_name'],
@@ -1565,16 +1571,47 @@ async function schoolBranchCount(query, user){
     		school       = school.toJSON()
     		let branches = school.branch
     		if(branches.length){
+    			let sCount = 0
 	    		branches.map(async (branch ,bIndex)=> {
 	    			let count = branch.users.length
 	    			delete school['branch'][bIndex]['users']
 	    			school['branch'][bIndex]['usersCount'] = count;
+	    			sCount += count
 	    		})
+	    		school['usersCount'] = sCount;
     		}
+    		//acitve community 
+			let activeCommunitiesCount  = await CommunityChat.count({
+				where : { 
+							community_status : 'Active',
+							school_vls_id    : school.school_id
+						}
+			});
+			school['activeCommunitiesCount'] = activeCommunitiesCount;
+    		//tickets
+    		let raisedSchoolCount = await Ticket.count({
+					where : { status : 'resolved',
+							  school_vls_id : school.school_id
+							}
+			});
+    		let closedSchoolCount = await Ticket.count({
+					where : {
+							  school_vls_id : school.school_id
+							}
+			});
+			school['raisedSchoolCount'] = raisedSchoolCount;
+			school['closedSchoolCount'] = closedSchoolCount;
     		schoolUsers.push(school)
+
     	})
     )
     
-    let finalData   = { totalSchoolsCount , totalBranchesCount, totalUsersCount, schoolUsers}
+    let finalData   = { totalSchoolsCount , 
+    					totalBranchesCount, 
+    					totalUsersCount, 
+    					totalRaisedTickets, 
+    					totalClosedTickets,
+    					schoolUsers
+    				}
 	return { success: true, message: "Dashboard counts", data : finalData} 
 }
