@@ -17,21 +17,23 @@ async function updateRewardsPoints(user,pointType,type) {
 
     let vlsPoints = await VlsRewards.findOne()
 
-    let points = vlsPoints[pointType]
+    if(vlsPoints && vlsPoints[pointType]){
+        let points = vlsPoints[pointType]
 
-    let pointsUpdate = ""
-    if(type == "increment"){
-        pointsUpdate = Sequelize.literal("rewards_points + "+points)
-    }else if(type == "decrement"){
-        pointsUpdate = Sequelize.literal("rewards_points - "+points)
+        let pointsUpdate = ""
+        if(type == "increment"){
+            pointsUpdate = Sequelize.literal("rewards_points + "+points)
+        }else if(type == "decrement"){
+            pointsUpdate = Sequelize.literal("rewards_points - "+points)
+        }
+
+        
+
+        await Users.update({ 
+          rewards_points: pointsUpdate }, 
+          { where: { user_name: user.userId }
+        });
     }
-
-    
-
-    await Users.update({ 
-      rewards_points: pointsUpdate }, 
-      { where: { user_name: user.userId }
-    });
 
 }
 
