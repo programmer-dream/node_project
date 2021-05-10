@@ -671,7 +671,7 @@ async function canResponse(id, user) {
 /**
  * API for query dashboard
  */
-async function dashboardCount(user) {
+async function dashboardCount(user, queryParams) {
   // if(user.role != 'student' && user.role != 'teacher') 
   //       throw 'Unauthorised User'
   let statusArray = ['Open', 'Inprogress', 'Closed']
@@ -743,8 +743,12 @@ async function dashboardCount(user) {
     }
 
   }else if(user.role == "school-admin"){
-
-      let allClasses = await schoolQueryClasses(userData.school_id)
+      let school_id = queryParams.school_vls_id
+      let branch_id = queryParams.branch_vls_id
+      if(!school_id){
+        school_id = userData.school_id
+      }
+      let allClasses = await schoolQueryClasses(school_id, branch_id)
       queryCount = await teacherCount(allClasses, statusArray)
 
   }else{
@@ -766,8 +770,11 @@ async function dashboardCount(user) {
 /**
  * function for get school Classes
  */
-async function schoolQueryClasses(school_id){
+async function schoolQueryClasses(school_id, branch_id){
     let wherecondition = { school_vls_id: school_id }
+    if(branch_id){
+      wherecondition.branch_vls_id = branch_id
+    }
     let branches  = await Branch.findAll({
                           where:wherecondition,
                           attributes: ['branch_vls_id']
