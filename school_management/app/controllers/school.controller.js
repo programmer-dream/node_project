@@ -104,6 +104,9 @@ async function list(params , user){
                 }
            }
     };
+  if(params.school_id) 
+     whereCondition.school_id = params.school_id
+
   let schools = await SchoolDetails.findAll({
     limit : limit,
     offset: offset,
@@ -112,8 +115,20 @@ async function list(params , user){
              ['school_id', orderBy]
             ]
   })
-  
-  return { success: true, message: "School list", data : schools}
+
+  let allSchool = []
+  await Promise.all(
+    schools.map(async school => {
+      school = school.toJSON()
+        if(!school['allCounts'])
+            school['allCounts'] = await getUserCount(school.school_id)
+
+        allSchool.push(school)
+    })
+  )
+
+  //await getUserCount();
+  return { success: true, message: "School list", data : allSchool}
 };
 
 
@@ -431,4 +446,39 @@ async function viewUser(id){
   if(!authUser) throw 'User not found'
     
   return { success: true, message: "View user", data:authUser }
+}
+
+/**
+ * API get users count 
+ */
+async function getUserCount(school_id){
+  let branchCount = await Branch.count({ where: {school_vls_id : school_id} })
+  let roles = await Role.findAll({
+    where : { 
+              slug : 
+              { [Op.in] : ['student','teacher','guardian','branch-admin','school-admin','principal']
+              } 
+        },
+        attributes:['name']
+  }).then(roles => roles.map(role => role.name));
+
+  let data = await sequelize.query("SELECT COUNT(`roles`.`id`) AS `count`, `roles`.`slug` AS `slug`, roles.name FROM `users` AS `users` right OUTER JOIN `roles` AS `roles` ON `users`.`role_id` = `roles`.`id` WHERE `users`.`school_id` = "+school_id+"  AND roles.slug IN('student','teacher','guardian','branch-admin','school-admin','principal') GROUP BY `slug`, name ;", { type: Sequelize.QueryTypes.SELECT });
+  
+  let allCounts = {}
+  await Promise.all(
+    data.map(async user => {
+        if(!allCounts[user.name])
+            allCounts[user.name] = user.count
+    })
+  )
+
+  await Promise.all(
+    roles.map(async role => {
+        if(!allCounts[role])
+            allCounts[role] = 0
+    })
+  )
+  
+  allCounts['branches count'] = branchCount
+  return allCounts
 }
