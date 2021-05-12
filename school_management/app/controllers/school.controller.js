@@ -202,6 +202,11 @@ async function viewBranch(id){
       attributes: ['id']
     })
 
+  let pRole = await Role.findOne({
+      where : { slug :'principal' },
+      attributes: ['id']
+  })
+
   let users = await User.findAll({
     where : { 
       role_id       : role.id,
@@ -215,7 +220,22 @@ async function viewBranch(id){
                 as:'employee'
               }]
   })
-  return { success: true, message: "Branch view", data : {branch, users}}
+
+  let principal = await User.findOne({
+    where : { 
+      role_id       : pRole.id,
+      branch_vls_id :  id 
+    },
+    attributes: {
+      exclude: ['password','old_passwords','forget_pwd_token']
+    },
+    include: [{ 
+                model:Employee,
+                as:'employee'
+              }]
+  })
+  allCounts = await getbranchUser(id)
+  return { success: true, message: "Branch view", data : {branch, users,principal ,allCounts}}
 };
 
 
@@ -257,8 +277,17 @@ async function listBranch(id , user, params){
                ['branch_vls_id', orderBy]
               ]
   })
-  
-  return { success: true, message: "Branch list", data : branches}
+
+  allBranches = []
+  await Promise.all(
+    branches.map(async branch => {
+        branch = branch.toJSON()
+        branch['userCounts']= await getbranchUser( branch.branch_vls_id )
+        allBranches.push(branch)
+    })
+  )
+
+  return { success: true, message: "Branch list", data : allBranches}
 };
 
 
@@ -479,6 +508,60 @@ async function getUserCount(school_id){
     })
   )
   
+
   allCounts['branches count'] = branchCount
+  return allCounts
+}
+
+// /**
+//  * API get users count 
+//  */
+// async function branchStudentCount( branch_vls_id){
+
+//   let students = await User.count({
+//       where : { 
+//         branch_vls_id : branch_vls_id,
+//       },
+//       include: [{ 
+//                   model:Role,
+//                   as:'roles',
+//                   where : { slug : 'student' }
+//                 }]
+//     })
+
+//   return students
+// }
+
+
+/**
+ * API get branch user count 
+ */
+async function getbranchUser(branch_vls_id){
+  let roles = await Role.findAll({
+    where : { 
+              slug : 
+              { [Op.in] : ['student','teacher','guardian','principal']
+              } 
+        },
+        attributes:['name']
+  }).then(roles => roles.map(role => role.name));
+
+  let data = await sequelize.query("SELECT COUNT(`roles`.`id`) AS `count`, `roles`.`slug` AS `slug`, roles.name FROM `users` AS `users` right OUTER JOIN `roles` AS `roles` ON `users`.`role_id` = `roles`.`id` WHERE `users`.`branch_vls_id` = "+branch_vls_id+"  AND roles.slug IN('student','teacher','guardian','principal') GROUP BY `slug`, name ;", { type: Sequelize.QueryTypes.SELECT });
+  
+  let allCounts = {}
+  await Promise.all(
+    data.map(async user => {
+        if(!allCounts[user.name])
+            allCounts[user.name] = user.count
+    })
+  )
+
+  await Promise.all(
+    roles.map(async role => {
+        if(!allCounts[role])
+            allCounts[role] = 0
+    })
+  )
+  
   return allCounts
 }
