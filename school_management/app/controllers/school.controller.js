@@ -15,6 +15,7 @@ const Student      = db.Student;
 const Guardian     = db.Guardian;
 const Section      = db.Section;
 const Classes      = db.Classes;
+const Subject      = db.Subject;
 
 
 module.exports = {
@@ -36,7 +37,10 @@ module.exports = {
   viewUser,
   listStudents,
   listTeachers,
-  listParents
+  listParents,
+  viewStudent,
+  viewTeacher,
+  viewParent
 };
 
 
@@ -719,6 +723,88 @@ async function listParents(params, user){
       order : [
                ['parent_vls_id', orderBy]
               ] 
+  })
+  
+  return { success: true, message: "list parents", data:guardian }
+}
+
+
+/**
+ * API get view student
+ */
+async function viewStudent(id, user){
+  let student = await Student.findOne({
+      where : {student_vls_id: id},
+      include: [{ 
+                  model:Section,
+                  as:'section',
+                },{ 
+                  model:Classes,
+                  as:'classes',
+                  include: [{ 
+                    model:Employee,
+                    as:'class_teacher'
+                  }]
+               },{ 
+                  model:Guardian,
+                  as:'parent',
+               }] 
+  })
+
+  return { success: true, message: "list students", data:student }
+}
+
+
+/**
+ * API get view teacher
+ */
+async function viewTeacher(id, user){
+  let teachers = await User.findOne({
+                  attributes: {
+                    exclude: ['password','old_passwords','forget_pwd_token']
+                  },
+                  include:[{ 
+                            model:Role,
+                            as:'roles',
+                            where : {slug : 'teacher'},
+                            attributes:['slug','name']
+                          },{ 
+                              model:Employee,
+                              as:'employee',
+                              where : {faculty_vls_id: id},
+                              include: [{ 
+                                model:Classes,
+                                as:'teacher_class'
+                              },{ 
+                                model:Section,
+                                as:'teacher_section'
+                              },{ 
+                                model:Subject,
+                                as:'teacher_subject'
+                              }]
+                          }]
+                  })
+  return { success: true, message: "list teachers", data:teachers }
+}
+
+
+/**
+ * API get view parent
+ */
+async function viewParent(id, user){
+  let guardian = await Guardian.findOne({
+      where : {parent_vls_id: id},
+      include:[{ 
+                model:Student,
+                as:'children',
+                  include:[{ 
+                      model:Section,
+                      as:'section',
+                      },{ 
+                        model:Classes,
+                        as:'classes'
+                    }]
+              }]
   })
   
   return { success: true, message: "list parents", data:guardian }

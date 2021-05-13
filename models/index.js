@@ -180,6 +180,10 @@ db.Student.belongsTo(db.Section,{foreignKey:'section_id',as:'section'})
 db.Student.belongsTo(db.Classes,{foreignKey:'class_id',as:'classes'})
 db.Student.belongsTo(db.SchoolDetails,{foreignKey:'school_id',as:'school'})
 db.Branch.belongsTo(db.SchoolDetails,{foreignKey:'school_vls_id',as:'school'})
+db.Classes.belongsTo(db.Employee,{foreignKey:'teacher_id',as:'class_teacher'})
+db.Employee.hasOne(db.Classes,{foreignKey:'teacher_id',as:'teacher_class'})
+db.Employee.hasOne(db.Section,{foreignKey:'teacher_id',as:'teacher_section'})
+db.Employee.hasMany(db.Subject,{foreignKey:'teacher_id',as:'teacher_subject'})
 
 /*********** assignment management ***********/
 db.Assignment.belongsTo(db.Employee,{foreignKey:'added_by',as:'addedBY'})
@@ -222,6 +226,7 @@ db.Classes.hasMany(db.Marks,{foreignKey:'class_id', as:'marks'})
 db.Classes.hasMany(db.Section,{foreignKey:'class_id', as:'section'})
 db.Marks.belongsTo(db.Classes,{foreignKey:'class_id', as:'classes'})
 db.Marks.belongsTo(db.Section,{foreignKey:'section_id', as:'section'})
+db.Guardian.hasMany(db.Student,{foreignKey:'parent_vls_id', as:'children'})
 
 /*********** school management ***********/
 db.Authentication.belongsTo(db.Employee,{foreignKey:'user_vls_id',as:'employee'})
