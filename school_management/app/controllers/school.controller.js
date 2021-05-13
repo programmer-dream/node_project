@@ -13,6 +13,8 @@ const Branch  		 = db.Branch;
 const Role         = db.Role;
 const Student      = db.Student;
 const Guardian     = db.Guardian;
+const Section      = db.Section;
+const Classes      = db.Classes;
 
 
 module.exports = {
@@ -601,7 +603,14 @@ async function listStudents(params, user){
       where : whereCondition,
       order : [
                ['student_vls_id', orderBy]
-              ] 
+              ],
+      include: [{ 
+                  model:Section,
+                  as:'section',
+                },{ 
+                  model:Classes,
+                  as:'classes',
+               }] 
   })
 
   return { success: true, message: "list students", data:students }
