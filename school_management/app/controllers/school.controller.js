@@ -498,16 +498,16 @@ async function getUserCount(school_id){
               { [Op.in] : ['student','teacher','guardian','branch-admin','school-admin','principal']
               } 
         },
-        attributes:['name']
-  }).then(roles => roles.map(role => role.name));
+        attributes:['slug']
+  }).then(roles => roles.map(role => role.slug));
 
-  let data = await sequelize.query("SELECT COUNT(`roles`.`id`) AS `count`, `roles`.`slug` AS `slug`, roles.name FROM `users` AS `users` right OUTER JOIN `roles` AS `roles` ON `users`.`role_id` = `roles`.`id` WHERE `users`.`school_id` = "+school_id+"  AND roles.slug IN('student','teacher','guardian','branch-admin','school-admin','principal') GROUP BY `slug`, name ;", { type: Sequelize.QueryTypes.SELECT });
-  
+  let data = await sequelize.query("SELECT COUNT(`roles`.`id`) AS `count`, `roles`.`slug` AS `slug`, roles.name FROM `users` AS `users` left OUTER JOIN `roles` AS `roles` ON `users`.`role_id` = `roles`.`id` WHERE `users`.`school_id` = "+school_id+"  AND roles.slug IN('student','teacher','guardian','branch-admin','school-admin','principal') GROUP BY `slug`, name ;", { type: Sequelize.QueryTypes.SELECT });
+console.log(data)
   let allCounts = {}
   await Promise.all(
     data.map(async user => {
-        if(!allCounts[user.name])
-            allCounts[user.name] = user.count
+        if(!allCounts[user.slug])
+            allCounts[user.slug] = user.count
     })
   )
 
@@ -535,16 +535,16 @@ async function getbranchUser(branch_vls_id){
               { [Op.in] : ['student','teacher','guardian','principal']
               } 
         },
-        attributes:['name']
-  }).then(roles => roles.map(role => role.name));
+        attributes:['slug']
+  }).then(roles => roles.map(role => role.slug));
 
   let data = await sequelize.query("SELECT COUNT(`roles`.`id`) AS `count`, `roles`.`slug` AS `slug`, roles.name FROM `users` AS `users` right OUTER JOIN `roles` AS `roles` ON `users`.`role_id` = `roles`.`id` WHERE `users`.`branch_vls_id` = "+branch_vls_id+"  AND roles.slug IN('student','teacher','guardian','principal') GROUP BY `slug`, name ;", { type: Sequelize.QueryTypes.SELECT });
   
   let allCounts = {}
   await Promise.all(
     data.map(async user => {
-        if(!allCounts[user.name])
-            allCounts[user.name] = user.count
+        if(!allCounts[user.slug])
+            allCounts[user.slug] = user.count
     })
   )
 
