@@ -50,6 +50,9 @@ router.get("/:id/branchList/",listBranch);
 router.get("/listStudents/",listStudents);
 router.get("/listTeachers/",listTeachers);
 router.get("/listParents/",listParents);
+router.get("/viewStudent/:id",viewStudent);
+router.get("/viewTeacher/:id",viewTeacher);
+router.get("/viewParent/:id",viewParent);
 
 //put
 router.put("/update/:id",updateSchool);
@@ -194,5 +197,26 @@ function listTeachers(req, res, next) {
 function listParents(req, res, next) {
     schoolController.listParents(req.query, req.user)
         .then(branch => branch ? res.json(branch) : res.status(400).json({ status: "error", message: 'Error while listing parents' }))
+        .catch(err => next(err));
+}
+
+// Function for view student
+function viewStudent(req, res, next) {
+    schoolController.viewStudent(req.params.id, req.user)
+        .then(student => student ? res.json(student) : res.status(400).json({ status: "error", message: 'Error while view student' }))
+        .catch(err => next(err));
+}
+
+// Function for view teacher
+function viewTeacher(req, res, next) {
+    schoolController.viewTeacher(req.params.id, req.user)
+        .then(teacher => teacher ? res.json(teacher) : res.status(400).json({ status: "error", message: 'Error while view teacher' }))
+        .catch(err => next(err));
+}
+
+// Function for view parent
+function viewParent(req, res, next) {
+    schoolController.viewParent(req.params.id, req.user)
+        .then(parent => parent ? res.json(parent) : res.status(400).json({ status: "error", message: 'Error while view parent' }))
         .catch(err => next(err));
 }
