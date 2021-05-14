@@ -40,7 +40,8 @@ module.exports = {
   listParents,
   viewStudent,
   viewTeacher,
-  viewParent
+  viewParent,
+  dasboardCount
 };
 
 
@@ -668,16 +669,25 @@ async function listTeachers(params, user){
                     attributes: {
                       exclude: ['password','old_passwords','forget_pwd_token']
                     },
-                    include: [{ 
-                              model:Role,
-                              as:'roles',
-                              where : {slug : 'teacher'},
-                              attributes:['slug','name']
-                            },{ 
-                                model:Employee,
-                                as:'employee',
-                                where : whereCondition
+                    include:[{ 
+                            model:Role,
+                            as:'roles',
+                            where : {slug : 'teacher'},
+                            attributes:['slug','name']
+                          },{ 
+                              model:Employee,
+                              as:'employee',
+                              include: [{ 
+                                model:Classes,
+                                as:'teacher_class'
+                              },{ 
+                                model:Section,
+                                as:'teacher_section'
+                              },{ 
+                                model:Subject,
+                                as:'teacher_subject'
                               }]
+                          }]
                     })
 
   return { success: true, message: "list teachers", data:teachers }
@@ -815,4 +825,45 @@ async function viewParent(id, user){
   })
   
   return { success: true, message: "view parent", data:guardian }
+}
+
+
+/**
+ * API get dashboard count
+ */
+async function dasboardCount(query, user){
+  let school_vls_id  = 1 
+  let branch_vls_id  = 1 
+  let total_branches = 0
+  let userCount      = 0
+  let finalData      = {}
+
+  switch (user.role) {
+    case 'super-admin':
+          let total_schools  = await SchoolDetails.count();
+          total_branches     = await Branch.count();
+          total_users        = await User.count();
+
+          finalData = { total_schools, total_branches, total_users}
+      break;
+    case 'branch-admin':
+    case 'principal':
+          total_users    = await User.count({
+            where : {branch_vls_id : branch_vls_id}
+          });
+          finalData = { total_users }
+      break;
+    case 'school-admin':
+          total_branches = await Branch.count({
+            where : {school_vls_id : school_vls_id}
+          });
+          total_users     = await User.count({
+            where : { school_id : school_vls_id}
+          });
+
+          finalData = { total_branches, total_users }
+      break;
+  }
+  
+  return { success: true, message: "Dasboard count", data:finalData }
 }
