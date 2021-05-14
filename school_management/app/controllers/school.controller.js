@@ -16,6 +16,10 @@ const Guardian     = db.Guardian;
 const Section      = db.Section;
 const Classes      = db.Classes;
 const Subject      = db.Subject;
+const Assignment   = db.Assignment;
+const StudentQuery = db.StudentQuery;
+const Feedback     = db.Feedback;
+const Ticket       = db.Ticket;
 
 
 module.exports = {
@@ -739,7 +743,18 @@ async function listParents(params, user){
       where : whereCondition,
       order : [
                ['parent_vls_id', orderBy]
-              ] 
+              ],
+      include:[{ 
+                model:Student,
+                as:'children',
+                  include:[{ 
+                      model:Section,
+                      as:'section',
+                      },{ 
+                        model:Classes,
+                        as:'classes'
+                    }]
+              }] 
   })
   
   return { success: true, message: "list parents", data:guardian }
@@ -837,6 +852,10 @@ async function dasboardCount(query, user){
   let total_branches = 0
   let student_count  = 0
   let teachers_count = 0
+  let assignment     = 0
+  let feedback       = 0
+  let ticket         = 0
+
   let userCount      = 0
   let finalData      = {}
 
@@ -853,7 +872,11 @@ async function dasboardCount(query, user){
                                                 where : {slug : 'teacher'},
                                               }]
                                       })
-          finalData = { total_schools, total_branches, total_users , student_count, teachers_count}
+          assignment = await getAssignmentCount()
+          query = await getQueryCount()
+          feedback = await getFeedbackCount()
+          ticket = await getTicketCount()
+          finalData = { total_schools, total_branches, total_users , student_count, teachers_count , assignment, query, feedback, ticket}
       break;
     case 'branch-admin':
     case 'principal':
@@ -871,7 +894,11 @@ async function dasboardCount(query, user){
                                               where : {slug : 'teacher'}
                                             }]
                                     })
-          finalData = { total_users , student_count, teachers_count}
+          assignment = await getAssignmentCount(null , branch_vls_id)
+          query = await getQueryCount(null , branch_vls_id)
+          feedback = await getFeedbackCount(null , branch_vls_id)
+          ticket = await getTicketCount(null , branch_vls_id)
+          finalData = { total_users , student_count, teachers_count, assignment, query, feedback, ticket}
       break;
     case 'school-admin':
           total_branches = await Branch.count({
@@ -891,9 +918,107 @@ async function dasboardCount(query, user){
                                               where : {slug : 'teacher'}
                                             }]
                                     })
-          finalData = { total_branches, total_users , student_count, teachers_count}
+          assignment = await getAssignmentCount(school_vls_id)
+          query = await getQueryCount(school_vls_id)
+          feedback = await getFeedbackCount(school_vls_id)
+          ticket = await getTicketCount(school_vls_id)
+          finalData = { total_branches, total_users , student_count, teachers_count, assignment, query, feedback, ticket}
       break;
   }
   
   return { success: true, message: "Dasboard count", data:finalData }
+}
+
+
+
+/**
+ * API get assignment count
+ */
+async function getAssignmentCount(school_vls_id = null, branch_vls_id = null){
+    let whereCondition = { assignment_type : 'online' }
+
+    if(school_vls_id)
+       whereCondition.school_vls_id = school_vls_id
+
+    if(branch_vls_id)
+       whereCondition.branch_vls_id = branch_vls_id
+
+    let online  = await Assignment.count({
+                        where : whereCondition
+                      })
+
+    whereCondition.assignment_type = 'offline'
+    let offline  = await Assignment.count({
+                        where : whereCondition
+                      })
+    return { online , offline }
+}
+
+/**
+ * API get query count
+ */
+async function getQueryCount(school_vls_id = null, branch_vls_id = null){
+    let whereCondition = { query_status : 'open' }
+
+    if(school_vls_id)
+       whereCondition.school_vls_id = school_vls_id
+
+    if(branch_vls_id)
+       whereCondition.branch_vls_id = branch_vls_id
+
+    let open  = await StudentQuery.count({
+                        where : whereCondition
+                      })
+
+    whereCondition.query_status = 'Closed'
+    let closed  = await StudentQuery.count({
+                        where : whereCondition
+                      })
+    return { open , closed }
+}
+
+/**
+ * API get feedback count
+ */
+async function getFeedbackCount(school_vls_id = null, branch_vls_id = null){
+    let whereCondition = { status : 'open' }
+
+    if(school_vls_id)
+       whereCondition.school_vls_id = school_vls_id
+
+    if(branch_vls_id)
+       whereCondition.branch_vls_id = branch_vls_id
+
+    let open  = await Feedback.count({
+                        where : whereCondition
+                      })
+
+    whereCondition.status = 'closed'
+    let closed  = await Feedback.count({
+                        where : whereCondition
+                      })
+    return { open , closed }
+}
+
+/**
+ * API get query count
+ */
+async function getTicketCount(school_vls_id = null, branch_vls_id = null){
+    let whereCondition = { status : 'wip' }
+
+    if(school_vls_id)
+       whereCondition.school_vls_id = school_vls_id
+
+    if(branch_vls_id)
+       whereCondition.branch_vls_id = branch_vls_id
+
+    let wip  = await Ticket.count({
+                        where : whereCondition
+                      })
+
+    whereCondition.status = 'resolved'
+    let resolved  = await Ticket.count({
+                        where : whereCondition
+                      })
+    return { wip , resolved }
 }
