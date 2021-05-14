@@ -79,7 +79,7 @@ function canResponse(req, res, next) {
 }
 // Function for query count's
 function dashboardCount(req, res, next) {
-    queryController.dashboardCount( req.user )
+    queryController.dashboardCount( req.user, req.query )
         .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while getting query counts' }))
         .catch(err => next(err));
 }
