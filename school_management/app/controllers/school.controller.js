@@ -607,14 +607,21 @@ async function listStudents(params, user){
       where : whereCondition,
       order : [
                ['student_vls_id', orderBy]
-              ],
+              ], 
       include: [{ 
                   model:Section,
                   as:'section',
                 },{ 
                   model:Classes,
                   as:'classes',
-               }] 
+                  include: [{ 
+                    model:Employee,
+                    as:'class_teacher'
+                  }]
+               },{ 
+                  model:Guardian,
+                  as:'parent',
+               }]
   })
 
   return { success: true, message: "list students", data:students }
@@ -751,7 +758,7 @@ async function viewStudent(id, user){
                }] 
   })
 
-  return { success: true, message: "list students", data:student }
+  return { success: true, message: "view student", data:student }
 }
 
 
@@ -784,7 +791,7 @@ async function viewTeacher(id, user){
                               }]
                           }]
                   })
-  return { success: true, message: "list teachers", data:teachers }
+  return { success: true, message: "view teacher", data:teachers }
 }
 
 
@@ -807,5 +814,5 @@ async function viewParent(id, user){
               }]
   })
   
-  return { success: true, message: "list parents", data:guardian }
+  return { success: true, message: "view parent", data:guardian }
 }
