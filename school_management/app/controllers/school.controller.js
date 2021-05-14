@@ -835,6 +835,8 @@ async function dasboardCount(query, user){
   let school_vls_id  = 1 
   let branch_vls_id  = 1 
   let total_branches = 0
+  let student_count  = 0
+  let teachers_count = 0
   let userCount      = 0
   let finalData      = {}
 
@@ -843,15 +845,33 @@ async function dasboardCount(query, user){
           let total_schools  = await SchoolDetails.count();
           total_branches     = await Branch.count();
           total_users        = await User.count();
-
-          finalData = { total_schools, total_branches, total_users}
+          student_count      = await Student.count();
+          teachers_count     = await User.count({
+                                      include:[{ 
+                                                model:Role,
+                                                as:'roles',
+                                                where : {slug : 'teacher'},
+                                              }]
+                                      })
+          finalData = { total_schools, total_branches, total_users , student_count, teachers_count}
       break;
     case 'branch-admin':
     case 'principal':
           total_users    = await User.count({
             where : {branch_vls_id : branch_vls_id}
           });
-          finalData = { total_users }
+          student_count     = await Student.count({
+            where : { branch_vls_id : branch_vls_id}
+          });
+          teachers_count     = await User.count({
+                                    where : {branch_vls_id : school_vls_id},
+                                    include:[{ 
+                                              model:Role,
+                                              as:'roles',
+                                              where : {slug : 'teacher'}
+                                            }]
+                                    })
+          finalData = { total_users , student_count, teachers_count}
       break;
     case 'school-admin':
           total_branches = await Branch.count({
@@ -860,8 +880,18 @@ async function dasboardCount(query, user){
           total_users     = await User.count({
             where : { school_id : school_vls_id}
           });
-
-          finalData = { total_branches, total_users }
+          student_count     = await Student.count({
+            where : { school_id : school_vls_id}
+          });
+          teachers_count     = await User.count({
+                                    where : {school_id : school_vls_id},
+                                    include:[{ 
+                                              model:Role,
+                                              as:'roles',
+                                              where : {slug : 'teacher'}
+                                            }]
+                                    })
+          finalData = { total_branches, total_users , student_count, teachers_count}
       break;
   }
   
