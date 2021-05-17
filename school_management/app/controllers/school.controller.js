@@ -892,6 +892,10 @@ async function dasboardCount(query, user, activeUserArr){
       break;
     case 'branch-admin':
     case 'principal':
+
+          if(!branch_vls_id) 
+             throw 'branch_vls_id is required'
+
           total_users    = await User.count({
             where : {branch_vls_id : branch_vls_id}
           });
@@ -899,20 +903,27 @@ async function dasboardCount(query, user, activeUserArr){
             where : { branch_vls_id : branch_vls_id}
           });
           teachers_count     = await User.count({
-                                    where : {branch_vls_id : school_vls_id},
+                                    where : {branch_vls_id : branch_vls_id},
                                     include:[{ 
                                               model:Role,
                                               as:'roles',
                                               where : {slug : 'teacher'}
                                             }]
                                     })
-          assignment = await getAssignmentCount(null , branch_vls_id)
-          query = await getQueryCount(null , branch_vls_id)
-          feedback = await getFeedbackCount(null , branch_vls_id)
-          ticket = await getTicketCount(null , branch_vls_id)
-          finalData = { total_users , student_count, teachers_count, assignment, query, feedback, ticket}
+          assignment  = await getAssignmentCount(null , branch_vls_id)
+          query       = await getQueryCount(null , branch_vls_id)
+          feedback    = await getFeedbackCount(null , branch_vls_id)
+          ticket      = await getTicketCount(null , branch_vls_id)
+          chat       = await getChatCount(null , branch_vls_id)
+          community  = await getCommunityCount(null , branch_vls_id)
+          eBook      = await getEbookCount(null , branch_vls_id)
+          finalData = { total_users , student_count, teachers_count, assignment, query, feedback, ticket, chat, community, eBook}
       break;
     case 'school-admin':
+
+          if(!school_vls_id) 
+            throw 'branch_vls_id is required'
+
           total_branches = await Branch.count({
             where : {school_vls_id : school_vls_id}
           });
