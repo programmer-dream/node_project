@@ -20,6 +20,10 @@ const Assignment   = db.Assignment;
 const StudentQuery = db.StudentQuery;
 const Feedback     = db.Feedback;
 const Ticket       = db.Ticket;
+const LearningLibrary = db.LearningLibrary;
+const VideoLearningLibrary = db.VideoLearningLibrary;
+const CommunityChat = db.CommunityChat;
+const Chat          = db.Chat;
 
 
 module.exports = {
@@ -873,10 +877,14 @@ async function dasboardCount(query, user){
                                               }]
                                       })
           assignment = await getAssignmentCount()
-          query = await getQueryCount()
-          feedback = await getFeedbackCount()
-          ticket = await getTicketCount()
-          finalData = { total_schools, total_branches, total_users , student_count, teachers_count , assignment, query, feedback, ticket}
+          query      = await getQueryCount()
+          feedback   = await getFeedbackCount()
+          ticket     = await getTicketCount()
+          eBook      = await getEbookCount()
+          eVideos    = await getVideosCount()
+          community  = await getCommunityCount()
+          chat       = await getChatCount()
+          finalData  = { total_schools, total_branches, total_users , student_count, teachers_count , assignment, query, feedback, ticket, eBook, eVideos, community, chat}
       break;
     case 'branch-admin':
     case 'principal':
@@ -935,7 +943,7 @@ async function dasboardCount(query, user){
  * API get assignment count
  */
 async function getAssignmentCount(school_vls_id = null, branch_vls_id = null){
-    let whereCondition = { assignment_type : 'online' }
+    let whereCondition = { assignment_type : 'online' , is_released : 1}
 
     if(school_vls_id)
        whereCondition.school_vls_id = school_vls_id
@@ -951,7 +959,19 @@ async function getAssignmentCount(school_vls_id = null, branch_vls_id = null){
     let offline  = await Assignment.count({
                         where : whereCondition
                       })
-    return { online , offline }
+
+    let currentDate = moment().format('YYYY-MM-DD')
+
+    let whereActive = { 
+      is_released : 1,
+      [Op.eq]: sequelize.where(sequelize.fn('date', sequelize.col('assignment_completion_date')), '>=', currentDate)
+    }
+
+    let active  = await Assignment.count({
+                        where : whereActive
+                      })
+
+    return { online, offline, active}
 }
 
 /**
@@ -1004,7 +1024,7 @@ async function getFeedbackCount(school_vls_id = null, branch_vls_id = null){
  * API get query count
  */
 async function getTicketCount(school_vls_id = null, branch_vls_id = null){
-    let whereCondition = { status : 'wip' }
+    let whereCondition = { status : { [Op.in] : ['new','assigned','wip'] } }
 
     if(school_vls_id)
        whereCondition.school_vls_id = school_vls_id
@@ -1012,7 +1032,7 @@ async function getTicketCount(school_vls_id = null, branch_vls_id = null){
     if(branch_vls_id)
        whereCondition.branch_vls_id = branch_vls_id
 
-    let wip  = await Ticket.count({
+    let open  = await Ticket.count({
                         where : whereCondition
                       })
 
@@ -1020,5 +1040,95 @@ async function getTicketCount(school_vls_id = null, branch_vls_id = null){
     let resolved  = await Ticket.count({
                         where : whereCondition
                       })
-    return { wip , resolved }
+    return { open , resolved }
+}
+
+/**
+ * API get learning library
+ */
+async function getEbookCount(school_vls_id = null, branch_vls_id = null){
+    let whereCondition = {}
+
+    if(school_vls_id)
+       whereCondition.school_vls_id = school_vls_id
+
+    if(branch_vls_id)
+       whereCondition.branch_vls_id = branch_vls_id
+
+    let eBook  = await LearningLibrary.count({
+                        where : whereCondition
+                      })
+    return  eBook 
+}
+
+/**
+ * API get video library
+ */
+async function getVideosCount(school_vls_id = null, branch_vls_id = null){
+    let whereCondition = {}
+
+    if(school_vls_id)
+       whereCondition.school_vls_id = school_vls_id
+
+    if(branch_vls_id)
+       whereCondition.branch_vls_id = branch_vls_id
+
+    let eVideos  = await VideoLearningLibrary.count({
+                        where : whereCondition
+                      })
+
+    let total_time_watched = '5:45'
+
+    return  { eVideos ,  total_time_watched }
+}
+
+
+/**
+ * API get community library
+ */
+async function getCommunityCount(school_vls_id = null, branch_vls_id = null){
+    let whereCondition = {}
+
+    if(school_vls_id)
+       whereCondition.school_vls_id = school_vls_id
+
+    if(branch_vls_id)
+       whereCondition.branch_vls_id = branch_vls_id
+
+    let total_count  = await CommunityChat.count({
+                        where : whereCondition
+                      })
+    whereCondition.community_status = 'Active'
+    let active  = await CommunityChat.count({
+                        where : whereCondition
+                      })
+
+    return  { total_count ,  active }
+}
+
+
+/**
+ * API get chat library
+ */
+async function getChatCount(school_vls_id = null, branch_vls_id = null){
+    let whereCondition = {}
+
+    if(school_vls_id)
+       whereCondition.school_vls_id = school_vls_id
+
+    if(branch_vls_id)
+       whereCondition.branch_vls_id = branch_vls_id
+
+
+    let total_count  = await Chat.findAll({
+                         attributes :['sender_user_vls_id','sender_type','receiver_user_vls_id','receiver_type'],
+                         group : ['sender_user_vls_id',
+                                  'sender_type',
+                                  'receiver_user_vls_id',
+                                  'receiver_type',
+                                  ]
+                        });
+
+    total_count = total_count.length
+    return  { total_count }
 }

@@ -19,6 +19,7 @@ const errorHandler = require('../helpers/error-handler');
 const chatController = require("./app/controllers/chat.controller");
 const config = require("../config/env.js");
 const authController = require("../vls/app/controllers/auth.controller");
+const schoolController = require("../school_management/app/controllers/school.controller");
 const helper = require("./app/helper");
 const upload  = helper.upload;
 const secret = config.secret;
@@ -165,8 +166,23 @@ app.post("/chat/create",[
 
 // api routes
 app.use('/chat', require('./app/routes/chat.routes'));
-
-
+let testing = 'testing'
+// Create chat route
+app.get("/school/dasboardCount",async function(req, res, users){
+    schoolController.dasboardCount(req.query, req.user, users)
+          .then((counts) => {
+            if(counts){
+              
+              res.json(counts)
+            }else{
+              res.status(400).json({ status: "error", message: 'Error while getting counts' })
+            }
+          })
+          .catch( (err) => {
+            console.log(err, "err")
+            res.status(400).json({ status: "error", message: "Something went wrong" }) 
+          });
+});
 // global error handler
 app.use(errorHandler);
 
