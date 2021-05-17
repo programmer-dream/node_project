@@ -665,6 +665,7 @@ async function listTeachers(params, user){
                 }
            },
     };
+
   if(params.faculty_vls_id) 
      whereCondition.faculty_vls_id = params.faculty_vls_id
 
@@ -685,6 +686,7 @@ async function listTeachers(params, user){
                           },{ 
                               model:Employee,
                               as:'employee',
+                              where:whereCondition,
                               include: [{ 
                                 model:Classes,
                                 as:'teacher_class'
@@ -1129,7 +1131,7 @@ async function getChatCount(school_vls_id = null, branch_vls_id = null){
                                   'receiver_type',
                                   ]
                         });
-    
+
     total_count = total_count.length
     return  { total_count }
 }
