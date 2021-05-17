@@ -850,7 +850,7 @@ async function viewParent(id, user){
 /**
  * API get dashboard count
  */
-async function dasboardCount(query, user){
+async function dasboardCount(query, user, activeUserArr){
   let school_vls_id  = 1 
   let branch_vls_id  = 1 
   let total_branches = 0
@@ -884,6 +884,7 @@ async function dasboardCount(query, user){
           eVideos    = await getVideosCount()
           community  = await getCommunityCount()
           chat       = await getChatCount()
+          chat.active_user = activeUserArr.length
           finalData  = { total_schools, total_branches, total_users , student_count, teachers_count , assignment, query, feedback, ticket, eBook, eVideos, community, chat}
       break;
     case 'branch-admin':
@@ -1128,7 +1129,7 @@ async function getChatCount(school_vls_id = null, branch_vls_id = null){
                                   'receiver_type',
                                   ]
                         });
-
+    
     total_count = total_count.length
     return  { total_count }
 }
