@@ -853,8 +853,8 @@ async function viewParent(id, user){
  * API get dashboard count
  */
 async function dasboardCount(query, user, activeUserArr){
-  let school_vls_id  = 1 
-  let branch_vls_id  = 1 
+  let school_vls_id  = query.school_vls_id 
+  let branch_vls_id  = query.branch_vls_id 
   let total_branches = 0
   let student_count  = 0
   let teachers_count = 0
@@ -887,6 +887,7 @@ async function dasboardCount(query, user, activeUserArr){
           community  = await getCommunityCount()
           chat       = await getChatCount()
           chat.active_user = activeUserArr.length
+
           finalData  = { total_schools, total_branches, total_users , student_count, teachers_count , assignment, query, feedback, ticket, eBook, eVideos, community, chat}
       break;
     case 'branch-admin':
@@ -930,10 +931,15 @@ async function dasboardCount(query, user, activeUserArr){
                                             }]
                                     })
           assignment = await getAssignmentCount(school_vls_id)
-          query = await getQueryCount(school_vls_id)
-          feedback = await getFeedbackCount(school_vls_id)
-          ticket = await getTicketCount(school_vls_id)
-          finalData = { total_branches, total_users , student_count, teachers_count, assignment, query, feedback, ticket}
+          query      = await getQueryCount(school_vls_id)
+          feedback   = await getFeedbackCount(school_vls_id)
+          ticket     = await getTicketCount(school_vls_id)
+          chat       = await getChatCount(school_vls_id)
+          community  = await getCommunityCount(school_vls_id)
+          eBook      = await getEbookCount(school_vls_id)
+          chat.active_user = activeUserArr.length
+
+          finalData  = { total_branches, total_users , student_count, teachers_count, assignment, query, feedback, ticket, chat, community, eBook}
       break;
   }
   
@@ -947,12 +953,21 @@ async function dasboardCount(query, user, activeUserArr){
  */
 async function getAssignmentCount(school_vls_id = null, branch_vls_id = null){
     let whereCondition = { assignment_type : 'online' , is_released : 1}
+    let currentDate = moment().format('YYYY-MM-DD')
 
-    if(school_vls_id)
+    let whereActive = { 
+      is_released : 1,
+      [Op.eq]: sequelize.where(sequelize.fn('date', sequelize.col('assignment_completion_date')), '>=', currentDate)
+    }
+    if(school_vls_id){
        whereCondition.school_vls_id = school_vls_id
+       whereActive.school_vls_id = school_vls_id
+    }
 
-    if(branch_vls_id)
+    if(branch_vls_id){
        whereCondition.branch_vls_id = branch_vls_id
+       whereActive.branch_vls_id = branch_vls_id
+    }
 
     let online  = await Assignment.count({
                         where : whereCondition
@@ -962,13 +977,6 @@ async function getAssignmentCount(school_vls_id = null, branch_vls_id = null){
     let offline  = await Assignment.count({
                         where : whereCondition
                       })
-
-    let currentDate = moment().format('YYYY-MM-DD')
-
-    let whereActive = { 
-      is_released : 1,
-      [Op.eq]: sequelize.where(sequelize.fn('date', sequelize.col('assignment_completion_date')), '>=', currentDate)
-    }
 
     let active  = await Assignment.count({
                         where : whereActive
@@ -1122,8 +1130,8 @@ async function getChatCount(school_vls_id = null, branch_vls_id = null){
     if(branch_vls_id)
        whereCondition.branch_vls_id = branch_vls_id
 
-
     let total_count  = await Chat.findAll({
+                         where : whereCondition,
                          attributes :['sender_user_vls_id','sender_type','receiver_user_vls_id','receiver_type'],
                          group : ['sender_user_vls_id',
                                   'sender_type',
