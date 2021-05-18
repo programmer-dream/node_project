@@ -24,6 +24,10 @@ const LearningLibrary = db.LearningLibrary;
 const VideoLearningLibrary = db.VideoLearningLibrary;
 const CommunityChat = db.CommunityChat;
 const Chat          = db.Chat;
+const Marks         = db.Marks;
+const StudentAttendance  = db.StudentAttendance;
+const AcademicYear  = db.AcademicYear;
+const Exams         = db.Exams;
 
 
 module.exports = {
@@ -665,6 +669,7 @@ async function listTeachers(params, user){
                 }
            },
     };
+
   if(params.faculty_vls_id) 
      whereCondition.faculty_vls_id = params.faculty_vls_id
 
@@ -685,6 +690,7 @@ async function listTeachers(params, user){
                           },{ 
                               model:Employee,
                               as:'employee',
+                              where:whereCondition,
                               include: [{ 
                                 model:Classes,
                                 as:'teacher_class'
@@ -850,9 +856,9 @@ async function viewParent(id, user){
 /**
  * API get dashboard count
  */
-async function dasboardCount(query, user){
-  let school_vls_id  = 1 
-  let branch_vls_id  = 1 
+async function dasboardCount(query, user, activeUserArr){
+  let school_vls_id  = query.school_vls_id 
+  let branch_vls_id  = query.branch_vls_id 
   let total_branches = 0
   let student_count  = 0
   let teachers_count = 0
@@ -884,10 +890,19 @@ async function dasboardCount(query, user){
           eVideos    = await getVideosCount()
           community  = await getCommunityCount()
           chat       = await getChatCount()
+          chat.active_user = activeUserArr.length
+
           finalData  = { total_schools, total_branches, total_users , student_count, teachers_count , assignment, query, feedback, ticket, eBook, eVideos, community, chat}
       break;
     case 'branch-admin':
     case 'principal':
+
+          if(!branch_vls_id) 
+             throw 'branch_vls_id is required'
+
+          if(!school_vls_id) 
+             throw 'school_vls_id is required'
+
           total_users    = await User.count({
             where : {branch_vls_id : branch_vls_id}
           });
@@ -895,20 +910,31 @@ async function dasboardCount(query, user){
             where : { branch_vls_id : branch_vls_id}
           });
           teachers_count     = await User.count({
-                                    where : {branch_vls_id : school_vls_id},
+                                    where : {branch_vls_id : branch_vls_id},
                                     include:[{ 
                                               model:Role,
                                               as:'roles',
                                               where : {slug : 'teacher'}
                                             }]
                                     })
-          assignment = await getAssignmentCount(null , branch_vls_id)
-          query = await getQueryCount(null , branch_vls_id)
-          feedback = await getFeedbackCount(null , branch_vls_id)
-          ticket = await getTicketCount(null , branch_vls_id)
-          finalData = { total_users , student_count, teachers_count, assignment, query, feedback, ticket}
+          assignment  = await getAssignmentCount(null , branch_vls_id)
+          query       = await getQueryCount(null , branch_vls_id)
+          feedback    = await getFeedbackCount(null , branch_vls_id)
+          ticket      = await getTicketCount(null , branch_vls_id)
+          chat       = await getChatCount(null , branch_vls_id)
+          community  = await getCommunityCount(null , branch_vls_id)
+          eBook      = await getEbookCount(null , branch_vls_id)
+          attendance = await getAttendance(null , branch_vls_id)
+          performance_avg = await getSchoolPerformance(school_vls_id, branch_vls_id)
+          top_performance  = await getTopPerformer(school_vls_id, branch_vls_id)
+
+          finalData = { total_users , student_count, teachers_count, assignment, query, feedback, ticket, chat, community, eBook, attendance, performance_avg, top_performance}
       break;
     case 'school-admin':
+
+          if(!school_vls_id) 
+            throw 'branch_vls_id is required'
+
           total_branches = await Branch.count({
             where : {school_vls_id : school_vls_id}
           });
@@ -927,10 +953,18 @@ async function dasboardCount(query, user){
                                             }]
                                     })
           assignment = await getAssignmentCount(school_vls_id)
-          query = await getQueryCount(school_vls_id)
-          feedback = await getFeedbackCount(school_vls_id)
-          ticket = await getTicketCount(school_vls_id)
-          finalData = { total_branches, total_users , student_count, teachers_count, assignment, query, feedback, ticket}
+          query      = await getQueryCount(school_vls_id)
+          feedback   = await getFeedbackCount(school_vls_id)
+          ticket     = await getTicketCount(school_vls_id)
+          chat       = await getChatCount(school_vls_id)
+          community  = await getCommunityCount(school_vls_id)
+          eBook      = await getEbookCount(school_vls_id)
+          chat.active_user = activeUserArr.length
+          top_performance  = await getTopPerformer(school_vls_id)
+          attendance = await getAttendance(school_vls_id)
+          performance_avg = await getSchoolPerformance(school_vls_id)
+
+          finalData  = { total_branches, total_users , student_count, teachers_count, assignment, query, feedback, ticket, chat, community, eBook, top_performance, attendance, performance_avg}
       break;
   }
   
@@ -944,12 +978,21 @@ async function dasboardCount(query, user){
  */
 async function getAssignmentCount(school_vls_id = null, branch_vls_id = null){
     let whereCondition = { assignment_type : 'online' , is_released : 1}
+    let currentDate = moment().format('YYYY-MM-DD')
 
-    if(school_vls_id)
+    let whereActive = { 
+      is_released : 1,
+      [Op.eq]: sequelize.where(sequelize.fn('date', sequelize.col('assignment_completion_date')), '>=', currentDate)
+    }
+    if(school_vls_id){
        whereCondition.school_vls_id = school_vls_id
+       whereActive.school_vls_id = school_vls_id
+    }
 
-    if(branch_vls_id)
+    if(branch_vls_id){
        whereCondition.branch_vls_id = branch_vls_id
+       whereActive.branch_vls_id = branch_vls_id
+    }
 
     let online  = await Assignment.count({
                         where : whereCondition
@@ -959,13 +1002,6 @@ async function getAssignmentCount(school_vls_id = null, branch_vls_id = null){
     let offline  = await Assignment.count({
                         where : whereCondition
                       })
-
-    let currentDate = moment().format('YYYY-MM-DD')
-
-    let whereActive = { 
-      is_released : 1,
-      [Op.eq]: sequelize.where(sequelize.fn('date', sequelize.col('assignment_completion_date')), '>=', currentDate)
-    }
 
     let active  = await Assignment.count({
                         where : whereActive
@@ -1119,8 +1155,8 @@ async function getChatCount(school_vls_id = null, branch_vls_id = null){
     if(branch_vls_id)
        whereCondition.branch_vls_id = branch_vls_id
 
-
     let total_count  = await Chat.findAll({
+                         where : whereCondition,
                          attributes :['sender_user_vls_id','sender_type','receiver_user_vls_id','receiver_type'],
                          group : ['sender_user_vls_id',
                                   'sender_type',
@@ -1131,4 +1167,144 @@ async function getChatCount(school_vls_id = null, branch_vls_id = null){
 
     total_count = total_count.length
     return  { total_count }
+}
+
+
+/**
+ * API for top Three Perfromer data 
+ */
+async function getTopPerformer(school_vls_id, branch_vls_id = null){
+  let whereCondition = {}
+
+  if(school_vls_id)
+      whereCondition.school_id = school_vls_id
+
+  //acadminc year
+  let academicYear  = await AcademicYear.findOne({
+                        where:{ school_id : school_vls_id },
+                        order : [
+                         ['id', 'desc']
+                        ]
+                      })
+  let examWhere = { 
+                    school_id : school_vls_id ,
+                    academic_year_id : academicYear.id
+                  }
+
+  if(branch_vls_id){
+      examWhere.branch_vls_id = branch_vls_id
+  }
+  //latest exam
+  let letestExam = await Exams.findAll({
+    where : examWhere,
+    attributes : ['test_id']      
+  }).then(exams => exams.map(exams => exams.test_id));
+
+  //latest exam condtion
+  whereCondition.exam_id = { [Op.in] : letestExam } 
+
+  let allMarks = await Marks.findAll({
+    where : whereCondition,
+    attributes:[
+                    [ Sequelize.fn('SUM', Sequelize.col('exam_total_mark')), 'exam_total_mark' ],
+                    [ Sequelize.fn('SUM', Sequelize.col('obtain_total_mark')), 'obtain_total_mark' ],
+                    'student_id'
+                  ],
+        include: [{ 
+                  model:Student,
+                  as:'student',
+                  attributes:['name','photo'],
+                  include: [{ 
+                    model:Branch,
+                    as:'branchDetailsStudent',
+                    attributes:['branch_name']
+                  }]
+              }],
+    group:['student_id'],
+    order : [
+                [Sequelize.fn('SUM', Sequelize.col('obtain_total_mark')), 'desc']
+              ],
+      limit : 3
+  })
+
+  return allMarks
+}
+
+
+/**
+ * API for top Three Perfromer data 
+ */
+async function getAttendance(school_vls_id = null, branch_vls_id = null){
+    let day   = 'day_'+moment().format('D')
+    let month = moment().format('MMMM')
+    let year = moment().format('YYYY')
+
+    let whereCondition = {
+          year : year,
+          month : month
+        }
+    whereCondition[day] = 'P'
+
+    if(school_vls_id)
+      whereCondition.school_id = school_vls_id
+
+    if(branch_vls_id)
+      whereCondition.branch_vls_id = branch_vls_id
+    
+    let present  = await StudentAttendance.count({
+        where: whereCondition,
+        attributes:[day]
+      })
+
+     whereCondition[day] = 'A'
+
+    let absent  = await StudentAttendance.count({
+        where: whereCondition,
+        attributes:[day]
+      })
+    return { present, absent}
+}
+
+
+/**
+ * API for school Perfromer data 
+ */
+async function getSchoolPerformance(school_vls_id , branch_vls_id ){
+  let whereCondition = {}
+
+  if(school_vls_id)
+      whereCondition.school_id = school_vls_id
+
+  //acadminc year
+  let academicYear  = await AcademicYear.findOne({
+                        where:{ school_id : school_vls_id },
+                        order : [
+                         ['id', 'desc']
+                        ]
+                      })
+  let examWhere = { 
+                    school_id : school_vls_id ,
+                    academic_year_id : academicYear.id
+                  }
+
+  if(branch_vls_id){
+      examWhere.branch_vls_id = branch_vls_id
+  }
+
+  //latest exam
+  let letestExam = await Exams.findAll({
+    where : examWhere,
+    attributes : ['test_id']      
+  }).then(exams => exams.map(exams => exams.test_id));
+
+  //latest exam condtion
+  whereCondition.exam_id = { [Op.in] : letestExam }
+  let allMarks = await Marks.findAll({
+    where : whereCondition,
+    attributes:[
+                    [ Sequelize.fn('AVG', Sequelize.col('obtain_total_mark')), 'obtain_total_mark' ]                  
+                ],
+  })
+
+  return allMarks[0].obtain_total_mark
 }

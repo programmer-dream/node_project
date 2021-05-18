@@ -53,7 +53,6 @@ router.get("/listParents/",listParents);
 router.get("/viewStudent/:id",viewStudent);
 router.get("/viewTeacher/:id",viewTeacher);
 router.get("/viewParent/:id",viewParent);
-router.get("/dasboardCount",dasboardCount);
 
 //put
 router.put("/update/:id",updateSchool);
@@ -222,9 +221,9 @@ function viewParent(req, res, next) {
         .catch(err => next(err));
 }
 
-// Function for dashboard count
-function dasboardCount(req, res, next) {
-    schoolController.dasboardCount(req.query, req.user)
-        .then(dashboard => dashboard ? res.json(dashboard) : res.status(400).json({ status: "error", message: 'Error while dashboard count' }))
-        .catch(err => next(err));
-}
+// // Function for dashboard count
+// function dasboardCount(req, res, next) {
+//     schoolController.dasboardCount(req.query, req.user)
+//         .then(dashboard => dashboard ? res.json(dashboard) : res.status(400).json({ status: "error", message: 'Error while dashboard count' }))
+//         .catch(err => next(err));
+// }

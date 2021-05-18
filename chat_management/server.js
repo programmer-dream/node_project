@@ -166,9 +166,9 @@ app.post("/chat/create",[
 
 // api routes
 app.use('/chat', require('./app/routes/chat.routes'));
-let testing = 'testing'
+//let testing = 'testing'
 // Create chat route
-app.get("/school/dasboardCount",async function(req, res, users){
+app.get("/school/dasboardCount",async function(req, res){
     schoolController.dasboardCount(req.query, req.user, users)
           .then((counts) => {
             if(counts){
