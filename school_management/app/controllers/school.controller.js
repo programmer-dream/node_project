@@ -26,6 +26,8 @@ const CommunityChat = db.CommunityChat;
 const Chat          = db.Chat;
 const Marks         = db.Marks;
 const StudentAttendance  = db.StudentAttendance;
+const AcademicYear  = db.AcademicYear;
+const Exams         = db.Exams;
 
 
 module.exports = {
@@ -898,6 +900,9 @@ async function dasboardCount(query, user, activeUserArr){
           if(!branch_vls_id) 
              throw 'branch_vls_id is required'
 
+          if(!school_vls_id) 
+             throw 'school_vls_id is required'
+
           total_users    = await User.count({
             where : {branch_vls_id : branch_vls_id}
           });
@@ -920,8 +925,10 @@ async function dasboardCount(query, user, activeUserArr){
           community  = await getCommunityCount(null , branch_vls_id)
           eBook      = await getEbookCount(null , branch_vls_id)
           attendance = await getAttendance(null , branch_vls_id)
+          performance_avg = await getSchoolPerformance(school_vls_id, branch_vls_id)
+          top_performance  = await getTopPerformer(school_vls_id, branch_vls_id)
 
-          finalData = { total_users , student_count, teachers_count, assignment, query, feedback, ticket, chat, community, eBook, attendance}
+          finalData = { total_users , student_count, teachers_count, assignment, query, feedback, ticket, chat, community, eBook, attendance, performance_avg, top_performance}
       break;
     case 'school-admin':
 
@@ -955,8 +962,9 @@ async function dasboardCount(query, user, activeUserArr){
           chat.active_user = activeUserArr.length
           top_performance  = await getTopPerformer(school_vls_id)
           attendance = await getAttendance(school_vls_id)
+          performance_avg = await getSchoolPerformance(school_vls_id)
 
-          finalData  = { total_branches, total_users , student_count, teachers_count, assignment, query, feedback, ticket, chat, community, eBook, top_performance, attendance}
+          finalData  = { total_branches, total_users , student_count, teachers_count, assignment, query, feedback, ticket, chat, community, eBook, top_performance, attendance, performance_avg}
       break;
   }
   
@@ -1165,14 +1173,35 @@ async function getChatCount(school_vls_id = null, branch_vls_id = null){
 /**
  * API for top Three Perfromer data 
  */
-async function getTopPerformer(school_vls_id = null, branch_vls_id = null){
+async function getTopPerformer(school_vls_id, branch_vls_id = null){
   let whereCondition = {}
 
   if(school_vls_id)
       whereCondition.school_id = school_vls_id
 
-  if(branch_vls_id)
-      whereCondition.branch_vls_id = branch_vls_id
+  //acadminc year
+  let academicYear  = await AcademicYear.findOne({
+                        where:{ school_id : school_vls_id },
+                        order : [
+                         ['id', 'desc']
+                        ]
+                      })
+  let examWhere = { 
+                    school_id : school_vls_id ,
+                    academic_year_id : academicYear.id
+                  }
+
+  if(branch_vls_id){
+      examWhere.branch_vls_id = branch_vls_id
+  }
+  //latest exam
+  let letestExam = await Exams.findAll({
+    where : examWhere,
+    attributes : ['test_id']      
+  }).then(exams => exams.map(exams => exams.test_id));
+
+  //latest exam condtion
+  whereCondition.exam_id = { [Op.in] : letestExam } 
 
   let allMarks = await Marks.findAll({
     where : whereCondition,
@@ -1234,4 +1263,48 @@ async function getAttendance(school_vls_id = null, branch_vls_id = null){
         attributes:[day]
       })
     return { present, absent}
+}
+
+
+/**
+ * API for school Perfromer data 
+ */
+async function getSchoolPerformance(school_vls_id , branch_vls_id ){
+  let whereCondition = {}
+
+  if(school_vls_id)
+      whereCondition.school_id = school_vls_id
+
+  //acadminc year
+  let academicYear  = await AcademicYear.findOne({
+                        where:{ school_id : school_vls_id },
+                        order : [
+                         ['id', 'desc']
+                        ]
+                      })
+  let examWhere = { 
+                    school_id : school_vls_id ,
+                    academic_year_id : academicYear.id
+                  }
+
+  if(branch_vls_id){
+      examWhere.branch_vls_id = branch_vls_id
+  }
+
+  //latest exam
+  let letestExam = await Exams.findAll({
+    where : examWhere,
+    attributes : ['test_id']      
+  }).then(exams => exams.map(exams => exams.test_id));
+
+  //latest exam condtion
+  whereCondition.exam_id = { [Op.in] : letestExam }
+  let allMarks = await Marks.findAll({
+    where : whereCondition,
+    attributes:[
+                    [ Sequelize.fn('AVG', Sequelize.col('obtain_total_mark')), 'obtain_total_mark' ]                  
+                ],
+  })
+
+  return allMarks[0].obtain_total_mark
 }
