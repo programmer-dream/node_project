@@ -858,17 +858,20 @@ async function dashboardAttendanceCount(user, query){
 	let student       = {}
 	let newData       = []
 	let attendances   = {}
+
+	if(query.student_vls_id){
+		newData	= await studentCount(query.student_vls_id, currentYear, currentMonth, currentDay)
+		return { success: true, message: "present & absent count" ,data : newData};
+	}
+	
 	if(user.role =='teacher'){
 		let classList = await teacherClasses(user)
 			classList = classList.data
 
 		newData	= await teacherCount(classList, currentYear, currentMonth, currentDay)
 	}else if(user.role =='student'){
-		if(query.student_vls_id){
-		newData	= await studentCount(query.student_vls_id, currentYear, currentMonth, currentDay)
-    }else{
+    	
 		newData	= await studentCount(user.userVlsId, currentYear, currentMonth, currentDay)
-    }
 		
 	}else if( user.role == 'guardian' ){
 		let studentDetails = await Student.findAll({
@@ -888,6 +891,7 @@ async function dashboardAttendanceCount(user, query){
 
 
 	}else if(user.role =='branch-admin' || user.role =='principal' ){
+
 		newData	= await classAttendanceCount(user, currentYear, currentMonth, currentDay, true )
 	}
 
