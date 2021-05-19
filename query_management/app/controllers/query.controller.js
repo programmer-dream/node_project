@@ -676,13 +676,18 @@ async function dashboardCount(user, queryParams) {
   let queryCount = {}
   let userData = await Users.findOne({ where: { user_name: user.userId } });
   
-  if(user.role == 'student'){
-    if(queryParams.student_vls_id){
-      queryCount = await studentCount(queryParams.student_vls_id, statusArray)
-    }else{
-      queryCount = await studentCount(user.userVlsId, statusArray)
+  if(queryParams.student_vls_id){
+    queryCount = await studentCount(queryParams.student_vls_id, statusArray)
+    let queryObj = {
+      new: queryCount.Open,
+      answered: queryCount.Inprogress,
+      resolved: queryCount.Closed
     }
+    return { success   : true , message  : "Dashboard query count", data : queryObj }
+  }
 
+  if(user.role == 'student'){
+      queryCount = await studentCount(user.userVlsId, statusArray)
   }else if(user.role == 'teacher'){
 
     let classes = await Classes.findAll({
