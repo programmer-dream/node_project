@@ -826,6 +826,11 @@ async function viewTeacher(id, user){
                               }]
                           }]
                   })
+  teachers = teachers.toJSON()
+  let  answered_queries_count = 6
+  let  feedback_raised_count = 9
+  let  tickets = {rasied : 7, closed : 5 }
+  teachers.counts = { answered_queries_count, feedback_raised_count,tickets }
   return { success: true, message: "view teacher", data:teachers }
 }
 

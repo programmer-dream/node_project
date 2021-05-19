@@ -106,7 +106,7 @@ function teacherClasses(req, res, next) {
 }
 // list teacher classes
 function dashboardAttendanceCount(req, res, next) {
-    attendaceController.dashboardAttendanceCount(req.user)
+    attendaceController.dashboardAttendanceCount(req.user, req.query)
         .then(list => list ? res.json(list) : res.status(400).json({ status: "error", message: 'Issue while listing classes' }))
         .catch(err => next(err));
 }

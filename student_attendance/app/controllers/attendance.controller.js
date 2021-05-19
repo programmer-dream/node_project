@@ -849,11 +849,12 @@ async function teacherClasses(user){
 /**
  * API for count dashboard attendance 
  */
-async function dashboardAttendanceCount(user){
+async function dashboardAttendanceCount(user, query){
 
 	let currentYear   = moment().format('YYYY');
 	let currentMonth  = moment().format('MMMM');
 	let currentDay    = moment().format('D');
+	
 	let student       = {}
 	let newData       = []
 	let attendances   = {}
@@ -863,7 +864,11 @@ async function dashboardAttendanceCount(user){
 
 		newData	= await teacherCount(classList, currentYear, currentMonth, currentDay)
 	}else if(user.role =='student'){
+		if(query.student_vls_id){
+		newData	= await studentCount(query.student_vls_id, currentYear, currentMonth, currentDay)
+    }else{
 		newData	= await studentCount(user.userVlsId, currentYear, currentMonth, currentDay)
+    }
 		
 	}else if( user.role == 'guardian' ){
 		let studentDetails = await Student.findAll({
@@ -1022,6 +1027,8 @@ async function studentCount(userId, currentYear, currentMonth, currentDay){
 					where : {student_vls_id:userId},
 					attributes :['class_id','student_vls_id','branch_vls_id']
 			  })
+	if(!student)
+		throw 'student not found'
 
 	let whereCondtion = {
 				class_id   : student.class_id,
@@ -1030,9 +1037,11 @@ async function studentCount(userId, currentYear, currentMonth, currentDay){
 				student_id : student.student_vls_id
 			}
 
-	if(student){
+	if(isSubjectEnable){
 		isSubjectEnable = await isSubjectAttendance(student.branch_vls_id)
-		whereCondtion.subject_code  = { [Op.not]: null }
+
+		if(isSubjectEnable)
+			whereCondtion.subject_code  = { [Op.not]: null }
 	}
 	
 	attendances  = await StudentAttendance.findAll({
@@ -1043,6 +1052,7 @@ async function studentCount(userId, currentYear, currentMonth, currentDay){
                   attributes: ['subject_name']
                 }]
 		})
+	
 	if(!isSubjectEnable){
 		if(attendances.length){
 			await Promise.all(

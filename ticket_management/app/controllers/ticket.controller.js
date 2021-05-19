@@ -145,6 +145,17 @@ async function list(params , user){
 	let search  = ''
   let authUser = await User.findByPk(user.userVlsId)
 
+  let role = await Role.findOne({
+        where : { slug : 'super-admin' },
+        attributes : ['id']
+      })
+
+  let getUser = await User.findOne({
+    where: { 
+              role_id   : role.id
+           }
+  })
+
   if(params.search) 
      search = params.search
 
@@ -177,6 +188,12 @@ async function list(params , user){
   
   if(params.ticket_type)
      whereCondition.ticket_type = params.ticket_type
+
+  if(params.ticket_vls_id)
+     whereCondition.ticket_vls_id = params.ticket_vls_id
+  
+  if(params.is_exalted)
+     whereCondition.assigned_user_id = getUser.user_vls_id
 
 	if(params.orderBy == 'asc') 
 	 	 orderBy = params.orderBy
