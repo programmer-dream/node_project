@@ -1037,9 +1037,9 @@ async function studentCount(userId, currentYear, currentMonth, currentDay){
 				student_id : student.student_vls_id
 			}
 
-	if(isSubjectEnable){
+	if(student){
 		isSubjectEnable = await isSubjectAttendance(student.branch_vls_id)
-
+		
 		if(isSubjectEnable)
 			whereCondtion.subject_code  = { [Op.not]: null }
 	}
