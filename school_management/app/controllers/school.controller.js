@@ -827,10 +827,72 @@ async function viewTeacher(id, user){
                           }]
                   })
   teachers = teachers.toJSON()
-  let  answered_queries_count = 6
-  let  feedback_raised_count = 9
-  let  tickets = {rasied : 7, closed : 5 }
-  teachers.counts = { answered_queries_count, feedback_raised_count,tickets }
+  let classArr   =  teachers.employee.teacher_class
+  let sectionArr =  teachers.employee.teacher_section
+
+  await Promise.all(
+    classArr.map(async (classData , index) => {
+        sectionArr.map(async section => {
+          console.log(section)
+          if(classData.class_vls_id == section.class_id){
+            if(!classArr[index]['sections'])
+               classArr[index]['sections'] = []
+            classArr[index]['sections'].push(section)
+          }
+        })
+    })
+  )
+
+  delete teachers.employee.teacher_section
+  teachers.employee.teacher_class = classArr
+
+  let  answered_queries_count = await StudentQuery.count({
+    where : { 
+              faculty_vls_id : id,
+              response_date : { [Op.ne]: null }
+            }
+  })
+  let  feedback_raised_count = await Feedback.count({
+    where : { 
+              related_to : id,
+              related_type : 'teacher'
+            }
+  })
+  let rasied = await Ticket.count({
+      where : { 
+                assigned_user_id : id,
+                assigned_user_type : 'employee'
+              }
+    })
+  let closed = await Ticket.count({
+      where : { 
+                assigned_user_id : id,
+                assigned_user_type : 'employee',
+                resolved_date : { [Op.ne]: null }
+              }
+    })
+
+  let tickets    = {rasied , closed }
+  let created    = await Assignment.count({
+                        where : { 
+                                added_by : id,
+                                user_role : 'teacher'
+                              }
+                    })
+  
+  let currentDate = moment().format('YYYY-MM-DD')
+  let inprogress = await Assignment.count({
+                        where : { 
+                                added_by : id,
+                                user_role : 'teacher',
+                                [Op.eq]: sequelize.where(sequelize.fn('date', sequelize.col('assignment_completion_date')), '<', currentDate)
+                              }
+                    })
+
+  let aclosed    = 12
+  let assignment = {created , inprogress, closed :aclosed}
+
+  teachers.counts = { answered_queries_count, feedback_raised_count,tickets,assignment }
   return { success: true, message: "view teacher", data:teachers }
 }
 
