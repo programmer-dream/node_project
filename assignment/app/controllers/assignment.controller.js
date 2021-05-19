@@ -1226,7 +1226,11 @@ async function dashboardCount(params, user){
   let whereCondition = {}
   
   if(user.role =='student'){
-     whereCondition.student_vls_id = user.userVlsId
+    if(params.student_vls_id){
+        whereCondition.student_vls_id = params.student_vls_id
+    }else{
+        whereCondition.student_vls_id = user.userVlsId
+    }
   }
 
       whereCondition.assignment_status = 'New'
