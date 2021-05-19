@@ -672,14 +672,16 @@ async function canResponse(id, user) {
  * API for query dashboard
  */
 async function dashboardCount(user, queryParams) {
-  // if(user.role != 'student' && user.role != 'teacher') 
-  //       throw 'Unauthorised User'
   let statusArray = ['Open', 'Inprogress', 'Closed']
   let queryCount = {}
   let userData = await Users.findOne({ where: { user_name: user.userId } });
-
+  
   if(user.role == 'student'){
-    queryCount = await studentCount(user.userVlsId, statusArray)
+    if(queryParams.student_vls_id){
+      queryCount = await studentCount(queryParams.student_vls_id, statusArray)
+    }else{
+      queryCount = await studentCount(user.userVlsId, statusArray)
+    }
 
   }else if(user.role == 'teacher'){
 
