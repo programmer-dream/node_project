@@ -879,17 +879,23 @@ async function viewTeacher(id, user){
                                 user_role : 'teacher'
                               }
                     })
-  
+
   let currentDate = moment().format('YYYY-MM-DD')
   let inprogress = await Assignment.count({
                         where : { 
+                                added_by : id,
+                                is_released : 1,
+                                [Op.eq]: sequelize.where(sequelize.fn('date', sequelize.col('assignment_completion_date')), '>=', currentDate)
+                              }
+                    })
+
+  let aclosed    = await Assignment.count({
+                          where : { 
                                 added_by : id,
                                 user_role : 'teacher',
                                 [Op.eq]: sequelize.where(sequelize.fn('date', sequelize.col('assignment_completion_date')), '<', currentDate)
                               }
                     })
-
-  let aclosed    = 12
   let assignment = {created , inprogress, closed :aclosed}
 
   teachers.counts = { answered_queries_count, feedback_raised_count,tickets,assignment }
