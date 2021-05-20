@@ -108,6 +108,7 @@ async function list(params , user){
   let schoolVlsId   = params.schoolVlsId
   let branchVlsId   = params.branch_vls_id
   let students = []
+  let whereCount = {}
 
   if(!schoolVlsId) throw 'schoolVlsId is required'
   if(!branchVlsId) throw 'branchVlsId is required'
@@ -176,7 +177,20 @@ async function list(params , user){
 
   if(params.orderBy) 
     orderBy = params.orderBy
+  //start count changes
+    whereCount = whereCondition
+    whereCount.status = 'closed'
+    let closed = await Feedback.count({
+        where : whereCount
+    })
+    whereCount.status = 'open'
+    let open = await Feedback.count({
+        where : whereCount
+    })
+    delete whereCondition.status
 
+    let feedbackCounts = { open, closed }
+  //end count changes
   let allFeedback = await Feedback.findAll({
     limit : limit,
     offset: offset,
@@ -205,7 +219,7 @@ async function list(params , user){
       feedbackArr.push(feedback)
     })
   )
-  return { success: true, message: "Feedback list", data: feedbackArr}
+  return { success: true, message: "Feedback list", data: feedbackArr, feedbackCounts}
 };
 
 
