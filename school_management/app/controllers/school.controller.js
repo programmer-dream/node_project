@@ -597,13 +597,30 @@ async function listStudents(params, user){
   if(params.page)
       offset = 0 + (parseInt(params.page) - 1) * limit
 
-  let whereCondition = {
-      [Op.or]:{
+  let parentWhere = {
+    [Op.or]:{
               name: { 
-                  [Op.like]: `%`+search+`%`
-                }
-           },
-    };
+                [Op.like]: `%`+search+`%`
+              }
+            }
+  }
+  //condition for parent 
+  let parents = await Guardian.findAll({
+      where : parentWhere,
+      attributes : ['parent_vls_id']
+  }).then(parents => parents.map(parents => parents.parent_vls_id));
+
+  let whereCondition = {
+    [Op.or]:[{
+            name: { 
+                [Op.like]: `%`+search+`%`
+              }
+         },{
+            parent_vls_id: { 
+                [Op.in]: parents
+              }
+         }]
+  };
 
   if(params.class_id) 
      whereCondition.class_id = params.class_id
