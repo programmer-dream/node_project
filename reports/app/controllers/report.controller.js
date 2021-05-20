@@ -143,10 +143,13 @@ async function getExamMarks(params , user , query){
 				                attributes: ['exam_date','subject_code']
 			            	}]
 			            }]
-  	if(user.role == 'student'){
+  	if(user.role == 'student' || query.student_vls_id){
+  		let student_id = user.userVlsId
+  		if(query.student_vls_id)
+  			student_id = query.student_vls_id
 
 	  	student = await Student.findOne({
-	  		where : { student_vls_id : user.userVlsId},
+	  		where : { student_vls_id : student_id},
 	  		include: [{ 
 	                	model:Classes,
 	                	as:'classes'
@@ -155,9 +158,12 @@ async function getExamMarks(params , user , query){
 	                	as:'section'
 	            	}]
 	  	})
-	  	
+
+	  	if(!student)
+	  		throw 'student not found'
+
 	  	whereConditions.class_id   = student.class_id
-	  	whereConditions.student_id = user.userVlsId
+	  	whereConditions.student_id = student_id
 	  	school_id = student.school_id
   	}else{
 
@@ -198,7 +204,7 @@ async function getExamMarks(params , user , query){
 		}	
 
   	}
-  	
+  	//return whereConditions
 	let subjectMarks = await Marks.findAll({
 		where : whereConditions,
 		include: includeArray,
