@@ -690,9 +690,17 @@ async function listTeachers(params, user){
   if(params.faculty_vls_id) 
      whereCondition.faculty_vls_id = params.faculty_vls_id
 
+  let userCondition = {}
+  if(params.branch_vls_id) 
+     userCondition.branch_vls_id = params.branch_vls_id
+
+  if(params.school_vls_id) 
+     userCondition.school_id = params.school_vls_id
+
   let teachers = await User.findAll({
                     limit : limit,
                     offset: offset,
+                    where : userCondition,
                     order : [
                              ['user_vls_id', orderBy]
                             ],
@@ -763,6 +771,12 @@ async function listParents(params, user){
 
   if(params.parent_vls_id) 
      whereCondition.parent_vls_id = params.parent_vls_id
+
+  if(params.branch_vls_id) 
+     whereCondition.branch_vls_id = params.branch_vls_id
+
+  if(params.school_vls_id) 
+     whereCondition.school_vls_id = params.school_vls_id
 
   let guardian = await Guardian.findAll({
       limit : limit,
