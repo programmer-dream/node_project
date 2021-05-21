@@ -721,7 +721,7 @@ async function classPerformance(params, user){
 		let obtain_marks = parseInt(classObj.obtain_marks)
 		let percentage   = parseFloat(obtain_marks * 100 / total_marks).toFixed(2)
 
-		let testId = null 
+		let testId = '' 
 		if(params.test_id)
 			testId = "AND `exams`.`test_id` = "+params.test_id
 
@@ -1188,8 +1188,11 @@ async function topPercentage(classId, examCondition, subjectCondition){
  * API for top student Perfromer data 
  */
 async function getSubjectData(class_id, section_id, exam_id){
-
-	let rawQuery = await sequelize.query("SELECT AVG(obtain_total_mark) AS avg_total, SUM(obtain_total_mark) AS obtain_total, SUM(exam_total_mark) AS exam_total_mark, subject_code ,subject_list.subject_name FROM `marks` left join subject_list on marks.subject_code = subject_list.code where class_id = "+class_id+" and section_id = "+section_id+" and exam_id = "+exam_id+" group by marks.subject_code, subject_name", { type: Sequelize.QueryTypes.SELECT })
+	let examFilter = ''
+	if(exam_id)
+		examFilter = "and exam_id = "+exam_id
+	
+	let rawQuery = await sequelize.query("SELECT AVG(obtain_total_mark) AS avg_total, SUM(obtain_total_mark) AS obtain_total, SUM(exam_total_mark) AS exam_total_mark, subject_code ,subject_list.subject_name FROM `marks` left join subject_list on marks.subject_code = subject_list.code where class_id = "+class_id+" and section_id = "+section_id+" "+examFilter+" group by marks.subject_code, subject_name", { type: Sequelize.QueryTypes.SELECT })
 
 	return rawQuery
 }
