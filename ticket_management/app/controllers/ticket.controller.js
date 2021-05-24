@@ -172,10 +172,18 @@ async function list(params , user){
 
   if(user.role == 'super-admin'){
       whereCondition.assigned_user_id = user.userVlsId
+      if(params.school_vls_id)
+          whereCondition.school_vls_id = params.school_vls_id
+      if(params.branch_vls_id)
+          whereCondition.branch_vls_id = params.branch_vls_id
+
   }else if(user.role != 'school-admin' && user.role != 'branch-admin' && user.role !='principal'){
       whereCondition.user_id   = user.userVlsId
       whereCondition.user_type = user.role
   }else{
+      if(params.branch_vls_id)
+          whereCondition.branch_vls_id = params.branch_vls_id
+
       whereCondition.school_vls_id = authUser.school_id
       whereCondition.ticket_type = { [Op.ne] : 'rewards'}
   }
