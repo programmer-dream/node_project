@@ -730,8 +730,8 @@ async function classPerformance(params, user){
 	if(classData.length > 0){
 
 		let classObj = classData[0]
-		let subjData = await getSubjectData(class_id, section_id, test_id)
-		//return subjData
+		let subjData = await getSubjectData(class_id, section_id, test_id, examType)
+		
 	 	let total_marks  = parseInt(classObj.total_marks)
 		let obtain_marks = parseInt(classObj.obtain_marks)
 		let percentage   = parseFloat(obtain_marks * 100 / total_marks).toFixed(2)
@@ -755,6 +755,7 @@ async function classPerformance(params, user){
 					   percentage   : percentage,
 					   class_avg    : classObj.class_avg,
 					   top_avg      : topPercentageData[0].percent,
+					   top_mark     : topPercentageData[0].obtain,
 					   test_type    : classObj.test_type,
 					   subject_data : subjData
 					 }
@@ -1191,6 +1192,7 @@ async function topPercentage(classId, examCondition, subjectCondition){
     		let total   = parseFloat(exam.exam_total_mark)
     		let percent = (obtain * 100) / total
     		exam.percent= percent
+    		exam.obtain = obtain
     		exam.type= 'Top performer Average'
     		finalArr.push(exam)
     	})
@@ -1202,12 +1204,16 @@ async function topPercentage(classId, examCondition, subjectCondition){
 /**
  * API for top student Perfromer data 
  */
-async function getSubjectData(class_id, section_id, exam_id){
+async function getSubjectData(class_id, section_id, exam_id, examType=null){
 	let examFilter = ''
 	if(exam_id)
 		examFilter = "and exam_id = "+exam_id
+
+	let typeFilter = ''
+	if(examType)
+		typeFilter = examType
 	
-	let rawQuery = await sequelize.query("SELECT AVG(obtain_total_mark) AS avg_total, SUM(obtain_total_mark) AS obtain_total, SUM(exam_total_mark) AS exam_total_mark, subject_code ,subject_list.subject_name FROM `marks` left join subject_list on marks.subject_code = subject_list.code where class_id = "+class_id+" and section_id = "+section_id+" "+examFilter+" group by marks.subject_code, subject_name", { type: Sequelize.QueryTypes.SELECT })
+	let rawQuery = await sequelize.query("SELECT AVG(obtain_total_mark) AS avg_total, SUM(obtain_total_mark) AS obtain_total, SUM(exam_total_mark) AS exam_total_mark, subject_code ,subject_list.subject_name FROM `marks` left join subject_list on marks.subject_code = subject_list.code LEFT JOIN `exams` ON `marks`.`exam_id` = `exams`.`test_id` where class_id = "+class_id+" and section_id = "+section_id+" "+examFilter+" "+typeFilter+" group by marks.subject_code, subject_name", { type: Sequelize.QueryTypes.SELECT })
 
 	return rawQuery
 }
