@@ -1304,10 +1304,18 @@ async function overAll(query, user){
 	
 	let whereConditions = { school_id : school_id }
 
+	let examWhere = { 
+						test_type : type 
+					}
+	if(query.branch_vls_id)
+		examWhere.branch_vls_id = query.branch_vls_id
+
 	let examIds = await Exams.findAll({
-		where: { test_type : type },
+		where: examWhere,
 		attributes : ['test_id']
 	}).then(exams => exams.map(exam => exam.test_id));
+
+	if(!examIds.length) throw 'no exams found'
 
 	let marks = await Marks.findOne({
 		where : { exam_id : {[Op.in] : examIds }},
@@ -1449,11 +1457,19 @@ async function overAllSubject(query, user){
 	
 	let whereConditions = { school_id : school_id }
 
+	let examWhere = { 
+						test_type : type 
+					}
+	if(query.branch_vls_id)
+		examWhere.branch_vls_id = query.branch_vls_id
+
 	let examIds = await Exams.findAll({
-		where: { test_type : type },
+		where: examWhere,
 		attributes : ['test_id']
 	}).then(exams => exams.map(exam => exam.test_id));
 
+	if(!examIds.length) throw 'no exams found'
+		
 	let marksCondition = {
 		 exam_id : {[Op.in] : examIds} 
 	}
