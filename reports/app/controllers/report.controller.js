@@ -1315,7 +1315,8 @@ async function overAll(query, user){
 		attributes : ['test_id']
 	}).then(exams => exams.map(exam => exam.test_id));
 
-	if(!examIds.length) throw 'no exams found'
+	if(!examIds.length) 
+		return { success: true, message: "No exam found", data : []}
 
 	let marks = await Marks.findOne({
 		where : { exam_id : {[Op.in] : examIds }},
@@ -1468,8 +1469,9 @@ async function overAllSubject(query, user){
 		attributes : ['test_id']
 	}).then(exams => exams.map(exam => exam.test_id));
 
-	if(!examIds.length) throw 'no exams found'
-		
+	if(!examIds.length)
+		return { success: true, message: "No exam found", data : []}
+
 	let marksCondition = {
 		 exam_id : {[Op.in] : examIds} 
 	}
