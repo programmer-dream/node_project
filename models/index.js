@@ -217,6 +217,9 @@ db.Notification.belongsTo(db.NotificationReadBy,{foreignKey:'notification_vls_id
 /*********** reports management ***********/
 db.Exams.hasMany(db.Marks,{foreignKey:'exam_id',as:'marks'})
 db.Marks.belongsTo(db.SubjectList,{foreignKey:'subject_code',targetKey : 'code', as:'subject'})
+//
+db.SubjectList.hasMany(db.Marks,{foreignKey:'subject_code',targetKey : 'code', as:'test'})
+
 db.Marks.belongsTo(db.Student,{foreignKey:'student_id', as:'student'})
 db.Student.belongsTo(db.Guardian,{foreignKey:'parent_vls_id', as:'guardian'})
 db.Student.hasMany(db.Marks,{foreignKey:'student_id', as:'marks'})

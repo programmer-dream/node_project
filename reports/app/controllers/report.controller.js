@@ -539,7 +539,22 @@ async function subjectPerformance(params, user){
    	schoolInfo.class_name  = student.classes.name
    	schoolInfo.section_name= student.section.name
    }
-   
+   	let allSubject = await SubjectList.findAll({
+	   	attributes : ['subject_name','code'],
+	   	include: [{ 
+	                model:Marks,
+	                as:'test',
+	              	where : joinWhere,
+	                attributes:['id','exam_id','exam_total_mark','obtain_total_mark','subject_code'],
+	                include: [{ 
+				                model:Exams,
+				                as:'exam',
+				                where : whereConditions,
+				                attributes:['test_type','title']
+				            }]
+		            }]
+   	})
+
    let exams = await Exams.findAll({
 			    where : whereConditions,
 			    order : [
@@ -558,7 +573,7 @@ async function subjectPerformance(params, user){
 			  	
   	})
    	
-  	return { success: true, message: "Exam performance", data : exams, schoolInfo: schoolInfo}
+  	return { success: true, message: "Exam performance", data : exams, schoolInfo: schoolInfo, subjects : allSubject}
 }
 
 /**
