@@ -358,9 +358,7 @@ async function list(params , user){
         whereCodition.is_released = 1
       break;
   }
-  let filterCount = await Assignment.count({
-    where : whereCodition,
-  })
+  
   let assignments = await Assignment.findAll({
     where : whereCodition,
     limit : limit,
@@ -394,7 +392,9 @@ async function list(params , user){
                             ]
             }]
   })
-
+  let totalAssignment = 0
+  let submittedAvg    = 0
+  let notSubmittedAvg = 0
   let finalAssignment = []
   await Promise.all(
     assignments.map(async assignment => {
@@ -402,7 +402,11 @@ async function list(params , user){
         assingmentData.submittedCount = await getSubmittedCount(assignment.assignment_vls_id)
         assingmentData.total_assignee = await getTotalAssigneeCount(assignment)
         let studentIds = JSON.parse(assignment.student_vls_ids)
-
+        //getting count
+        totalAssignment +=  assingmentData.total_assignee
+        submittedAvg    += assingmentData.submittedCount 
+        notSubmittedAvg += (assingmentData.total_assignee - assingmentData.submittedCount)
+        
         //start add question array 
         let assignmentQuestion = assingmentData.assignmentQuestion
         assignmentQuestion.forEach(function(item, index){
@@ -470,27 +474,26 @@ async function list(params , user){
     })
   )
 
+  whereCodition.assignment_type = 'online'
   let online  = await Assignment.count({
-    where : { 
-              is_released : 1,
-              assignment_type : 'online' 
-            }
-  })
-  let offline = await Assignment.count({
-    where : { 
-              is_released : 1,
-              assignment_type : 'offline' 
-            }
-  })
-  let active  = await Assignment.count({
-    where : { 
-              is_released : 1,
-              [Op.gt]: sequelize.where(sequelize.fn('date', sequelize.col('assignment_completion_date')), '>=', currentDate)
-            }
+    where : whereCodition
   })
 
+  whereCodition.assignment_type = 'offline'
+  let offline = await Assignment.count({
+    where : whereCodition
+  })
+  delete whereCodition.assignment_type
+  whereCodition[Op.eq] = sequelize.where(sequelize.fn('date', sequelize.col('assignment_completion_date')), '>=', currentDate)
+
+  let active  = await Assignment.count({
+    where : whereCodition
+  })
+  submittedAvg    = (submittedAvg * 100) / totalAssignment
+  notSubmittedAvg = (notSubmittedAvg * 100) / totalAssignment
   let counts =  { online, offline, active }
-  return { success: true, message: "Assignment list", data: finalAssignment, counts, filterCount}
+  let percentage = { submittedAvg, notSubmittedAvg }
+  return { success: true, message: "Assignment list", data: finalAssignment, counts, percentage }
 };
 
 
