@@ -283,11 +283,38 @@ async function list(params , user){
     }
   }
 
+  //date range filter
+  if(params.startDate && params.endDate){
+    whereCodition = {
+      [Op.and]: [
+                sequelize.where(sequelize.fn('date', sequelize.col('assignment_completion_date')), '>=', params.startDate),
+                sequelize.where(sequelize.fn('date', sequelize.col('assignment_completion_date')), '<=', params.endDate),
+            ]
+    }
+  }
+  //status filter 
+  if(params.status){
+    switch (params.status) {
+    case 'created':
+        whereCodition.is_released = 0
+      break;
+    case 'published':
+        whereCodition.is_released = 1
+      break;
+    }
+  }
+
   if(params.status)
       status = params.status
 
   if(params.section_id)
     whereCodition.section_id = params.section_id
+
+  if(params.class_id)
+    whereCodition.assignment_class_id = params.class_id
+
+  if(params.assignment_type)
+    whereCodition.assignment_type = params.assignment_type
 
   if(params.subject_code)
     whereCodition.subject_code = params.subject_code
@@ -331,7 +358,9 @@ async function list(params , user){
         whereCodition.is_released = 1
       break;
   }
-  
+  let filterCount = await Assignment.count({
+    where : whereCodition,
+  })
   let assignments = await Assignment.findAll({
     where : whereCodition,
     limit : limit,
@@ -440,7 +469,28 @@ async function list(params , user){
 
     })
   )
-  return { success: true, message: "Assignment list", data: finalAssignment}
+
+  let online  = await Assignment.count({
+    where : { 
+              is_released : 1,
+              assignment_type : 'online' 
+            }
+  })
+  let offline = await Assignment.count({
+    where : { 
+              is_released : 1,
+              assignment_type : 'offline' 
+            }
+  })
+  let active  = await Assignment.count({
+    where : { 
+              is_released : 1,
+              [Op.gt]: sequelize.where(sequelize.fn('date', sequelize.col('assignment_completion_date')), '>=', currentDate)
+            }
+  })
+
+  let counts =  { online, offline, active }
+  return { success: true, message: "Assignment list", data: finalAssignment, counts, filterCount}
 };
 
 
