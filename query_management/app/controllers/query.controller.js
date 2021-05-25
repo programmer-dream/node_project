@@ -245,7 +245,26 @@ async function list(params,user){
       queryArray.push(queryData)
     })
   )
-  return { success: true, message: "All query data", total : allCount ,data:queryArray }
+
+  //conditon for counts 
+  let countCondition = { query_status : 'open' }
+
+  if(branchVlsId)
+     countCondition.branch_vls_id = branchVlsId
+
+  if(schoolVlsId)
+     countCondition.school_vls_id = schoolVlsId
+
+  let open  = await StudentQuery.count({
+                      where : countCondition
+                    })
+
+  countCondition.query_status = 'Closed'
+  let closed  = await StudentQuery.count({
+                      where : countCondition
+                    })
+  let counts =  { open , closed }
+  return { success: true, message: "All query data", total : allCount ,data:queryArray , counts}
 
 };
 
