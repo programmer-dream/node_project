@@ -697,6 +697,18 @@ async function listTeachers(params, user){
   if(params.school_vls_id) 
      userCondition.school_id = params.school_vls_id
 
+  let subjectFilter = {}
+  if(params.subject_code) 
+     subjectFilter.code = params.subject_code
+
+  let classFilter = {}
+  if(params.class_vls_id) 
+     classFilter.class_vls_id = params.class_vls_id
+
+  let sectionFilter = {}
+  if(params.section_id) 
+     sectionFilter.id = params.section_id
+
   let teachers = await User.findAll({
                     limit : limit,
                     offset: offset,
@@ -718,13 +730,16 @@ async function listTeachers(params, user){
                               where:whereCondition,
                               include: [{ 
                                 model:Classes,
-                                as:'teacher_class'
+                                as:'teacher_class',
+                                where:classFilter
                               },{ 
                                 model:Section,
-                                as:'teacher_section'
+                                as:'teacher_section',
+                                where:sectionFilter
                               },{ 
                                 model:Subject,
-                                as:'teacher_subject'
+                                as:'teacher_subject',
+                                where : subjectFilter
                               }]
                           }]
                     })
