@@ -65,6 +65,10 @@ async function create(req){
   if(errors.array().length) throw errors.array()
 
   let data   = req.body
+  console.log(req.files)
+  if(req.files.logo && req.files.logo.length > 0){
+        data.logo  = req.body.uplodedPath + req.files.logo[0].filename;
+  }
   let school = await SchoolDetails.create(data)
   //updated school data
   school.update({'school_vls_id':school.school_id})

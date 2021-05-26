@@ -109,7 +109,10 @@ module.exports = (sequelize, Sequelize) => {
       passion_support: {
         type: Sequelize.ENUM('yes','no'),
         defaultValue: 'no'
-      }
+      },
+      logo: {
+        type: Sequelize.STRING
+      },
   },{
     tableName: 'school',
     createdAt: 'created_at',

@@ -6,6 +6,9 @@ const helper = require("../helper");
 const upload  = helper.upload;
 //Post
 router.post("/create",[
+    upload.fields([{
+        name:'logo',maxCount:1
+    }]),
     check('school_name','school_name field is required.').not().isEmpty(),
     check('description','description field is required.').not().isEmpty(),
     check('address','address field is required.').not().isEmpty(),
