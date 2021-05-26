@@ -118,7 +118,7 @@ async function list(params,user){
   let limit   = 10
   let offset  = 0
   let search  = '';
-  let status  = ['Open', 'Inprogress', 'Closed'];
+  let status  = ['Open', 'Inprogress', 'Closed','Rejected'];
   let orderBy = 'desc';
   let tag     = '';
   let faculty = [];
@@ -159,8 +159,11 @@ async function list(params,user){
   if(params.orderBy)
      orderBy = params.orderBy
 
-
   //search faculity  
+  if(params.query_level)
+    whereCondition.query_level = params.query_level
+
+  // faculity  
   if(params.facultyVlsId)
     whereCondition.faculty_vls_id = params.facultyVlsId
 
@@ -194,7 +197,22 @@ async function list(params,user){
     }
   }
 
-  let allCount      = await StudentQuery.count({ where: whereCondition })
+  if(params.faculty_vls_id)
+    whereCondition.faculty_vls_id = params.faculty_vls_id
+
+  let sectionFilter = {}
+  if(params.section_id)
+    sectionFilter.section_id = params.section_id
+
+  let allCount      = await StudentQuery.count({ where: whereCondition,
+                            include: [
+                                { 
+                                  model:Student,
+                                  as:'postedBy',
+                                  where : sectionFilter,
+                                  attributes: ['student_vls_id']
+                                } ]
+                              })
   //end pagination
   let studentQuery  = await StudentQuery.findAll({  
                       limit:limit,
@@ -207,6 +225,7 @@ async function list(params,user){
                                 { 
                                   model:Student,
                                   as:'postedBy',
+                                  where : sectionFilter,
                                   attributes: ['student_vls_id']
                                 },
                                 { 
@@ -233,7 +252,8 @@ async function list(params,user){
                                     'response_date',
                                     'is_comment',
                                     'subject_code',
-                                    'reject_comment'
+                                    'reject_comment',
+                                    'query_level'
                                   ]
                       });
   let queryArray = []
@@ -245,24 +265,28 @@ async function list(params,user){
       queryArray.push(queryData)
     })
   )
+  let includeArr = [
+                      { 
+                        model:Student,
+                        as:'postedBy',
+                        where : sectionFilter,
+                        attributes: ['student_vls_id']
+                      } 
+                   ]
 
   //conditon for counts 
-  let countCondition = { query_status : 'open' }
-
-  if(branchVlsId)
-     countCondition.branch_vls_id = branchVlsId
-
-  if(schoolVlsId)
-     countCondition.school_vls_id = schoolVlsId
-
+  whereCondition.query_status = 'open'
   let open  = await StudentQuery.count({
-                      where : countCondition
+                      where : whereCondition,
+                      include : includeArr
                     })
 
-  countCondition.query_status = 'Closed'
+  whereCondition.query_status = 'Closed'
   let closed  = await StudentQuery.count({
-                      where : countCondition
+                      where : whereCondition,
+                      include : includeArr
                     })
+
   let counts =  { open , closed }
   return { success: true, message: "All query data", total : allCount ,data:queryArray , counts}
 
