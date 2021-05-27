@@ -222,7 +222,13 @@ async function createBranch(req){
  * API for view branch
  */
 async function viewBranch(id){
-  let branch = await Branch.findByPk(id)
+  let branch = await Branch.findOne({
+    where : {branch_vls_id : id},
+    include: [{ 
+                model:SchoolDetails,
+                as:'schoolDetails'
+              }]
+  })
   if(!branch) throw 'branch not found'
 
   let role = await Role.findOne({
