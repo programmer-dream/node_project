@@ -263,7 +263,8 @@ async function viewBranch(id){
               }]
   })
   allCounts = await getbranchUser(id)
-  return { success: true, message: "Branch view", data : {branch, users,principal ,allCounts}}
+  let studentCounts = await getBranchStudents(id)
+  return { success: true, message: "Branch view", data : {branch, users,principal ,allCounts, studentCounts }}
 };
 
 
@@ -1437,4 +1438,58 @@ async function getSchoolPerformance(school_vls_id , branch_vls_id ){
   })
 
   return allMarks[0].obtain_total_mark
+}
+
+/**
+ * API for class & section
+ */
+async function getBranchStudents(branch_vls_id){
+  let classData = await Classes.findAll({
+    where : { branch_vls_id : branch_vls_id},
+    attributes : ['class_vls_id','name'],
+    include: [{ 
+                model:Section,
+                as:'sections',
+                attributes:['name']
+              }]
+  })
+
+  let modifedData = []
+  await Promise.all(
+    classData.map(async sClass => {
+      let className = sClass.name
+      let classID   = sClass.class_vls_id
+      let sections  = sClass.sections
+      if(sections.length){
+          sections.map(async section => {
+              let sectionCount = await Student.count({
+                                  class_id : classID,
+                                  section_id : section.id,
+                                })
+              let sObj = {
+                  class_id : classID,
+                  class    : sClass.name,
+                  section  : section.name,
+                  student_count : sectionCount
+              }
+             modifedData.push(sObj) 
+          })
+        }else{
+          let classCount = await Student.count({
+                                  class_id : classID
+                                })
+          let cObj = {
+                class_id : classID,
+                class    : sClass.name,
+                student_count : classCount
+            }
+          modifedData.push(cObj)
+        }
+    })
+  )
+  modifedData.sort(function(a,b) {
+    return  a.class_id - b.class_id;
+  });
+  
+  return modifedData
 }
