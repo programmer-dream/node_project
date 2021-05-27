@@ -539,22 +539,60 @@ async function subjectPerformance(params, user){
    	schoolInfo.class_name  = student.classes.name
    	schoolInfo.section_name= student.section.name
    }
-   	let allSubject = await SubjectList.findAll({
-	   	attributes : ['subject_name','code'],
-	   	include: [{ 
-	                model:Marks,
-	                as:'test',
-	              	where : joinWhere,
-	                attributes:['id','exam_id','exam_total_mark','obtain_total_mark','subject_code'],
-	                include: [{ 
-				                model:Exams,
-				                as:'exam',
-				                where : whereConditions,
-				                attributes:['test_type','title']
-				            }]
-		            }]
-   	})
+	let allSubject = await SubjectList.findAll({
+		attributes : ['subject_name','code'],
+		include: [{ 
+	            model:Marks,
+	            as:'test',
+	          	where : joinWhere,
+	            attributes:['id','exam_id','exam_total_mark','obtain_total_mark','subject_code'],
+	            include: [{ 
+			                model:Exams,
+			                as:'exam',
+			                where : whereConditions,
+			                attributes:['test_type','title']
+			            }]
+	            }]
+	})
 
+	//code for avg and percentage
+	let maxMark = 0
+  	await Promise.all(
+    	allSubject.map(async subject => {
+    		subject = subject.toJSON()
+    		let tests = subject.test
+    		if(tests.length){
+	    		tests.map(async test => {
+	    			if(maxMark < test.obtain_total_mark)
+	    				maxMark = test.obtain_total_mark
+	    		})
+    		}
+    	})
+    )
+
+	let examIds  = await Exams.findAll({
+		where : whereConditions,
+		attributes:['test_id']
+	}).then(exams => exams.map(exams => exams.test_id))
+
+	let studentCondition = { 
+								student_id :  params.student_vls_id,
+								exam_id : { [Op.in]: examIds }
+							}
+
+	let avgPercentage = await Marks.findOne({
+		where : studentCondition,
+		attributes:[
+                    [ Sequelize.fn('SUM', Sequelize.col('exam_total_mark')), 'exam_total_mark' ],
+                    [ Sequelize.fn('SUM', Sequelize.col('obtain_total_mark')), 'obtain_total_mark' ],
+                    [ Sequelize.fn('AVG', Sequelize.col('obtain_total_mark')), 'avg_total_mark' ]
+                  ]
+	})
+	avgPercentage = avgPercentage.toJSON()
+	let percent =  (avgPercentage.obtain_total_mark * 100 ) / avgPercentage.exam_total_mark
+	let avg = avgPercentage.avg_total_mark
+	//end code for avg and percentage 
+	let exam_data = { percent , avg , maxMark}
    let exams = await Exams.findAll({
 			    where : whereConditions,
 			    order : [
@@ -573,7 +611,7 @@ async function subjectPerformance(params, user){
 			  	
   	})
    	
-  	return { success: true, message: "Exam performance", data : exams, schoolInfo: schoolInfo, subjects : allSubject}
+  	return { success: true, message: "Exam performance", data : exams, schoolInfo: schoolInfo, subjects : allSubject, exam_data}
 }
 
 /**
