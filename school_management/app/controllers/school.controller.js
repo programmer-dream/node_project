@@ -575,7 +575,14 @@ async function getbranchUser(branch_vls_id){
             allCounts[role] = 0
     })
   )
-  
+  let class_count = await Classes.count({
+    where : {branch_vls_id : branch_vls_id }
+  })
+  let section_count = await Section.count({
+    where : {branch_vls_id : branch_vls_id }
+  })
+  allCounts.class_count   = class_count
+  allCounts.section_count = section_count
   return allCounts
 }
 
