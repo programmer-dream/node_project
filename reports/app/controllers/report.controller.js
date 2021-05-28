@@ -769,7 +769,7 @@ async function classPerformance(params, user){
 
 		let classObj = classData[0]
 		let subjData = await getSubjectData(class_id, section_id, test_id, examType)
-		
+		return subjData
 	 	let total_marks  = parseInt(classObj.total_marks)
 		let obtain_marks = parseInt(classObj.obtain_marks)
 		let percentage   = parseFloat(obtain_marks * 100 / total_marks).toFixed(2)
@@ -1251,9 +1251,17 @@ async function getSubjectData(class_id, section_id, exam_id, examType=null){
 	if(examType)
 		typeFilter = examType
 	
-	let rawQuery = await sequelize.query("SELECT AVG(obtain_total_mark) AS avg_total, SUM(obtain_total_mark) AS obtain_total, SUM(exam_total_mark) AS exam_total_mark, subject_code ,subject_list.subject_name FROM `marks` left join subject_list on marks.subject_code = subject_list.code LEFT JOIN `exams` ON `marks`.`exam_id` = `exams`.`test_id` where class_id = "+class_id+" and section_id = "+section_id+" "+examFilter+" "+typeFilter+" group by marks.subject_code, subject_name", { type: Sequelize.QueryTypes.SELECT })
+	let rawQuery = await sequelize.query("SELECT AVG(obtain_total_mark) AS avg_total, SUM(obtain_total_mark) AS obtain_total, SUM(exam_total_mark) AS exam_total_mark, MAX(obtain_total_mark) AS max_mark, MAX(exam_total_mark) AS subject_mark, subject_code ,subject_list.subject_name FROM `marks` left join subject_list on marks.subject_code = subject_list.code LEFT JOIN `exams` ON `marks`.`exam_id` = `exams`.`test_id` where class_id = "+class_id+" and section_id = "+section_id+" "+examFilter+" "+typeFilter+" group by marks.subject_code, subject_name", { type: Sequelize.QueryTypes.SELECT })
 
-	return rawQuery
+	let subjectArr = []
+	await Promise.all(
+    	rawQuery.map(async subject => {
+    		let percent = (subject.max_mark * 100) / subject.subject_mark
+    		subject.subject_percentage = percent
+    		subjectArr.push(subject)
+    	})
+    )
+	return subjectArr
 }
 
 
