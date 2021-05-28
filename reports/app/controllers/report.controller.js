@@ -769,7 +769,6 @@ async function classPerformance(params, user){
 
 		let classObj = classData[0]
 		let subjData = await getSubjectData(class_id, section_id, test_id, examType)
-		return subjData
 	 	let total_marks  = parseInt(classObj.total_marks)
 		let obtain_marks = parseInt(classObj.obtain_marks)
 		let percentage   = parseFloat(obtain_marks * 100 / total_marks).toFixed(2)
