@@ -1405,6 +1405,7 @@ async function overAll(query, user){
 		attributes : [
 			[ Sequelize.fn('SUM', Sequelize.col('exam_total_mark')), 'exam_total_mark' ],
             [ Sequelize.fn('SUM', Sequelize.col('obtain_total_mark')), 'obtain_total_mark' ],
+            [ Sequelize.fn('MAX', Sequelize.col('exam_total_mark')), 'total_mark' ],
             'class_id',
             'section_id'
 		],
@@ -1419,23 +1420,25 @@ async function overAll(query, user){
             	}],
 		group : ['class_id','section_id']
 	})
-
+	
 	let classData = {}
   	await Promise.all(
     	maxClass.map(async classSection => {
+    		classSection =  classSection.toJSON()
     		let className   = classSection.classes.name
     		let sectionName = classSection.section.name
 
     		let percentage 	= parseFloat(classSection.obtain_total_mark) * 100 / parseFloat(classSection.exam_total_mark)
-
+    		
     		let class_toper = await classToper(
     								examIds, 
     								classSection.class_id, 
     								classSection.section_id )
-    	console.log(class_toper)
+    	
     		let maxObj		= {
-    							 max_avg : percentage,
-    							 topper : class_toper
+    							 max_avg    : percentage,
+    							 total_mark : classSection.total_mark,
+    							 topper     : class_toper
     						  }
 
     		if(!classData[className+" ("+sectionName+")"])
@@ -1563,6 +1566,7 @@ async function overAllSubject(query, user){
 		attributes : [
 			[ Sequelize.fn('SUM', Sequelize.col('exam_total_mark')), 'exam_total_mark' ],
             [ Sequelize.fn('SUM', Sequelize.col('obtain_total_mark')), 'obtain_total_mark' ],
+            [ Sequelize.fn('MAX', Sequelize.col('exam_total_mark')), 'total_mark' ],
             'class_id',
             'section_id',
             'subject_code'
@@ -1586,6 +1590,7 @@ async function overAllSubject(query, user){
     let classData = {}
   	await Promise.all(
     	maxClass.map(async classSection => {
+    		classSection    = classSection.toJSON()
     		let className   = classSection.classes.name
     		let sectionName = classSection.section.name
     		let subjectName = classSection.subject.subject_name
@@ -1594,7 +1599,8 @@ async function overAllSubject(query, user){
 
       		let maxObj	= {
       						subject_name: subjectName,
-    						max_avg : percentage
+    						max_avg : percentage,
+    						total_mark:classSection.total_mark
     					  }
 
     		if(!classData[className+" ("+sectionName+")"])
