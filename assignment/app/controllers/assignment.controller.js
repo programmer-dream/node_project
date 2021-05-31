@@ -308,6 +308,9 @@ async function list(params , user){
       case 'Closed':
           whereCodition[Op.lt]= sequelize.where(sequelize.fn('date', sequelize.col('assignment_completion_date')), '<', currentDate)
         break;
+      case 'todayAssignment':
+          whereCodition[Op.lt]= sequelize.where(sequelize.fn('date', sequelize.col('assignment_completion_date')), '=', currentDate)
+        break;
       }
     }
   }
