@@ -292,18 +292,26 @@ async function list(params , user){
             ]
     }
   }
+  if(user.role != 'guardian' || user.role != 'student'){
   //status filter 
-  if(params.status){
-    switch (params.status) {
-    case 'created':
-        whereCodition.is_released = 0
-      break;
-    case 'published':
-        whereCodition.is_released = 1
-      break;
+    if(params.status){
+      switch (params.status) {
+      case 'Created':
+          whereCodition.is_released = 0
+        break;
+      case 'Published':
+          whereCodition.is_released = 1
+        break;
+      case 'Inprogress':
+          whereCodition[Op.gt]= sequelize.where(sequelize.fn('date', sequelize.col('assignment_completion_date')), '>=', currentDate)
+        break;
+      case 'Closed':
+          whereCodition[Op.lt]= sequelize.where(sequelize.fn('date', sequelize.col('assignment_completion_date')), '<', currentDate)
+        break;
+      }
     }
   }
-
+  //console.log(whereCodition)
   if(params.status)
       status = params.status
 
@@ -396,6 +404,7 @@ async function list(params , user){
   let submittedAvg    = 0
   let notSubmittedAvg = 0
   let finalAssignment = []
+  //return assignments
   await Promise.all(
     assignments.map(async assignment => {
         let assingmentData = assignment.toJSON()
