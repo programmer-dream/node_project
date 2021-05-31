@@ -1184,3 +1184,11 @@ async function getFirstSubject(branchVlsId){
 	                      });
 	return subject.code
 }
+
+
+/**
+ * API for branch attendance 
+ */
+async function getBranchAttendance(branchVlsId){
+
+}
