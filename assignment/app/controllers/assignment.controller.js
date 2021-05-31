@@ -268,9 +268,12 @@ async function list(params , user){
   let userData = await User.findByPk(user.id)
 
   let currentDate = moment().format('YYYY-MM-DD')
+  let whereCodition = {}
 
-  let whereCodition = {
-    [Op.eq]: sequelize.where(sequelize.fn('date', sequelize.col('assignment_completion_date')), '=', currentDate)  
+  if(user.role != 'teacher'){
+     whereCodition = {
+      [Op.eq]: sequelize.where(sequelize.fn('date', sequelize.col('assignment_completion_date')), '=', currentDate)  
+    }
   }
   
   if(assignmentState == "past"){
