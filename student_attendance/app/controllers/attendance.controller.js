@@ -493,6 +493,7 @@ async function listForTeacher(params, user){
                             }]
 	                  }
     }
+    let branchAttendance  = await getBranchAttendance(whereCondtion , params.branch_vls_id)
     
     //return whereCondtion
 	let attendance  = await StudentAttendance.findAll(attendenceQuery);
@@ -515,7 +516,7 @@ async function listForTeacher(params, user){
 					data: attendanceArray.student 
 				}
 
-  	return { success: true, message: "attendance list", data: attendanceArray.student }
+  	return { success: true, message: "attendance list", data: attendanceArray.student , branchAttendance}
 };
 
 
@@ -1189,6 +1190,61 @@ async function getFirstSubject(branchVlsId){
 /**
  * API for branch attendance 
  */
-async function getBranchAttendance(branchVlsId){
+async function getBranchAttendance(condition, branchVlsId){
+	let month     = condition.month
+	let year  	  = condition.year
+	let monthNum  = moment().month(month).format("M");
+	let totalDays = moment(year+"-"+monthNum, "YYYY-MM").daysInMonth()
+	//let finalArray= []
+	let holidayCount = 0;
+	let presentCount = 0
+	let absentCount  = 0
 
+	for(let i = 1; i <=totalDays; i++){
+		let attributes	= []
+		let group	    = []
+		attributes.push('day_'+i)
+		attributes.push([ Sequelize.fn('COUNT', Sequelize.col('day_'+i)), 'count' ])
+		group.push('day_'+i)
+
+		let attendance  = await StudentAttendance.findAll({
+			where : {
+						branch_vls_id : branchVlsId,
+						month 		  : month
+					},
+			attributes:attributes,
+			group:group
+		})
+
+		attendance.forEach(function(attend){
+			attend = attend.toJSON()
+
+			if(attend['day_'+i] == 'P'){
+				presentCount += attend['count'] 
+			}
+			if(attend['day_'+i] == 'A'){
+				absentCount += attend['count'] 
+			}
+		})
+
+		//finalArray.push(attendance)
+		let weekday = moment(year+'-'+month+'-'+i).format('dddd');
+		if(weekday == 'Sunday'){
+			holidayCount++;
+		}
+	}
+
+	let count  = await StudentAttendance.count({
+		where : {
+					branch_vls_id : branchVlsId,
+					month 		  : month
+				}
+	})
+
+	let workDay = totalDays - holidayCount
+	let totalDay= count * workDay
+	let present_percent = (presentCount * 100 / totalDay).toFixed(2)
+	let absent_percent  = (absentCount * 100 / totalDay).toFixed(2)
+
+	return { present_percent, absent_percent}
 }
