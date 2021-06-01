@@ -419,6 +419,8 @@ async function listForTeacher(params, user){
 	let limit   	= 10
 	let offset  	= 0
 	let whereCondtion 	= {}
+	let start 		= null 
+	let end   		= null
 
 	whereCondtion.subject_code = null
 	if(!params.class_id) throw 'Class_id is required'
@@ -462,7 +464,13 @@ async function listForTeacher(params, user){
     	let currentYear		= moment().format('YYYY');
     	whereCondtion.year 	= currentYear
     }
-    
+
+    if(params.start )
+    	start = params.start
+
+    if(params.end )
+    	end = params.end
+
     let attendenceQuery = {  
 	                  limit : limit,
 	                  offset: offset,
@@ -516,7 +524,18 @@ async function listForTeacher(params, user){
 					absentCount: attendanceArray.absentCount,
 					data: attendanceArray.student 
 				}
-
+	let allStudent = attendanceArray.student
+	let filterArr  = []
+	await Promise.all(
+		allStudent.map(async student => {
+			if(start && end){
+				if(student.percent >= start &&  student.percent <= end){
+					filterArr.push(student) 
+				}
+			}
+		})
+	)
+	attendanceArray.student = filterArr
   	return { success: true, message: "attendance list", data: attendanceArray.student}
 };
 
@@ -528,10 +547,15 @@ async function daysArray(attendance, checkForParentStudent = false, checkConditi
 	let currentDay = moment().format('D')
 	await Promise.all(
 		attendance.map(async student => {
+			let studentPresent = 0
+			let studentAbsent  = 0
 			let studentdata = []
 			student = student.toJSON()
+			let year     = student.year+'-'+student.month
+			let monthNum = moment().month(student.month).format("M")
+			let totalDays = moment(year+"-"+monthNum, "YYYY-MM").daysInMonth()
 
-			for(var i = 1; i<=31; i++){
+			for(var i = 1; i<=totalDays; i++){
 				if(student.hasOwnProperty('day_'+i) ){
 					currentDay = (checkCondition) ?  currentDay : 31
 					if(i <= currentDay){
@@ -540,7 +564,7 @@ async function daysArray(attendance, checkForParentStudent = false, checkConditi
 
 						if(student['day_'+i] == 'A'){
 							absentCount +=1
-
+							studentAbsent++
 							let absent_date = student.year +"-"+moment().month(student.month).format("M")+"-"+i
 
 							let absent = await StudentAbsent.findOne({
@@ -558,6 +582,7 @@ async function daysArray(attendance, checkForParentStudent = false, checkConditi
 
 						}else if(student['day_'+i] == 'P'){
 							presentCount += 1
+							studentPresent++
 						}
 						 	
 						let dayData = {
@@ -573,12 +598,17 @@ async function daysArray(attendance, checkForParentStudent = false, checkConditi
 				}
 			}
 
-			(studentdata.length > 1) ? student.days = studentdata : student.days = studentdata[0]
-
+			if(studentdata.length > 1){ 
+				student.days = studentdata 
+				student.counts = { studentPresent , studentAbsent}
+				student.percent =  (studentPresent * 100)/ totalDays
+			}else {
+				student.days = studentdata[0]
+			}
 			studentFinal.push(student)
 		})
 	)
-
+	
 	if(checkForParentStudent && studentFinal.length > 0 && studentFinal.length < 2) studentFinal = studentFinal[0]
 
 	return { student:studentFinal, presentCount, absentCount }
