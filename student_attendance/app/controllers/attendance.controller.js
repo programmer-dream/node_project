@@ -1228,8 +1228,9 @@ async function getBranchAttendance(query, user){
 		where : whereCondtion
 	})
 
-	if(!count)
-		return { present_percent:0, absent_percent:0 }
+	if(!count){
+		return { success: true, message: "present & absent percentage" ,data : { present_percent:0, absent_percent:0 }};
+	}
 
 	for(let i = 1; i <=totalDays; i++){
 		let attributes	= []
@@ -1298,8 +1299,8 @@ async function getFullYearAttendance(query, user){
 	   condition.year  = dateStart.format('YYYY')
 	   condition.month = dateStart.format('MMMM')
 	   
-	   let data = await getBranchAttendance(condition, user)
-	   monthWiseData[condition.month] = data
+	   let api = await getBranchAttendance(condition, user)
+	   monthWiseData[condition.month] = api.data
 	   dateStart.add(1,'month');
 	}
 	return { success: true, message: "present & absent percentage" ,data : monthWiseData}; 
