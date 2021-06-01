@@ -321,7 +321,7 @@ async function list(params , user){
       }
     }
   }
-  console.log(whereCodition)
+  
   if(params.status)
       status = params.status
 
@@ -336,7 +336,7 @@ async function list(params , user){
 
   if(params.assignment_level)
     whereCodition.assignment_level = params.assignment_level
-  
+
   if(params.subject_code)
     whereCodition.subject_code = params.subject_code
 
