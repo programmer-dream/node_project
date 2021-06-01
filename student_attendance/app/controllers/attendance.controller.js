@@ -1267,7 +1267,7 @@ async function getBranchAttendance(query, user){
 	let present_percent = (presentCount * 100 / totalDay).toFixed(2)
 	let absent_percent  = (absentCount * 100 / totalDay).toFixed(2)
 
-	return { present_percent, absent_percent }
+	return { success: true, message: "present & absent percentage" ,data : { present_percent, absent_percent }};
 }
 
 
@@ -1302,6 +1302,5 @@ async function getFullYearAttendance(query, user){
 	   monthWiseData[condition.month] = data
 	   dateStart.add(1,'month');
 	}
-
-	return monthWiseData
+	return { success: true, message: "present & absent percentage" ,data : monthWiseData}; 
 }
