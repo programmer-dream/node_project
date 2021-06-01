@@ -18,6 +18,7 @@ const Notification= db.Notification;
 const StudentAssignment= db.StudentAssignment;
 const AssignmentQuestions= db.AssignmentQuestions;
 const StudentAssignmentResponse= db.StudentAssignmentResponse;
+const Section = db.Section;
 
 module.exports = {
   create,
@@ -307,17 +308,20 @@ async function list(params , user){
         break;
       case 'Inprogress':
           whereCodition[Op.gt]= sequelize.where(sequelize.fn('date', sequelize.col('assignment_completion_date')), '>=', currentDate)
+          whereCodition.is_released = 1
         break;
       case 'Closed':
           whereCodition[Op.lt]= sequelize.where(sequelize.fn('date', sequelize.col('assignment_completion_date')), '<', currentDate)
+          whereCodition.is_released = 1
         break;
       case 'todayAssignment':
           whereCodition[Op.lt]= sequelize.where(sequelize.fn('date', sequelize.col('assignment_completion_date')), '=', currentDate)
+          whereCodition.is_released = 1
         break;
       }
     }
   }
-  //console.log(whereCodition)
+  console.log(whereCodition)
   if(params.status)
       status = params.status
 
@@ -330,6 +334,9 @@ async function list(params , user){
   if(params.assignment_type)
     whereCodition.assignment_type = params.assignment_type
 
+  if(params.assignment_level)
+    whereCodition.assignment_level = params.assignment_level
+  
   if(params.subject_code)
     whereCodition.subject_code = params.subject_code
 
@@ -387,6 +394,10 @@ async function list(params , user){
             },{ 
                 model:Classes,
                 as:'class',
+                attributes: ['name']
+            },{ 
+                model:Section,
+                as:'section',
                 attributes: ['name']
             },{ 
                 model:SubjectList,

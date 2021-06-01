@@ -188,6 +188,7 @@ db.Employee.hasOne(db.Subject,{foreignKey:'teacher_id',as:'teacher_subject'})
 /*********** assignment management ***********/
 db.Assignment.belongsTo(db.Employee,{foreignKey:'added_by',as:'addedBY'})
 db.Assignment.belongsTo(db.Classes,{foreignKey:'assignment_class_id',as:'class'})
+db.Assignment.belongsTo(db.Section,{foreignKey:'section_id',as:'section'})
 db.Assignment.belongsTo(db.SubjectList,{foreignKey:'subject_code',targetKey:'code',as:'subjectList'})
 db.Assignment.hasMany(db.StudentAssignment,{foreignKey:'assignment_vls_id',as:'studentAssignment'})
 db.Assignment.hasMany(db.AssignmentQuestions,{foreignKey:'assignment_vls_id',as:'assignmentQuestion'})
