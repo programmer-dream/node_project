@@ -37,6 +37,8 @@ router.get("/listAttendance",listForParent);
 router.get("/listParentChildren",listParentChildren);
 router.get("/teacherClasses",teacherClasses);
 router.get("/dashboardAttendanceCount",dashboardAttendanceCount);
+router.get("/getBranchAttendance",getBranchAttendance);
+router.get("/getFullYearAttendance",getFullYearAttendance);
 
 
 
@@ -107,6 +109,19 @@ function teacherClasses(req, res, next) {
 // list teacher classes
 function dashboardAttendanceCount(req, res, next) {
     attendaceController.dashboardAttendanceCount(req.user, req.query)
+        .then(list => list ? res.json(list) : res.status(400).json({ status: "error", message: 'Issue while listing classes' }))
+        .catch(err => next(err));
+}
+
+// list teacher classes
+function getBranchAttendance(req, res, next) {
+    attendaceController.getBranchAttendance(req.query, req.user)
+        .then(list => list ? res.json(list) : res.status(400).json({ status: "error", message: 'Issue while listing classes' }))
+        .catch(err => next(err));
+}
+// list teacher classes
+function getFullYearAttendance(req, res, next) {
+    attendaceController.getFullYearAttendance(req.query, req.user)
         .then(list => list ? res.json(list) : res.status(400).json({ status: "error", message: 'Issue while listing classes' }))
         .catch(err => next(err));
 }
