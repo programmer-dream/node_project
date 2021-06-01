@@ -113,15 +113,15 @@ function dashboardAttendanceCount(req, res, next) {
         .catch(err => next(err));
 }
 
-// list teacher classes
+// Branch percentage classes
 function getBranchAttendance(req, res, next) {
     attendaceController.getBranchAttendance(req.query, req.user)
-        .then(list => list ? res.json(list) : res.status(400).json({ status: "error", message: 'Issue while listing classes' }))
+        .then(list => list ? res.json(list) : res.status(400).json({ status: "error", message: 'Issue while branch attendance' }))
         .catch(err => next(err));
 }
-// list teacher classes
+// get full year percentage
 function getFullYearAttendance(req, res, next) {
     attendaceController.getFullYearAttendance(req.query, req.user)
-        .then(list => list ? res.json(list) : res.status(400).json({ status: "error", message: 'Issue while listing classes' }))
+        .then(list => list ? res.json(list) : res.status(400).json({ status: "error", message: 'Issue while full year attendance' }))
         .catch(err => next(err));
 }
