@@ -30,7 +30,9 @@ module.exports = {
   listParentChildren,
   updateLeaveReason,
   teacherClasses,
-  dashboardAttendanceCount
+  dashboardAttendanceCount,
+  getBranchAttendance,
+  getFullYearAttendance
 };
 
 
@@ -428,7 +430,7 @@ async function listForTeacher(params, user){
     if(!params.branch_vls_id) throw 'branch_vls_id is required'
     	whereCondtion.branch_vls_id = params.branch_vls_id
 
-    let isSubjectAttendanceEnable = await isSubjectAttendance(params.branch_id);
+    let isSubjectAttendanceEnable = await isSubjectAttendance(params.branch_vls_id);
 	
 	if(isSubjectAttendanceEnable && !params.subject_code )
 		throw 'subject_code is required'
@@ -515,7 +517,7 @@ async function listForTeacher(params, user){
 					data: attendanceArray.student 
 				}
 
-  	return { success: true, message: "attendance list", data: attendanceArray.student }
+  	return { success: true, message: "attendance list", data: attendanceArray.student}
 };
 
 
@@ -1183,4 +1185,123 @@ async function getFirstSubject(branchVlsId){
 	                        attributes: ['id','subject_name','code']
 	                      });
 	return subject.code
+}
+
+
+/**
+ * API for branch attendance 
+ */
+async function getBranchAttendance(query, user){
+	let totalDays    = moment().format('D')
+	let holidayCount = 0
+	let presentCount = 0
+	let absentCount  = 0
+	let month     	 = moment().format('MMMM');
+	let year  	  	 = moment().format('YYYY');
+	
+	let branchVlsId  = query.branch_vls_id
+	if(!branchVlsId) throw 'branchVlsId is required'
+
+	if(query.month)
+		month     	 = query.month
+
+	if(query.year)
+		year     	 = query.year
+
+	let whereCondtion = {
+				branch_vls_id : branchVlsId,
+				month 		  : month,
+				year          : year
+			}
+
+	if(query.class_vls_id)
+		whereCondtion.class_id     = query.class_vls_id
+
+	if(query.section_id)
+		whereCondtion.section_id   = query.section_id
+
+	let monthNum  = moment().month(month).format("M");
+	if(month != moment().format('MMMM'))
+		totalDays = moment(year+"-"+monthNum, "YYYY-MM").daysInMonth()
+	
+	let count  = await StudentAttendance.count({
+		where : whereCondtion
+	})
+
+	if(!count)
+		return { present_percent:0, absent_percent:0 }
+
+	for(let i = 1; i <=totalDays; i++){
+		let attributes	= []
+		let group	    = []
+		attributes.push('day_'+i)
+		attributes.push([ Sequelize.fn('COUNT', Sequelize.col('day_'+i)), 'count' ])
+		group.push('day_'+i)
+
+		let attendance  = await StudentAttendance.findAll({
+			where : whereCondtion,
+			attributes:attributes,
+			group:group
+		})
+		let weekday = moment(year+'-'+month+'-'+i).format('dddd');
+
+		if(weekday == 'Sunday'){
+			holidayCount++;
+		}
+		attendance.forEach(function(attend){
+			attend = attend.toJSON()
+			
+			if(attend['day_'+i] == 'P' && weekday != 'Sunday'){
+				presentCount += attend['count'] 
+			}
+
+			if(attend['day_'+i] == 'A' && weekday != 'Sunday'){
+				absentCount += attend['count'] 
+			}
+		})
+
+	}
+
+	let workDay 		= totalDays - holidayCount
+	let totalDay 		= count * workDay
+	let present_percent = (presentCount * 100 / totalDay).toFixed(2)
+	let absent_percent  = (absentCount * 100 / totalDay).toFixed(2)
+
+	return { present_percent, absent_percent }
+}
+
+
+/**
+ * API for branch full Year month wise attendance 
+ */
+async function getFullYearAttendance(query, user){
+	let year  	  	 = moment().format('YYYY');
+	let monthNum  	 = 3;
+	let branchVlsId  = query.branch_vls_id
+	if(!branchVlsId) throw 'branchVlsId is required'
+
+	if(query.year)
+		year     	 = query.year
+
+	let monthWiseData 	= {}
+	let dateStart 		= moment(year+'-'+monthNum);
+	let nextYear  		= parseInt(year) + 1 
+	let lastMonth  		= monthNum - 1 
+	let dateEnd   		= moment(nextYear+'-'+lastMonth);
+	let monthName 		= [];
+
+	let condition = {
+		branch_vls_id : branchVlsId
+	}
+
+	while (dateEnd > dateStart || dateStart.format('M') === dateEnd.format('M')) {
+	   condition.year  = dateStart.format('YYYY')
+	   condition.month = dateStart.format('MMMM')
+	   
+	   let data = await getBranchAttendance(condition, user)
+	   monthWiseData[condition.month] = data
+	   dateStart.add(1,'month');
+	}
+
+	return monthWiseData
 }
