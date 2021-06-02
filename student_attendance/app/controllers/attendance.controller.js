@@ -1380,11 +1380,8 @@ async function getClassAttendance(params, user){
 	let classes  = await Classes.findAll({  
 					  where:whereCondtion,
 	                  attributes: ['class_vls_id',
-	                  			   'name',
-	                  			   'teacher_id',
-	                  			   'numeric_name',
-	                  			   'status',
-	                  			   'branch_vls_id'],
+	                  			   'name'
+	                  			   ],
 	                  include: [{ 
                               model:Section,
                               as:'sections',
@@ -1395,13 +1392,52 @@ async function getClassAttendance(params, user){
 	                          [Section, 'id', 'asc']
 	                  ]
 	                  });
-	return classes
-}
 
+	let year  	  	 	= moment().format('YYYY');
+	let monthNum  	 	= 3;
+	let monthWiseData 	= {}
+	let dateStart 		= moment(year+'-'+monthNum);
+	let nextYear  		= parseInt(year) + 1 
+	let lastMonth  		= monthNum - 1 
+	let dateEnd   		= moment(nextYear+'-'+lastMonth);
+	let monthName 		= [];
 
-/**
- * API for student Attendance
- */
-async function getStudentAttendance(student, month ){
-	return student
+	let condition = {
+		branch_vls_id : params.branch_vls_id
+	}
+
+	while (dateEnd > dateStart || dateStart.format('M') === dateEnd.format('M')) {
+
+	   monthObj = {}
+	   monthObj[dateStart.format('MMMM')] = 25
+	   monthName.push(monthObj)
+	   dateStart.add(1,'month');
+
+	}
+	
+	classData = {}
+	await Promise.all(
+		classes.map(async sClass => {
+			sClass = sClass.toJSON()
+			let sections = sClass.sections
+			if(sections.length){
+				sections.map(async cSection => {
+					let name = sClass.name+" "+cSection.name;
+					condition.class_id     = sClass.class_vls_id
+					condition.section_id   = cSection.section_id
+					let api = await getBranchAttendance(condition, user)
+					console.log(api , 'inside')
+	   				//monthWiseData[condition.month] = api.data
+					if(!classData[name])
+						classData[name] = monthName
+				})
+			}else{
+				condition.class_id     = sClass.class_vls_id
+				if(!classData[sClass.name])
+					classData[sClass.name] = monthName
+			}
+		})
+	)
+	console.log('outside')
+	return classData
 }
