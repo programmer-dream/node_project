@@ -525,6 +525,7 @@ async function listForTeacher(params, user){
 					data: attendanceArray.student 
 				}
 	let allStudent = attendanceArray.student
+	//return allStudent
 	let filterArr  = []
 	await Promise.all(
 		allStudent.map(async student => {
@@ -532,6 +533,8 @@ async function listForTeacher(params, user){
 				if(student.percent >= start &&  student.percent <= end){
 					filterArr.push(student) 
 				}
+			}else{
+				filterArr.push(student) 
 			}
 		})
 	)
