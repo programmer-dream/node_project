@@ -1421,16 +1421,7 @@ async function getClassAttendance(params, user){
 			sClass = sClass.toJSON()
 			let sections = sClass.sections
 			if(sections.length){
-				sections.map(async cSection => {
-					let name = sClass.name+" "+cSection.name;
-					condition.class_id     = sClass.class_vls_id
-					condition.section_id   = cSection.section_id
-					let api = await getBranchAttendance(condition, user)
-					console.log(api , 'inside')
-	   				//monthWiseData[condition.month] = api.data
-					if(!classData[name])
-						classData[name] = monthName
-				})
+				await getClassSectionAttendance(sections, sClass, condition, user)
 			}else{
 				condition.class_id     = sClass.class_vls_id
 				if(!classData[sClass.name])
@@ -1441,3 +1432,25 @@ async function getClassAttendance(params, user){
 	console.log('outside')
 	return classData
 }
+
+/**
+ * API for class wise attendance 
+ */
+async function getClassSectionAttendance(sections, sClass, condition, user){
+	await Promise.all(
+		sections.map(async cSection => {
+						let name = sClass.name+" "+cSection.name;
+						condition.class_id     = sClass.class_vls_id
+						condition.section_id   = cSection.section_id
+						let api = await getBranchAttendance(condition, user)
+						console.log(api , 'inside')
+		   				//monthWiseData[condition.month] = api.data
+						// if(!classData[name])
+						// 	classData[name] = monthName
+					})
+	)
+
+	console.log("inSection Promise") 
+}
+
+
