@@ -39,6 +39,7 @@ router.get("/teacherClasses",teacherClasses);
 router.get("/dashboardAttendanceCount",dashboardAttendanceCount);
 router.get("/getBranchAttendance",getBranchAttendance);
 router.get("/getFullYearAttendance",getFullYearAttendance);
+router.get("/getClassAttendance",getClassAttendance);
 
 
 
@@ -123,5 +124,12 @@ function getBranchAttendance(req, res, next) {
 function getFullYearAttendance(req, res, next) {
     attendaceController.getFullYearAttendance(req.query, req.user)
         .then(list => list ? res.json(list) : res.status(400).json({ status: "error", message: 'Issue while full year attendance' }))
+        .catch(err => next(err));
+}
+
+// get full year percentage
+function getClassAttendance(req, res, next) {
+    attendaceController.getClassAttendance(req.query, req.user)
+        .then(list => list ? res.json(list) : res.status(400).json({ status: "error", message: 'Issue while class attendance' }))
         .catch(err => next(err));
 }

@@ -32,7 +32,8 @@ module.exports = {
   teacherClasses,
   dashboardAttendanceCount,
   getBranchAttendance,
-  getFullYearAttendance
+  getFullYearAttendance,
+  getClassAttendance
 };
 
 
@@ -218,10 +219,13 @@ async function classList(params){
 	let limit   = 10
 	let offset  = 0
 	let whereCondtion = {}
+ 
 	if(params.size)
     	limit = parseInt(params.size)
+
   	if(params.page)
     	offset = 0 + (parseInt(params.page) - 1) * limit
+
     if(params.orderBy && params.orderBy == 'asc')
     	orderBy = 'asc'
 
@@ -248,6 +252,7 @@ async function classList(params){
 	                          [Section, 'id', 'asc']
 	                  ]
 	                  });
+  
   return { success: true, message: "Class list", data:classes };
 };
 
@@ -310,7 +315,28 @@ async function studentList(params){
 
 	let mergeStudentsAttendence = await mergeStudentAttendence(students,subjectCode)
 
-  	return { success: true, message: "Student list", data:mergeStudentsAttendence };
+	let year  		  = moment().format('YYYY');
+	let month  		  = moment().format('MMMM');
+	let totalDays     = moment().format('D');
+
+	if(params.month)
+		month = moment(params.month, 'M').format('MMMM')
+
+	if(month != moment().format('MMMM'))
+		totalDays = moment(year+"-"+params.month, "YYYY-MM").daysInMonth()
+
+	let finalData = []
+	 await Promise.all(
+		mergeStudentsAttendence.map(async student => {
+			let countPercentage = await studentCount(student.student_vls_id, year, month, totalDays)
+			student.attendanceCounts = countPercentage
+			student.percentage       = (countPercentage.present *100) /totalDays
+			
+			finalData.push(student)
+		})
+	)
+	
+  	return { success: true, message: "Student list", data:finalData };
 };
 
 
@@ -1337,4 +1363,45 @@ async function getFullYearAttendance(query, user){
 	   dateStart.add(1,'month');
 	}
 	return { success: true, message: "present & absent percentage" ,data : monthWiseData}; 
+}
+
+
+/**
+ * API for class wise attendance 
+ */
+async function getClassAttendance(params, user){
+	let whereCondtion = {}
+	let orderBy       = 'asc'
+
+	if(!params.branch_vls_id) throw 'branch_vls_id is required'
+    	
+    whereCondtion.branch_vls_id = params.branch_vls_id
+
+	let classes  = await Classes.findAll({  
+					  where:whereCondtion,
+	                  attributes: ['class_vls_id',
+	                  			   'name',
+	                  			   'teacher_id',
+	                  			   'numeric_name',
+	                  			   'status',
+	                  			   'branch_vls_id'],
+	                  include: [{ 
+                              model:Section,
+                              as:'sections',
+                              attributes: ['id','name']
+                            }],
+                      order: [
+	                          ['class_vls_id', orderBy],
+	                          [Section, 'id', 'asc']
+	                  ]
+	                  });
+	return classes
+}
+
+
+/**
+ * API for student Attendance
+ */
+async function getStudentAttendance(student, month ){
+	return student
 }
