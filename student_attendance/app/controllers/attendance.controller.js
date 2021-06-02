@@ -1395,11 +1395,8 @@ async function getClassAttendance(params, user){
 	let classes  = await Classes.findAll({  
 					  where:whereCondtion,
 	                  attributes: ['class_vls_id',
-	                  			   'name',
-	                  			   'teacher_id',
-	                  			   'numeric_name',
-	                  			   'status',
-	                  			   'branch_vls_id'],
+	                  			   'name'
+	                  			   ],
 	                  include: [{ 
                               model:Section,
                               as:'sections',
@@ -1410,13 +1407,86 @@ async function getClassAttendance(params, user){
 	                          [Section, 'id', 'asc']
 	                  ]
 	                  });
-	return classes
+
+	let year  	  	 	= moment().format('YYYY');
+	let monthNum  	 	= 3;
+	let monthWiseData 	= {}
+	let dateStart 		= moment(year+'-'+monthNum);
+	let nextYear  		= parseInt(year) + 1 
+	let lastMonth  		= monthNum - 1 
+	let dateEnd   		= moment(nextYear+'-'+lastMonth);
+	let monthName 		= [];
+
+	let condition = {
+		branch_vls_id : params.branch_vls_id
+	}
+
+	while (dateEnd > dateStart || dateStart.format('M') === dateEnd.format('M')) {
+
+	   monthName.push(dateStart.format('MMMM'))
+	   dateStart.add(1,'month');
+
+	}
+	
+	classData = []
+	await Promise.all(
+		classes.map(async sClass => {
+			sClass = sClass.toJSON()
+			let sections = sClass.sections
+			if(sections.length){
+				await getClassSectionAttendance(sections, sClass, condition, user,classData,monthName)
+			}else{
+				await getClassSectionAttendance([], sClass, condition, user,classData,monthName)				
+			}
+		})
+	)
+	return { success: true, message: "Class wise data" ,data : classData}; 
 }
 
-
 /**
- * API for student Attendance
+ * API for class wise attendance 
  */
-async function getStudentAttendance(student, month ){
-	return student
+async function getClassSectionAttendance(sections, sClass, condition, user,classData,monthName){
+	let classObj = {}
+	if(sections.length){
+		await Promise.all(
+			sections.map(async cSection => {
+				condition.class_id     = sClass.class_vls_id
+				condition.section_id   = cSection.id
+
+				let response = await getYearAttendance(monthName,condition,user,classData)
+				response.classes = {
+					className   : sClass.name,
+					class_vls_id: sClass.class_vls_id,
+					sectionName : cSection.name,
+					section_id  : cSection.id
+				}
+				classData.push(response)
+			})
+		)
+	}else{
+		condition.class_id     = sClass.class_vls_id
+		classObj.classes = {
+							className   : sClass.name,
+							class_vls_id: sClass.class_vls_id,
+						}		
+		let response = await getYearAttendance(monthName,condition,user,classData)
+		response.classes = {
+					className   : sClass.name,
+					class_vls_id: sClass.class_vls_id
+				}
+		classData.push(response)
+	}
+}
+
+async function getYearAttendance(monthName,condition,user,classData){
+	let allMonths = {}
+	await Promise.all(
+		monthName.map(async function(item){
+			condition.month = item
+			let api = await getBranchAttendance(condition, user)
+			allMonths[item] = api.data
+		})
+	)
+	return allMonths
 }
