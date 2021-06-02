@@ -1413,7 +1413,7 @@ async function getClassAttendance(params, user){
 
 	}
 	
-	classData = {}
+	classData = []
 	await Promise.all(
 		classes.map(async sClass => {
 			sClass = sClass.toJSON()
@@ -1425,8 +1425,6 @@ async function getClassAttendance(params, user){
 			}
 		})
 	)
-	//console.log('outside')
-	//return classData
 	return { success: true, message: "Class wise data" ,data : classData}; 
 }
 
@@ -1434,39 +1432,45 @@ async function getClassAttendance(params, user){
  * API for class wise attendance 
  */
 async function getClassSectionAttendance(sections, sClass, condition, user,classData,monthName){
+	let classObj = {}
 	if(sections.length){
 		await Promise.all(
 			sections.map(async cSection => {
-							let name = sClass.name+" "+cSection.name;
-							condition.class_id     = sClass.class_vls_id
-							condition.section_id   = cSection.id
+				condition.class_id     = sClass.class_vls_id
+				condition.section_id   = cSection.id
 
-							if(!classData[name])
-								classData[name] = []
-							
-							let response = await getYearAttendance(monthName,condition,user,classData)
-							classData[name] = response
-						})
+				let response = await getYearAttendance(monthName,condition,user,classData)
+				response.classes = {
+					className   : sClass.name,
+					class_vls_id: sClass.class_vls_id,
+					sectionName : cSection.name,
+					section_id  : cSection.id
+				}
+				classData.push(response)
+			})
 		)
 	}else{
 		condition.class_id     = sClass.class_vls_id
-		if(!classData[sClass.name])
-			classData[sClass.name] = []
-		
+		classObj.classes = {
+							className   : sClass.name,
+							class_vls_id: sClass.class_vls_id,
+						}		
 		let response = await getYearAttendance(monthName,condition,user,classData)
-		classData[sClass.name] = response
+		response.classes = {
+					className   : sClass.name,
+					class_vls_id: sClass.class_vls_id
+				}
+		classData.push(response)
 	}
 }
 
 async function getYearAttendance(monthName,condition,user,classData){
-	console.log(condition, 'this is condition')
-	let allMonths = [] 
+	let allMonths = {}
 	await Promise.all(
 		monthName.map(async function(item){
+			condition.month = item
 			let api = await getBranchAttendance(condition, user)
-			let obj = {}
-			obj[item] = api.data
-			allMonths.push(obj)
+			allMonths[item] = api.data
 		})
 	)
 	return allMonths
