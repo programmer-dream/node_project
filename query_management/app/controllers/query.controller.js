@@ -204,6 +204,13 @@ async function list(params,user){
   if(params.section_id)
     sectionFilter.section_id = params.section_id
 
+  if(params.query_date_start)
+    whereCondition.query_date = { [Op.gte] : params.query_date_start." 00:00:00"}
+
+  if(params.query_date_end)
+    whereCondition.query_date = { [Op.lte] : params.query_date_end." 23:59:59"}
+
+
   let allCount      = await StudentQuery.count({ where: whereCondition,
                             include: [
                                 { 
