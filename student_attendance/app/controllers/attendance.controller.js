@@ -1408,9 +1408,7 @@ async function getClassAttendance(params, user){
 
 	while (dateEnd > dateStart || dateStart.format('M') === dateEnd.format('M')) {
 
-	   monthObj = {}
-	   monthObj[dateStart.format('MMMM')] = 25
-	   monthName.push(monthObj)
+	   monthName.push(dateStart.format('MMMM'))
 	   dateStart.add(1,'month');
 
 	}
@@ -1421,36 +1419,55 @@ async function getClassAttendance(params, user){
 			sClass = sClass.toJSON()
 			let sections = sClass.sections
 			if(sections.length){
-				await getClassSectionAttendance(sections, sClass, condition, user)
+				await getClassSectionAttendance(sections, sClass, condition, user,classData,monthName)
 			}else{
-				condition.class_id     = sClass.class_vls_id
-				if(!classData[sClass.name])
-					classData[sClass.name] = monthName
+				await getClassSectionAttendance([], sClass, condition, user,classData,monthName)				
 			}
 		})
 	)
-	console.log('outside')
-	return classData
+	//console.log('outside')
+	//return classData
+	return { success: true, message: "Class wise data" ,data : classData}; 
 }
 
 /**
  * API for class wise attendance 
  */
-async function getClassSectionAttendance(sections, sClass, condition, user){
-	await Promise.all(
-		sections.map(async cSection => {
-						let name = sClass.name+" "+cSection.name;
-						condition.class_id     = sClass.class_vls_id
-						condition.section_id   = cSection.section_id
-						let api = await getBranchAttendance(condition, user)
-						console.log(api , 'inside')
-		   				//monthWiseData[condition.month] = api.data
-						// if(!classData[name])
-						// 	classData[name] = monthName
-					})
-	)
+async function getClassSectionAttendance(sections, sClass, condition, user,classData,monthName){
+	if(sections.length){
+		await Promise.all(
+			sections.map(async cSection => {
+							let name = sClass.name+" "+cSection.name;
+							condition.class_id     = sClass.class_vls_id
+							condition.section_id   = cSection.id
 
-	console.log("inSection Promise") 
+							if(!classData[name])
+								classData[name] = []
+							
+							let response = await getYearAttendance(monthName,condition,user,classData)
+							classData[name] = response
+						})
+		)
+	}else{
+		condition.class_id     = sClass.class_vls_id
+		if(!classData[sClass.name])
+			classData[sClass.name] = []
+		
+		let response = await getYearAttendance(monthName,condition,user,classData)
+		classData[sClass.name] = response
+	}
 }
 
-
+async function getYearAttendance(monthName,condition,user,classData){
+	console.log(condition, 'this is condition')
+	let allMonths = [] 
+	await Promise.all(
+		monthName.map(async function(item){
+			let api = await getBranchAttendance(condition, user)
+			let obj = {}
+			obj[item] = api.data
+			allMonths.push(obj)
+		})
+	)
+	return allMonths
+}
