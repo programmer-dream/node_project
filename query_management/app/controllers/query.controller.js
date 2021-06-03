@@ -1167,16 +1167,4 @@ async function queryCount(whereCondition){
     })
   )
   return obj
-  // let condition = whereCondition
-  // whereCondition.query_status = 'open'
-  // let open  = await StudentQuery.count({
-  //           where : whereCondition
-  //         })
-
-  // whereCondition.query_status = 'open'
-  // let closed  = await StudentQuery.count({
-  //   where : whereCondition
-  // })
-
-  //return { open , closed }
 }
