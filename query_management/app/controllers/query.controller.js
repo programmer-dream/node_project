@@ -15,7 +15,7 @@ const SubjectList = db.SubjectList;
 const Users   = db.Users;
 const Comment = db.Comment;
 const Notification = db.Notification;
-
+const moment = require("moment");
 const sequelize = db.sequelize;
 const bcrypt = require("bcryptjs");
 
@@ -1070,7 +1070,7 @@ async function subjectQueryCount(params, user){
   let condition     = {}
   let subjectFilter = {}
   let isStatusFilter= null
-  
+
   if(!params.branch_vls_id) throw 'branch_vls_id is required'
      classCondtion.branch_vls_id = params.branch_vls_id
 
@@ -1091,6 +1091,17 @@ async function subjectQueryCount(params, user){
   if(params.subject_code)
       subjectFilter.code = params.subject_code
 
+  if(params.month){
+      let year   = moment().format('YYYY')
+      let lDigit = moment(year+"-"+params.month, "YYYY-MM").daysInMonth()
+      let startDate  = year+'-'+params.month+'-01'
+      let endDate    = year+'-'+params.month+'-'+lDigit
+      condition[Op.and]= [
+                sequelize.where(sequelize.fn('date', sequelize.col('query_date')), '>=', startDate),
+                sequelize.where(sequelize.fn('date', sequelize.col('query_date')), '<=', endDate),
+            ]
+  } 
+  
   let classes  = await Classes.findAll({  
       where:classCondtion,
       attributes: ['class_vls_id','name']
@@ -1100,7 +1111,7 @@ async function subjectQueryCount(params, user){
       attributes:['subject_name','code'],
       where : subjectFilter
   })
-  //return condition
+  
   await Promise.all(
     classes.map(async sClass => {
       let classId            = sClass.class_vls_id
