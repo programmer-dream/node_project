@@ -1131,31 +1131,52 @@ async function getSubjectData(whereCondition, allSubject,isStatusFilter =null){
   let obj = {}
   await Promise.all(
     allSubject.map(async subject => {
-        let open    = 0
-        let closed  = 0
         whereCondition.subject_code = subject.code
-        if(!isStatusFilter){
-          whereCondition.query_status = 'open'
-          open  = await StudentQuery.count({
-                    where : whereCondition
-                  })
 
-          whereCondition.query_status = 'closed'
-          closed  = await StudentQuery.count({
-                      where : whereCondition
-                    })
-          obj[subject.subject_name] = { open , closed }
+        if(!isStatusFilter){
+            let counts = await queryCount(whereCondition)
+
+          //console.log(closed, 'closed count')
+          obj[subject.subject_name] = counts
         }else{
           if(whereCondition.query_status == 'open') {
-              open  = await StudentQuery.count({where : whereCondition})
+             let open  = await StudentQuery.count({where : whereCondition})
               obj[subject.subject_name] = { open }
             }
           if(whereCondition.query_status == 'closed') {
-              closed  = await StudentQuery.count({where : whereCondition})
+             let closed  = await StudentQuery.count({where : whereCondition})
               obj[subject.subject_name] = { closed }
           }
         }
     })
   )
   return obj
+}
+
+
+async function queryCount(whereCondition){
+  let statuses = ['open', 'closed']
+  let obj = {}
+  await Promise.all(
+    statuses.map(async itemStatus => {
+        whereCondition.query_status = itemStatus
+        let count  = await StudentQuery.count({
+            where : whereCondition
+          })
+        obj[itemStatus] = count
+    })
+  )
+  return obj
+  // let condition = whereCondition
+  // whereCondition.query_status = 'open'
+  // let open  = await StudentQuery.count({
+  //           where : whereCondition
+  //         })
+
+  // whereCondition.query_status = 'open'
+  // let closed  = await StudentQuery.count({
+  //   where : whereCondition
+  // })
+
+  //return { open , closed }
 }
