@@ -1387,21 +1387,33 @@ async function getFullYearAttendance(query, user){
 async function getClassAttendance(params, user){
 	let whereCondtion = {}
 	let orderBy       = 'asc'
-
+	let monthFilter   = false
+	let sectionInclude = { 
+                          model:Section,
+                          as:'sections',
+                          attributes: ['id','name']
+                         }
 	if(!params.branch_vls_id) throw 'branch_vls_id is required'
     	
-    whereCondtion.branch_vls_id = params.branch_vls_id
+    	whereCondtion.branch_vls_id = params.branch_vls_id
+
+    if(params.class_vls_id)
+    	whereCondtion.class_vls_id = params.class_vls_id
+
+    let sectionFilter = {}
+    if(params.section_id){
+    	sectionInclude.where = { id: params.section_id}
+    }
+
+    if(params.month)
+    	monthFilter = moment(params.month, 'M').format('MMMM')
 
 	let classes  = await Classes.findAll({  
 					  where:whereCondtion,
 	                  attributes: ['class_vls_id',
 	                  			   'name'
 	                  			   ],
-	                  include: [{ 
-                              model:Section,
-                              as:'sections',
-                              attributes: ['id','name']
-                            }],
+	                  include: [sectionInclude],
                       order: [
 	                          ['class_vls_id', orderBy],
 	                          [Section, 'id', 'asc']
@@ -1420,14 +1432,16 @@ async function getClassAttendance(params, user){
 	let condition = {
 		branch_vls_id : params.branch_vls_id
 	}
-
-	while (dateEnd > dateStart || dateStart.format('M') === dateEnd.format('M')) {
-
-	   monthName.push(dateStart.format('MMMM'))
-	   dateStart.add(1,'month');
-
+	if(!monthFilter){
+		while (dateEnd > dateStart || dateStart.format('M') === dateEnd.format('M')) {
+		   
+		   monthName.push(dateStart.format('MMMM'))
+		   dateStart.add(1,'month');
+		}
+	}else{
+		monthName.push(monthFilter)
 	}
-	
+
 	classData = []
 	await Promise.all(
 		classes.map(async sClass => {
