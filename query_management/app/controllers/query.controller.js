@@ -3,7 +3,6 @@ const {updateRewardsPoints} = require('../../../helpers/update-rewards')
 const db = require("../../../models");
 const Op = db.Sequelize.Op;
 const Sequelize = db.Sequelize;
-
 const StudentQuery = db.StudentQuery;
 const Employee = db.Employee;
 const Branch = db.Branch;
@@ -35,7 +34,8 @@ module.exports = {
   canResponse,
   dashboardCount,
   teacherQueryList,
-  listAllSubject
+  listAllSubject,
+  subjectQueryCount
 };
 
 
@@ -1058,3 +1058,93 @@ async function querySubjectTeacher(code){
   return teachers
 }
 
+
+/**
+ * function subeject wise query counts 
+ */
+async function subjectQueryCount(params, user){
+  let finalData     = []
+  let classCondtion = {}
+  let orderBy       = 'asc'
+  let monthFilter   = false
+  let condition     = {}
+  let subjectFilter = {}
+  let isStatusFilter= null
+  
+  if(!params.branch_vls_id) throw 'branch_vls_id is required'
+     classCondtion.branch_vls_id = params.branch_vls_id
+
+  if(params.class_vls_id)
+      classCondtion.class_vls_id = params.class_vls_id
+
+  if(params.level)
+      condition.query_level = params.level
+
+  if(params.status){
+      condition.query_status = params.status
+      isStatusFilter = true
+  }
+
+  if(params.faculty_vls_id)
+      condition.faculty_vls_id = params.faculty_vls_id
+
+  if(params.subject_code)
+      subjectFilter.code = params.subject_code
+
+  let classes  = await Classes.findAll({  
+      where:classCondtion,
+      attributes: ['class_vls_id','name']
+  });
+
+  let allSubject = await SubjectList.findAll({
+      attributes:['subject_name','code'],
+      where : subjectFilter
+  })
+  //return condition
+  await Promise.all(
+    classes.map(async sClass => {
+      let classId            = sClass.class_vls_id
+      condition.class_vls_id = classId
+
+      let counts    = await getSubjectData(condition, allSubject, isStatusFilter)
+      counts.classes = { className: sClass.name, 
+                         class_vls_id: sClass.class_vls_id
+                       }
+      finalData.push(counts)
+    })
+  )
+  return { success : true, message : "Query counts", data : finalData }
+}
+
+async function getSubjectData(whereCondition, allSubject,isStatusFilter =null){
+  let obj = {}
+  await Promise.all(
+    allSubject.map(async subject => {
+        let open    = 0
+        let closed  = 0
+        whereCondition.subject_code = subject.code
+        if(!isStatusFilter){
+          whereCondition.query_status = 'open'
+          open  = await StudentQuery.count({
+                    where : whereCondition
+                  })
+
+          whereCondition.query_status = 'closed'
+          closed  = await StudentQuery.count({
+                      where : whereCondition
+                    })
+          obj[subject.subject_name] = { open , closed }
+        }else{
+          if(whereCondition.query_status == 'open') {
+              open  = await StudentQuery.count({where : whereCondition})
+              obj[subject.subject_name] = { open }
+            }
+          if(whereCondition.query_status == 'closed') {
+              closed  = await StudentQuery.count({where : whereCondition})
+              obj[subject.subject_name] = { closed }
+          }
+        }
+    })
+  )
+  return obj
+}
