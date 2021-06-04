@@ -41,7 +41,8 @@ module.exports = {
   studentList,
   overAll,
   overAllSubject,
-  schoolBranchCount
+  schoolBranchCount,
+  getTopTenStudent
 };
 
 
@@ -56,7 +57,6 @@ async function list(params , user){
 
   if(branchId) 
   	whereConditions.branch_vls_id = branchId
-
 
   if(params.examType) 
   	 whereConditions.test_type = params.examType
@@ -73,7 +73,7 @@ async function list(params , user){
   		joinWhere.class_id    = params.class_id
   	
   	if(params.section_id) 
-  		joinWhere.section_id    = params.section_id
+  		joinWhere.section_id  = params.section_id
 
   }
 
@@ -1718,4 +1718,111 @@ async function schoolBranchCount(query, user){
     					schoolUsers
     				}
 	return { success: true, message: "Dashboard counts", data : finalData} 
+}
+
+/**
+ * API for get top 10 student counts 
+ */
+async function getTopTenStudent(params, user){
+	if(!params.school_vls_id) throw 'school_vls_id is required'
+
+	let school_vls_id = params.school_vls_id
+	//current academin year
+	let academicYear  = await AcademicYear.findOne({
+		                order : [
+				             		['id', 'desc']
+				            	],
+				        attributes:['id','session_year']
+		              	})
+
+	let branchFilter = { 
+						 school_id : school_vls_id ,
+						 academic_year_id : academicYear.id
+					   }
+
+	if(params.branch_vls_id) 
+		branchFilter.branch_vls_id = params.branch_vls_id
+
+	if(params.examType) 
+		branchFilter.test_type = params.examType
+
+	if(params.exam_id) 
+		branchFilter.test_id = params.exam_id
+	
+	//latest exam
+	let letestExam = await Exams.findOne({
+		where : branchFilter,
+		order : [
+             		['test_id', 'desc']
+            	],
+        attributes : ['test_id']    	
+	})
+
+	if(!letestExam) throw 'Exams not found'
+	
+	let whereConditions = { 
+		exam_id   : letestExam.test_id,
+		school_id : school_vls_id
+	}
+
+	if(params.subject_code) 
+		whereConditions.subject_code = params.subject_code
+
+	if(params.class_id) 
+		whereConditions.class_id = params.class_id
+	if(params.section_id) 
+		whereConditions.section_id = params.section_id
+	
+	let studentData = await topTenPerformer(whereConditions)
+
+	return { success: true, message: "Top ten performance", data : studentData}
+
+}
+
+
+/**
+ * API for top Ten Perfromer data 
+ */
+async function topTenPerformer(whereConditions){
+	let allMarks = await Marks.findAll({
+		where : whereConditions,
+		attributes:[
+                    [ Sequelize.fn('SUM', Sequelize.col('exam_total_mark')), 'exam_total_mark' ],
+                    [ Sequelize.fn('SUM', Sequelize.col('obtain_total_mark')), 'obtain_total_mark' ],
+                    'student_id'
+                  ],
+        include: [{ 
+	                model:Student,
+	                as:'student',
+	                attributes:['name','photo'],
+	                include: [{ 
+		                model:Section,
+		                as:'section',
+		                attributes:['name']
+		            },{ 
+		                model:Classes,
+		                as:'classes',
+		                attributes:['name']
+		            },{ 
+		                model:Branch,
+		                as:'branchDetailsStudent',
+		                attributes:['branch_name']
+		            }]
+	            }],
+		group:['student_id'],
+		order : [
+	             	[Sequelize.fn('SUM', Sequelize.col('obtain_total_mark')), 'desc']
+	            ],
+	    limit : 10
+	})
+	let addedPercentage = []
+	await Promise.all(
+		allMarks.map(async (student)=> {
+			student = student.toJSON()
+			let percent = (student.obtain_total_mark * 100) /  student.exam_total_mark
+			student.percentage = percent
+			addedPercentage.push(student)
+		})
+	)
+	return addedPercentage
 }
