@@ -18,6 +18,7 @@ router.get("/getPerformanceData",getPerformanceData);
 router.get("/studentList",studentList);
 router.get("/overAll",overAll);
 router.get("/overAllSubject",overAllSubject);
+router.get("/getTopTenStudent",getTopTenStudent);
 
 //Post
 router.post("/sendExamResult",sendExamResult);
@@ -123,5 +124,12 @@ function overAll(req, res, next) {
 function overAllSubject(req, res, next) {
     reportController.overAllSubject(req.query, req.user)
         .then(exam => exam ? res.json(exam) : res.status(400).json({ status: "error", message: 'Error while getting overAll' }))
+        .catch(err => next(err));
+}
+
+// Function for get top 10 student counts
+function getTopTenStudent(req, res, next) {
+    reportController.getTopTenStudent(req.query, req.user)
+        .then(exam => exam ? res.json(exam) : res.status(400).json({ status: "error", message: 'Error while get top 10 student counts' }))
         .catch(err => next(err));
 }
