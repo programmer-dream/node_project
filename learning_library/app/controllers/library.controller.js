@@ -14,6 +14,8 @@ const config = require("../../../config/env.js");
 const { PDFNet } = require('@pdftron/pdfnet-node');
 const sequelize = db.sequelize;
 const bcrypt = require("bcryptjs");
+const User       = db.Authentication;
+
 
 module.exports = {
   create,
@@ -22,7 +24,8 @@ module.exports = {
   view,
   deleteLibrary,
   deleteMultipleQuery,
-  getRatingLikes
+  getRatingLikes,
+  eLibraryCount
 };
 
 
@@ -343,4 +346,44 @@ async function makePdfImage(req, path){
     await pdfDraw.export(currPage, pathToSnapshot, 'PNG')
 
     return path+image
+}
+
+/**
+ * API for learning library counts
+ */
+async function eLibraryCount(params, authUser){
+  let subjectFilter = {}
+  let whereCondition= {}
+     
+  if(!params.school_vls_id) throw 'school_vls_id is requeried'
+     subjectFilter.school_vls_id = params.school_vls_id
+     whereCondition.school_vls_id = params.school_vls_id
+  
+  if(params.branch_vls_id)
+      whereCondition.branch_vls_id = params.branch_vls_id
+
+  if(params.subject_code)
+      subjectFilter.code = params.subject_code
+  
+  let allSubject = await SubjectList.findAll({
+      attributes:['subject_name','code'],
+      where : subjectFilter
+  })
+  //return whereCondition
+  let totalCount = await LearningLibrary.count({
+    where : whereCondition
+  })
+
+  let subjectCounts = {}
+  await Promise.all(
+    allSubject.map(async subject => {
+
+      whereCondition.subject_code = subject.code
+      let count = await LearningLibrary.count({
+        where : whereCondition
+      })
+      subjectCounts[subject.subject_name] = count
+    })
+  )
+  return { success:true, message:"Rating & like data",data :{totalCount , subjectCounts}} 
 }
