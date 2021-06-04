@@ -1073,6 +1073,7 @@ async function subjectQueryCount(params, user){
 
   if(!params.branch_vls_id) throw 'branch_vls_id is required'
      classCondtion.branch_vls_id = params.branch_vls_id
+     subjectFilter.branch_vls_id = params.branch_vls_id
 
   if(params.class_vls_id)
       classCondtion.class_vls_id = params.class_vls_id
@@ -1136,7 +1137,6 @@ async function getSubjectData(whereCondition, allSubject,isStatusFilter =null){
         if(!isStatusFilter){
             let counts = await queryCount(whereCondition)
 
-          //console.log(closed, 'closed count')
           obj[subject.subject_name] = counts
         }else{
           if(whereCondition.query_status == 'open') {
