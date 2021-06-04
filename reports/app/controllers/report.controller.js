@@ -1273,12 +1273,6 @@ async function studentList(query, user){
 	if(query.class_id)
 		whereConditions.class_id = query.class_id
 
-	// if(query.section_id)
-	// 	whereConditions.section_id = query.section_id
-
-	// if(query.examType)
-	// 	whereConditions.class_id = query.examType
-
 	let innerWhere = {}
 	if(query.test_id)
 		innerWhere. test_id = query.test_id
@@ -1330,7 +1324,14 @@ async function studentList(query, user){
 		finalObj['total_obtain'] = parseFloat(obtain)
 		finalObj['total_marks'] = parseFloat(total)
 		finalObj['total_percentage'] = parseFloat(obtain) * 100 / parseFloat(total)
-		finalArr.push(finalObj)
+		if(query.start && query.end){
+			
+			if(finalObj['total_percentage'] >= query.start && finalObj['total_percentage'] <= query.end){
+				finalArr.push(finalObj)
+			}
+		}else{
+			finalArr.push(finalObj)
+		}
 	})
  	return { success: true, message: "Exam data", data : finalArr}
 }
