@@ -34,6 +34,7 @@ module.exports = {
   create,
   view,
   list,
+  AllList,
   update,
   deleteSchool,
   schoolSettingUpdate,
@@ -1498,4 +1499,13 @@ async function getBranchStudents(branch_vls_id){
   });
   
   return modifedData
+}
+
+
+
+async function AllList(params , user){
+  
+  let schools = await SchoolDetails.findAll()
+  
+  return { success: true, message: "School list", data : schools}
 }
