@@ -360,16 +360,15 @@ async function eLibraryCount(params, authUser){
   let subjectFilter = {}
   let whereCondition= {}
      
-  if(!params.school_vls_id) {
-      subjectFilter.school_vls_id = {[Op.eq]:null}
-  }else{
-     subjectFilter.school_vls_id = params.school_vls_id
-     whereCondition.school_vls_id = params.school_vls_id
-  }
+  if(!params.school_vls_id) throw 'school_vls_id is requeried'
+      
+    subjectFilter.school_vls_id = params.school_vls_id
+    whereCondition.school_vls_id = params.school_vls_id
+  
   
   if(params.branch_vls_id)
       whereCondition.branch_vls_id = params.branch_vls_id
-
+  
   if(params.subject_code)
       subjectFilter.code = params.subject_code
   
