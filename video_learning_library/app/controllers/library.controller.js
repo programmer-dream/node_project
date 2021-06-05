@@ -10,6 +10,7 @@ const Ratings              = db.VideoLibraryRatings;
 const ThumbnailGenerator   = require('fs-thumbnail');
 const SubjectList          = db.SubjectList;
 const Authentication       = db.Authentication;
+const LibraryHistory       = db.LibraryHistory;
 const thumbGen = new ThumbnailGenerator({
     verbose: true, // Whether to print out warning/errors
     size: [500, 300], // Default size, either a single number of an array of two numbers - [width, height].
@@ -27,7 +28,8 @@ module.exports = {
   view,
   deleteLibrary,
   deleteMultipleQuery,
-  getRatingLikes
+  getRatingLikes,
+  counts
 };
 
 
@@ -388,3 +390,42 @@ async function getRatingLikes(id, user) {
     throw err.message;
   }
 };
+
+/**
+ * API for learning library counts
+ */
+async function counts(params, authUser){
+  let subjectFilter = {}
+  let whereCondition= {}
+     
+  if(params.school_vls_id){
+     subjectFilter.school_vls_id = params.school_vls_id
+  }else{
+    subjectFilter.school_vls_id = { [Op.eq]:null }
+  }
+
+  if(params.subject_code)
+      subjectFilter.code = params.subject_code
+  
+  let allSubject = await SubjectList.findAll({
+      attributes:['subject_name','code'],
+      where : subjectFilter
+  })
+  //return whereCondition
+  let totalCount = await VideoLearningLibrary.count({
+    where : whereCondition
+  })
+
+  let subjectCounts = {}
+  await Promise.all(
+    allSubject.map(async subject => {
+
+      whereCondition.subject_code = subject.code
+      let count = await VideoLearningLibrary.count({
+        where : whereCondition
+      })
+      subjectCounts[subject.subject_name] = count
+    })
+  )
+  return { success:true, message:"Video library counts",data :{totalCount , subjectCounts}} 
+}
