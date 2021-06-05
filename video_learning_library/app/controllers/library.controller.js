@@ -397,7 +397,8 @@ async function getRatingLikes(id, user) {
 async function counts(params, authUser){
   let subjectFilter = {}
   let whereCondition= {}
-     
+  let historyFilter = { learning_library_type : 'Video' }
+
   if(params.school_vls_id){
      subjectFilter.school_vls_id = params.school_vls_id
   }else{
@@ -406,7 +407,14 @@ async function counts(params, authUser){
 
   if(params.subject_code)
       subjectFilter.code = params.subject_code
-  
+
+  if(params.subject_code)
+      subjectFilter.code = params.subject_code
+
+  let watched = await LibraryHistory.count({
+      where : historyFilter
+  })
+
   let allSubject = await SubjectList.findAll({
       attributes:['subject_name','code'],
       where : subjectFilter
@@ -427,5 +435,5 @@ async function counts(params, authUser){
       subjectCounts[subject.subject_name] = count
     })
   )
-  return { success:true, message:"Video library counts",data :{totalCount , subjectCounts}} 
+  return { success:true, message:"Video library counts",data :{totalCount , watched, subjectCounts}} 
 }
