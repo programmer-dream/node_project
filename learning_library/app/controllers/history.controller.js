@@ -195,6 +195,7 @@ async function addHistory(body, user){
   if(!body.library_vls_id)    throw "library_vls_id is requeired"
   if(!body.topic)             throw "topic is requeired"
   if(!body.school_vls_id)     throw "school_vls_id is requeired"
+  if(!body.branch_vls_id)     throw "branch_vls_id is requeired"
 
   let librarydata = {
         learning_library_type     : body.library_type,
@@ -202,6 +203,7 @@ async function addHistory(body, user){
         last_visited_date         : body.visited_date,
         Learning_library_vls_id   : body.library_vls_id,
         school_vls_id             : body.school_vls_id,
+        branch_vls_id             : body.branch_vls_id,
         topic                     : body.topic,
         student_vls_id            : user.userVlsId
   }
