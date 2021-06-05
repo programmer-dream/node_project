@@ -91,8 +91,6 @@ async function list(params, user){
   let schoolVlsId   = params.schoolVlsId
   let branchVlsId   = params.branch_vls_id
 
-  if(!schoolVlsId) throw 'schoolVlsId is required'
-  if(!branchVlsId) throw 'branchVlsId is required'
   if(params.level && !level.includes(params.level) ) throw 'level must be Basic,Intermediate or Expert'
 
   if(params.search)
@@ -112,6 +110,14 @@ async function list(params, user){
            }
     };
 
+  if(user.role != 'super-admin' ){
+    if(!schoolVlsId) throw 'schoolVlsId is required'
+    if(!branchVlsId) throw 'branchVlsId is required'
+
+    whereCondition.branch_vls_id = branchVlsId
+    whereCondition.school_vls_id = schoolVlsId
+  }
+  
   if(params.subject_code)
     whereCondition.subject_code = params.subject_code
 
@@ -121,8 +127,7 @@ async function list(params, user){
   if(params.page)
       offset = 0 + (parseInt(params.page) - 1) * limit
   //end pagination
-  whereCondition.branch_vls_id = branchVlsId
-  whereCondition.school_vls_id = schoolVlsId
+
   //status 
   if(params.level){
     level = []
@@ -355,9 +360,12 @@ async function eLibraryCount(params, authUser){
   let subjectFilter = {}
   let whereCondition= {}
      
-  if(!params.school_vls_id) throw 'school_vls_id is requeried'
+  if(!params.school_vls_id) {
+      subjectFilter.school_vls_id = {[Op.eq]:null}
+  }else{
      subjectFilter.school_vls_id = params.school_vls_id
      whereCondition.school_vls_id = params.school_vls_id
+  }
   
   if(params.branch_vls_id)
       whereCondition.branch_vls_id = params.branch_vls_id

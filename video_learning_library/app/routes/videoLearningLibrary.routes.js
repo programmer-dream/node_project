@@ -21,6 +21,7 @@ router.post("/create",[
 router.get("/view/:id",view);
 router.get("/list",list);
 router.get("/getRatingLikes/:id",getRatingLikes);
+router.get("/counts/",counts);
 //Delete
 router.delete("/delete/:id",deleteLibrary);
 router.delete("/multipleDelete",deleteMultipleQuery);
@@ -81,5 +82,11 @@ function deleteMultipleQuery(req, res, next) {
 function getRatingLikes(req, res, next) {
     libraryController.getRatingLikes(req.params.id , req.user)
         .then(query => query ? res.json(query) : res.status(400).json({ status: "error", message: 'Error while getting like & ratting' }))
+        .catch(err => next(err));
+}
+// Function for assing query
+function counts(req, res, next) {
+    libraryController.counts(req.query, req.user)
+        .then(videoLibrary => videoLibrary ? res.json(videoLibrary) : res.status(400).json({ status: "error", message: 'Error while getting video Library counts' }))
         .catch(err => next(err));
 }

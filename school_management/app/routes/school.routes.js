@@ -49,6 +49,7 @@ router.get("/viewUser/:id",viewUser);
 router.get("/branch/view/:id",viewBranch);
 router.get("/list/",listSchool);
 router.get("/AllList/",AllList);
+router.get("/allBranches",allBranches);
 router.get("/:id/branchList/",listBranch);
 
 router.get("/listStudents/",listStudents);
@@ -228,6 +229,13 @@ function viewParent(req, res, next) {
 // Function for dashboard count
 function AllList(req, res, next) {
     schoolController.AllList(req.query, req.user)
+        .then(school => school ? res.json(school) : res.status(400).json({ status: "error", message: 'Error while getting school list' }))
+        .catch(err => next(err));
+}
+
+// Function for dashboard count
+function allBranches(req, res, next) {
+    schoolController.allBranches(req.query, req.user)
         .then(school => school ? res.json(school) : res.status(400).json({ status: "error", message: 'Error while getting school list' }))
         .catch(err => next(err));
 }

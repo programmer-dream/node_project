@@ -54,7 +54,8 @@ module.exports = {
   viewStudent,
   viewTeacher,
   viewParent,
-  dasboardCount
+  dasboardCount,
+  allBranches
 };
 
 
@@ -1508,4 +1509,10 @@ async function AllList(params , user){
   let schools = await SchoolDetails.findAll()
   
   return { success: true, message: "School list", data : schools}
+}
+async function allBranches(params , user){
+  
+  let schools = await Branch.findAll()
+  
+  return { success: true, message: "Branch list", data : schools}
 }
