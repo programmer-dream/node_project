@@ -359,7 +359,12 @@ async function makePdfImage(req, path){
  * API for learning library counts
  */
 async function eLibraryCount(params, authUser){
-  if(authUser.role == 'school-admin'){
+  if(authUser.role == 'school-admin' || authUser.role == 'branch-admin' || authUser.role == 'principal'){
+    if(authUser.role == 'branch-admin' || authUser.role == 'principal'){
+      if(!params.branch_vls_id)
+          throw 'branch_vls_id is requeried'
+    }
+    
     let response  = await eLibraryBranchCount(params, authUser)
     return response
   }
