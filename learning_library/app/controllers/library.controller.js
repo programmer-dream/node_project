@@ -15,6 +15,7 @@ const { PDFNet } = require('@pdftron/pdfnet-node');
 const sequelize = db.sequelize;
 const bcrypt = require("bcryptjs");
 const User       = db.Authentication;
+const SchoolDetails = db.SchoolDetails;
 
 
 module.exports = {
@@ -357,34 +358,77 @@ async function makePdfImage(req, path){
  * API for learning library counts
  */
 async function eLibraryCount(params, authUser){
-  let subjectFilter = {}
-  let whereCondition= {}
-     
-  if(!params.school_vls_id) throw 'school_vls_id is requeried'
-      
-    subjectFilter.school_vls_id = params.school_vls_id
-    whereCondition.school_vls_id = params.school_vls_id
-  
-  
+  let schoolCondition = {}
+  let whereCondition  = {}
+
   if(params.branch_vls_id)
       whereCondition.branch_vls_id = params.branch_vls_id
+
+  if(params.school_vls_id)
+      schoolCondition.school_vls_id = params.school_vls_id
   
   if(params.subject_code)
       subjectFilter.code = params.subject_code
   
-  let allSubject = await SubjectList.findAll({
-      attributes:['subject_name','code'],
-      where : subjectFilter
-  })
-  //return whereCondition
-  let totalCount = await LearningLibrary.count({
-    where : whereCondition
+  let allSchools = await SchoolDetails.findAll({
+    attributes : ['school_id','school_name'],
+    where : schoolCondition
   })
 
+  //for subject
+  let subjectData = {}
+  await Promise.all(
+    allSchools.map(async school => {
+          let allSubject = await SubjectList.findAll({
+              attributes:['subject_name','code'],
+              where : {school_vls_id : school.school_id}
+          })
+          if(!subjectData[school.school_id])
+              subjectData[school.school_id] = allSubject
+    })
+  )
+  
+  //for subject
+  let totalCounts = await LearningLibrary.count({
+    group : ['school_vls_id']
+  })
+
+  let schoolWiseCount = {}
+  await Promise.all(
+    totalCounts.map(async schoolCount => {
+        if(!schoolWiseCount[schoolCount.school_vls_id])
+          schoolWiseCount[schoolCount.school_vls_id] = schoolCount.count
+    })
+  )
+  
+  let schoolData = []
+  await Promise.all(
+    allSchools.map(async school => {
+        whereCondition.school_vls_id = school.school_id
+        console.log(whereCondition)
+        allSubject = subjectData[school.school_id]
+
+        let subjectCounts = await getLibraryCount(allSubject, whereCondition)
+        subjectCounts.school = school
+
+        if(schoolWiseCount[school.school_id]){
+          subjectCounts.total_count = schoolWiseCount[school.school_id]
+        }else{
+          subjectCounts.total_count = 0
+        }
+
+        schoolData.push(subjectCounts)
+    })
+  )
+
+  //return schoolData
+  return { success:true, message:"school library counts",data :schoolData} 
+}
+
+async function getLibraryCount(allSubject, whereCondition){
   let subjectCounts = {}
   await Promise.all(
     allSubject.map(async subject => {
-
       whereCondition.subject_code = subject.code
       let count = await LearningLibrary.count({
         where : whereCondition
@@ -392,5 +436,5 @@ async function eLibraryCount(params, authUser){
       subjectCounts[subject.subject_name] = count
     })
   )
-  return { success:true, message:"Rating & like data",data :{totalCount , subjectCounts}} 
+  return {subjectCounts}
 }

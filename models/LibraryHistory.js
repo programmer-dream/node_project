@@ -33,6 +33,9 @@ module.exports = (sequelize, Sequelize) => {
     },
     school_vls_id:{
       type: Sequelize.INTEGER,
+    },
+    branch_vls_id:{
+      type: Sequelize.INTEGER,
     }
   },{
     tableName: 'student_learning_library',
