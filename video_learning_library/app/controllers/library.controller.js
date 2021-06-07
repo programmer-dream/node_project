@@ -11,6 +11,7 @@ const ThumbnailGenerator   = require('fs-thumbnail');
 const SubjectList          = db.SubjectList;
 const Authentication       = db.Authentication;
 const LibraryHistory       = db.LibraryHistory;
+const SchoolDetails        = db.SchoolDetails;
 const thumbGen = new ThumbnailGenerator({
     verbose: true, // Whether to print out warning/errors
     size: [500, 300], // Default size, either a single number of an array of two numbers - [width, height].
@@ -395,36 +396,49 @@ async function getRatingLikes(id, user) {
  * API for learning library counts
  */
 async function counts(params, authUser){
-  let subjectFilter = {}
-  let whereCondition= {}
+  let subjectFilter   = {}
+  let whereCondition  = {}
+  let schoolCondition = {}
+
   let historyFilter = { learning_library_type : 'Video' }
 
-  if(params.school_vls_id){
-     subjectFilter.school_vls_id = params.school_vls_id
-  }else{
-    subjectFilter.school_vls_id = { [Op.eq]:null }
+  subjectFilter.school_vls_id = { [Op.eq]:null }
+
+  if(params.subject_code){
+      subjectFilter.code = params.subject_code
+      historyFilter.subject_code = params.subject_code
   }
 
-  if(params.subject_code)
-      subjectFilter.code = params.subject_code
+  if(params.school_vls_id){
+      historyFilter.school_vls_id  = params.school_vls_id
+      schoolCondition.school_vls_id = params.school_vls_id
+  }
 
-  if(params.subject_code)
-      subjectFilter.code = params.subject_code
+  if(params.branch_vls_id)
+      historyFilter.branch_vls_id = params.branch_vls_id
 
-  let watched = await LibraryHistory.count({
-      where : historyFilter
-  })
 
   let allSubject = await SubjectList.findAll({
-      attributes:['subject_name','code'],
-      where : subjectFilter
+    attributes:['subject_name','code'],
+    where : subjectFilter
   })
-  //return whereCondition
-  let totalCount = await VideoLearningLibrary.count({
-    where : whereCondition
+  
+  let watched = await LibraryHistory.count({
+      where : historyFilter,
+      group : ['school_vls_id']
   })
 
-  let subjectCounts = {}
+  let totalCount = await VideoLearningLibrary.count()
+
+  let schoolWiseWatched = {}
+  await Promise.all(
+    watched.map(async watch => {
+        if(!schoolWiseWatched[watch.school_vls_id])
+            schoolWiseWatched[watch.school_vls_id] = watch.count
+    })
+  )
+
+  let subjectCounts ={}
   await Promise.all(
     allSubject.map(async subject => {
 
@@ -435,5 +449,26 @@ async function counts(params, authUser){
       subjectCounts[subject.subject_name] = count
     })
   )
-  return { success:true, message:"Video library counts",data :{totalCount , watched, subjectCounts}} 
+  // return subjectCounts
+  let allSchools = await SchoolDetails.findAll({
+      attributes : ['school_id','school_name'],
+      where : schoolCondition
+  })
+
+  let watchData = []
+  await Promise.all(
+    allSchools.map(async school => {
+        let obj    = {}
+        obj.school = school
+        //obj.subjectCounts = subjectCounts
+        if(schoolWiseWatched[school.school_id]){
+            obj.watched = schoolWiseWatched[school.school_id]
+        }else{
+            obj.watched = 0
+        }
+        watchData.push(obj)
+    })
+  )
+  
+  return { success:true, message:"Video library counts",data :{totalCount,subjectCounts,watchData}} 
 }
