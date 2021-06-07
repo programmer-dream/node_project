@@ -445,7 +445,7 @@ async function counts(params, authUser){
     subjectFilter.school_vls_id = { [Op.eq]:null }
   }
 
-  if(params.subject_code){
+  if(params.subject){
       let subject = await getSubjectCode(params.subject)
     if(subject && subject.code){
       subjectFilter.code = subject.code
