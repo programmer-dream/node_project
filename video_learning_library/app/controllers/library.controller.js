@@ -439,6 +439,7 @@ async function counts(params, authUser){
   if(params.branch_vls_id){
     subjects = await getSubjectCode(null, params.branch_vls_id)
     subjectFilter.code = { [Op.in]: subjects }
+    videoSubjectFilter.subject_code = { [Op.in]: subjects }
   }else{
     subjectFilter.school_vls_id = { [Op.eq]:null }
   }
@@ -448,6 +449,7 @@ async function counts(params, authUser){
     if(subject && subject.code){
       subjectFilter.code = subject.code
       historyFilter.subject_code = subject.code
+      videoSubjectFilter.subject_code = subject.code
     }else{
       subjectFilter.code = 'mxxxxxx'
       historyFilter.subject_code = 'mxxxxxx'
@@ -473,7 +475,7 @@ async function counts(params, authUser){
       group : ['school_vls_id']
   })
 
-  let totalCount = await VideoLearningLibrary.count({ where : subjectFilter })
+  let totalCount = await VideoLearningLibrary.count({ where : videoSubjectFilter })
 
   let schoolWiseWatched = {}
   await Promise.all(
