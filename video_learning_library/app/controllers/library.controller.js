@@ -127,10 +127,14 @@ async function list(params , user){
   let subjectCode   = ""
   if(params.level && !level.includes(params.level) ) throw 'level must be Basic,Intermediate or Expert'
 
+  let subjects = null
+  if(params.branch_vls_id)
+    subjects = await getSubjectCode(null, params.branch_vls_id)
+
   if(params.subject){
     let subject = await getSubjectCode(params.subject)
     if(subject && subject.code){
-      subjectCode = subject.code
+      subjects = [subject.code]
     }else{
       return { success: true, message: "All Learning library data", total:0, data:[] }
     }
@@ -167,8 +171,8 @@ async function list(params , user){
     whereCondition.recommended_student_level = { [Op.in]: level }
   }
 
-  if(subjectCode && subjectCode != "")
-    whereCondition.subject_code = subjectCode
+  if(subjects)
+    whereCondition.subject_code = { [Op.in]: subjects }
 
   //orderBy 
   if(params.orderBy)
@@ -216,15 +220,42 @@ async function list(params , user){
 /**
  * function to subject code
  */
-async function getSubjectCode(subject){
-  let whereCodition = {
-    branch_vls_id: { [Op.eq]: null },  
-    [Op.eq]: sequelize.where(sequelize.fn('lower', sequelize.col('subject_name')), '=', subject) 
+async function getSubjectCode(subject, branch_vls_id = null){
+
+  let subjectData = ""
+  if(subject && subject != null ){
+    let whereCodition = {
+      branch_vls_id: { [Op.eq]: null },  
+      [Op.eq]: sequelize.where(sequelize.fn('lower', sequelize.col('subject_name')), '=', subject) 
+    }
+
+    subjectData = await SubjectList.findOne({
+                        where: whereCodition,
+                        attributes: ['id','subject_name','code']
+                      });
+
+
+  }else if(branch_vls_id){
+    let subjects = await SubjectList.findAll({
+                        where: { branch_vls_id: branch_vls_id },
+                        attributes: ['subject_name']
+                      }).then(subject => subject.map(subject => subject.subject_name.toLowerCase() ));
+    
+    subjects = '("'+subjects.join('","')+'")'
+    let whereCondition = {
+       [Op.and]: [
+           Sequelize.literal('lower(`subject_name`) IN '+subjects),
+           Sequelize.literal('`subject_list`.`branch_vls_id` IS NULL')
+       ]
+   }
+
+   subjectData = await SubjectList.findAll({
+                        where: whereCondition,
+                        attributes: ['id','subject_name','code']
+                      }).then(subject => subject.map(subject => subject.code ));
+
+
   }
-  let subjectData = SubjectList.findOne({
-                      where: whereCodition,
-                      attributes: ['id','subject_name','code']
-                    });
 
   return subjectData
 }
