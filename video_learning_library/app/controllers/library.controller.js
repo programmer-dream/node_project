@@ -436,6 +436,7 @@ async function counts(params, authUser){
   
 
   let subjects = null
+  let videoSubjectFilter = ""
   if(params.branch_vls_id){
     subjects = await getSubjectCode(null, params.branch_vls_id)
     subjectFilter.code = { [Op.in]: subjects }
