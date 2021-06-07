@@ -433,7 +433,15 @@ async function counts(params, authUser){
 
   let historyFilter = { learning_library_type : 'Video' }
 
-  subjectFilter.school_vls_id = { [Op.eq]:null }
+  
+
+  let subjects = null
+  if(params.branch_vls_id){
+    subjects = await getSubjectCode(null, params.branch_vls_id)
+    subjectFilter.code = { [Op.in]: subjects }
+  }else{
+    subjectFilter.school_vls_id = { [Op.eq]:null }
+  }
 
   if(params.subject_code){
       subjectFilter.code = params.subject_code
@@ -453,7 +461,7 @@ async function counts(params, authUser){
     attributes:['subject_name','code'],
     where : subjectFilter
   })
-  
+
   let watched = await LibraryHistory.count({
       where : historyFilter,
       group : ['school_vls_id']
