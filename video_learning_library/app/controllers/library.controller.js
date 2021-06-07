@@ -467,7 +467,7 @@ async function counts(params, authUser){
       group : ['school_vls_id']
   })
 
-  let totalCount = await VideoLearningLibrary.count()
+  let totalCount = await VideoLearningLibrary.count({ where : subjectFilter, })
 
   let schoolWiseWatched = {}
   await Promise.all(
