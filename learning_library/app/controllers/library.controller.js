@@ -16,6 +16,7 @@ const sequelize = db.sequelize;
 const bcrypt = require("bcryptjs");
 const User       = db.Authentication;
 const SchoolDetails = db.SchoolDetails;
+const Branch        = db.Branch;
 
 
 module.exports = {
@@ -358,10 +359,18 @@ async function makePdfImage(req, path){
  * API for learning library counts
  */
 async function eLibraryCount(params, authUser){
+  if(authUser.role == 'school-admin' || authUser.role == 'branch-admin' || authUser.role == 'principal'){
+    if(authUser.role == 'branch-admin' || authUser.role == 'principal'){
+      if(!params.branch_vls_id)
+          throw 'branch_vls_id is requeried'
+    }
+    
+    let response  = await eLibraryBranchCount(params, authUser)
+    return response
+  }
   let schoolCondition = {}
   let whereCondition  = {}
   let subjectFilter   = {}
-
 
   if(params.branch_vls_id)
       whereCondition.branch_vls_id = params.branch_vls_id
@@ -440,4 +449,69 @@ async function getLibraryCount(allSubject, whereCondition){
     })
   )
   return {subjectCounts}
+}
+
+async function eLibraryBranchCount(params, authUser){
+  let branchCondition = {}
+  let whereCondition  = {}
+  let subjectFilter   = {}
+
+  if(params.branch_vls_id)
+      branchCondition.branch_vls_id = params.branch_vls_id
+  
+  if(params.subject_code)
+      subjectFilter.code = params.subject_code
+  
+  let allBranches = await Branch.findAll({
+    attributes : ['branch_vls_id','branch_name'],
+    where : branchCondition
+  })
+
+  //for subject
+  let subjectData = {}
+  await Promise.all(
+    allBranches.map(async branch => {
+          subjectFilter.branch_vls_id = branch.branch_vls_id
+          let allSubject = await SubjectList.findAll({
+              attributes:['subject_name','code'],
+              where : subjectFilter
+          })
+          if(!subjectData[branch.branch_vls_id])
+              subjectData[branch.branch_vls_id] = allSubject
+    })
+  )
+  //for subject
+  let totalCounts = await LearningLibrary.count({
+    group : ['branch_vls_id']
+  })
+
+  let branchWiseCount = {}
+  await Promise.all(
+    totalCounts.map(async branchCount => {
+        if(!branchWiseCount[branchCount.branch_vls_id])
+          branchWiseCount[branchCount.branch_vls_id] = branchCount.count
+    })
+  )
+  
+  let branchData = []
+  await Promise.all(
+    allBranches.map(async branch => {
+        whereCondition.branch_vls_id = branch.branch_vls_id
+        
+        allSubject = subjectData[branch.branch_vls_id]
+
+        let subjectCounts = await getLibraryCount(allSubject, whereCondition)
+        subjectCounts.branch = branch
+
+        if(branchWiseCount[branch.branch_vls_id]){
+          subjectCounts.total_count = branchWiseCount[branch.branch_vls_id]
+        }else{
+          subjectCounts.total_count = 0
+        }
+
+        branchData.push(subjectCounts)
+    })
+  )
+
+  return { success:true, message:"branch library counts",data :branchData} 
 }
