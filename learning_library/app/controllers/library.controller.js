@@ -360,6 +360,8 @@ async function makePdfImage(req, path){
 async function eLibraryCount(params, authUser){
   let schoolCondition = {}
   let whereCondition  = {}
+  let subjectFilter   = {}
+
 
   if(params.branch_vls_id)
       whereCondition.branch_vls_id = params.branch_vls_id
@@ -379,9 +381,10 @@ async function eLibraryCount(params, authUser){
   let subjectData = {}
   await Promise.all(
     allSchools.map(async school => {
+          subjectFilter.school_vls_id = school.school_id
           let allSubject = await SubjectList.findAll({
               attributes:['subject_name','code'],
-              where : {school_vls_id : school.school_id}
+              where : subjectFilter
           })
           if(!subjectData[school.school_id])
               subjectData[school.school_id] = allSubject
@@ -405,7 +408,7 @@ async function eLibraryCount(params, authUser){
   await Promise.all(
     allSchools.map(async school => {
         whereCondition.school_vls_id = school.school_id
-        console.log(whereCondition)
+        //console.log(whereCondition)
         allSubject = subjectData[school.school_id]
 
         let subjectCounts = await getLibraryCount(allSubject, whereCondition)
