@@ -158,6 +158,7 @@ async function list(params , user){
       passions.map(async passion => {
         passion = passion.toJSON()
         passion.is_accepted = await isAccepted(passion.passion_vls_id , user)
+        passion.counts = await countAccepted(passion.passion_vls_id)
         allPassions.push(passion)
       })
   )
@@ -297,6 +298,16 @@ async function isAccepted(passionId , user){
     if(isAccepted) return true
 
     return false
+}
+
+/**
+ * API for is accpeted check 
+ */
+async function countAccepted(passionId){
+    let count = await PassionAcceptedBy.count({
+      where : { passion_vls_id  : passionId}
+    })
+    return count
 }
 
 /**

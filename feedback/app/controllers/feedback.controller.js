@@ -544,6 +544,9 @@ async function branchCounts(query , user){
      attributes : ['branch_vls_id','branch_name']
   })
 
+  let openCount = 0
+  let resolvedCount = 0
+
   let branchCounts = []
    await Promise.all(
       branches.map(async branch => {
@@ -569,7 +572,6 @@ async function branchCounts(query , user){
           ],
           group : ['status','feedback_type']
         })
-
       let resolved = {}
       let open = {}
       if(count.length){
@@ -578,9 +580,13 @@ async function branchCounts(query , user){
             if(obj.status == 'closed'){
               if(!resolved[obj.feedback_type])
                   resolved[obj.feedback_type] = obj.count
+
+                resolvedCount += obj.count
             }else{
               if(!open[obj.feedback_type])
                   open[obj.feedback_type] = obj.count
+
+                openCount += obj.count
             }
         })
       }
@@ -596,7 +602,7 @@ async function branchCounts(query , user){
       })
       if(query.status == 'open'){
         branch.status = {open}
-      }else if(query.status == 'resolved'){
+      }else if(query.status == 'closed'){
         branch.status = {resolved}
       }else{
         branch.status = { resolved, open }
@@ -606,5 +612,13 @@ async function branchCounts(query , user){
       branchCounts.push(branch)
     })
   )
-  return { success:true, message:"feedback counts", data : branchCounts};
+   let totalCount = openCount + resolvedCount
+
+   let counts = {
+      openCount,
+      resolvedCount,
+      totalCount
+   } 
+
+  return { success:true, message:"feedback counts", data : { counts, branchCounts}};
 }
