@@ -559,8 +559,6 @@ async function branchCounts(query , user){
 
       if(query.status) 
           where.status = query.status
-
-        console.log(where)
       //start
         let count = await Feedback.findAll({
           where : where,
