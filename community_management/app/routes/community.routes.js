@@ -11,6 +11,8 @@ router.get("/view/:id",view);
 router.get("/list",list);
 router.get("/getRatingLikes/:id",getRatingLikes);
 router.get("/adminsList/",adminsList);
+router.get("/listType/",listType);
+router.get("/counts/",counts);
 
 router.delete("/delete/:id",deleteCommunity);
 
@@ -48,5 +50,18 @@ function getRatingLikes(req, res, next) {
 function adminsList(req, res, next) {
     communityController.adminsList(req.user)
         .then(community => community ? res.json(community) : res.status(400).json({ status: "error", message: 'Error while getting community admin list' }))
+        .catch(err => next(err));
+}
+// Function for get counts
+function listType(req, res, next) {
+    communityController.listType(req.query, req.user)
+        .then(community => community ? res.json(community) : res.status(400).json({ status: "error", message: 'Error while getting list community types' }))
+        .catch(err => next(err));
+}
+
+// Function for get counts
+function counts(req, res, next) {
+    communityController.counts(req.query, req.user)
+        .then(community => community ? res.json(community) : res.status(400).json({ status: "error", message: 'Error while getting list community types' }))
         .catch(err => next(err));
 }
