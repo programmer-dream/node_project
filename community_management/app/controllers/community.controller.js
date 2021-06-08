@@ -723,7 +723,7 @@ async function counts(query , user){
       schoolCounts.push(school)
     })
   )
-  return { success:true, message:"list group type", data : schoolCounts};
+  return { success:true, message:"community counts", data : schoolCounts};
 }
 
 
@@ -756,5 +756,5 @@ async function branchCounts(query , user){
       branchCounts.push(branch)
     })
   )
-  return { success:true, message:"list group type", data : branchCounts};
+  return { success:true, message:"community counts", data : branchCounts};
 }
