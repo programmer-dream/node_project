@@ -551,24 +551,58 @@ async function branchCounts(query , user){
       let where = { 
         branch_vls_id : branch.branch_vls_id
       }
-      if(query.group_type) 
-          where.group_type = query.group_type
-      let count = await Feedback.count({
-        where : where,
-        attributes: ['status'],
-        group : ['status']
+      if(query.user_type) 
+          where.user_type = query.user_type
+
+      if(query.feedback_type)
+          where.feedback_type = [query.feedback_type]
+
+      if(query.status) 
+          where.status = query.status
+      //start
+        let count = await Feedback.findAll({
+          where : where,
+          attributes : [
+              'status',
+              'feedback_type',
+              [ Sequelize.fn('COUNT', Sequelize.col('feedback_type')), 'count' ]
+          ],
+          group : ['status','feedback_type']
+        })
+
+      let resolved = {}
+      let open = {}
+      if(count.length){
+        count.forEach(function(obj){
+            obj = obj.toJSON()
+            if(obj.status == 'closed'){
+              if(!resolved[obj.feedback_type])
+                  resolved[obj.feedback_type] = obj.count
+            }else{
+              if(!open[obj.feedback_type])
+                  open[obj.feedback_type] = obj.count
+            }
+        })
+      }
+      let feedbackType = ['performanceUpdate','complaint','discipline','recommendation']
+      if(query.feedback_type)
+          feedbackType = [query.feedback_type]
+      
+      feedbackType.forEach(function(type){
+        if(!open.hasOwnProperty(type))
+            open[type] = 0
+        if(!resolved.hasOwnProperty(type))
+            resolved[type] = 0
       })
-      let statusObj = {}
-      count.forEach(function(feedback){
-          if(!statusObj[feedback.status])
-            statusObj[feedback.status] = feedback.count
-      })
-      if(!statusObj.hasOwnProperty('open'))
-          statusObj.open = 0
-      if(!statusObj.hasOwnProperty('closed'))
-          statusObj.closed = 0
+      if(query.status == 'open'){
+        branch.status = {open}
+      }else if(query.status == 'resolved'){
+        branch.status = {resolved}
+      }else{
+        branch.status = { resolved, open }
+      }
       //branch.count = count
-      branch.status = statusObj
+      //branch.status = {resolved, open}
       branchCounts.push(branch)
     })
   )
