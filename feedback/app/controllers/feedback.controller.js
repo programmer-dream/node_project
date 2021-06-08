@@ -14,6 +14,8 @@ const sequelize  = db.sequelize;
 const Feedback   = db.Feedback;
 const Meeting    = db.Meeting;
 const Notification = db.Notification;
+const Branch       = db.Branch;
+const SchoolDetails= db.SchoolDetails;
 
 
 module.exports = {
@@ -25,7 +27,8 @@ module.exports = {
   closeFeedback,
   setMeeting,
   deleteMultiFeedback,
-  dashboardCount
+  dashboardCount,
+  counts
 };
 
 
@@ -482,3 +485,92 @@ async function dashboardCount(params, user){
   return { success: true, message: "dashboard count", data : allCounts}
 }
 
+/**
+ * API for counts  
+ */
+async function counts(query , user){
+  let whereCondition = {}
+  if(user.role !='super-admin')
+      return await branchCounts(query , user)
+
+  if(query.school_vls_id) 
+      whereCondition.school_id = query.school_vls_id
+
+  let schools = await SchoolDetails.findAll({
+      where : whereCondition,
+     attributes : ['school_id','school_name']
+  })
+
+  let schoolCounts = []
+   await Promise.all(
+      schools.map(async school => {
+      school = school.toJSON()
+      let where = { 
+        school_vls_id : school.school_id
+      }
+      let count = await Feedback.count({
+        where : where,
+        attributes: ['status'],
+        group : ['status']
+      })
+      let statusObj = {}
+      count.forEach(function(feedback){
+          if(!statusObj[feedback.status])
+            statusObj[feedback.status] = feedback.count
+      })
+      if(!statusObj.hasOwnProperty('open'))
+          statusObj.open = 0
+      if(!statusObj.hasOwnProperty('closed'))
+          statusObj.closed = 0
+      //school.count = count
+      school.status = statusObj
+      schoolCounts.push(school)
+    })
+  )
+  return { success:true, message:"feedback counts", data : schoolCounts};
+}
+
+
+/**
+ * API for counts  
+ */
+async function branchCounts(query , user){
+  let whereCondition = {}
+  if(query.branch_vls_id) 
+      whereCondition.branch_vls_id = query.branch_vls_id
+  
+  let branches = await Branch.findAll({
+      where : whereCondition,
+     attributes : ['branch_vls_id','branch_name']
+  })
+
+  let branchCounts = []
+   await Promise.all(
+      branches.map(async branch => {
+      branch = branch.toJSON()
+      let where = { 
+        branch_vls_id : branch.branch_vls_id
+      }
+      if(query.group_type) 
+          where.group_type = query.group_type
+      let count = await Feedback.count({
+        where : where,
+        attributes: ['status'],
+        group : ['status']
+      })
+      let statusObj = {}
+      count.forEach(function(feedback){
+          if(!statusObj[feedback.status])
+            statusObj[feedback.status] = feedback.count
+      })
+      if(!statusObj.hasOwnProperty('open'))
+          statusObj.open = 0
+      if(!statusObj.hasOwnProperty('closed'))
+          statusObj.closed = 0
+      //branch.count = count
+      branch.status = statusObj
+      branchCounts.push(branch)
+    })
+  )
+  return { success:true, message:"feedback counts", data : branchCounts};
+}

@@ -9,6 +9,7 @@ const { check } = require('express-validator');
 router.get("/view/:id",view);
 router.get("/list/",list);
 router.get("/dashboardCount/",dashboardCount);
+router.get("/counts/",counts);
 
 //Put
 router.put("/close/:id",closeFeedback);
@@ -68,6 +69,13 @@ function setMeeting(req, res, next) {
 // Function for dashboard count 
 function dashboardCount(req, res, next) {
     feedbackController.dashboardCount(req.query, req.user)
+        .then(feedback => feedback ? res.json(feedback) : res.status(400).json({ status: "error", message: 'Error while dashboard feedback' }))
+        .catch(err => next(err));
+}
+
+// Function for count 
+function counts(req, res, next) {
+    feedbackController.counts(req.query, req.user)
         .then(feedback => feedback ? res.json(feedback) : res.status(400).json({ status: "error", message: 'Error while dashboard feedback' }))
         .catch(err => next(err));
 }
