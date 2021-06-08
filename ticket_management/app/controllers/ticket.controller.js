@@ -449,6 +449,8 @@ async function getUserName(userId , user_type) {
  */
 async function counts(query , user){
   let whereCondition = {}
+  let statusArr = ['new','resolved']
+
   if(user.role !='super-admin')
       return await branchCounts(query , user)
 
@@ -460,6 +462,14 @@ async function counts(query , user){
      attributes : ['school_id','school_name']
   })
 
+  if(query.status){
+      if(query.status == 'open'){
+        statusArr = ['new']
+      }else{
+        statusArr = [query.status]
+      }
+  }
+  //return statusArr
   let schoolCounts = []
    await Promise.all(
       schools.map(async school => {
@@ -467,8 +477,10 @@ async function counts(query , user){
 
       let where = { 
         school_vls_id : school.school_id,
-        status : { [Op.in]: ['new','resolved']}
+        status : { [Op.in]: statusArr}
       }
+
+        // console.log(where)
       let count = await Ticket.findAll({
           where : where,
           attributes : [
@@ -478,8 +490,8 @@ async function counts(query , user){
           ],
           group : ['status','ticket_priorty']
       })
+      //console.log(count) 
       let resolved = 0
-      let newCount = 0
       let open = {}
       count.forEach(function(obj){
           obj = obj.toJSON()
@@ -496,12 +508,26 @@ async function counts(query , user){
           open.medium = 0
       if(!open.hasOwnProperty('critical'))
           open.critical = 0
-      
+
+      if(query.ticket_priorty == 'minor'){
+          delete open.medium
+          delete open.critical
+      }else if(query.ticket_priorty == 'medium'){
+          delete open.minor
+          delete open.critical
+      }else if(query.ticket_priorty == 'critical'){
+          delete open.minor
+          delete open.medium
+      }
       //branch.count = count
-      school.status = {resolved,open}
+      if(query.status == 'open'){
+        school.status = {open}
+      }else if(query.status == 'resolved'){
+        school.status = {resolved}
+      }else{
+        school.status = {resolved, open}
+      }
       schoolCounts.push(school)
-      //school.count = count
-      //schoolCounts.push(school)
     })
   )
   return { success:true, message:"list group type", data : schoolCounts};
@@ -512,6 +538,7 @@ async function counts(query , user){
  */
 async function branchCounts(query , user){
   let whereCondition = {}
+  let statusArr = ['new','resolved']
   if(query.branch_vls_id) 
       whereCondition.branch_vls_id = query.branch_vls_id
   
@@ -519,14 +546,21 @@ async function branchCounts(query , user){
       where : whereCondition,
      attributes : ['branch_vls_id','branch_name']
   })
-  
+  if(query.status){
+      if(query.status == 'open'){
+        statusArr = ['new']
+      }else{
+        statusArr = [query.status]
+      }
+  }
+
   let branchCounts = []
    await Promise.all(
       branches.map(async branch => {
       branch = branch.toJSON()
       let where = { 
         branch_vls_id : branch.branch_vls_id,
-        status : { [Op.in]: ['new','resolved']}
+        status : { [Op.in]: statusArr}
       }
       let count = await Ticket.findAll({
           where : where,
@@ -538,7 +572,6 @@ async function branchCounts(query , user){
           group : ['status','ticket_priorty']
       })
       let resolved = 0
-      let newCount = 0
       let open = {}
       count.forEach(function(obj){
           obj = obj.toJSON()
@@ -555,9 +588,26 @@ async function branchCounts(query , user){
           open.medium = 0
       if(!open.hasOwnProperty('critical'))
           open.critical = 0
-      
+
+      if(query.ticket_priorty == 'minor'){
+          delete open.medium
+          delete open.critical
+      }else if(query.ticket_priorty == 'medium'){
+          delete open.minor
+          delete open.critical
+      }else if(query.ticket_priorty == 'critical'){
+          delete open.minor
+          delete open.medium
+      }
       //branch.count = count
-      branch.status = {resolved,open}
+      if(query.status == 'open'){
+        branch.status = {open}
+      }else if(query.status == 'resolved'){
+        branch.status = {resolved}
+      }else{
+        branch.status = {resolved, open}
+      }
+      //branch.count = count
       branchCounts.push(branch)
     })
   )
