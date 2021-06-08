@@ -13,6 +13,8 @@ const Guardian   = db.Guardian;
 const Role       = db.Role;
 const CommunityRatingLike = db.CommunityRatingLike;
 const Notification = db.Notification;
+const SchoolDetails = db.SchoolDetails;
+const Branch = db.Branch;
 
 
 
@@ -25,7 +27,9 @@ module.exports = {
   addUsers,
   addAdmins,
   getRatingLikes,
-  adminsList
+  adminsList,
+  listType,
+  counts
 };
 
 
@@ -675,4 +679,82 @@ async function getType(role){
     default : return 'employee'
       break;  
   }
+}
+
+/**
+ * API for counts community 
+ */
+async function listType(query , user){
+    let type = await CommunityChat.findAll({
+      attributes: ['group_type'],
+      group :['group_type']
+    })
+  return { success:true, message:"list group type", data : type};
+}
+
+
+/**
+ * API for counts community 
+ */
+async function counts(query , user){
+  let whereCondition = {}
+  if(user.role !='super-admin')
+      return await branchCounts(query , user)
+
+  if(query.school_vls_id) 
+      whereCondition.school_id = query.school_vls_id
+
+  let schools = await SchoolDetails.findAll({
+      where : whereCondition,
+     attributes : ['school_id','school_name']
+  })
+
+  let schoolCounts = []
+   await Promise.all(
+      schools.map(async school => {
+      school = school.toJSON()
+      let where = { school_vls_id : school.school_id,
+        community_status : 'Active'
+      }
+      let count = await CommunityChat.count({
+        where : where
+      })
+      school.count = count
+      schoolCounts.push(school)
+    })
+  )
+  return { success:true, message:"list group type", data : schoolCounts};
+}
+
+
+/**
+ * API for counts community 
+ */
+async function branchCounts(query , user){
+  let whereCondition = {}
+  if(query.branch_vls_id) 
+      whereCondition.branch_vls_id = query.branch_vls_id
+  
+  let branches = await Branch.findAll({
+      where : whereCondition,
+     attributes : ['branch_vls_id','branch_name']
+  })
+
+  let branchCounts = []
+   await Promise.all(
+      branches.map(async branch => {
+      branch = branch.toJSON()
+      let where = { branch_vls_id : branch.branch_vls_id,
+          community_status : 'Active'
+      }
+      if(query.group_type) 
+          where.group_type = query.group_type
+      let count = await CommunityChat.count({
+        where : where
+      })
+      branch.count = count
+      branchCounts.push(branch)
+    })
+  )
+  return { success:true, message:"list group type", data : branchCounts};
 }
