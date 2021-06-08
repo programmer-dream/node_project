@@ -22,6 +22,7 @@ router.get("/list/",list);
 router.get("/dashboardCount/",dashboardCount);
 router.get("/getRating/:id",getRating);
 router.get("/export/",exportTickets);
+router.get("/counts/",counts);
 
 //GET
 router.put("/update/:id",[
@@ -96,5 +97,12 @@ function exportTickets(req, res, next) {
 function changeStatus(req, res, next) {
     ticketController.changeStatus(req.params.id, req.body, req.user)
         .then(ticket => ticket ? res.json(ticket) : res.status(400).json({ status: "error", message: 'Error while change ticket status' }))
+        .catch(err => next(err));
+}
+
+// Function for geting ticket counts 
+function counts(req, res, next) {
+    ticketController.counts(req.query, req.user)
+        .then(ticket => ticket ? res.json(ticket) : res.status(400).json({ status: "error", message: 'Error while change ticket counts' }))
         .catch(err => next(err));
 }

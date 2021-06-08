@@ -26,7 +26,8 @@ module.exports = {
   dashboardCount,
   getRating,
   exportTickets,
-  changeStatus
+  changeStatus,
+  counts
 };
 
 
@@ -441,4 +442,124 @@ async function getUserName(userId , user_type) {
   user = { userId : userData.user_name}
 
   return user
+}
+
+/**
+ * API for counts ticket 
+ */
+async function counts(query , user){
+  let whereCondition = {}
+  if(user.role !='super-admin')
+      return await branchCounts(query , user)
+
+  if(query.school_vls_id) 
+      whereCondition.school_id = query.school_vls_id
+
+  let schools = await SchoolDetails.findAll({
+      where : whereCondition,
+     attributes : ['school_id','school_name']
+  })
+
+  let schoolCounts = []
+   await Promise.all(
+      schools.map(async school => {
+      school = school.toJSON()
+
+      let where = { 
+        school_vls_id : school.school_id,
+        status : { [Op.in]: ['new','resolved']}
+      }
+      let count = await Ticket.findAll({
+          where : where,
+          attributes : [
+              'status',
+              'ticket_priorty',
+              [ Sequelize.fn('COUNT', Sequelize.col('ticket_priorty')), 'count' ]
+          ],
+          group : ['status','ticket_priorty']
+      })
+      let resolved = 0
+      let newCount = 0
+      let open = {}
+      count.forEach(function(obj){
+          obj = obj.toJSON()
+          if(obj.status == 'resolved'){
+            resolved += obj.count
+          }else{
+            if(!open[obj.ticket_priorty])
+                open[obj.ticket_priorty] = obj.count
+          }
+      })
+      if(!open.hasOwnProperty('minor'))
+          open.minor = 0
+      if(!open.hasOwnProperty('medium'))
+          open.medium = 0
+      if(!open.hasOwnProperty('critical'))
+          open.critical = 0
+      
+      //branch.count = count
+      school.status = {resolved,open}
+      schoolCounts.push(school)
+      //school.count = count
+      //schoolCounts.push(school)
+    })
+  )
+  return { success:true, message:"list group type", data : schoolCounts};
+}
+
+/**
+ * API for counts community 
+ */
+async function branchCounts(query , user){
+  let whereCondition = {}
+  if(query.branch_vls_id) 
+      whereCondition.branch_vls_id = query.branch_vls_id
+  
+  let branches = await Branch.findAll({
+      where : whereCondition,
+     attributes : ['branch_vls_id','branch_name']
+  })
+  
+  let branchCounts = []
+   await Promise.all(
+      branches.map(async branch => {
+      branch = branch.toJSON()
+      let where = { 
+        branch_vls_id : branch.branch_vls_id,
+        status : { [Op.in]: ['new','resolved']}
+      }
+      let count = await Ticket.findAll({
+          where : where,
+          attributes : [
+              'status',
+              'ticket_priorty',
+              [ Sequelize.fn('COUNT', Sequelize.col('ticket_priorty')), 'count' ]
+          ],
+          group : ['status','ticket_priorty']
+      })
+      let resolved = 0
+      let newCount = 0
+      let open = {}
+      count.forEach(function(obj){
+          obj = obj.toJSON()
+          if(obj.status == 'resolved'){
+            resolved += obj.count
+          }else{
+            if(!open[obj.ticket_priorty])
+                open[obj.ticket_priorty] = obj.count
+          }
+      })
+      if(!open.hasOwnProperty('minor'))
+          open.minor = 0
+      if(!open.hasOwnProperty('medium'))
+          open.medium = 0
+      if(!open.hasOwnProperty('critical'))
+          open.critical = 0
+      
+      //branch.count = count
+      branch.status = {resolved,open}
+      branchCounts.push(branch)
+    })
+  )
+  return { success:true, message:"list group type", data : branchCounts};
 }
