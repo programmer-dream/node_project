@@ -120,8 +120,6 @@ async function list(params , user){
       }
   }
 
-  console.log(whereCondition)
-  //return 'whereCondition'
   let interestArr
   if(user.role == 'student'){
      let student = await Student.findOne({
