@@ -13,6 +13,7 @@ router.post("/accept",[
 //GET
 router.get("/view/:id",view);
 router.get("/list/",list);
+router.get("/listTags/",listTags);
 
 
 module.exports = router;
@@ -37,5 +38,12 @@ function list(req, res, next) {
 function accept(req, res, next) {
     passionController.acceptBlog(req.body, req.user)
         .then(ticket => ticket ? res.json(ticket) : res.status(400).json({ status: "error", message: 'Error while delete passion' }))
+        .catch(err => next(err));
+}
+
+// Function for list tags
+function listTags(req, res, next) {
+    passionController.listTags(req.body, req.user)
+        .then(passion => passion ? res.json(passion) : res.status(400).json({ status: "error", message: 'Error while getting passion list' }))
         .catch(err => next(err));
 }
