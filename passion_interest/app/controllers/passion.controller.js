@@ -26,7 +26,8 @@ module.exports = {
   list,
   update,
   deletePassion,
-  acceptBlog
+  acceptBlog,
+  listTags
 };
 
 
@@ -110,6 +111,14 @@ async function list(params , user){
                 }
            }
     };
+
+  if(params.tag){
+      whereCondition[Op.and]={
+        passion_type:{ 
+            [Op.like]: `%`+params.tag+`%` 
+        }
+      }
+  }
 
   let interestArr
   if(user.role == 'student'){
@@ -333,4 +342,31 @@ async function acceptBlog(body , user){
     )
 
     return { success: true, message: "Passion accepted successfully",data:isAccepted} 
+}
+
+/**
+ * API for list tags
+ */
+async function listTags(query , user){
+    
+  let tags = await PassionInterest.findAll({
+        where : {passion_type: {[Op.ne]:null}},
+        attributes : ['passion_type']
+  })
+
+  let list = []
+    await Promise.all(
+      tags.map(async tag => {
+          if(tag.passion_type){
+            let arr = JSON.parse(tag.passion_type)
+            list = list.concat(arr)
+          }
+      })  
+  )
+
+  let uniqueArray = list.filter(function(item, pos) {
+    return list.indexOf(item) == pos;
+  })
+  
+  return { success: true, message: "list tags",data:uniqueArray} 
 }
