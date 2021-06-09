@@ -1070,38 +1070,46 @@ async function dasboardCount(query, user, activeUserArr){
           finalData = { total_users , student_count, teachers_count, assignment, query, feedback, ticket, chat, community, eBook, attendance, performance_avg, top_performance}
       break;
     case 'school-admin':
-
+        
           if(!school_vls_id) 
-            throw 'branch_vls_id is required'
+            throw 'school_vls_id is required'
+
+          let where = { school_id : school_vls_id}
+          let schoolWhere = { school_vls_id : school_vls_id}
+
+          if(branch_vls_id){
+              where.branch_vls_id = branch_vls_id
+              schoolWhere.branch_vls_id = branch_vls_id
+          }
 
           total_branches = await Branch.count({
-            where : {school_vls_id : school_vls_id}
+            where : schoolWhere
           });
           total_users     = await User.count({
-            where : { school_id : school_vls_id}
+            where : where
           });
           student_count     = await Student.count({
-            where : { school_id : school_vls_id}
+            where : where
           });
           teachers_count     = await User.count({
-                                    where : {school_id : school_vls_id},
+                                    where : where,
                                     include:[{ 
                                               model:Role,
                                               as:'roles',
                                               where : {slug : 'teacher'}
                                             }]
                                     })
-          assignment = await getAssignmentCount(school_vls_id)
-          query      = await getQueryCount(school_vls_id)
-          feedback   = await getFeedbackCount(school_vls_id)
-          ticket     = await getTicketCount(school_vls_id)
-          chat       = await getChatCount(school_vls_id)
-          community  = await getCommunityCount(school_vls_id)
-          eBook      = await getEbookCount(school_vls_id)
+          assignment = await getAssignmentCount(school_vls_id,branch_vls_id)
+          query      = await getQueryCount(school_vls_id,branch_vls_id)
+          feedback   = await getFeedbackCount(school_vls_id,branch_vls_id)
+          ticket     = await getTicketCount(school_vls_id,branch_vls_id)
+          chat       = await getChatCount(school_vls_id,branch_vls_id)
+          community  = await getCommunityCount(school_vls_id,branch_vls_id)
+          eBook      = await getEbookCount(school_vls_id,branch_vls_id)
           chat.active_user = activeUserArr.length
-          top_performance  = await getTopPerformer(school_vls_id)
-          attendance = await getAttendance(school_vls_id)
-          performance_avg = await getSchoolPerformance(school_vls_id)
+          top_performance  = await getTopPerformer(school_vls_id,branch_vls_id)
+          attendance = await getAttendance(school_vls_id,branch_vls_id)
+          performance_avg = await getSchoolPerformance(school_vls_id,branch_vls_id)
 
           finalData  = { total_branches, total_users , student_count, teachers_count, assignment, query, feedback, ticket, chat, community, eBook, top_performance, attendance, performance_avg}
       break;
