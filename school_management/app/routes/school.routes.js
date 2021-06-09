@@ -51,6 +51,7 @@ router.get("/list/",listSchool);
 router.get("/AllList/",AllList);
 router.get("/allBranches",allBranches);
 router.get("/:id/branchList/",listBranch);
+router.get("/appUsage",appUsage);
 
 router.get("/listStudents/",listStudents);
 router.get("/listTeachers/",listTeachers);
@@ -237,5 +238,12 @@ function AllList(req, res, next) {
 function allBranches(req, res, next) {
     schoolController.allBranches(req.query, req.user)
         .then(school => school ? res.json(school) : res.status(400).json({ status: "error", message: 'Error while getting school list' }))
+        .catch(err => next(err));
+}
+
+// Function for app app usage 
+function appUsage(req, res, next) {
+    schoolController.appUsage(req.query, req.user)
+        .then(school => school ? res.json(school) : res.status(400).json({ status: "error", message: 'Error while getting app usage' }))
         .catch(err => next(err));
 }

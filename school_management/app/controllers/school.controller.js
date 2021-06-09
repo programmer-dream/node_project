@@ -28,6 +28,7 @@ const Marks         = db.Marks;
 const StudentAttendance  = db.StudentAttendance;
 const AcademicYear  = db.AcademicYear;
 const Exams         = db.Exams;
+const Notification  = db.Notification;
 
 
 module.exports = {
@@ -55,7 +56,8 @@ module.exports = {
   viewTeacher,
   viewParent,
   dasboardCount,
-  allBranches
+  allBranches,
+  appUsage
 };
 
 
@@ -1523,4 +1525,170 @@ async function allBranches(params , user){
   let schools = await Branch.findAll()
   
   return { success: true, message: "Branch list", data : schools}
+}
+
+
+/**
+ * API for app usage
+ */
+async function appUsage(query, user){
+  let school_vls_id  = query.school_vls_id 
+  let branch_vls_id  = query.branch_vls_id 
+  let total_branches = 0
+  let student_count  = 0
+  let teachers_count = 0
+  let assignment     = 0
+  let feedback       = 0
+  let ticket         = 0
+  let guardian_count = 0
+  let userCount      = 0
+  let section_count  = 0
+  let clases_count   = 0
+  let principal_count= 0
+  let branch_admin_count = 0
+  let school_admin_count = 0
+  let finalData      = {}
+
+  switch (user.role) {
+    case 'super-admin':
+          let total_schools   = await SchoolDetails.count();
+          total_branches      = await Branch.count();
+          student_count       = await Student.count();
+          teachers_count      = await getUserByRole('teacher')
+          guardian_count      = await getUserByRole('guardian')
+          principal_count     = await getUserByRole('principal')
+          branch_admin_count  = await getUserByRole('branch-admin')
+          school_admin_count  = await getUserByRole('school-admin')
+
+          assignment          = await getAssignmentCount()
+          query               = await getQueryCount()
+          feedback            = await getFeedbackCount()
+          ticket              = await getTicketCount()
+          eBook               = await getEbookCount()
+          eVideos             = await getVideosCount()
+          community           = await getCommunityCount()
+          chat                = await getChatCount()
+          notification        = await Notification.count()
+          schoolChatEnable  = await SchoolDetails.count({
+            where : {chat_support : 'yes'}
+          })
+          // chat.active_user = activeUserArr.length
+
+          finalData  = { total_schools, total_branches , student_count, teachers_count ,guardian_count, principal_count, branch_admin_count,school_admin_count ,assignment, query, feedback, ticket, eBook, eVideos, community, chat,notification, schoolChatEnable}
+      break;
+    case 'branch-admin':
+    case 'principal':
+
+          if(!branch_vls_id) 
+             throw 'branch_vls_id is required'
+
+          if(!school_vls_id) 
+             throw 'school_vls_id is required'
+          let branchFilter = {}
+          branchFilter.branch_vls_id = branch_vls_id
+
+          student_count     = await Student.count({
+            where : { branch_vls_id : branch_vls_id}
+          });
+
+          teachers_count     = await User.count({
+                                    where : {branch_vls_id : branch_vls_id},
+                                    include:[{ 
+                                              model:Role,
+                                              as:'roles',
+                                              where : {slug : 'teacher'}
+                                            }]
+                                    })
+          guardian_count      = await getUserByRole('guardian',branchFilter)
+
+          assignment  = await getAssignmentCount(null , branch_vls_id)
+          query       = await getQueryCount(null , branch_vls_id)
+          feedback    = await getFeedbackCount(null , branch_vls_id)
+          ticket      = await getTicketCount(null , branch_vls_id)
+          chat       = await getChatCount(null , branch_vls_id)
+          community  = await getCommunityCount(null , branch_vls_id)
+          eBook      = await getEbookCount(null , branch_vls_id)
+          attendance = await getAttendance(null , branch_vls_id)
+          performance_avg = await getSchoolPerformance(school_vls_id, branch_vls_id)
+          top_performance  = await getTopPerformer(school_vls_id, branch_vls_id)
+          clases_count     = await Classes.count({
+            where : branchFilter
+          });
+          section_count     = await Section.count({
+            where : branchFilter
+          });
+
+          finalData = {student_count, teachers_count, guardian_count, assignment, query, feedback, ticket, chat, community, eBook, attendance, performance_avg, top_performance, clases_count, section_count}
+      break;
+    case 'school-admin':
+        
+          if(!school_vls_id) 
+            throw 'school_vls_id is required'
+
+          let where = { school_id : school_vls_id}
+          let schoolWhere = { school_vls_id : school_vls_id}
+
+          if(branch_vls_id){
+              where.branch_vls_id = branch_vls_id
+              schoolWhere.branch_vls_id = branch_vls_id
+          }
+
+          total_branches = await Branch.count({
+            where : schoolWhere
+          });
+
+          guardian_count      = await getUserByRole('guardian',where)
+          principal_count     = await getUserByRole('principal',where)
+          branch_admin_count  = await getUserByRole('branch-admin',where)
+          school_admin_count  = await getUserByRole('school-admin',where)
+
+          student_count     = await Student.count({
+            where : where
+          });
+          clases_count     = await Classes.count({
+            where : where
+          });
+          section_count     = await Section.count({
+            where : where
+          });
+          teachers_count     = await User.count({
+                                    where : where,
+                                    include:[{ 
+                                              model:Role,
+                                              as:'roles',
+                                              where : {slug : 'teacher'}
+                                            }]
+                                    })
+          assignment = await getAssignmentCount(school_vls_id,branch_vls_id)
+          query      = await getQueryCount(school_vls_id,branch_vls_id)
+          feedback   = await getFeedbackCount(school_vls_id,branch_vls_id)
+          ticket     = await getTicketCount(school_vls_id,branch_vls_id)
+          chat       = await getChatCount(school_vls_id,branch_vls_id)
+          community  = await getCommunityCount(school_vls_id,branch_vls_id)
+          eBook      = await getEbookCount(school_vls_id,branch_vls_id)
+          //chat.active_user = activeUserArr.length
+          top_performance  = await getTopPerformer(school_vls_id,branch_vls_id)
+          attendance = await getAttendance(school_vls_id,branch_vls_id)
+          performance_avg = await getSchoolPerformance(school_vls_id,branch_vls_id)
+
+          finalData  = { total_branches,  student_count, teachers_count,guardian_count, principal_count, branch_admin_count, school_admin_count, assignment, query, feedback, ticket, chat, community, eBook, top_performance, attendance, performance_avg,clases_count,section_count}
+      break;
+  }
+  return { success: true, message: "App usage count", data:finalData }
+}
+
+/**
+ * API for app usage
+ */
+async function getUserByRole(role, where={}){
+
+  let user  = await User.count({
+              where : where,
+              include:[{ 
+                        model:Role,
+                        as:'roles',
+                        where : {slug : role},
+                      }]
+              })
+  return user
 }
