@@ -1688,7 +1688,8 @@ async function appUsageUpdate(params, user){
   let schoolChatEnable  = await SchoolDetails.count({
         where : {chat_support : 'yes'}
       })
-  let eVideos             = await getVideosCount()
+  let eVideos       = await getVideosCount()
+  let notification  = await Notification.count()
 
   if(params.school_vls_id) {
      where          = { school_id : params.school_vls_id}
@@ -1743,7 +1744,7 @@ async function appUsageUpdate(params, user){
     let community  = await getCommunityCount(school_vls_id,branch_vls_id)
     let eBook      = await getEbookCount(school_vls_id,branch_vls_id)
 
-    let finalData  = { total_schools, total_branches,  student_count, teachers_count,guardian_count, principal_count, branch_admin_count, school_admin_count, assignment, query, feedback, ticket, chat, community, eBook, eVideos, clases_count,section_count, schoolChatEnable }
+    let finalData  = { total_schools, total_branches,  student_count, teachers_count,guardian_count, principal_count, branch_admin_count, school_admin_count, assignment, query, feedback, ticket, chat, community, eBook, eVideos, clases_count,section_count, schoolChatEnable, notification }
 
     return finalData
 }
