@@ -1644,6 +1644,9 @@ async function getUserByRole(role, where={}){
  * API for all count list
  */
 async function AllAppUsage(query, user){
+  if(user.role == 'school-admin'){
+    return await branchUsage(query, user)
+  }
   let whereCondition = {}
   if(query.school_vls_id)
       whereCondition.school_id = query.school_vls_id
@@ -1700,6 +1703,9 @@ async function appUsageUpdate(params, user){
       where.branch_vls_id       = params.branch_vls_id
       schoolWhere.branch_vls_id = params.branch_vls_id
       branch_vls_id             = params.branch_vls_id
+      total_schools  = 0
+      schoolChatEnable = 0
+      eVideos        = 0
   }
 
 
@@ -1740,4 +1746,35 @@ async function appUsageUpdate(params, user){
     let finalData  = { total_schools, total_branches,  student_count, teachers_count,guardian_count, principal_count, branch_admin_count, school_admin_count, assignment, query, feedback, ticket, chat, community, eBook, eVideos, clases_count,section_count, schoolChatEnable }
 
     return finalData
+}
+
+/**
+ * API for all count list
+ */
+async function branchUsage(query, user){
+  let whereCondition = {}
+  if(query.branch_vls_id)
+      whereCondition.branch_vls_id = query.branch_vls_id
+
+  let branches  = await Branch.findAll({
+    where : whereCondition,
+    attributes : ['branch_vls_id','branch_name']
+  })
+
+  let allBranches = {}
+  let allData   = await appUsageUpdate({}, user)
+  allBranches.all = allData
+  
+  allBranches.branchesData = []
+  await Promise.all(
+    branches.map(async branch => {
+      let where = {branch_vls_id : branch.branch_vls_id}
+      let response = await appUsageUpdate(where, user)
+      
+      response.branch = branch
+      allBranches.branchesData.push(response)
+    })
+  )
+
+  return { success: true, message: "App usage count", data:allBranches }
 }
