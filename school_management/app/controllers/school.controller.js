@@ -1547,6 +1547,8 @@ async function appUsage(query, user){
   let principal_count= 0
   let branch_admin_count = 0
   let school_admin_count = 0
+  let schoolChatEnable = 0
+  let notification   = 0
   let finalData      = {}
 
   switch (user.role) {
