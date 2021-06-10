@@ -243,7 +243,7 @@ function allBranches(req, res, next) {
 
 // Function for app app usage 
 function appUsage(req, res, next) {
-    schoolController.appUsage(req.query, req.user)
+    schoolController.AllAppUsage(req.query, req.user)
         .then(school => school ? res.json(school) : res.status(400).json({ status: "error", message: 'Error while getting app usage' }))
         .catch(err => next(err));
 }
