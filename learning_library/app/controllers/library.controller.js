@@ -112,13 +112,13 @@ async function list(params, user){
            }
     };
 
-  if(user.role != 'super-admin' ){
+  //if(user.role != 'super-admin' ){
     if(!schoolVlsId) throw 'schoolVlsId is required'
     if(!branchVlsId) throw 'branchVlsId is required'
 
     whereCondition.branch_vls_id = branchVlsId
     whereCondition.school_vls_id = schoolVlsId
-  }
+  //}
   
   if(params.subject_code)
     whereCondition.subject_code = params.subject_code
@@ -153,7 +153,7 @@ async function list(params, user){
   await Promise.all(
     allSubject.map(async subject => {
       subjectFilter.subject_code = subject.code 
-      console.log(subjectFilter)
+      //console.log(subjectFilter)
       let count = await LearningLibrary.count({ where: subjectFilter })
  
       if(!subjectCount[subject.subject_name])
