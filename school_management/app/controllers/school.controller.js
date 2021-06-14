@@ -1523,8 +1523,14 @@ async function AllList(params , user){
   return { success: true, message: "School list", data : schools}
 }
 async function allBranches(params , user){
+  whereCondition = {}
   
-  let schools = await Branch.findAll()
+  if(params.school_vls_id)
+      whereCondition.school_vls_id = params.school_vls_id
+
+  let schools = await Branch.findAll({
+    where : whereCondition
+  })
   
   return { success: true, message: "Branch list", data : schools}
 }
