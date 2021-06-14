@@ -510,6 +510,10 @@ async function viewUser(id){
     include: [{ 
                 model:Employee,
                 as:'employee'
+              },{ 
+                model:SchoolDetails,
+                as:'school',
+                attributes:['school_id','school_name']
               }]
   })
   if(!authUser) throw 'User not found'

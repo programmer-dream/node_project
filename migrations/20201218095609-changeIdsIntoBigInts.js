@@ -28,7 +28,7 @@ module.exports = {
                 autoIncrement: true
             }),
             queryInterface.changeColumn('users', 'user_name', {
-                type: Sequelize.BIGINT,
+                type: Sequelize.STRING,
                 allowNull: false,
             }),
             queryInterface.changeColumn('students', 'parent_vls_id', {

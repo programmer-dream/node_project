@@ -141,8 +141,27 @@ async function list(params, user){
   if(params.orderBy)
      orderBy = params.orderBy
 
-  let total = await LearningLibrary.count({ where: whereCondition })
 
+  //start count subject wise
+  let subjectFilter = { branch_vls_id : branchVlsId }
+  let allSubject = await SubjectList.findAll({
+      attributes:['subject_name','code'],
+      where : subjectFilter
+  })
+   
+  let subjectCount = {}
+  await Promise.all(
+    allSubject.map(async subject => {
+      subjectFilter.subject_code = subject.code 
+      console.log(subjectFilter)
+      let count = await LearningLibrary.count({ where: subjectFilter })
+ 
+      if(!subjectCount[subject.subject_name])
+          subjectCount[subject.subject_name] = count
+    })
+  )
+  //return subjectCount
+  //end count subject wise
   let learningLibrary  = await LearningLibrary.findAll({  
                       limit:limit,
                       offset:offset,
@@ -179,7 +198,7 @@ async function list(params, user){
   )
   return { success : true,
            message : "All Learning library data", 
-           total : total, 
+           subject_counts : subjectCount, 
            data : learningLibrary
          }
 
