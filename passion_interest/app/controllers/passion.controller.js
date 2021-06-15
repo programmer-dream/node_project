@@ -206,7 +206,7 @@ async function update(req){
   if(req.files.file && req.files.file.length > 0){
       passion_data.file  = req.body.uplodedPath + req.files.file[0].filename;
   }   
-  
+
   passion.update(passion_data)
 
   let passionArray = JSON.parse(passion.passion_type)
@@ -357,22 +357,35 @@ async function acceptBlog(body , user){
  * API for list tags
  */
 async function listTags(query , user){
-    
-  let tags = await PassionInterest.findAll({
-        where : {passion_type: {[Op.ne]:null}},
-        attributes : ['passion_type']
-  })
+  //return user
+  let tags
 
+  if(user.role !='student'){
+    tags = await PassionInterest.findAll({
+          where : {passion_type: {[Op.ne]:null}},
+          attributes : ['passion_type']
+    })
+  }else{
+    tags = await Student.findAll({
+          where : {
+                    interest: {[Op.ne]:null},
+                    student_vls_id:user.userVlsId
+                  },
+          attributes : [['interest','passion_type']]
+    })
+  }
+  //return tags
   let list = []
     await Promise.all(
       tags.map(async tag => {
+          tag = tag.toJSON()
           if(tag.passion_type){
             let arr = JSON.parse(tag.passion_type)
             list = list.concat(arr)
           }
       })  
   )
-
+  
   let uniqueArray = list.filter(function(item, pos) {
     return list.indexOf(item) == pos;
   })
