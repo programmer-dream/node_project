@@ -38,7 +38,7 @@ async function create(req){
   let passionArray = {}
   const errors = validationResult(req);
   if(errors.array().length) throw errors.array()
-
+  
   if(req.body.passion_type)
       req.body.passion_type = JSON.stringify(req.body.passion_type)
 
@@ -47,6 +47,11 @@ async function create(req){
   }
   let user                = req.user
   let passion_data        = req.body
+
+  if(req.files.file && req.files.file.length > 0){
+      passion_data.file  = req.body.uplodedPath + req.files.file[0].filename;
+  }
+
   passion_data.added_by   = user.userVlsId
   passion_data.user_type  = user.role
   
@@ -197,7 +202,11 @@ async function update(req){
   let passion_data = req.body
 
   if(!passion) throw 'Passion and interst not found'
-      
+
+  if(req.files.file && req.files.file.length > 0){
+      passion_data.file  = req.body.uplodedPath + req.files.file[0].filename;
+  }   
+  
   passion.update(passion_data)
 
   let passionArray = JSON.parse(passion.passion_type)
