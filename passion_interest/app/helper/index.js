@@ -12,18 +12,8 @@ let storage = multer.diskStorage({
   destination: async function (req, file, cb) {
 
   let dirpath     = config.pdf_path
-  let uplodedPath;
-  
-  let schoolVlsId = req.body.school_vls_id
-  if(!schoolVlsId) cb("school_vls_id is requeried")
 
-  let school  = await SchoolDetails.findOne({
-          where:{school_vls_id:schoolVlsId}
-  })
-  var school_name = school.school_name;
-  school_name = school_name.replace(/\s+/g, '-').toLowerCase();
-
-  uplodedPath = "/"+school_name+"/ticket_files/"
+  let uplodedPath = "/passion_files/"
   dirpath = dirpath + uplodedPath
   req.body.uplodedPath = uplodedPath
 

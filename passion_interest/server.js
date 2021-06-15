@@ -120,6 +120,9 @@ io.on("connection", async function (client) {
 
 // create assignment  
 app.post("/blog/create/",[
+  upload.fields([{
+        name:'file',maxCount:1
+    }]),
     check('passion_name','passion_name field is required.').not().isEmpty(),
     check('description','description field is required.').not().isEmpty()
   ],async function(req, res){
@@ -141,7 +144,11 @@ app.post("/blog/create/",[
 });
 
 // update assignment  
-app.put("/blog/update/:id/", async function(req, res){
+app.put("/blog/update/:id/",[
+  upload.fields([{
+        name:'file',maxCount:1
+    }]),
+  ], async function(req, res){
    passionController.update(req)
           .then((blog) => {
             if(blog){
