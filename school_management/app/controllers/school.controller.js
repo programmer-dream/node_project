@@ -280,7 +280,7 @@ async function viewBranch(id){
 
 /**
  * API for view school
- */
+ */ 
 async function listBranch(id , user, params){
   let limit   = 10
   let offset  = 0
@@ -1528,11 +1528,19 @@ async function allBranches(params , user){
   if(params.school_vls_id)
       whereCondition.school_vls_id = params.school_vls_id
 
-  let schools = await Branch.findAll({
+  let branches = await Branch.findAll({
     where : whereCondition
   })
   
-  return { success: true, message: "Branch list", data : schools}
+  allBranches = []
+  await Promise.all(
+    branches.map(async branch => {
+        branch = branch.toJSON()
+        branch['userCounts']= await getbranchUser( branch.branch_vls_id )
+        allBranches.push(branch)
+    })
+  )
+  return { success: true, message: "Branch list", data : allBranches}
 }
 
 
