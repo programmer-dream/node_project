@@ -31,6 +31,7 @@ const Exams         = db.Exams;
 const Notification  = db.Notification;
 const SchoolMeetingSettings  = db.SchoolMeetingSettings;
 const VlsVideoServices  = db.VlsVideoServices;
+const VlsMeetingServices  = db.VlsMeetingServices;
 
 
 module.exports = {
@@ -61,7 +62,8 @@ module.exports = {
   allBranches,
   AllAppUsage,
   schoolMeetingSettings,
-  vlsVideoServices
+  vlsVideoServices,
+  listVlsVideoServices
 };
 
 
@@ -1844,5 +1846,42 @@ async function vlsVideoServices(body, user){
   settings = await VlsVideoServices.create(body);
   
   return { success: true, message: "vls video services", data:settings }
+  
+}
+
+
+
+/**
+ * API for create vls video service 
+ */
+async function vlsVideoServices(body, user){
+  
+  if(!body.branch_vls_id) throw 'branch_vls_id is required'
+
+  if(!body.school_vls_id) throw 'school_vls_id is required'
+
+  let services = await VlsVideoServices.create(body);
+  
+  return { success: true, message: "vls video services", data:services }
+  
+}
+
+/**
+ * API for create vls video service 
+ */
+async function listVlsVideoServices(body, user){
+  let whereCondition = {}
+  
+  if(body.branch_vls_id) 
+    whereCondition.branch_vls_id = body.branch_vls_id
+
+  if(body.school_vls_id) 
+    whereCondition.school_vls_id = body.school_vls_id
+
+  let services = await VlsVideoServices.findAll({
+    where : whereCondition
+  });
+  
+  return { success: true, message: "list vls video services", data:services }
   
 }
