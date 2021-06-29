@@ -21,6 +21,9 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.INTEGER,
         allowNull: false
       },
+      video_service_id: {
+        type: Sequelize.INTEGER,
+      },
       status: {
         type: Sequelize.INTEGER,
             defaultValue: 0

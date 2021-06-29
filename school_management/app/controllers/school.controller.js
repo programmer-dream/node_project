@@ -61,7 +61,11 @@ module.exports = {
   dasboardCount,
   allBranches,
   AllAppUsage,
-  schoolMeetingSettings,
+  createSchoolMeetingSettings,
+  listSchoolMeetingSettings,
+  viewSchoolMeetingSettings,
+  updateSchoolMeetingSettings,
+  deleteSchoolMeetingSettings,
   vlsVideoServices,
   listVlsVideoServices,
   createVlsMeetingServices
@@ -1808,27 +1812,79 @@ async function branchUsage(query, user){
 /**
  * API for school meeting settings
  */
-async function schoolMeetingSettings(body, user){
+async function createSchoolMeetingSettings(body, user){
+
+  let settings = await SchoolMeetingSettings.create(body);
+  
+  return { success: true, message: "school meeting settings", data:settings }
+  
+}
+
+/**
+ * API for list school meeting settings
+ */
+async function listSchoolMeetingSettings(query, user){
   let whereCondition = {}
-  //return body
-  if(!body.branch_vls_id) throw 'branch_vls_id is required'
-      whereCondition.branch_vls_id = body.branch_vls_id
 
-  if(!body.school_vls_id) throw 'school_vls_id is required'
-    whereCondition.school_vls_id = body.school_vls_id
+  if(query.branch_vls_id) 
+      whereCondition.branch_vls_id = query.branch_vls_id
 
-  let settings  = await SchoolMeetingSettings.findOne({
-    where : whereCondition,
-  })
+  if(query.school_vls_id) 
+      whereCondition.school_vls_id = query.school_vls_id
 
-  if(!settings){
-      settings = await SchoolMeetingSettings.create(body);
-  }else{
-      settings.update(body);
+  let settings = await SchoolMeetingSettings.findAll({
+    where :whereCondition
+  });
+  
+  return { success: true, message: "school meeting settings", data:settings }
+  
+}
 
-  }
+
+/**
+ * API for view school meeting settings
+ */
+async function viewSchoolMeetingSettings(params, user){
+
+  let settings = await SchoolMeetingSettings.findOne({
+    where :{ meeting_setting_id: params.meeting_setting_id }
+  });
+  
+  return { success: true, message: "school meeting settings", data:settings }
+  
+}
+
+
+/**
+ * API for update school meeting settings
+ */
+async function updateSchoolMeetingSettings(params, body){
+  
+  let settings = await SchoolMeetingSettings.findOne({
+    where :{ meeting_setting_id: params.meeting_setting_id }
+  });
+  if(!settings) throw 'settings not found'
+      settings.update(body)
 
   return { success: true, message: "school meeting settings", data:settings }
+  
+}
+
+
+/**
+ * API for delete school meeting settings
+ */
+async function deleteSchoolMeetingSettings(params, user){
+  
+  let settings = await SchoolMeetingSettings.findOne({
+    where :{ meeting_setting_id: params.meeting_setting_id }
+  });
+
+  if(!settings) throw 'settings not found'
+
+   settings.destroy();
+
+  return { success: true, message: "school meeting settings deleted",}
   
 }
 
