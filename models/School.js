@@ -113,6 +113,20 @@ module.exports = (sequelize, Sequelize) => {
       logo: {
         type: Sequelize.STRING
       },
+      video_service_enabled: {
+        type: Sequelize.ENUM('yes','no'),
+        defaultValue: 'no'
+      },
+      is_vls_online_video_service_enabled: {
+        type: Sequelize.ENUM('yes','no'),
+        defaultValue: 'no'
+      },
+      max_simultaneous_online_meeting_supported: {
+        type: Sequelize.INTEGER
+      },
+      video_services_enabled: {
+        type: Sequelize.STRING
+      }
   },{
     tableName: 'school',
     createdAt: 'created_at',
