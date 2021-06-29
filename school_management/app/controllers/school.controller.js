@@ -63,7 +63,8 @@ module.exports = {
   AllAppUsage,
   schoolMeetingSettings,
   vlsVideoServices,
-  listVlsVideoServices
+  listVlsVideoServices,
+  createVlsMeetingServices
 };
 
 
@@ -1854,15 +1855,11 @@ async function vlsVideoServices(body, user){
 /**
  * API for create vls video service 
  */
-async function vlsVideoServices(body, user){
+async function createVlsMeetingServices(body, user){
   
-  if(!body.branch_vls_id) throw 'branch_vls_id is required'
-
-  if(!body.school_vls_id) throw 'school_vls_id is required'
-
-  let services = await VlsVideoServices.create(body);
+  let vlsMeetingservices = await VlsMeetingServices.create(body);
   
-  return { success: true, message: "vls video services", data:services }
+  return { success: true, message: "Vls Meeting Services", data:vlsMeetingservices }
   
 }
 

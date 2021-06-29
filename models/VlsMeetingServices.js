@@ -1,38 +1,26 @@
 module.exports = (sequelize, Sequelize) => {
   const VlsMeetingServices = sequelize.define("vls_meeting_services", {
-    video_service_id: {
+    meeting_service_id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      video_service_name: {
+      video_service_id: {
+        type: Sequelize.INTEGER
+      },
+      api_key: {
+        type: Sequelize.STRING
+      },
+      api_secret: {
         type: Sequelize.STRING,
         allowNull: false
       },
-      video_account_name: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      school_vls_id: {
-        type: Sequelize.INTEGER
-      },
-      branch_vls_id: {
-        type: Sequelize.INTEGER
-      },
-      no_of_licenses: {
+      status: {
         type: Sequelize.INTEGER,
-        defaultValue: 0
+            defaultValue: 0
       },
-      Base_url: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      Settings: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      services_enabled: {
+      authenticationType: {
         type: Sequelize.STRING,
         allowNull: false
       },

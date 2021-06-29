@@ -30,7 +30,7 @@ function listVlsVideoServices(req, res, next) {
 
 // Function list video service 
 function createVlsMeetingServices(req, res, next) {
-    schoolController.createVlsMeetingServices(req.query, req.user)
+    schoolController.createVlsMeetingServices(req.body, req.user)
         .then(meetingService => meetingService ? res.json(meetingService) : res.status(400).json({ status: "error", message: 'Error while create meeting service settings' }))
         .catch(err => next(err));
 }
