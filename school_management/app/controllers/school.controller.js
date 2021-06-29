@@ -29,6 +29,8 @@ const StudentAttendance  = db.StudentAttendance;
 const AcademicYear  = db.AcademicYear;
 const Exams         = db.Exams;
 const Notification  = db.Notification;
+const SchoolMeetingSettings  = db.SchoolMeetingSettings;
+const VlsVideoServices  = db.VlsVideoServices;
 
 
 module.exports = {
@@ -57,7 +59,9 @@ module.exports = {
   viewParent,
   dasboardCount,
   allBranches,
-  AllAppUsage
+  AllAppUsage,
+  schoolMeetingSettings,
+  vlsVideoServices
 };
 
 
@@ -1796,4 +1800,49 @@ async function branchUsage(query, user){
   )
 
   return { success: true, message: "App usage count", data:allBranches }
+}
+
+/**
+ * API for school meeting settings
+ */
+async function schoolMeetingSettings(body, user){
+  let whereCondition = {}
+  //return body
+  if(!body.branch_vls_id) throw 'branch_vls_id is required'
+      whereCondition.branch_vls_id = body.branch_vls_id
+
+  if(!body.school_vls_id) throw 'school_vls_id is required'
+    whereCondition.school_vls_id = body.school_vls_id
+
+  let settings  = await SchoolMeetingSettings.findOne({
+    where : whereCondition,
+  })
+
+  if(!settings){
+      settings = await SchoolMeetingSettings.create(body);
+  }else{
+      settings.update(body);
+
+  }
+
+  return { success: true, message: "school meeting settings", data:settings }
+  
+}
+
+
+
+/**
+ * API for create vls video service 
+ */
+async function vlsVideoServices(body, user){
+  let whereCondition = {}
+  
+  if(!body.branch_vls_id) throw 'branch_vls_id is required'
+
+  if(!body.school_vls_id) throw 'school_vls_id is required'
+
+  settings = await VlsVideoServices.create(body);
+  
+  return { success: true, message: "vls video services", data:settings }
+  
 }

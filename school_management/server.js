@@ -37,8 +37,9 @@ app.get("/",function(req, res){
 	res.sendFile(__dirname + "/index.html");
 });
 
-// api routes
+// api routeš
 app.use('/school', require('./app/routes/school.routes'));
+app.use('/settings', require('./app/routes/settings.routes'));
 
 
 // global error handler

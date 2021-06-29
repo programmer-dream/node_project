@@ -37,13 +37,16 @@ router.post("/createUser",[
     check('password','password field is required.').not().isEmpty()
     ],createUser);
 
+//school meeting settings
+router.post("/schoolMeetingSettings",schoolMeetingSettings);
+
 router.put("/updateUser/:id",[
     upload.fields([{
         name:'photo',maxCount:1
     }])
     ],updateUser);
 
-//Post
+//GET
 router.get("/view/:id",viewSchool);
 router.get("/viewUser/:id",viewUser);
 router.get("/branch/view/:id",viewBranch);
@@ -66,7 +69,7 @@ router.put("/branch/update/:id",updateBranch);
 router.put("/:id/updateSettings/",updateSchoolSettings);
 router.put("/branch/:id/updateSettings/",updateBranchSettings);
 
-//Post
+//delete
 router.delete("/delete/:id",deleteSchool);
 router.delete("/branch/delete/:id",deleteBranch);
 router.delete("/deleteUser/:id",deleteUser);
@@ -245,5 +248,12 @@ function allBranches(req, res, next) {
 function appUsage(req, res, next) {
     schoolController.AllAppUsage(req.query, req.user)
         .then(school => school ? res.json(school) : res.status(400).json({ status: "error", message: 'Error while getting app usage' }))
+        .catch(err => next(err));
+}
+
+// Function school meeting settings
+function schoolMeetingSettings(req, res, next) {
+    schoolController.schoolMeetingSettings(req.body, req.user)
+        .then(setting => setting ? res.json(setting) : res.status(400).json({ status: "error", message: 'Error while school meeting settings' }))
         .catch(err => next(err));
 }

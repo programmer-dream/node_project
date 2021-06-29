@@ -75,6 +75,8 @@ db.Branch = require("./Branch.js")(sequelize, Sequelize);
 db.UserSetting = require("./UserSetting.js")(sequelize, Sequelize);
 db.LibraryHistory = require("./LibraryHistory.js")(sequelize, Sequelize);
 db.Users = require("./Authentication.js")(sequelize, Sequelize);
+db.SchoolMeetingSettings = require("./SchoolMeetingSettings.js")(sequelize, Sequelize);
+db.VlsVideoServices = require("./VlsVideoServices.js")(sequelize, Sequelize);
 
 /*********** query management ***********/
 db.StudentQuery = require("./StudentQuery.js")(sequelize, Sequelize);
