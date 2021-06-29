@@ -119,7 +119,11 @@ module.exports = (sequelize, Sequelize) => {
       passion_support: {
         type: Sequelize.ENUM('yes','no'),
         defaultValue: 'no'
-      } 
+      },
+      is_video_meeting_enabled :{
+        type: Sequelize.ENUM('yes','no'),
+        defaultValue: 'no'
+      }
   },{
     tableName: 'branch_details',
     createdAt: 'created_at',
