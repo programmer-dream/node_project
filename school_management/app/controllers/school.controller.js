@@ -66,9 +66,12 @@ module.exports = {
   viewSchoolMeetingSettings,
   updateSchoolMeetingSettings,
   deleteSchoolMeetingSettings,
-  vlsVideoServices,
+  createVlsVideoServices,
   listVlsVideoServices,
-  createVlsMeetingServices
+  viewVlsVideoServices,
+  createVlsMeetingServices,
+  updateVlsVideoServices,
+  deleteVlsVideoServices
 };
 
 
@@ -1893,12 +1896,7 @@ async function deleteSchoolMeetingSettings(params, user){
 /**
  * API for create vls video service 
  */
-async function vlsVideoServices(body, user){
-  let whereCondition = {}
-  
-  if(!body.branch_vls_id) throw 'branch_vls_id is required'
-
-  if(!body.school_vls_id) throw 'school_vls_id is required'
+async function createVlsVideoServices(body, user){
 
   settings = await VlsVideoServices.create(body);
   
@@ -1936,5 +1934,68 @@ async function listVlsVideoServices(body, user){
   });
   
   return { success: true, message: "list vls video services", data:services }
+  
+}
+
+
+
+/**
+ * API for create vls video service 
+ */
+async function viewVlsVideoServices(params, user){
+  
+  let videoSettings = await VlsVideoServices.findOne({
+    where :{ video_service_id: params.video_service_id }
+  });
+
+  return { success: true, message: "view vls video services", data:videoSettings }
+}
+
+
+
+/**
+ * API for create vls video service 
+ */
+async function viewVlsVideoServices(params, user){
+  
+  let videoSettings = await VlsVideoServices.findOne({
+    where :{ video_service_id: params.video_service_id }
+  });
+
+  return { success: true, message: "view vls video services", data:videoSettings }
+}
+
+
+/**
+ * API for update vls service settings
+ */
+async function updateVlsVideoServices(params, body){
+  
+  let settings = await VlsVideoServices.findOne({
+    where :{ video_service_id: params.video_service_id }
+  });
+  
+  if(!settings) throw 'settings not found'
+      settings.update(body)
+
+  return { success: true, message: "school meeting settings", data:settings }
+  
+}
+
+
+/**
+ * API for delete vls service settings
+ */
+async function deleteVlsVideoServices(params, user){
+  
+  let settings = await VlsVideoServices.findOne({
+    where :{ video_service_id: params.video_service_id }
+  });
+
+  if(!settings) throw 'settings not found'
+
+   settings.destroy();
+
+  return { success: true, message: "school meeting settings deleted",}
   
 }
