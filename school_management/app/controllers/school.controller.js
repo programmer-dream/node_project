@@ -32,6 +32,7 @@ const Notification  = db.Notification;
 const SchoolMeetingSettings  = db.SchoolMeetingSettings;
 const VlsVideoServices  = db.VlsVideoServices;
 const VlsMeetingServices  = db.VlsMeetingServices;
+const ServiceProvider  = db.ServiceProvider;
 
 
 module.exports = {
@@ -71,7 +72,8 @@ module.exports = {
   viewVlsVideoServices,
   updateVlsVideoServices,
   deleteVlsVideoServices,
-  vlsVideoServicesDropdown
+  vlsVideoServicesDropdown,
+  providerDropdown
 };
 
 
@@ -2014,5 +2016,17 @@ async function vlsVideoServicesDropdown(query, user){
   });
   
   return { success: true, message: "list vls video services", data:services }
+  
+}
+
+
+/**
+ * API for provider Dropdown 
+ */
+async function providerDropdown(query, user){
+  
+  let service_Provider = await ServiceProvider.findAll();
+  
+  return { success: true, message: "list vls video services", data:service_Provider }
   
 }
