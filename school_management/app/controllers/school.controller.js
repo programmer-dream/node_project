@@ -69,13 +69,9 @@ module.exports = {
   createVlsVideoServices,
   listVlsVideoServices,
   viewVlsVideoServices,
-  createVlsMeetingServices,
   updateVlsVideoServices,
   deleteVlsVideoServices,
-  listVlsMeetingServices,
-  viewVlsMeetingServices,
-  updateVlsMeetingServices,
-  deleteVlsMeetingServices
+  vlsVideoServicesDropdown
 };
 
 
@@ -1910,16 +1906,7 @@ async function createVlsVideoServices(body, user){
 
 
 
-/**
- * API for create vls video service 
- */
-async function createVlsMeetingServices(body, user){
-  
-  let vlsMeetingservices = await VlsMeetingServices.create(body);
-  
-  return { success: true, message: "Vls Meeting Services", data:vlsMeetingservices }
-  
-}
+
 
 /**
  * API for create vls video service 
@@ -2006,9 +1993,9 @@ async function deleteVlsVideoServices(params, user){
 
 
 /**
- * API for create vls meeting service 
+ * API for create vls video service 
  */
-async function listVlsMeetingServices(query, user){
+async function vlsVideoServicesDropdown(query, user){
   let whereCondition = {}
   
   if(query.branch_vls_id) 
@@ -2016,57 +2003,16 @@ async function listVlsMeetingServices(query, user){
 
   if(query.school_vls_id) 
     whereCondition.school_vls_id = query.school_vls_id
+  
+  if(!query.school_vls_id && !query.branch_vls_id){
+      whereCondition.branch_vls_id = null
+      whereCondition.school_vls_id = null
+  }
 
-  let services = await VlsMeetingServices.findAll({
+  let services = await VlsVideoServices.findAll({
     where : whereCondition
   });
   
-  return { success: true, message: "list vls meeting services", data:services }
-}
-
-/**
- * API for view vls meeting service 
- */
-async function viewVlsMeetingServices(params, user){
-  
-  let videoSettings = await VlsMeetingServices.findOne({
-    where :{ meeting_service_id: params.meeting_service_id }
-  });
-
-  return { success: true, message: "view vls meeting services", data:videoSettings }
-}
-
-
-/**
- * API for update vls service settings
- */
-async function updateVlsMeetingServices(params, body){
-  
-  let settings = await VlsMeetingServices.findOne({
-    where :{ meeting_service_id: params.meeting_service_id }
-  });
-  
-  if(!settings) throw 'settings not found'
-      settings.update(body)
-
-  return { success: true, message: "school meeting settings", data:settings }
-  
-}
-
-
-/**
- * API for delete vls service settings
- */
-async function deleteVlsMeetingServices(params, user){
-  
-  let settings = await VlsMeetingServices.findOne({
-    where :{ meeting_service_id: params.meeting_service_id }
-  });
-
-  if(!settings) throw 'settings not found'
-
-   settings.destroy();
-
-  return { success: true, message: "vls meeting service deleted",}
+  return { success: true, message: "list vls video services", data:services }
   
 }
