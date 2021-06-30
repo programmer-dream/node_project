@@ -23,12 +23,10 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: false
       },
       Settings: {
-        type: Sequelize.STRING,
-        allowNull: false
+        type: Sequelize.STRING
       },
       services_enabled: {
-        type: Sequelize.STRING,
-        allowNull: false
+        type: Sequelize.STRING
       },
       created_at: {
         allowNull: false,
