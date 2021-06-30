@@ -61,10 +61,21 @@ module.exports = {
   dasboardCount,
   allBranches,
   AllAppUsage,
-  schoolMeetingSettings,
-  vlsVideoServices,
+  createSchoolMeetingSettings,
+  listSchoolMeetingSettings,
+  viewSchoolMeetingSettings,
+  updateSchoolMeetingSettings,
+  deleteSchoolMeetingSettings,
+  createVlsVideoServices,
   listVlsVideoServices,
-  createVlsMeetingServices
+  viewVlsVideoServices,
+  createVlsMeetingServices,
+  updateVlsVideoServices,
+  deleteVlsVideoServices,
+  listVlsMeetingServices,
+  viewVlsMeetingServices,
+  updateVlsMeetingServices,
+  deleteVlsMeetingServices
 };
 
 
@@ -1808,27 +1819,79 @@ async function branchUsage(query, user){
 /**
  * API for school meeting settings
  */
-async function schoolMeetingSettings(body, user){
+async function createSchoolMeetingSettings(body, user){
+
+  let settings = await SchoolMeetingSettings.create(body);
+  
+  return { success: true, message: "school meeting settings", data:settings }
+  
+}
+
+/**
+ * API for list school meeting settings
+ */
+async function listSchoolMeetingSettings(query, user){
   let whereCondition = {}
-  //return body
-  if(!body.branch_vls_id) throw 'branch_vls_id is required'
-      whereCondition.branch_vls_id = body.branch_vls_id
 
-  if(!body.school_vls_id) throw 'school_vls_id is required'
-    whereCondition.school_vls_id = body.school_vls_id
+  if(query.branch_vls_id) 
+      whereCondition.branch_vls_id = query.branch_vls_id
 
-  let settings  = await SchoolMeetingSettings.findOne({
-    where : whereCondition,
-  })
+  if(query.school_vls_id) 
+      whereCondition.school_vls_id = query.school_vls_id
 
-  if(!settings){
-      settings = await SchoolMeetingSettings.create(body);
-  }else{
-      settings.update(body);
+  let settings = await SchoolMeetingSettings.findAll({
+    where :whereCondition
+  });
+  
+  return { success: true, message: "school meeting settings", data:settings }
+  
+}
 
-  }
+
+/**
+ * API for view school meeting settings
+ */
+async function viewSchoolMeetingSettings(params, user){
+
+  let settings = await SchoolMeetingSettings.findOne({
+    where :{ meeting_setting_id: params.meeting_setting_id }
+  });
+  
+  return { success: true, message: "school meeting settings", data:settings }
+  
+}
+
+
+/**
+ * API for update school meeting settings
+ */
+async function updateSchoolMeetingSettings(params, body){
+  
+  let settings = await SchoolMeetingSettings.findOne({
+    where :{ meeting_setting_id: params.meeting_setting_id }
+  });
+  if(!settings) throw 'settings not found'
+      settings.update(body)
 
   return { success: true, message: "school meeting settings", data:settings }
+  
+}
+
+
+/**
+ * API for delete school meeting settings
+ */
+async function deleteSchoolMeetingSettings(params, user){
+  
+  let settings = await SchoolMeetingSettings.findOne({
+    where :{ meeting_setting_id: params.meeting_setting_id }
+  });
+
+  if(!settings) throw 'settings not found'
+
+   settings.destroy();
+
+  return { success: true, message: "school meeting settings deleted",}
   
 }
 
@@ -1837,12 +1900,7 @@ async function schoolMeetingSettings(body, user){
 /**
  * API for create vls video service 
  */
-async function vlsVideoServices(body, user){
-  let whereCondition = {}
-  
-  if(!body.branch_vls_id) throw 'branch_vls_id is required'
-
-  if(!body.school_vls_id) throw 'school_vls_id is required'
+async function createVlsVideoServices(body, user){
 
   settings = await VlsVideoServices.create(body);
   
@@ -1866,19 +1924,149 @@ async function createVlsMeetingServices(body, user){
 /**
  * API for create vls video service 
  */
-async function listVlsVideoServices(body, user){
+async function listVlsVideoServices(query, user){
   let whereCondition = {}
   
-  if(body.branch_vls_id) 
-    whereCondition.branch_vls_id = body.branch_vls_id
+  if(query.branch_vls_id) 
+    whereCondition.branch_vls_id = query.branch_vls_id
 
-  if(body.school_vls_id) 
-    whereCondition.school_vls_id = body.school_vls_id
+  if(query.school_vls_id) 
+    whereCondition.school_vls_id = query.school_vls_id
 
   let services = await VlsVideoServices.findAll({
     where : whereCondition
   });
   
   return { success: true, message: "list vls video services", data:services }
+  
+}
+
+
+
+/**
+ * API for create vls video service 
+ */
+async function viewVlsVideoServices(params, user){
+  
+  let videoSettings = await VlsVideoServices.findOne({
+    where :{ video_service_id: params.video_service_id }
+  });
+
+  return { success: true, message: "view vls video services", data:videoSettings }
+}
+
+
+
+/**
+ * API for create vls video service 
+ */
+async function viewVlsVideoServices(params, user){
+  
+  let videoSettings = await VlsVideoServices.findOne({
+    where :{ video_service_id: params.video_service_id }
+  });
+
+  return { success: true, message: "view vls video services", data:videoSettings }
+}
+
+
+/**
+ * API for update vls service settings
+ */
+async function updateVlsVideoServices(params, body){
+  
+  let settings = await VlsVideoServices.findOne({
+    where :{ video_service_id: params.video_service_id }
+  });
+  
+  if(!settings) throw 'settings not found'
+      settings.update(body)
+
+  return { success: true, message: "school meeting settings", data:settings }
+  
+}
+
+
+/**
+ * API for delete vls service settings
+ */
+async function deleteVlsVideoServices(params, user){
+  
+  let settings = await VlsVideoServices.findOne({
+    where :{ video_service_id: params.video_service_id }
+  });
+
+  if(!settings) throw 'settings not found'
+
+   settings.destroy();
+
+  return { success: true, message: "school meeting settings deleted",}
+  
+}
+
+
+/**
+ * API for create vls meeting service 
+ */
+async function listVlsMeetingServices(query, user){
+  let whereCondition = {}
+  
+  if(query.branch_vls_id) 
+    whereCondition.branch_vls_id = query.branch_vls_id
+
+  if(query.school_vls_id) 
+    whereCondition.school_vls_id = query.school_vls_id
+
+  let services = await VlsMeetingServices.findAll({
+    where : whereCondition
+  });
+  
+  return { success: true, message: "list vls meeting services", data:services }
+}
+
+/**
+ * API for view vls meeting service 
+ */
+async function viewVlsMeetingServices(params, user){
+  
+  let videoSettings = await VlsMeetingServices.findOne({
+    where :{ meeting_service_id: params.meeting_service_id }
+  });
+
+  return { success: true, message: "view vls meeting services", data:videoSettings }
+}
+
+
+/**
+ * API for update vls service settings
+ */
+async function updateVlsMeetingServices(params, body){
+  
+  let settings = await VlsMeetingServices.findOne({
+    where :{ meeting_service_id: params.meeting_service_id }
+  });
+  
+  if(!settings) throw 'settings not found'
+      settings.update(body)
+
+  return { success: true, message: "school meeting settings", data:settings }
+  
+}
+
+
+/**
+ * API for delete vls service settings
+ */
+async function deleteVlsMeetingServices(params, user){
+  
+  let settings = await VlsMeetingServices.findOne({
+    where :{ meeting_service_id: params.meeting_service_id }
+  });
+
+  if(!settings) throw 'settings not found'
+
+   settings.destroy();
+
+  return { success: true, message: "vls meeting service deleted",}
   
 }

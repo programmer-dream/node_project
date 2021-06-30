@@ -14,12 +14,6 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.STRING,
         allowNull: false
       },
-      school_vls_id: {
-        type: Sequelize.INTEGER
-      },
-      branch_vls_id: {
-        type: Sequelize.INTEGER
-      },
       no_of_licenses: {
         type: Sequelize.INTEGER,
         defaultValue: 0

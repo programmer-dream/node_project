@@ -37,8 +37,6 @@ router.post("/createUser",[
     check('password','password field is required.').not().isEmpty()
     ],createUser);
 
-//school meeting settings
-router.post("/schoolMeetingSettings",schoolMeetingSettings);
 
 router.put("/updateUser/:id",[
     upload.fields([{
@@ -251,9 +249,3 @@ function appUsage(req, res, next) {
         .catch(err => next(err));
 }
 
-// Function school meeting settings
-function schoolMeetingSettings(req, res, next) {
-    schoolController.schoolMeetingSettings(req.body, req.user)
-        .then(setting => setting ? res.json(setting) : res.status(400).json({ status: "error", message: 'Error while school meeting settings' }))
-        .catch(err => next(err));
-}
