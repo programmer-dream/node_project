@@ -12,6 +12,7 @@ router.post("/createSchoolMeetingSettings",createSchoolMeetingSettings);
 
 router.get("/listVlsVideoServices",listVlsVideoServices);
 router.get("/vlsVideoServicesDropdown",vlsVideoServicesDropdown);
+router.get("/providerDropdown",providerDropdown);
 router.get("/listSchoolMeetingSettings",listSchoolMeetingSettings);
 
 
@@ -102,6 +103,12 @@ function deleteVlsVideoServices(req, res, next) {
 // Function list video service 
 function vlsVideoServicesDropdown(req, res, next) {
     schoolController.vlsVideoServicesDropdown(req.query, req.user)
+        .then(listing => listing ? res.json(listing) : res.status(400).json({ status: "error", message: 'Error while list video service settings' }))
+        .catch(err => next(err));
+}
+// Function list video service 
+function providerDropdown(req, res, next) {
+    schoolController.providerDropdown(req.query, req.user)
         .then(listing => listing ? res.json(listing) : res.status(400).json({ status: "error", message: 'Error while list video service settings' }))
         .catch(err => next(err));
 }
