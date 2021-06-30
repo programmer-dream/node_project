@@ -2084,11 +2084,11 @@ async function vlsVideoServicesDropdown(query, user){
   if(query.school_vls_id) 
     whereCondition.school_vls_id = query.school_vls_id
   
-  if(!query.school_vls_id || !query.branch_vls_id){
+  if(!query.school_vls_id && !query.branch_vls_id){
       whereCondition.branch_vls_id = null
       whereCondition.school_vls_id = null
   }
-  
+
   let services = await VlsVideoServices.findAll({
     where : whereCondition
   });
