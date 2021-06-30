@@ -37,7 +37,23 @@ module.exports = (sequelize, Sequelize) => {
       updated_at: {
         allowNull: false,
         type: Sequelize.DATE
-      }
+      },
+      api_key: {
+        type: Sequelize.STRING,
+      },
+      api_secret: {
+        type: Sequelize.STRING,
+      },
+      status: {
+        type: Sequelize.INTEGER,
+            defaultValue: 0
+      },
+      school_vls_id: {
+        type: Sequelize.INTEGER
+      },
+      branch_vls_id: {
+        type: Sequelize.INTEGER
+      },
   },{
     tableName: 'vls_video_services',
     createdAt: 'created_at',
