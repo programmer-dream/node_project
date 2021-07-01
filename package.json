@@ -21,7 +21,8 @@
     "start:backup_management": "yarn workspace backup_management start",
     "start:rewards_management": "yarn workspace rewards_management start",
     "start:passion_interest": "yarn workspace passion_interest start",
-    "start": "concurrently --kill-others-on-fail \"yarn start:vls\" \"yarn start:query\" \"yarn start:library\" \"yarn start:video_library\" \"yarn start:attendance\" \"yarn start:time_sheet\" \"yarn start:assignment\" \"yarn start:chat_management\" \"yarn start:community_management\" \"yarn start:reports\" \"yarn start:feedback\" \"yarn start:notification\" \"yarn start:school_management\" \"yarn start:ticket_management\" \"yarn start:rewards_management\" \"yarn start:backup_management\" \"yarn start:passion_interest\"",
+    "start:live_class": "yarn workspace vls start",
+    "start": "concurrently --kill-others-on-fail \"yarn start:vls\" \"yarn start:query\" \"yarn start:library\" \"yarn start:video_library\" \"yarn start:attendance\" \"yarn start:time_sheet\" \"yarn start:assignment\" \"yarn start:chat_management\" \"yarn start:community_management\" \"yarn start:reports\" \"yarn start:feedback\" \"yarn start:notification\" \"yarn start:school_management\" \"yarn start:ticket_management\" \"yarn start:rewards_management\" \"yarn start:backup_management\" \"yarn start:passion_interest\" \"yarn start:live_class\"",
     "dev:vls": "yarn workspace vls dev",
     "dev:query": "yarn workspace query_management dev",
     "dev:library": "yarn workspace learning_library dev",
@@ -39,7 +40,8 @@
     "dev:backup_management": "yarn workspace backup_management dev",
     "dev:rewards_management": "yarn workspace rewards_management dev",
     "dev:passion_interest": "yarn workspace passion_interest dev",
-    "dev": "concurrently --kill-others-on-fail \"yarn dev:vls\" \"yarn dev:query\" \"yarn dev:library\" \"yarn dev:video_library\" \"yarn dev:attendance\" \"yarn dev:time_sheet\" \"yarn dev:assignment\" \"yarn dev:chat_management\" \"yarn dev:community_management\" \"yarn dev:reports\" \"yarn dev:feedback\" \"yarn dev:notification\" \"yarn dev:school_management\" \"yarn dev:ticket_management\" \"yarn dev:rewards_management\" \"yarn dev:backup_management\" \"yarn dev:passion_interest\""
+    "dev:live_class": "yarn workspace live_class dev",
+    "dev": "concurrently --kill-others-on-fail \"yarn dev:vls\" \"yarn dev:query\" \"yarn dev:library\" \"yarn dev:video_library\" \"yarn dev:attendance\" \"yarn dev:time_sheet\" \"yarn dev:assignment\" \"yarn dev:chat_management\" \"yarn dev:community_management\" \"yarn dev:reports\" \"yarn dev:feedback\" \"yarn dev:notification\" \"yarn dev:school_management\" \"yarn dev:ticket_management\" \"yarn dev:rewards_management\" \"yarn dev:backup_management\" \"yarn dev:passion_interest\" \"yarn dev:live_class\""
   },
   "keywords": [],
   "author": "",
@@ -62,7 +64,8 @@
     "ticket_management",
     "rewards_management",
     "passion_interest",
-    "backup_management"
+    "backup_management",
+    "live_class"
   ],
   "dependencies": {
     "concurrently": "^5.3.0",
