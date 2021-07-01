@@ -77,7 +77,6 @@ db.LibraryHistory = require("./LibraryHistory.js")(sequelize, Sequelize);
 db.Users = require("./Authentication.js")(sequelize, Sequelize);
 db.SchoolMeetingSettings = require("./SchoolMeetingSettings.js")(sequelize, Sequelize);
 db.VlsVideoServices = require("./VlsVideoServices.js")(sequelize, Sequelize);
-db.VlsMeetingServices = require("./VlsMeetingServices.js")(sequelize, Sequelize);
 db.ServiceProvider = require("./ServiceProvider.js")(sequelize, Sequelize);
 
 /*********** query management ***********/
@@ -162,6 +161,9 @@ db.Student.belongsTo(db.Branch,{foreignKey:'branch_vls_id',as:'branchDetailsStud
 db.Branch.belongsTo(db.SchoolDetails,{foreignKey:'school_vls_id',as:'schoolDetails'})
 db.SchoolDetails.hasMany(db.Branch,{foreignKey:'school_id',as:'branch'})
 db.Branch.hasMany(db.Users,{foreignKey:'branch_vls_id',as:'users'})
+
+db.SchoolMeetingSettings.belongsTo(db.VlsVideoServices,{foreignKey:'video_service_id',as:'video_service'})
+
 /*********** query management ***********/
 db.StudentQuery.belongsTo(db.Student,{foreignKey:'student_vls_id',as:'postedBy'})
 db.StudentQuery.belongsTo(db.Employee,{foreignKey:'faculty_vls_id',as:'respondedBy'})

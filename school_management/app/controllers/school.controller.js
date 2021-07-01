@@ -1818,12 +1818,30 @@ async function branchUsage(query, user){
  * API for school meeting settings
  */
 async function createSchoolMeetingSettings(body, user){
+  let schoolMeeting;
 
-  let settings = await SchoolMeetingSettings.create(body);
+  if(!body.meeting_setting_id){
+
+    schoolMeeting= await SchoolMeetingSettings.create(body);
+
+  }else{
+
+    schoolMeeting= await SchoolMeetingSettings.findOne({
+      where : {meeting_setting_id : body.meeting_setting_id}
+    });
+
+    schoolMeeting.update(body)
+
+  }
+  let finalData = schoolMeeting.toJSON()
+  finalData.video_service = await VlsVideoServices.findOne({
+      where : {video_service_id : body.video_service_id}
+  });
   
-  return { success: true, message: "school meeting settings", data:settings }
+  return { success: true, message: "school meeting settings", data:finalData}
   
 }
+
 
 /**
  * API for list school meeting settings
@@ -1852,7 +1870,11 @@ async function listSchoolMeetingSettings(query, user){
 async function viewSchoolMeetingSettings(params, user){
 
   let settings = await SchoolMeetingSettings.findOne({
-    where :{ meeting_setting_id: params.meeting_setting_id }
+    where :{ meeting_setting_id: params.meeting_setting_id },
+    include: [{ 
+                model:VlsVideoServices,
+                as:'video_service'
+              }]
   });
   
   return { success: true, message: "school meeting settings", data:settings }
