@@ -6,27 +6,11 @@ module.exports = (sequelize, Sequelize) => {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      api_key: {
-        type: Sequelize.STRING
-      },
-      api_secret: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      school_vls_id: {
-        type: Sequelize.INTEGER,
-        allowNull: false
-      },
-      branch_vls_id: {
-        type: Sequelize.INTEGER,
-        allowNull: false
-      },
       video_service_id: {
         type: Sequelize.INTEGER,
       },
-      status: {
+      school_vls_id: {
         type: Sequelize.INTEGER,
-            defaultValue: 0
       },
       authenticationType: {
         type: Sequelize.STRING,
