@@ -1,6 +1,6 @@
 module.exports = (sequelize, Sequelize) => {
   const VlsMeetings = sequelize.define("vls_meetings", {
-    metting_id: {
+    meeting_id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
@@ -12,16 +12,16 @@ module.exports = (sequelize, Sequelize) => {
       description: {
         type: Sequelize.TEXT
       },
-      metting_date: {
+      meeting_date: {
         type: Sequelize.DATE
       },
-      metting_start : {
+      meeting_start : {
         type: Sequelize.STRING
       },
-      metting_end :{
+      meeting_end :{
         type: Sequelize.STRING
       },
-      metting_end :{
+      meeting_end :{
         type: Sequelize.STRING
       },
       presenter :{
