@@ -1868,18 +1868,19 @@ async function listSchoolMeetingSettings(query, user){
  * API for view school meeting settings
  */
 async function viewSchoolMeetingSettings(params, user){
+  let school_vls_id = params.school_vls_id
+  
+  let rawQuery = await sequelize.query("SELECT *, sm.*  FROM `vls_video_services` as vs JOIN school_meeting_settings as sm ON vs.video_service_id = sm.video_service_id WHERE vs.school_vls_id ="+school_vls_id, { type: Sequelize.QueryTypes.SELECT })
 
-  let videoService = await VlsVideoServices.findOne({
-      where : { school_vls_id : params.school_vls_id}
-  });
+  
+  let finalData = {}
 
-  if(!videoService) throw 'school settings not found'
-
-  let finalData = videoService.toJSON()
-  finalData.SchoolMeetingSettings = await SchoolMeetingSettings.findOne({
-    where : {video_service_id : videoService. video_service_id}
-  });
+  if(rawQuery.length) {
+      finalData =  rawQuery[0]
+  }
+  
   return { success: true, message: "view school meeting settings", data:finalData }
+  
   
 }
 
