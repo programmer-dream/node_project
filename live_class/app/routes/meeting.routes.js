@@ -10,11 +10,11 @@ const upload  = helper.upload;
 router.post("/create",create); 
 
 router.get("/list",list); 
-router.get("/view/:metting_id",view); 
+router.get("/view/:meeting_id",view); 
 
-router.put("/update/:metting_id",update); 
+router.put("/update/:meeting_id",update); 
 
-router.delete("/deleteMeeting/:metting_id",deleteMeeting); 
+router.delete("/deleteMeeting/:meeting_id",deleteMeeting); 
 
 
 module.exports = router;

@@ -55,7 +55,7 @@ async function list(query, user){
 async function view(params, user){ 
     
   let meeting = await VlsMeetings.findOne({
-    where : { metting_id :  params.metting_id}
+    where : { meeting_id :  params.meeting_id}
   });
 
   if(!meeting) throw 'meeting not found'
@@ -69,7 +69,7 @@ async function view(params, user){
  */
 async function update(params, body, user){ 
   let meeting = await VlsMeetings.findOne({
-    where : { metting_id :  params.metting_id}
+    where : { meeting_id :  params.meeting_id}
   });
 
   if(!meeting) throw 'meeting not found'
@@ -85,7 +85,7 @@ async function update(params, body, user){
 async function deleteMeeting(params, user){ 
     
   let meeting = await VlsMeetings.findOne({
-    where : { metting_id :  params.metting_id}
+    where : { meeting_id :  params.meeting_id}
   });
 
   if(!meeting) throw 'meeting not found'
