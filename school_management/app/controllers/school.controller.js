@@ -1834,7 +1834,7 @@ async function createSchoolMeetingSettings(body, user){
 
   }
   let finalData = schoolMeeting.toJSON()
-  finalData.videoService = await VlsVideoServices.findOne({
+  finalData.video_service = await VlsVideoServices.findOne({
       where : {video_service_id : body.video_service_id}
   });
   
