@@ -9,9 +9,6 @@ module.exports = (sequelize, Sequelize) => {
       video_service_id: {
         type: Sequelize.INTEGER,
       },
-      school_vls_id: {
-        type: Sequelize.INTEGER,
-      },
       authenticationType: {
         type: Sequelize.STRING,
         allowNull: false
