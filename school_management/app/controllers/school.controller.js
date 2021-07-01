@@ -1869,15 +1869,17 @@ async function listSchoolMeetingSettings(query, user){
  */
 async function viewSchoolMeetingSettings(params, user){
 
-  let settings = await SchoolMeetingSettings.findOne({
-    where :{ meeting_setting_id: params.meeting_setting_id },
-    include: [{ 
-                model:VlsVideoServices,
-                as:'video_service'
-              }]
+  let videoService = await VlsVideoServices.findOne({
+      where : { school_vls_id : params.school_vls_id}
   });
-  
-  return { success: true, message: "school meeting settings", data:settings }
+
+  if(!videoService) throw 'school settings not found'
+
+  let finalData = videoService.toJSON()
+  finalData.SchoolMeetingSettings = await SchoolMeetingSettings.findOne({
+    where : {video_service_id : videoService. video_service_id}
+  });
+  return { success: true, message: "view school meeting settings", data:finalData }
   
 }
 

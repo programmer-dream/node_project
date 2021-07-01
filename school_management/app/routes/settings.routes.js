@@ -16,7 +16,7 @@ router.get("/providerDropdown",providerDropdown);
 router.get("/listSchoolMeetingSettings",listSchoolMeetingSettings);
 
 
-router.get("/viewSchoolMeetingSettings/:meeting_setting_id",viewSchoolMeetingSettings);
+router.get("/viewSchoolMeetingSettings/:school_vls_id",viewSchoolMeetingSettings);
 router.get("/viewVlsVideoServices/:video_service_id",viewVlsVideoServices);
 
 
