@@ -89,6 +89,10 @@ module.exports = (sequelize, Sequelize) => {
       },
       updated_at :{
         type: Sequelize.DATE
+      },
+      created_by :{
+        type: Sequelize.STRING,
+        allowNull:false
       }
   },{
       tableName: 'vls_meetings',
