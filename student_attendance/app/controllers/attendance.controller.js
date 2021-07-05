@@ -1861,7 +1861,7 @@ async function updateLeaveReasonForTeacher(req, user){
 
 	if(user.role !='teacher') throw 'Unauthorised User'
 	let id = req.params.id
-
+	
 	let date_of_absent = moment(req.body.dateOfAbsent).format('YYYY-MM-DD')
 	
 	let reasonData = {
