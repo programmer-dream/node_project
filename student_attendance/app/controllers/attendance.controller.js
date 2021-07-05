@@ -20,6 +20,7 @@ const SchoolDetails   	= db.SchoolDetails;
 const TeacherAttendance = db.TeacherAttendance;
 const Employee 			= db.Employee;
 const Role 					= db.Role;
+const TeacherAbsent 		= db.TeacherAbsent;
 
 
 module.exports = {
@@ -39,7 +40,8 @@ module.exports = {
   getClassAttendance,
   teacherCreate,
   teacherUpdate,
-  teacherList
+  teacherList,
+  addLeaveReasonForTeacher
 };
 
 
@@ -1717,7 +1719,7 @@ async function teacherList(params){
 
 	if(month != moment().format('MMMM'))
 		totalDays = moment(year+"-"+params.month, "YYYY-MM").daysInMonth()
-	
+
 	let finalData = []
 	 await Promise.all(
 		mergeTeachersAttendence.map(async teacher => {
@@ -1817,3 +1819,34 @@ async function teacherCount(userId, currentYear, currentMonth, currentDay){
 	}
 	return {present : presentCount, absent : absentCount}
 }
+
+
+/**
+ * API for updateLeaveReason 
+ */
+async function addLeaveReasonForTeacher(req, user){
+	if(user.role !='teacher') 
+		throw 'Unauthorised User'
+
+	const errors = validationResult(req);
+	if(errors.array().length) throw errors.array()
+	
+	let teacher = await Employee.findOne({
+		where : {faculty_vls_id : req.body.teacher_id}
+	});
+
+	let date_of_absent = moment(req.body.dateOfAbsent).format('YYYY-MM-DD')
+	
+	let reasonData = {
+		teacher_id 		: req.body.teacher_id,
+		school_vls_id  : teacher.school_vls_id,
+		branch_vls_id  : teacher.branch_vls_id,
+		reason     		: req.body.reason,
+		date_of_absent : date_of_absent
+	}
+
+	let studentAbsent = await TeacherAbsent.create(reasonData)
+	if(!studentAbsent) throw 'Leave reason not updated'
+	
+	return { success: true, message: "Teacher leave reason added successfully", data:studentAbsent};
+};
