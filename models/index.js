@@ -79,6 +79,7 @@ db.SchoolMeetingSettings = require("./SchoolMeetingSettings.js")(sequelize, Sequ
 db.VlsVideoServices = require("./VlsVideoServices.js")(sequelize, Sequelize);
 db.ServiceProvider = require("./ServiceProvider.js")(sequelize, Sequelize);
 db.VlsMeetings = require("./VlsMeetings.js")(sequelize, Sequelize);
+db.TeacherAttendance = require("./TeacherAttendance.js")(sequelize, Sequelize);
 
 /*********** query management ***********/
 db.StudentQuery = require("./StudentQuery.js")(sequelize, Sequelize);
