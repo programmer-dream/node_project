@@ -23,7 +23,7 @@ router.put("/update",[
     ],attendanceUpdate);
 
 router.put("/updateLeaveReason/:id",[
-    check('student_id','student_id field is required.').not().isEmpty(),
+    check('teacher_id','teacher_id field is required.').not().isEmpty(),
     check('reason','reason field is required.').not().isEmpty(),
     check('dateOfAbsent','dateOfAbsent field is required.').not().isEmpty()
     ],updateLeaveReason);
@@ -80,7 +80,7 @@ function addLeaveReason(req, res, next) {
 }
 // add leave reason
 function updateLeaveReason(req, res, next) {
-    attendaceController.updateLeaveReason(req , req.user)
+    attendaceController.updateLeaveReasonForTeacher(req , req.user)
         .then(list => list ? res.json(list) : res.status(400).json({ status: "error", message: 'Issue while listing classes' }))
         .catch(err => next(err));
 }

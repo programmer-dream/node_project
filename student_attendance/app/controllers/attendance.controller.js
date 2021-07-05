@@ -41,7 +41,8 @@ module.exports = {
   teacherCreate,
   teacherUpdate,
   teacherList,
-  addLeaveReasonForTeacher
+  addLeaveReasonForTeacher,
+  updateLeaveReasonForTeacher
 };
 
 
@@ -1849,4 +1850,33 @@ async function addLeaveReasonForTeacher(req, user){
 	if(!studentAbsent) throw 'Leave reason not updated'
 	
 	return { success: true, message: "Teacher leave reason added successfully", data:studentAbsent};
+};
+
+/**
+ * API for update leave reason for teacher
+ */
+async function updateLeaveReasonForTeacher(req, user){
+	const errors = validationResult(req);
+	if(errors.array().length) throw errors.array()
+
+	if(user.role !='teacher') throw 'Unauthorised User'
+	let id = req.params.id
+
+	let date_of_absent = moment(req.body.dateOfAbsent).format('YYYY-MM-DD')
+	
+	let reasonData = {
+		teacher_id 		: req.body.teacher_id,
+		teacher_id 		: user.userVlsId,
+		reason     		: req.body.reason,
+		date_of_absent : date_of_absent
+	}
+
+	let teacherAbsent = await TeacherAbsent.findOne({
+		where:{ id : id }
+	})
+
+	if(!teacherAbsent) throw 'Leave reason record not found'
+		teacherAbsent.update(reasonData)
+
+	return { success: true, message: "Teacher leave reason updated successfully", data:teacherAbsent};
 };
