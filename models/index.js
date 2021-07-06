@@ -168,7 +168,7 @@ db.Branch.hasMany(db.Users,{foreignKey:'branch_vls_id',as:'users'})
 db.SchoolMeetingSettings.belongsTo(db.VlsVideoServices,{foreignKey:'video_service_id',as:'video_service'})
 
 db.VlsVideoServices.belongsTo(db.SchoolMeetingSettings,{foreignKey:'video_service_id',as:'SchoolMeetingSettings'})
-
+db.TeacherAttendance.belongsTo(db.Employee,{foreignKey:'teacher_id',as:'teacher'})
 /*********** query management ***********/
 db.StudentQuery.belongsTo(db.Student,{foreignKey:'student_vls_id',as:'postedBy'})
 db.StudentQuery.belongsTo(db.Employee,{foreignKey:'faculty_vls_id',as:'respondedBy'})
