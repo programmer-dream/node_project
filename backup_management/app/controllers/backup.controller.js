@@ -96,6 +96,8 @@ async function exportData(params , user){
 			'ticket_rating' : 'school_vls_id ='+school_vls_id,	
 			'users' : 'school_id ='+school_vls_id,	
 			'user_settings' : 'school_vls_id ='+school_vls_id,	
+			'teacher_attendance' : 'school_vls_id ='+school_vls_id,	
+			'teacher_absent' : 'school_vls_id ='+school_vls_id,	
 		}
 			let delQuery = await deleteQuery(whereObject)
 			let fileName = dirpath+'/dump_'+schoolName+'.sql'

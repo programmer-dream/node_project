@@ -957,7 +957,7 @@ async function dashboardAttendanceCount(user, query){
 		let classList = await teacherClasses(user)
 			classList = classList.data
 
-		newData	= await teacherCount(classList, currentYear, currentMonth, currentDay)
+		newData	= await teacherCountDashboard(classList, currentYear, currentMonth, currentDay)
 	}else if(user.role =='student'){
     	
 		newData	= await studentCount(user.userVlsId, currentYear, currentMonth, currentDay)
@@ -1081,7 +1081,7 @@ async function classWiseAttendance(class_id, currentYear, currentMonth, currentD
 /**
  * API for teacher count dashboard attendance 
  */
-async function teacherCount(classList, currentYear, currentMonth, currentDay){
+async function teacherCountDashboard(classList, currentYear, currentMonth, currentDay){
 	let newData = []
 	
 	await Promise.all(
@@ -2049,4 +2049,79 @@ async function teacherDaysArray(attendance, checkCondition){
 	)
 	
 	return { teacher:teacherFinal, presentCount, absentCount }
+}
+
+/**
+ * API for class wise attendance 
+ */
+async function getMonthwiseAttendance(params, user){
+	let whereCondtion = {}
+	let orderBy       = 'asc'
+	let monthFilter   = false
+	// let sectionInclude = { 
+ //                          model:Section,
+ //                          as:'sections',
+ //                          attributes: ['id','name']
+ //                         }
+	if(!params.branch_vls_id) throw 'branch_vls_id is required'
+    	
+    	whereCondtion.branch_vls_id = params.branch_vls_id
+
+    // if(params.class_vls_id)
+    // 	whereCondtion.class_vls_id = params.class_vls_id
+
+    // let sectionFilter = {}
+    // if(params.section_id){
+    // 	sectionInclude.where = { id: params.section_id}
+    // }
+
+    if(params.month)
+    	monthFilter = moment(params.month, 'M').format('MMMM')
+
+	// let classes  = await Classes.findAll({  
+	// 				  where:whereCondtion,
+	//                   attributes: ['class_vls_id',
+	//                   			   'name'
+	//                   			   ],
+	//                   include: [sectionInclude],
+ //                      order: [
+	//                           ['class_vls_id', orderBy],
+	//                           [Section, 'id', 'asc']
+	//                   ]
+	//                   });
+
+	let year  	  	 	= moment().format('YYYY');
+	let monthNum  	 	= 3;
+	let monthWiseData = {}
+	let dateStart 		= moment(year+'-'+monthNum);
+	let nextYear  		= parseInt(year) + 1 
+	let lastMonth  	= monthNum - 1 
+	let dateEnd   		= moment(nextYear+'-'+lastMonth);
+	let monthName 		= [];
+
+	let condition = { branch_vls_id : params.branch_vls_id }
+
+	if(!monthFilter){
+		while (dateEnd > dateStart || dateStart.format('M') === dateEnd.format('M')) {
+		   
+		   monthName.push(dateStart.format('MMMM'))
+		   dateStart.add(1,'month');
+		}
+	}else{
+		monthName.push(monthFilter)
+	}
+
+	classData = []
+	await Promise.all(
+		classes.map(async sClass => {
+			sClass = sClass.toJSON()
+			let sections = sClass.sections
+			if(sections.length){
+				await getClassSectionAttendance(sections, sClass, condition, user,classData,monthName)
+			}else{
+				await getClassSectionAttendance([], sClass, condition, user,classData,monthName)				
+			}
+		})
+	)
+	return { success: true, message: "Month wise data" ,data : classData}; 
 }
