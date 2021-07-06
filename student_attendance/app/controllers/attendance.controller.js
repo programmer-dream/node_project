@@ -42,7 +42,8 @@ module.exports = {
   teacherUpdate,
   teacherList,
   addLeaveReasonForTeacher,
-  updateLeaveReasonForTeacher
+  updateLeaveReasonForTeacher,
+  listTeacherAttendance
 };
 
 
@@ -1880,3 +1881,172 @@ async function updateLeaveReasonForTeacher(req, user){
 
 	return { success: true, message: "Teacher leave reason updated successfully", data:teacherAbsent};
 };
+
+/**
+ * API for list teacher attendance 
+ */
+async function listTeacherAttendance(params, user){
+	let orderBy 			= 'desc'
+	let limit   			= 10
+	let offset  			= 0
+	let whereCondtion 	= {}
+	let checkCondition   = false
+	if(user.role == 'teacher'){
+		let teacher = await Employee.findByPk(user.userVlsId)
+		whereCondtion.teacher_id = teacher.faculty_vls_id
+
+	}else{
+		if(!params.teacher_id) throw 'teacher_id is required'
+
+		whereCondtion.teacher_id = params.teacher_id
+	}
+
+   if(!params.branch_vls_id) throw 'branch_vls_id is required'
+    	whereCondtion.branch_vls_id = params.branch_vls_id
+
+	if(params.size)
+    	limit = parseInt(params.size)
+
+  	if(params.page)
+    	offset = 0 + (parseInt(params.page) - 1) * limit
+
+    if(params.orderBy && params.orderBy == 'asc')
+    	orderBy = 'asc'
+    
+    if(params.month){
+    	whereCondtion.month = moment(params.month, 'M').format('MMMM')
+    }else{
+    	let currentMonth 	=  moment().format('MMMM');
+    	whereCondtion.month = currentMonth
+    }
+
+    if(params.year){
+    	whereCondtion.year 	= params.year
+    }else{
+    	let currentYear		= moment().format('YYYY');
+    	whereCondtion.year 	= currentYear
+    }
+
+    //return whereCondtion
+    let attendenceQuery = {  
+	                  limit : limit,
+	                  offset: offset,
+	                  where : whereCondtion,
+	                  order : [
+	                          ['id', orderBy]
+	                  ],
+	                  include: [{ 
+                              model:Employee,
+                              as:'teacher',
+                              attributes: ['name','photo']
+                            }]
+	                }
+    if(params.day){
+    	let attributes = ['id', 'branch_vls_id', 'teacher_id','academic_year_id','school_vls_id','month','year']
+    	attributes.push('day_'+params.day)
+
+    	attendenceQuery = {  
+	                  limit : limit,
+	                  offset: offset,
+	                  where : whereCondtion,
+	                  order : [
+	                          ['id', orderBy]
+	                  ],
+	                  attributes:attributes,
+	                  include: [{ 
+                              model:Employee,
+                              as:'teacher',
+                              attributes: ['name','photo']
+                            }]
+	                  }
+   }
+    
+   
+	let attendance  = await TeacherAttendance.findAll(attendenceQuery);
+	
+	if(moment(params.month, 'M').format('MMMM') == moment().format('MMMM')){
+		checkCondition = true
+	}
+	
+	let attendanceArray = await teacherDaysArray(attendance, checkCondition)
+	
+  	return { 
+				success: true, 
+				message: "attendance list", 
+				presentCount: attendanceArray.presentCount, 
+				absentCount: attendanceArray.absentCount,
+				data: attendanceArray.teacher 
+			}
+};
+
+async function teacherDaysArray(attendance, checkCondition){
+	let teacherFinal 	= []
+	let presentCount 	= 0
+	let absentCount  	= 0
+	let currentDay 	= moment().format('D')
+
+	await Promise.all(
+		attendance.map(async teacher => {
+			let teacherPresent 	= 0
+			let teacherAbsent  	= 0
+			let teacherdata 		= []
+			teacher 					= teacher.toJSON()
+			let year     			= teacher.year+'-'+teacher.month
+			let monthNum 			= moment().month(teacher.month).format("M")
+			let totalDays 			= moment(year+"-"+monthNum, "YYYY-MM").daysInMonth()
+
+			for(var i = 1; i<=totalDays; i++){
+				if(teacher.hasOwnProperty('day_'+i) ){
+					currentDay = (checkCondition) ?  currentDay : 31
+					if(i <= currentDay){
+						let status = teacher['day_'+i]
+						let reason = null
+
+						if(teacher['day_'+i] == 'A'){
+							absentCount +=1
+							teacherAbsent++
+							let absent_date = teacher.year +"-"+moment().month(teacher.month).format("M")+"-"+i
+
+							let absent = await TeacherAbsent.findOne({
+										where:{
+											teacher_id:teacher.teacher_id,
+											date_of_absent:{ 
+							                  [Op.between]: [absent_date, absent_date]
+							                }
+										},
+										attributes:['id', 'reason', 'date_of_absent']
+							})
+						if(absent)
+							reason = absent.toJSON()
+
+						}else if(teacher['day_'+i] == 'P'){
+							presentCount += 1
+							teacherPresent++
+						}
+						 	
+						let dayData = {
+							day: i,
+							status:status,
+							reason: reason
+							
+						}
+
+						teacherdata.push(dayData)
+					}
+					delete teacher['day_'+i]
+				}
+			}
+
+			if(teacherdata.length > 1){ 
+				teacher.days = teacherdata 
+				teacher.counts = { teacherPresent , teacherAbsent}
+				teacher.percent =  (teacherPresent * 100)/ totalDays
+			}else {
+				teacher.days = teacherdata[0]
+			}
+			teacherFinal.push(teacher)
+		})
+	)
+	
+	return { teacher:teacherFinal, presentCount, absentCount }
+}

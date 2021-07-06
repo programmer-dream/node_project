@@ -30,6 +30,7 @@ router.put("/updateLeaveReason/:id",[
 
 //Get
 router.get("/teacherList",teacherList);
+router.get("/listTeacherAttendance",listTeacherAttendance);
 
 module.exports = router;
 
@@ -65,5 +66,12 @@ function addLeaveReason(req, res, next) {
 function updateLeaveReason(req, res, next) {
     attendaceController.updateLeaveReasonForTeacher(req , req.user)
         .then(list => list ? res.json(list) : res.status(400).json({ status: "error", message: 'Issue while listing classes' }))
+        .catch(err => next(err));
+}
+
+// Function for list teacher 
+function listTeacherAttendance(req, res, next) {
+    attendaceController.listTeacherAttendance(req.query, req.user)
+        .then(list => list ? res.json(list) : res.status(400).json({ status: "error", message: 'Issue while listing teacher attendance' }))
         .catch(err => next(err));
 }
