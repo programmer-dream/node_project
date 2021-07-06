@@ -3,20 +3,24 @@ const {updateRewardsPoints} = require('../../../helpers/update-rewards')
 const db = require("../../../models");
 const moment = require("moment");
 const Op = db.Sequelize.Op;
-const Sequelize = db.Sequelize;
-const sequelize = db.sequelize;
+const Sequelize 			= db.Sequelize;
+const sequelize 			= db.sequelize;
 const StudentAttendance = db.StudentAttendance;
-const Classes = db.Classes;
-const Section = db.Section;
-const Student = db.Student;
-const AcademicYear = db.AcademicYear;
-const Authentication = db.Authentication;
-const StudentAbsent = db.StudentAbsent;
-const Subject 		= db.Subject;
-const Guardian 		= db.Guardian;
-const SubjectList   = db.SubjectList;
-const Branch   = db.Branch;
-const SchoolDetails   = db.SchoolDetails;
+const Classes 				= db.Classes;
+const Section 				= db.Section;
+const Student 				= db.Student;
+const AcademicYear 		= db.AcademicYear;
+const Authentication 	= db.Authentication;
+const StudentAbsent 		= db.StudentAbsent;
+const Subject 				= db.Subject;
+const Guardian 			= db.Guardian;
+const SubjectList   		= db.SubjectList;
+const Branch   			= db.Branch;
+const SchoolDetails   	= db.SchoolDetails;
+const TeacherAttendance = db.TeacherAttendance;
+const Employee 			= db.Employee;
+const Role 					= db.Role;
+const TeacherAbsent 		= db.TeacherAbsent;
 
 
 module.exports = {
@@ -33,7 +37,12 @@ module.exports = {
   dashboardAttendanceCount,
   getBranchAttendance,
   getFullYearAttendance,
-  getClassAttendance
+  getClassAttendance,
+  teacherCreate,
+  teacherUpdate,
+  teacherList,
+  addLeaveReasonForTeacher,
+  updateLeaveReasonForTeacher
 };
 
 
@@ -356,14 +365,16 @@ async function studentList(params){
 
 
 async function mergeStudentAttendence(students, subjectCode){
-	let currentDay = "day_"+moment().format('D')
-	let currentYear		= moment().format('YYYY')
+	let currentDay 	= "day_"+moment().format('D')
+	let currentYear	= moment().format('YYYY')
 	let currentMonth 	=  moment().format('MMMM')
 	let studentAttendanceArray = []
+
 	 await Promise.all(
 		students.map(async student => {
 			student = student.toJSON()
 			let attributes = [currentDay]
+
 			whereCondtion = {
 				student_id 		: student.student_vls_id,
 				class_id 		: student.class_id,
@@ -371,6 +382,7 @@ async function mergeStudentAttendence(students, subjectCode){
 				year			: currentYear,
 				month			: currentMonth
 			}
+
 	    	if(subjectCode)
 	    		whereCondtion.subject_code = subjectCode
 
@@ -1504,3 +1516,367 @@ async function getYearAttendance(monthName,condition,user,classData){
 	)
 	return allMonths
 }
+
+
+/**
+ * Teacher attendance section create
+ * create teacher attendance
+ */
+async function teacherCreate(req, user){
+	if(user.role =='student' || user.role =='guardian') 
+		throw 'Unauthorised User'
+	let tokenUser = user
+	const errors = validationResult(req);
+	if(errors.array().length) throw errors.array()
+
+	user = await Authentication.findOne({
+		where:{auth_vls_id: user.id},
+		attributes: [
+						'auth_vls_id',
+	      			   	'school_id',
+	      			   	'branch_vls_id',
+	      			   	'user_vls_id'
+      			   ]})
+	
+	user = user.toJSON()
+
+	let presentTeacher= req.body.present
+	let absentTeacher	= req.body.absent
+
+	let day = 'day_'+moment().format('D')
+	let allAttendance = []
+
+  	let presentTeacherArray = await mergeTeachers(user, day, presentTeacher, allAttendance, 'P')
+
+  	let finalTeacherArray = await mergeTeachers(user, day, absentTeacher, presentTeacherArray, 'A')
+  	
+  return { success: true, message: "Teacher attendance created successfully", data:finalTeacherArray};
+};
+
+async function mergeTeachers(user, day, teacherArray, all_attendance, status){
+	
+	await Promise.all(
+	  	teacherArray.map(async teacher_id => {
+
+			let academicYear = await AcademicYear.findOne({
+				where : {
+							school_id  : user.school_id,
+							is_running : 1,
+						  }
+			});
+
+			let attendanceP = {
+				teacher_id   		: teacher_id,
+				branch_vls_id		: user.branch_vls_id,
+				school_vls_id		: user.school_id,
+				academic_year_id	: academicYear.id,
+				month 				: await getDate('month'),
+				year 					: await getDate('year'),
+				created_by			: user.user_vls_id
+			}
+
+			//where condition 
+			let whereCondtion = {
+		  		teacher_id 	: teacher_id,
+		  		month 		: attendanceP.month,
+		  		year 			: attendanceP.year,
+		  	}
+
+			attendanceP[day] = status
+
+			let attendance = await TeacherAttendance.findOne({
+							  		where : whereCondtion
+							  	  })
+			
+			if(attendance){
+				attendance.update(attendanceP)
+			}else{
+				TeacherAttendance.create(attendanceP)
+			}
+			all_attendance.push(attendanceP)
+	  	})
+  	);
+
+  	return all_attendance
+}
+
+
+/**
+ * API for update new query
+ */
+async function teacherUpdate(req, user){
+	if(user.role =='student' || user.role =='guardian') 
+		throw 'Unauthorised User'
+
+	const errors = validationResult(req);
+	if(errors.array().length) throw errors.array()
+
+	let userdata = await Authentication.findOne({
+		where:{auth_vls_id: user.id},
+		attributes: [
+						'auth_vls_id',
+   			   	'school_id',
+   			   	'branch_vls_id',
+   			   	'user_vls_id'
+      			   ]})
+
+	let teacherIDs		= req.body.teacherIDs
+
+	let attendance 		= {}
+	let day 					= 'day_'+moment(req.body.date).format('D')
+	let present         	= 'A';
+	
+	if(req.body.present)
+		present = 'P'
+
+	attendance.month 			= moment(req.body.date).format('MMMM')
+	attendance.year 			= moment(req.body.date).format('YYYY')
+	attendance[day] 			= present
+	attendance.modified_by 	= user.userVlsId
+
+	let whereCondtion = {
+		teacher_id 	: {[Op.in] : teacherIDs },
+		month	   	: attendance.month,
+		year 	   	: attendance.year
+	}
+		
+	let studentAttendance = await TeacherAttendance.findAll({
+		where : whereCondtion
+	})
+	
+	if(studentAttendance.length < 1) 
+		throw "Attendance not found for this date or month"
+	
+	await TeacherAttendance.update(attendance, {
+		where : whereCondtion
+	})
+
+	let updatedTeacher = await TeacherAttendance.findAll({
+		where : whereCondtion
+	})
+
+  	return { success: true, message: "Teacher attendance updated successfully", data: updatedTeacher};
+};
+
+
+/**
+ * API for list teacher 
+ */
+async function teacherList(params){
+	let orderBy 		= 'desc'
+	let limit   		= 100
+	let offset  		= 0
+	let whereCondtion = {}
+	let start 			= null 
+	let end   			= null
+
+   if(!params.branch_vls_id) throw 'branch_vls_id is required'
+	
+	if(params.size)
+    	limit = parseInt(params.size)
+
+  	if(params.page)
+    	offset = 0 + (parseInt(params.page) - 1) * limit
+
+   if(params.orderBy && params.orderBy == 'asc')
+    	orderBy = 'asc'
+
+   if(params.branch_vls_id)
+       whereCondtion.branch_vls_id = params.branch_vls_id
+
+	if(params.start )
+ 		start = params.start
+
+   if(params.end )
+    	end = params.end
+
+   whereCondtion.isTeacher = 1 
+	let teachers  = await Employee.findAll({  
+			                  limit:limit,
+			                  offset:offset,
+			                  where:whereCondtion,
+			                  order: [
+			                          ['faculty_vls_id', orderBy]
+			                  ],
+			                  attributes: [
+				                  'faculty_vls_id',
+				                  'branch_vls_id',
+				                  'name',
+				                  'phone',
+				                  'father_name',
+				                  'mother_name',
+				                  'photo'
+			                  ]
+			            });
+
+	let mergeTeachersAttendence = await mergeTeacherAttendence(teachers)
+
+	let year  		  = moment().format('YYYY');
+	let month  		  = moment().format('MMMM');
+	let totalDays    = moment().format('D');
+
+	if(params.month)
+		month = moment(params.month, 'M').format('MMMM')
+
+	if(month != moment().format('MMMM'))
+		totalDays = moment(year+"-"+params.month, "YYYY-MM").daysInMonth()
+
+	let finalData = []
+	 await Promise.all(
+		mergeTeachersAttendence.map(async teacher => {
+			let countPercentage = await teacherCount(teacher.faculty_vls_id, year, month, totalDays)
+			teacher.attendanceCounts = countPercentage
+			teacher.percentage       = (countPercentage.present *100) /totalDays
+
+			if(start && end){
+				if(teacher.percentage >= start &&  teacher.percentage <= end){
+					finalData.push(teacher) 
+				}
+			}else{
+				finalData.push(teacher) 
+			}
+		})
+	)
+	
+  	return { success: true, message: "Teacher list", data:finalData };
+};
+
+
+async function mergeTeacherAttendence(teachers){
+	let currentDay 				= "day_"+moment().format('D')
+	let currentYear				= moment().format('YYYY')
+	let currentMonth 				=  moment().format('MMMM')
+	let teacherAttendanceArray = []
+
+	 await Promise.all(
+		teachers.map(async teacher => {
+			teacher = teacher.toJSON()
+			let attributes = [currentDay]
+
+			whereCondtion = {
+				teacher_id 		: teacher.faculty_vls_id,
+				branch_vls_id	: teacher.branch_vls_id,
+				year				: currentYear,
+				month				: currentMonth
+			}
+			
+		    //return whereCondtion
+			let attendance  = await TeacherAttendance.findOne({  
+				                  where : whereCondtion,
+				                  attributes:attributes
+				                  });
+
+			let currentDayAttendance = null
+			if(attendance){
+				attendance = attendance.toJSON()
+				currentDayAttendance = attendance[currentDay]
+			}
+			teacher.attendance = currentDayAttendance
+			teacherAttendanceArray.push(teacher)
+		})
+	);
+	 
+	return teacherAttendanceArray
+}
+
+
+/**
+ * API for studentcount dashboard attendance 
+ */
+async function teacherCount(userId, currentYear, currentMonth, currentDay){
+	let presentCount 		= 0
+	let absentCount  		= 0
+	let isSubjectEnable 	= false
+	
+	teacher = await Employee.findOne({
+					where : {faculty_vls_id:userId},
+					attributes :['faculty_vls_id','branch_vls_id']
+			  })
+	if(!teacher)
+		throw 'teacher not found'
+
+	let whereCondtion = {
+		year 	     : currentYear,
+		month      : currentMonth,
+		teacher_id : teacher.faculty_vls_id
+	}
+	
+	attendances  = await TeacherAttendance.findAll({
+			where: whereCondtion
+		})
+	
+	if(attendances.length){
+		await Promise.all(
+			attendances.map(async attendance => {
+		 		for(var i = 1; i<=currentDay; i++){
+		 			if(attendance['day_'+i] =='P'){
+		 				presentCount++
+		 			}else if(attendance['day_'+i] =='A'){
+		 				absentCount++
+		 			}
+		 		}
+	 		})	
+		)
+	}
+	return {present : presentCount, absent : absentCount}
+}
+
+
+/**
+ * API for updateLeaveReason 
+ */
+async function addLeaveReasonForTeacher(req, user){
+	if(user.role !='teacher') 
+		throw 'Unauthorised User'
+
+	const errors = validationResult(req);
+	if(errors.array().length) throw errors.array()
+	
+	let teacher = await Employee.findOne({
+		where : {faculty_vls_id : req.body.teacher_id}
+	});
+
+	let date_of_absent = moment(req.body.dateOfAbsent).format('YYYY-MM-DD')
+	
+	let reasonData = {
+		teacher_id 		: req.body.teacher_id,
+		school_vls_id  : teacher.school_vls_id,
+		branch_vls_id  : teacher.branch_vls_id,
+		reason     		: req.body.reason,
+		date_of_absent : date_of_absent
+	}
+
+	let studentAbsent = await TeacherAbsent.create(reasonData)
+	if(!studentAbsent) throw 'Leave reason not updated'
+	
+	return { success: true, message: "Teacher leave reason added successfully", data:studentAbsent};
+};
+
+/**
+ * API for update leave reason for teacher
+ */
+async function updateLeaveReasonForTeacher(req, user){
+	const errors = validationResult(req);
+	if(errors.array().length) throw errors.array()
+
+	if(user.role !='teacher') throw 'Unauthorised User'
+	let id = req.params.id
+	
+	let date_of_absent = moment(req.body.dateOfAbsent).format('YYYY-MM-DD')
+	
+	let reasonData = {
+		teacher_id 		: req.body.teacher_id,
+		teacher_id 		: user.userVlsId,
+		reason     		: req.body.reason,
+		date_of_absent : date_of_absent
+	}
+
+	let teacherAbsent = await TeacherAbsent.findOne({
+		where:{ id : id }
+	})
+
+	if(!teacherAbsent) throw 'Leave reason record not found'
+		teacherAbsent.update(reasonData)
+
+	return { success: true, message: "Teacher leave reason updated successfully", data:teacherAbsent};
+};
