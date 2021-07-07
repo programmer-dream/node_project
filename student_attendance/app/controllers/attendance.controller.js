@@ -2174,25 +2174,30 @@ async function teacherDashboardAttendanceCount(params, user){
 		attributes:['faculty_vls_id','name']
 	});
 
-	let finalData = []
+	let present = 0;
+	let absent  = 0;
 	await Promise.all(
 	  	teachers.map(async teacher => {
 	  		teacher = teacher.toJSON()
 	  		condition.teacher_id = teacher.faculty_vls_id
 	  		condition.month      = moment().month(currentMonth).format("M")
 	  		condition.year      	= currentYear
+	  		condition.day      	= currentDay
 
 	  		let monthData = await listTeacherAttendance(condition, user)
 	  		if(monthData.data.length > 0){
-	  			teacher.attendance = {
-	  				present : monthData.data[0].counts.teacherPresent,
-	  				absent : monthData.data[0].counts.teacherAbsent
-	  			}
+  				if(monthData.data[0].days.status == 'P'){
+  					present++ 
+  				}else if (monthData.data[0].days.status == 'A') {
+  					absent++
+  				}
 	  		}else{
-	  			teacher.attendance = {present : 0, absent: 0}
+	  			
 	  		}
-	  		finalData.push(teacher)
 	  	})
 	)
+
+	let finalData = {present, absent}
+	 
 	return { success: true, message: "dashboard attendance data" ,data : finalData};
 }
