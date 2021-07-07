@@ -44,7 +44,8 @@ module.exports = {
   addLeaveReasonForTeacher,
   updateLeaveReasonForTeacher,
   listTeacherAttendance,
-  getMonthWiseAttendance
+  getMonthWiseAttendance,
+  teacherDashboardAttendanceCount
 };
 
 
@@ -2137,4 +2138,61 @@ async function getTeacherYearAttendance(monthName,condition,user){
 		})
 	)
 	return allMonths
+}
+
+/**
+ * API for count dashboard attendance for teacher
+ */
+async function teacherDashboardAttendanceCount(params, user){
+
+	let currentYear   = moment().format('YYYY');
+	let currentMonth  = moment().format('MMMM');
+	let currentDay    = moment().format('D');
+	
+	let student       = {}
+	let newData       = []
+	let attendances   = {}
+
+	if(!params.branch_vls_id) throw 'branch_vls_id is required'
+
+	let condition = { branch_vls_id : params.branch_vls_id }
+
+	let allTeachers = await Authentication.findAll({
+		where:condition,
+		attributes: ['user_vls_id'],
+		include: [{ 
+                  model:Role,
+                  as:'roles',
+                  attributes: ['slug'],
+                  where : {slug : 'teacher'}
+                }]
+	}).then(teachers => teachers.map(teacher =>teacher.user_vls_id))
+
+
+	let teachers  = await Employee.findAll({
+		where : {faculty_vls_id : { [Op.in]: allTeachers}},
+		attributes:['faculty_vls_id','name']
+	});
+
+	let finalData = []
+	await Promise.all(
+	  	teachers.map(async teacher => {
+	  		teacher = teacher.toJSON()
+	  		condition.teacher_id = teacher.faculty_vls_id
+	  		condition.month      = moment().month(currentMonth).format("M")
+	  		condition.year      	= currentYear
+
+	  		let monthData = await listTeacherAttendance(condition, user)
+	  		if(monthData.data.length > 0){
+	  			teacher.attendance = {
+	  				present : monthData.data[0].counts.teacherPresent,
+	  				absent : monthData.data[0].counts.teacherAbsent
+	  			}
+	  		}else{
+	  			teacher.attendance = {present : 0, absent: 0}
+	  		}
+	  		finalData.push(teacher)
+	  	})
+	)
+	return { success: true, message: "dashboard attendance data" ,data : finalData};
 }
