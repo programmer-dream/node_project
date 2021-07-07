@@ -2109,8 +2109,9 @@ async function getMonthWiseAttendance(params, user){
 	  		teacher = teacher.toJSON()
 	  		condition.teacher_id = teacher.faculty_vls_id
 	  		let monthData = await getTeacherYearAttendance(monthName,condition,user)
-	  		teacher.monthData = monthData
-	  		finalData.push(teacher)
+	  		monthData.teacher = teacher
+	  		//teacher.monthData = monthData
+	  		finalData.push(monthData)
 	  	})
 	)
 	return { success: true, message: "Month wise data" ,data : finalData}; 
@@ -2128,7 +2129,7 @@ async function getTeacherYearAttendance(monthName,condition,user){
 								percent: api.data[0].percent
 							}
 			}else{
-				allMonths[item] = []
+				allMonths[item] = {}
 			}
 		})
 	)
