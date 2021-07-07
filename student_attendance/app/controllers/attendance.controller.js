@@ -43,7 +43,8 @@ module.exports = {
   teacherList,
   addLeaveReasonForTeacher,
   updateLeaveReasonForTeacher,
-  listTeacherAttendance
+  listTeacherAttendance,
+  getMonthWiseAttendance
 };
 
 
@@ -1350,10 +1351,10 @@ async function getBranchAttendance(query, user){
 
 	}
 
-	let workDay 		= totalDays - holidayCount
-	let totalDay 		= count * workDay
-	let present_percent = (presentCount * 100 / totalDay).toFixed(2)
-	let absent_percent  = (absentCount * 100 / totalDay).toFixed(2)
+	let workDay 			= totalDays - holidayCount
+	let totalDay 			= count * workDay
+	let present_percent  = (presentCount * 100 / totalDay).toFixed(2)
+	let absent_percent  	= (absentCount * 100 / totalDay).toFixed(2)
 
 	return { success: true, message: "present & absent percentage" ,data : { present_percent, absent_percent }};
 }
@@ -2054,41 +2055,16 @@ async function teacherDaysArray(attendance, checkCondition){
 /**
  * API for class wise attendance 
  */
-async function getMonthwiseAttendance(params, user){
+async function getMonthWiseAttendance(params, user){
 	let whereCondtion = {}
 	let orderBy       = 'asc'
 	let monthFilter   = false
-	// let sectionInclude = { 
- //                          model:Section,
- //                          as:'sections',
- //                          attributes: ['id','name']
- //                         }
+	
 	if(!params.branch_vls_id) throw 'branch_vls_id is required'
-    	
     	whereCondtion.branch_vls_id = params.branch_vls_id
 
-    // if(params.class_vls_id)
-    // 	whereCondtion.class_vls_id = params.class_vls_id
-
-    // let sectionFilter = {}
-    // if(params.section_id){
-    // 	sectionInclude.where = { id: params.section_id}
-    // }
-
-    if(params.month)
+   if(params.month)
     	monthFilter = moment(params.month, 'M').format('MMMM')
-
-	// let classes  = await Classes.findAll({  
-	// 				  where:whereCondtion,
-	//                   attributes: ['class_vls_id',
-	//                   			   'name'
-	//                   			   ],
-	//                   include: [sectionInclude],
- //                      order: [
-	//                           ['class_vls_id', orderBy],
-	//                           [Section, 'id', 'asc']
-	//                   ]
-	//                   });
 
 	let year  	  	 	= moment().format('YYYY');
 	let monthNum  	 	= 3;
@@ -2111,17 +2087,51 @@ async function getMonthwiseAttendance(params, user){
 		monthName.push(monthFilter)
 	}
 
-	classData = []
+	let allTeachers = await Authentication.findAll({
+		where:condition,
+		attributes: ['user_vls_id'],
+		include: [{ 
+                  model:Role,
+                  as:'roles',
+                  attributes: ['slug'],
+                  where : {slug : 'teacher'}
+                }]
+	}).then(teachers => teachers.map(teacher =>teacher.user_vls_id))
+
+
+	let teachers  = await Employee.findAll({
+		where : {faculty_vls_id : { [Op.in]: allTeachers}},
+		attributes:['faculty_vls_id','name','photo']
+	});
+	let finalData = []
 	await Promise.all(
-		classes.map(async sClass => {
-			sClass = sClass.toJSON()
-			let sections = sClass.sections
-			if(sections.length){
-				await getClassSectionAttendance(sections, sClass, condition, user,classData,monthName)
+	  	teachers.map(async teacher => {
+	  		teacher = teacher.toJSON()
+	  		condition.teacher_id = teacher.faculty_vls_id
+	  		let monthData = await getTeacherYearAttendance(monthName,condition,user)
+	  		monthData.teacher = teacher
+	  		//teacher.monthData = monthData
+	  		finalData.push(monthData)
+	  	})
+	)
+	return { success: true, message: "Month wise data" ,data : finalData}; 
+}
+
+async function getTeacherYearAttendance(monthName,condition,user){
+	let allMonths = {}
+	await Promise.all(
+		monthName.map(async function(item){
+			condition.month = moment().month(item).format("M")
+			let api = await listTeacherAttendance(condition, user)
+			if(api.data.length > 0){
+				allMonths[item] = {
+								count : api.data[0].counts, 
+								percent: api.data[0].percent
+							}
 			}else{
-				await getClassSectionAttendance([], sClass, condition, user,classData,monthName)				
+				allMonths[item] = {}
 			}
 		})
 	)
-	return { success: true, message: "Month wise data" ,data : classData}; 
+	return allMonths
 }

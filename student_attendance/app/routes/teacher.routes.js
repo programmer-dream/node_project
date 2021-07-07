@@ -31,6 +31,7 @@ router.put("/updateLeaveReason/:id",[
 //Get
 router.get("/teacherList",teacherList);
 router.get("/listTeacherAttendance",listTeacherAttendance);
+router.get("/getMonthWiseAttendance",getMonthWiseAttendance);
 
 module.exports = router;
 
@@ -73,5 +74,12 @@ function updateLeaveReason(req, res, next) {
 function listTeacherAttendance(req, res, next) {
     attendaceController.listTeacherAttendance(req.query, req.user)
         .then(list => list ? res.json(list) : res.status(400).json({ status: "error", message: 'Issue while listing teacher attendance' }))
+        .catch(err => next(err));
+}
+
+// Function for get month wise teacher attendance 
+function getMonthWiseAttendance(req, res, next) {
+    attendaceController.getMonthWiseAttendance(req.query, req.user)
+        .then(list => list ? res.json(list) : res.status(400).json({ status: "error", message: 'Issue while getting month wise teacher attendance' }))
         .catch(err => next(err));
 }
