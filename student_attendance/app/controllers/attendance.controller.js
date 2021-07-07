@@ -2041,7 +2041,8 @@ async function teacherDaysArray(attendance, checkCondition){
 			if(teacherdata.length > 1){ 
 				teacher.days = teacherdata 
 				teacher.counts = { teacherPresent , teacherAbsent}
-				teacher.percent =  (teacherPresent * 100)/ totalDays
+				teacher.persentPercent =  (teacherPresent * 100)/ totalDays
+				teacher.absentPercent  =  (teacherAbsent * 100)/ totalDays
 			}else {
 				teacher.days = teacherdata[0]
 			}
@@ -2110,7 +2111,6 @@ async function getMonthWiseAttendance(params, user){
 	  		condition.teacher_id = teacher.faculty_vls_id
 	  		let monthData = await getTeacherYearAttendance(monthName,condition,user)
 	  		monthData.teacher = teacher
-	  		//teacher.monthData = monthData
 	  		finalData.push(monthData)
 	  	})
 	)
@@ -2124,12 +2124,15 @@ async function getTeacherYearAttendance(monthName,condition,user){
 			condition.month = moment().month(item).format("M")
 			let api = await listTeacherAttendance(condition, user)
 			if(api.data.length > 0){
-				allMonths[item] = {
-								count : api.data[0].counts, 
-								percent: api.data[0].percent
+				allMonths[item] = { 
+								present_percent: api.data[0].persentPercent,
+								absent_percent: api.data[0].absentPercent
 							}
 			}else{
-				allMonths[item] = {}
+				allMonths[item] = {
+					present_percent: 0,
+					absent_percent: 0
+				}
 			}
 		})
 	)
