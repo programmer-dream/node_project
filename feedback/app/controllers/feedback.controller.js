@@ -192,6 +192,9 @@ async function list(params , user){
     })
     delete whereCondition.status
 
+    if(params.status)
+      whereCondition.status = params.status
+    
     let feedbackCounts = { open, closed }
   //end count changes
   let allFeedback = await Feedback.findAll({

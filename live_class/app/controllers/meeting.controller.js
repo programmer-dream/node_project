@@ -33,6 +33,7 @@ module.exports = {
  */
 async function create(body, user){ 
     
+    body.created_by = JSON.stringify({id:user.userVlsId,type:user.role})
     let meeting = await VlsMeetings.create(body);
   	return { success: true, message: "meeting create successfully",data:meeting}
 };
@@ -42,10 +43,30 @@ async function create(body, user){
  * API for list meeting
  */
 async function list(query, user){ 
-    
-  let meetings = await VlsMeetings.findAll();
+  let whereCondition = {}
+  let currentUser    = JSON.stringify({id:user.userVlsId,type:user.role})
 
-  return { success: true, message: "meeting listing",data:meetings}
+  if(user.role == 'teacher'){
+      whereCondition.created_by = currentUser
+  }
+  
+  let meetings = await VlsMeetings.findAll({
+    where : whereCondition
+  });
+
+  let finalMeetings = []
+  await Promise.all(
+    meetings.map(async meeting => {
+        meeting = meeting.toJSON()
+        meeting.self_created = 0
+
+        if(meeting.created_by == currentUser)
+            meeting.self_created = 1
+
+        finalMeetings.push(meeting)
+    })
+  )
+  return { success: true, message: "meeting listing",data:finalMeetings}
 };
 
 
@@ -65,7 +86,7 @@ async function view(params, user){
 
 
 /**
- * API for view meeting
+ * API for update meeting
  */
 async function update(params, body, user){ 
   let meeting = await VlsMeetings.findOne({
@@ -80,7 +101,7 @@ async function update(params, body, user){
 
 
 /**
- * API for view meeting
+ * API for delete meeting
  */
 async function deleteMeeting(params, user){ 
     
