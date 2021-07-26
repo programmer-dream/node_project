@@ -42,8 +42,9 @@ async function list(params , user){
   
   let notiType = await getType(user.role)
   let userObj = '{"id":'+user.userVlsId+',"type":"'+notiType+'"}';
+  
 
-  let whereCondition = await getWhereCondition(user , userObj)
+  let userWhere = await getWhereCondition(user , userObj)
   
   if(params.size)
      limit = parseInt(params.size)
@@ -54,11 +55,22 @@ async function list(params , user){
   if(params.search)
     search = params.search
 
-  whereCondition[Op.or] = { 
-      description : { [Op.like]: `%`+search+`%` },
-      message     : { [Op.like]: `%`+search+`%` }
+  let serachTitle = { 
+                      [Op.or]: [{ 
+                            description : { [Op.like]: `%`+search+`%` }
+                          },
+                          {
+                            message     : { [Op.like]: `%`+search+`%` }
+                          }]
   }
-  
+
+  let whereCondition = {
+    [Op.and]: [
+        userWhere,
+        serachTitle
+    ]
+  }
+
   let notifications = await Notification.findAll({
     limit : limit,
     offset: offset,
