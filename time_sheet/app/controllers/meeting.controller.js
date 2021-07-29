@@ -12,7 +12,8 @@ const Guardian   = db.Guardian;
 const sequelize  = db.sequelize;
 const Routine    = db.Routine;
 const Notification = db.Notification;
-const bcrypt     = require("bcryptjs");
+const VlsMeetings  = db.VlsMeetings;
+const bcrypt       = require("bcryptjs");
 
 module.exports = {
   create,
@@ -59,7 +60,15 @@ async function create(req){
   	req.body.branch_id 	 = user.branch_vls_id
 
   	let meetingData      = req.body
-  	
+
+    if(req.body.meeting_mode =='online'){
+      let vlsMeetingData   = req.body.vlsMeetingData
+      vlsMeetingData.created_by = JSON.stringify({id:req.user.userVlsId,type:req.user.role})
+
+      let vlsMeetings      = await VlsMeetings.create(vlsMeetingData)
+      meetingData.vls_meeting_id  = vlsMeetings.meeting_id
+    }
+
   	let meeting 		     = await Meeting.create(meetingData)
 
   	if(!meeting) throw 'meeting not created'
@@ -243,12 +252,21 @@ async function update(req){
   	req.body.school_id 	 = user.school_id
   	req.body.branch_id 	 = user.branch_vls_id
   	let meetingData      = req.body
+
   	
+
   	let meeting          = await Meeting.update(meetingData,{
-						  		where : { id:req.params.id }
-						  	})
+            						  		where : { id:req.params.id }
+            						  	})
+
   	if(!meeting[0]) throw 'meeting not updated'
       meetingData  = await Meeting.findByPk(req.params.id)
+
+      if(req.body.meeting_mode =='online'){
+        let vlsMeetingData = req.body.vlsMeetingData
+          dbVlsMeetings    = await VlsMeetings.findByPk(meetingData.vls_meeting_id)
+        let vlsMeetings    = dbVlsMeetings.update(vlsMeetingData)
+      }
 
       let roleType = 'employee'
       if(meetingData.attendee_type == 'parent')
@@ -289,6 +307,13 @@ async function deleteMeeting(meetingId, user){
       id: meetingData.attendee_vls_id,
       type: roleType
     }]
+
+    if(meetingData.meeting_mode =='online'){
+        await VlsMeetings.destroy({
+            where: { meeting_id: meetingData.vls_meeting_id }
+          })
+    }
+
   let meeting  = await Meeting.destroy({
 				    where: { id: meetingId }
 				  })

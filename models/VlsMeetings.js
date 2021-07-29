@@ -46,13 +46,16 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.ENUM('Upcoming', 'Inprogres','Closed','Deleted')
       },
       service_meeting_id :{
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull:false
       },
       meeting_passcode :{
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull:false
       },
       meeting_url :{
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull:false
       },
       meeting_dialin_url :{
         type: Sequelize.STRING
@@ -93,7 +96,11 @@ module.exports = (sequelize, Sequelize) => {
       created_by :{
         type: Sequelize.STRING,
         allowNull:false
-      }
+      },
+      api_video_service_id :{
+        type: Sequelize.BIGINT,
+        allowNull:false
+      },
   },{
       tableName: 'vls_meetings',
       createdAt: 'created_at',
