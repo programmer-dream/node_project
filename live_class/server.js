@@ -31,7 +31,7 @@ app.get("/",function(req, res){
 });
 
 // api routes
-app.use('/meeting', require('./app/routes/meeting.routes'));
+app.use('/live_classes', require('./app/routes/meeting.routes'));
 
 
 // global error handler

@@ -18,13 +18,15 @@ const Employee 		= db.Employee;
 const Branch  		= db.Branch;
 const VlsMeetings = db.VlsMeetings;
 const AcademicYear   = db.AcademicYear;
+const VlsVideoServices  = db.VlsVideoServices;
 
 module.exports = {
   create,
   list,
   view, 
   update,
-  deleteMeeting
+  deleteMeeting,
+  getEnabledService
 };
 
 
@@ -120,4 +122,17 @@ async function deleteMeeting(params, user){
 
   meeting.destroy();
   return { success: true, message: "meeting deleted successfully",}
+};
+
+/**
+ * API for delete meeting
+ */
+async function getEnabledService(params, user){ 
+    
+  let serviceEnabled = await VlsVideoServices.findOne({
+      where : { school_vls_id :  params.school_vls_id, status:1 }
+  });
+  if(!serviceEnabled) throw 'No service enabled'
+    
+  return { success: true, message: "list service", data: serviceEnabled }
 };

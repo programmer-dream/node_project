@@ -11,6 +11,7 @@ router.post("/create",create);
 
 router.get("/list",list); 
 router.get("/view/:meeting_id",view); 
+router.get("/getEnabledService/:school_vls_id",getEnabledService); 
 
 router.put("/update/:meeting_id",update); 
 
@@ -52,5 +53,12 @@ function update(req, res, next) {
 function deleteMeeting(req, res, next) {
     meetingController.deleteMeeting(req.params, req.user)
         .then(exam => exam ? res.json(exam) : res.status(400).json({ status: "error", message: 'Error while listing exam' }))
+        .catch(err => next(err));
+}
+
+// Function get enabled service for school
+function getEnabledService(req, res, next) {
+    meetingController.getEnabledService(req.params, req.user)
+        .then(exam => exam ? res.json(exam) : res.status(400).json({ status: "error", message: 'Error while getting enabled service for school' }))
         .catch(err => next(err));
 }
