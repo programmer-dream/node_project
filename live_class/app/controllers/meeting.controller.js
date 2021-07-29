@@ -17,7 +17,7 @@ const SchoolDetails = db.SchoolDetails;
 const Employee 		= db.Employee;
 const Branch  		= db.Branch;
 const VlsMeetings = db.VlsMeetings;
-
+const AcademicYear   = db.AcademicYear;
 
 module.exports = {
   create,
@@ -32,7 +32,14 @@ module.exports = {
  * API for create meeting
  */
 async function create(body, user){ 
-    
+    let authentication = await Authentication.findByPk(user.id)
+    let academicYear   = await AcademicYear.findOne({
+                            where:{school_id:authentication.school_id},
+                            order : [
+                             ['id', 'desc']
+                            ]
+                          })
+    body.academic_year_id = academicYear.id
     body.created_by = JSON.stringify({id:user.userVlsId,type:user.role})
     let meeting = await VlsMeetings.create(body);
   	return { success: true, message: "meeting create successfully",data:meeting}
