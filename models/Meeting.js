@@ -73,6 +73,9 @@ module.exports = (sequelize, Sequelize) => {
         rejected_role: {
           type: Sequelize.STRING
         },
+        vls_meeting_id: {
+          type: Sequelize.INTEGER
+        },
         created_at: {
           allowNull: false,
           type: Sequelize.DATE
