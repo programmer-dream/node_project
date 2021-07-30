@@ -12,6 +12,7 @@ router.post("/create",create);
 router.get("/list",list); 
 router.get("/view/:meeting_id",view); 
 router.get("/getEnabledService/:school_vls_id",getEnabledService); 
+router.get("/getUserDetails/:school_vls_id",getUserDetails); 
 
 router.put("/update/:meeting_id",update); 
 
@@ -60,5 +61,12 @@ function deleteMeeting(req, res, next) {
 function getEnabledService(req, res, next) {
     meetingController.getEnabledService(req.params, req.user)
         .then(exam => exam ? res.json(exam) : res.status(400).json({ status: "error", message: 'Error while getting enabled service for school' }))
+        .catch(err => next(err));
+}
+
+// Function get user details for video service 
+function getUserDetails(req, res, next) {
+    meetingController.getUserDetails(req.params, req.user)
+        .then(user => user ? res.json(user) : res.status(400).json({ status: "error", message: 'Error while getting user details for video service ' }))
         .catch(err => next(err));
 }
