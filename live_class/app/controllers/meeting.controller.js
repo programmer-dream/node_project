@@ -82,8 +82,7 @@ async function create(body, user){
  * API for list meeting
  */
 async function list(query, user){ 
-  
-  let whereCondition = {}
+  let whereCondition = {is_deleted : 0}
   let currentUser    = JSON.stringify({id:user.userVlsId,type:user.role})
 
   if(user.role == 'teacher'){
@@ -131,7 +130,9 @@ async function list(query, user){
 async function view(params, user){ 
     
   let meeting = await VlsMeetings.findOne({
-    where : { meeting_id :  params.meeting_id},
+    where : { meeting_id :  params.meeting_id,
+              is_deleted:0
+            },
     include:[{ 
                 model:SubjectList,
                 as:'subjectList',
@@ -158,12 +159,39 @@ async function view(params, user){
  */
 async function update(params, body, user){ 
   let meeting = await VlsMeetings.findOne({
-    where : { meeting_id :  params.meeting_id}
+    where : { meeting_id :  params.meeting_id,
+              is_deleted:0
+            }
   });
 
   if(!meeting) throw 'meeting not found'
 
   meeting.update(body);
+  if(meeting.class_id){
+      let classStudent = await getStudents(meeting)
+      let meetingType = 'live classes'
+      if(meeting.meeting_type =='online_meeting')
+          meetingType = 'online meeting'
+
+      let notificatonData = {}
+      notificatonData.branch_vls_id = meeting.branch_vls_id
+      notificatonData.school_vls_id = meeting.school_vls_id
+      notificatonData.status        = 'important'
+      notificatonData.message       = `{name} updated ${meetingType} details.`
+      notificatonData.notificaton_type = 'custom_notification'
+      notificatonData.notificaton_type_id = meeting.meeting_id
+      notificatonData.start_date    = meeting.meeting_date
+      notificatonData.users         = JSON.stringify(classStudent)
+      notificatonData.added_by      = user.userVlsId
+      notificatonData.added_type    = user.role
+      notificatonData.event_type    = 'created'
+      await Notification.create(notificatonData)
+      let teacherObj = { id  : user.userVlsId,
+                       type: 'employee'
+                     }
+      notificatonData.users = JSON.stringify([teacherObj])
+      await Notification.create(notificatonData)
+    }
   return { success: true, message: "meeting updated successfully",data:meeting}
 };
 
@@ -174,13 +202,40 @@ async function update(params, body, user){
 async function deleteMeeting(params, user){ 
     
   let meeting = await VlsMeetings.findOne({
-    where : { meeting_id :  params.meeting_id}
+    where : { meeting_id :  params.meeting_id,
+              is_deleted:0
+            }
   });
-  //return meeting
+  
   if(!meeting) throw 'meeting not found'
+  //return meeting.class_id
+  if(meeting.class_id){
+      let classStudent = await getStudents(meeting)
+      
+      let meetingType = 'live classes'
+      if(meeting.meeting_type =='online_meeting')
+          meetingType = 'online meeting'
 
-  meeting.update({is_deleted:1});
-
+      let notificatonData = {}
+      notificatonData.branch_vls_id = meeting.branch_vls_id
+      notificatonData.school_vls_id = meeting.school_vls_id
+      notificatonData.status        = 'important'
+      notificatonData.message       = `{name} deleted ${meetingType}.`
+      notificatonData.notificaton_type = 'custom_notification'
+      notificatonData.notificaton_type_id = meeting.meeting_id
+      notificatonData.start_date    = meeting.meeting_date
+      notificatonData.users         = JSON.stringify(classStudent)
+      notificatonData.added_by      = user.userVlsId
+      notificatonData.added_type    = user.role
+      notificatonData.event_type    = 'created'
+      await Notification.create(notificatonData)
+      let teacherObj = { id  : user.userVlsId,
+                       type: 'employee'
+                     }
+      notificatonData.users = JSON.stringify([teacherObj])
+      await Notification.create(notificatonData)
+    }
+    meeting.update({is_deleted:1});
   //meeting.destroy();
   return { success: true, message: "meeting deleted successfully",}
 };
@@ -276,9 +331,10 @@ async function accessUserDetails(Base_url, accessToken, enerpriseID){
 
 async function getStudents(body){
   let studentsArr = []
+
   if(body.section_id && body.class_id){
       let whereCodition  = {
-        class_id   : body.assignment_class_id,
+        class_id   : body.class_id,
         section_id : body.section_id,
         school_id  : body.school_vls_id
       }
@@ -296,6 +352,7 @@ async function getStudents(body){
         })
       )
   }else{
+
     let whereCodition  = {
         class_id   : body.class_id,
         school_id  : body.school_vls_id
