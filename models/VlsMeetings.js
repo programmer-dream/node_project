@@ -105,6 +105,10 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.BIGINT,
         allowNull:false
       },
+      is_deleted :{
+        type: Sequelize.TINYINT(1),
+        defaultValue:0
+      }
   },{
       tableName: 'vls_meetings',
       createdAt: 'created_at',

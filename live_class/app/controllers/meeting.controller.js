@@ -20,7 +20,7 @@ const Branch  		= db.Branch;
 const VlsMeetings = db.VlsMeetings;
 const AcademicYear   = db.AcademicYear;
 const VlsVideoServices  = db.VlsVideoServices;
-
+const Notification   = db.Notification;
 
 module.exports = {
   create,
@@ -47,6 +47,33 @@ async function create(body, user){
     body.academic_year_id = academicYear.id
     body.created_by = JSON.stringify({id:user.userVlsId,type:user.role})
     let meeting = await VlsMeetings.create(body);
+    //create new notification
+    if(meeting.class_id){
+      let classStudent = await getStudents(body)
+      let meetingType = 'live classes'
+      if(meeting.meeting_type =='online_meeting')
+          meetingType = 'online meeting'
+
+      let notificatonData = {}
+      notificatonData.branch_vls_id = meeting.branch_vls_id
+      notificatonData.school_vls_id = meeting.school_vls_id
+      notificatonData.status        = 'important'
+      notificatonData.message       = `{name} added ${meetingType} for you.`
+      notificatonData.notificaton_type = 'custom_notification'
+      notificatonData.notificaton_type_id = meeting.meeting_id
+      notificatonData.start_date    = meeting.meeting_date
+      notificatonData.users         = JSON.stringify(classStudent)
+      notificatonData.added_by      = user.userVlsId
+      notificatonData.added_type    = user.role
+      notificatonData.event_type    = 'created'
+      await Notification.create(notificatonData)
+      let teacherObj = { id  : user.userVlsId,
+                       type: 'employee'
+                     }
+      notificatonData.users = JSON.stringify([teacherObj])
+      await Notification.create(notificatonData)
+    }
+
   	return { success: true, message: "meeting create successfully",data:meeting}
 };
 
@@ -149,10 +176,12 @@ async function deleteMeeting(params, user){
   let meeting = await VlsMeetings.findOne({
     where : { meeting_id :  params.meeting_id}
   });
-
+  //return meeting
   if(!meeting) throw 'meeting not found'
 
-  meeting.destroy();
+  meeting.update({is_deleted:1});
+
+  //meeting.destroy();
   return { success: true, message: "meeting deleted successfully",}
 };
 
@@ -207,6 +236,7 @@ async function getUserDetails(params, user){
     throw 'user details not found'
 
   tokenDetailsObj.user_id = accessUserDetailsObj.users[0].id
+  tokenDetailsObj.base_url = serviceEnabled.Base_url
   
   return { success: true, message: "Video service user details", data: tokenDetailsObj }
 };
@@ -242,4 +272,47 @@ async function accessUserDetails(Base_url, accessToken, enerpriseID){
                 reject(error)
             });
     })
+}
+
+async function getStudents(body){
+  let studentsArr = []
+  if(body.section_id && body.class_id){
+      let whereCodition  = {
+        class_id   : body.assignment_class_id,
+        section_id : body.section_id,
+        school_id  : body.school_vls_id
+      }
+      let allStudents = await Student.findAll({
+                where : whereCodition,
+                attributes : ['student_vls_id']
+              })
+      await Promise.all(
+        allStudents.map(async function( student){
+          let studentObj = {
+            id   : student.student_vls_id,
+            type : 'student'
+          }
+          studentsArr.push(studentObj)
+        })
+      )
+  }else{
+    let whereCodition  = {
+        class_id   : body.class_id,
+        school_id  : body.school_vls_id
+      }
+      let allStudents = await Student.findAll({
+                where : whereCodition,
+                attributes : ['student_vls_id']
+              })
+      await Promise.all(
+        allStudents.map(async function( student){
+          let studentObj = {
+            id   : student.student_vls_id,
+            type : 'student'
+          }
+          studentsArr.push(studentObj)
+        })
+      )
+  }
+  return studentsArr
 }
