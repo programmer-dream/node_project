@@ -59,6 +59,21 @@ async function list(query, user){
       whereCondition.created_by = currentUser
   }
   
+  switch(user.role){
+      case 'teacher' : 
+          whereCondition.created_by = currentUser
+          break;
+      case 'student' : 
+          let student = await Student.findOne({
+                          where : { student_vls_id : user.userVlsId}
+                        })
+          whereCondition.class_id = student.class_id
+          break;
+      default:
+          whereCondition.created_by = currentUser
+          break;
+  }
+
   let meetings = await VlsMeetings.findAll({
     where : whereCondition
   });
@@ -133,6 +148,6 @@ async function getEnabledService(params, user){
       where : { school_vls_id :  params.school_vls_id, status:1 }
   });
   if(!serviceEnabled) throw 'No service enabled'
-    
+
   return { success: true, message: "list service", data: serviceEnabled }
 };
