@@ -152,7 +152,8 @@ db.PassionComment = require("./PassionComments.js")(sequelize, Sequelize);
 db.PassionAcceptedBy = require("./PassionAcceptedBy.js")(sequelize, Sequelize);
 
 /*********** Relation management between tables ***********/
-
+db.VlsMeetings.belongsTo(db.SubjectList,{foreignKey:'subject_code',targetKey:'code',as:'subjectList'})
+db.VlsMeetings.belongsTo(db.Classes,{foreignKey:'class_id',as:'class'})
 /*********** vls management ***********/
 db.Authentication.belongsTo(db.Role,{foreignKey:'role_id',as:'roles'})
 db.Authentication.belongsTo(db.SchoolDetails,{foreignKey:'school_id',as:'school'})

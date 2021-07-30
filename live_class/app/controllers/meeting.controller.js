@@ -52,6 +52,7 @@ async function create(body, user){
  * API for list meeting
  */
 async function list(query, user){ 
+  
   let whereCondition = {}
   let currentUser    = JSON.stringify({id:user.userVlsId,type:user.role})
 
@@ -61,7 +62,7 @@ async function list(query, user){
   
   switch(user.role){
       case 'teacher' : 
-          whereCondition.created_by = currentUser
+          whereCondition.teacher_id = user.userVlsId
           break;
       case 'student' : 
           let student = await Student.findOne({
@@ -100,7 +101,14 @@ async function list(query, user){
 async function view(params, user){ 
     
   let meeting = await VlsMeetings.findOne({
-    where : { meeting_id :  params.meeting_id}
+    where : { meeting_id :  params.meeting_id},
+    include:[{ 
+                model:SubjectList,
+                as:'subjectList',
+            },{ 
+                model:Classes,
+                as:'class',
+            }]
   });
 
   if(!meeting) throw 'meeting not found'
