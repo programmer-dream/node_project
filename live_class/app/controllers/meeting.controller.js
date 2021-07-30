@@ -108,6 +108,12 @@ async function view(params, user){
             },{ 
                 model:Classes,
                 as:'class',
+            },{ 
+                model:Employee,
+                as:'teacher',
+            },{ 
+                model:Section,
+                as:'section',
             }]
   });
 

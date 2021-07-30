@@ -34,13 +34,17 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.STRING
       },
       school_vls_id :{
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        allowNull:false
       },
       branch_vls_id :{
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        allowNull:false
       },
       meeting_type :{
-        type: Sequelize.STRING
+        type: Sequelize.ENUM('online_meeting', 'live_classes'),
+        defaultValue: 'live_classes',
+        allowNull:false
       },
       status :{
         type: Sequelize.ENUM('Upcoming', 'Inprogres','Closed','Deleted')
