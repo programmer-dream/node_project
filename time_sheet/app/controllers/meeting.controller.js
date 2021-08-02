@@ -212,6 +212,9 @@ async function view(params , user){
     include: [{ 
                 model:Employee,
                 as:'addedBy'
+              },{ 
+                model:VlsMeetings,
+                as:'vls_meeting'
               }]
   })
 
