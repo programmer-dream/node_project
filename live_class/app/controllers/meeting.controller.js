@@ -89,6 +89,7 @@ async function list(params, user){
   let offset           = 0 
   let search           = '' 
   let currentDate      = moment().format('YYYY-MM-DD')
+  let count            = 0
 
   if(params.orderBy)
      orderBy = params.orderBy
@@ -149,10 +150,25 @@ async function list(params, user){
   //date filters
   if(liveClassState == "past"){
     whereCondition[Op.lt] = sequelize.where(sequelize.fn('date', sequelize.col('meeting_date')), '<', currentDate)
+     count = await VlsMeetings.count({
+        where : {
+          [Op.lt] : sequelize.where(sequelize.fn('date', sequelize.col('meeting_date')), '<', currentDate)
+        }
+    });
   }else if(liveClassState == "upcoming"){
     whereCondition[Op.gt] = sequelize.where(sequelize.fn('date', sequelize.col('meeting_date')), '>', currentDate)
+     count = await VlsMeetings.count({
+        where : {
+          [Op.gt] : sequelize.where(sequelize.fn('date', sequelize.col('meeting_date')), '>', currentDate)
+        }
+    });
   }else{
     whereCondition[Op.eq] = sequelize.where(sequelize.fn('date', sequelize.col('meeting_date')), '=', currentDate)
+     count = await VlsMeetings.count({
+        where : {
+          [Op.eq] : sequelize.where(sequelize.fn('date', sequelize.col('meeting_date')), '=', currentDate)
+        }
+    });
   }
   
   let meetings = await VlsMeetings.findAll({
@@ -163,7 +179,7 @@ async function list(params, user){
              ['meeting_id', orderBy]
            ]
   });
-
+  console.log(count)
   let finalMeetings = []
   await Promise.all(
     meetings.map(async meeting => {
@@ -176,7 +192,7 @@ async function list(params, user){
         finalMeetings.push(meeting)
     })
   )
-  return { success: true, message: "meeting listing",data:finalMeetings}
+  return { success: true, message: "meeting listing",data:finalMeetings, count}
 };
 
 
