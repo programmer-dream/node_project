@@ -10,6 +10,7 @@ router.get("/list",list);
 router.get("/view/:meeting_id",view); 
 router.get("/getEnabledService/:school_vls_id",getEnabledService); 
 router.get("/getUserDetails/:school_vls_id",getUserDetails); 
+router.get("/subjectOnlineClassCount/",subjectOnlineClassCount); 
 
 
 module.exports = router;
@@ -40,6 +41,13 @@ function getEnabledService(req, res, next) {
 // Function get user details for video service 
 function getUserDetails(req, res, next) {
     meetingController.getUserDetails(req.params, req.user)
+        .then(user => user ? res.json(user) : res.status(400).json({ status: "error", message: 'Error while getting user details for video service ' }))
+        .catch(err => next(err));
+}
+
+// Function get online class count 
+function subjectOnlineClassCount(req, res, next) {
+    meetingController.subjectOnlineClassCount(req.query, req.user)
         .then(user => user ? res.json(user) : res.status(400).json({ status: "error", message: 'Error while getting user details for video service ' }))
         .catch(err => next(err));
 }
