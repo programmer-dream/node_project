@@ -83,10 +83,12 @@ async function create(body, user){
  */
 async function list(params, user){
   let whereCondition   = {is_deleted : 0}
+  let liveClassState   = params.liveClassState
   let orderBy          = 'desc';
   let limit            = 10
   let offset           = 0 
   let search           = '' 
+  let currentDate      = moment().format('YYYY-MM-DD')
 
   if(params.orderBy)
      orderBy = params.orderBy
@@ -105,6 +107,9 @@ async function list(params, user){
 
   if(params.branch_vls_id)
     whereCondition.branch_vls_id = params.branch_vls_id
+
+  if(params.class_id)
+    whereCondition.class_id = params.class_id
 
 
   whereCondition[Op.or] = { 
@@ -137,6 +142,15 @@ async function list(params, user){
       default:
           whereCondition.created_by = currentUser
           break;
+  }
+  
+  //date filters
+  if(liveClassState == "past"){
+    whereCondition[Op.lt] = sequelize.where(sequelize.fn('date', sequelize.col('meeting_date')), '<', currentDate)
+  }else if(liveClassState == "upcoming"){
+    whereCondition[Op.gt] = sequelize.where(sequelize.fn('date', sequelize.col('meeting_date')), '>', currentDate)
+  }else{
+    whereCondition[Op.eq] = sequelize.where(sequelize.fn('date', sequelize.col('meeting_date')), '=', currentDate)
   }
   
   let meetings = await VlsMeetings.findAll({
