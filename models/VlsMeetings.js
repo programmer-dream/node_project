@@ -108,6 +108,9 @@ module.exports = (sequelize, Sequelize) => {
       is_deleted :{
         type: Sequelize.TINYINT(1),
         defaultValue:0
+      },
+      resource_meeting_id :{
+        type: Sequelize.STRING,
       }
   },{
       tableName: 'vls_meetings',
