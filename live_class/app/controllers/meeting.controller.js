@@ -81,14 +81,49 @@ async function create(body, user){
 /**
  * API for list meeting
  */
-async function list(query, user){ 
-  let whereCondition = {is_deleted : 0}
+async function list(params, user){
+  let whereCondition   = {is_deleted : 0}
+  let orderBy          = 'desc';
+  let limit            = 10
+  let offset           = 0 
+  let search           = '' 
+
+  if(params.orderBy)
+     orderBy = params.orderBy
+
+  if(params.size)
+     limit = parseInt(params.size)
+
+  if(params.page)
+      offset = 0 + (parseInt(params.page) - 1) * limit
+
+  if(params.search)
+    search = params.search
+
+  if(params.school_vls_id)
+    whereCondition.school_vls_id = params.school_vls_id
+
+  if(params.branch_vls_id)
+    whereCondition.branch_vls_id = params.branch_vls_id
+
+
+  whereCondition[Op.or] = { 
+                  description: { 
+                    [Op.like]: `%`+search+`%`
+                  },
+                  title : { 
+                    [Op.like]: `%`+search+`%` 
+                  }
+                }
   let currentUser    = JSON.stringify({id:user.userVlsId,type:user.role})
 
   if(user.role == 'teacher'){
       whereCondition.created_by = currentUser
   }
   
+  if(params.subject_code)
+      whereCondition.subject_code = params.subject_code
+
   switch(user.role){
       case 'teacher' : 
           whereCondition.teacher_id = user.userVlsId
@@ -103,9 +138,14 @@ async function list(query, user){
           whereCondition.created_by = currentUser
           break;
   }
-
+  
   let meetings = await VlsMeetings.findAll({
-    where : whereCondition
+    where : whereCondition,
+    limit : limit,
+    offset: offset,
+    order: [
+             ['meeting_id', orderBy]
+           ]
   });
 
   let finalMeetings = []
