@@ -111,6 +111,8 @@ async function list(params, user){
   if(params.class_id)
     whereCondition.class_id = params.class_id
 
+  if(params.section_id)
+    whereCondition.section_id = params.section_id
 
   whereCondition[Op.or] = { 
                   description: { 
