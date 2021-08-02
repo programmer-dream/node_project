@@ -156,6 +156,8 @@ db.VlsMeetings.belongsTo(db.SubjectList,{foreignKey:'subject_code',targetKey:'co
 db.VlsMeetings.belongsTo(db.Classes,{foreignKey:'class_id',as:'class'})
 db.VlsMeetings.belongsTo(db.Employee,{foreignKey:'teacher_id',as:'teacher'})
 db.VlsMeetings.belongsTo(db.Section,{foreignKey:'section_id',as:'section'})
+db.Meeting.belongsTo(db.VlsMeetings,{foreignKey:'vls_meeting_id',as:'vls_meeting'})
+
 /*********** vls management ***********/
 db.Authentication.belongsTo(db.Role,{foreignKey:'role_id',as:'roles'})
 db.Authentication.belongsTo(db.SchoolDetails,{foreignKey:'school_id',as:'school'})

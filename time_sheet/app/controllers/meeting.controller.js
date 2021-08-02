@@ -127,6 +127,9 @@ async function list(user){
                 model:Employee,
                 as:'addedBy',
                 attributes: ['name','photo']
+              },{ 
+                model:VlsMeetings,
+                as:'vls_meeting'
               }]
   })
   //return meetings

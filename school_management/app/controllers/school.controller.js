@@ -33,6 +33,7 @@ const SchoolMeetingSettings  = db.SchoolMeetingSettings;
 const VlsVideoServices  = db.VlsVideoServices;
 const VlsMeetingServices  = db.VlsMeetingServices;
 const ServiceProvider  = db.ServiceProvider;
+const VlsMeetings       = db.VlsMeetings;
 
 
 module.exports = {
@@ -1026,6 +1027,7 @@ async function dasboardCount(query, user, activeUserArr){
   let assignment     = 0
   let feedback       = 0
   let ticket         = 0
+  let online_class   = 0
 
   let userCount      = 0
   let finalData      = {}
@@ -1052,8 +1054,8 @@ async function dasboardCount(query, user, activeUserArr){
           community  = await getCommunityCount()
           chat       = await getChatCount()
           chat.active_user = activeUserArr.length
-
-          finalData  = { total_schools, total_branches, total_users , student_count, teachers_count , assignment, query, feedback, ticket, eBook, eVideos, community, chat}
+          online_class = await getMeetingCounts({})
+          finalData  = { total_schools, total_branches, total_users , student_count, teachers_count , assignment, query, feedback, ticket, eBook, eVideos, community, chat, online_class}
       break;
     case 'branch-admin':
     case 'principal':
@@ -1088,8 +1090,8 @@ async function dasboardCount(query, user, activeUserArr){
           attendance = await getAttendance(null , branch_vls_id)
           performance_avg = await getSchoolPerformance(school_vls_id, branch_vls_id)
           top_performance  = await getTopPerformer(school_vls_id, branch_vls_id)
-
-          finalData = { total_users , student_count, teachers_count, assignment, query, feedback, ticket, chat, community, eBook, attendance, performance_avg, top_performance}
+          online_class = await getMeetingCounts({branch_vls_id:branch_vls_id })
+          finalData = { total_users , student_count, teachers_count, assignment, query, feedback, ticket, chat, community, eBook, attendance, performance_avg, top_performance,online_class}
       break;
     case 'school-admin':
         
@@ -1132,8 +1134,8 @@ async function dasboardCount(query, user, activeUserArr){
           top_performance  = await getTopPerformer(school_vls_id,branch_vls_id)
           attendance = await getAttendance(school_vls_id,branch_vls_id)
           performance_avg = await getSchoolPerformance(school_vls_id,branch_vls_id)
-
-          finalData  = { total_branches, total_users , student_count, teachers_count, assignment, query, feedback, ticket, chat, community, eBook, top_performance, attendance, performance_avg}
+          online_class = await getMeetingCounts({school_vls_id:school_vls_id})
+          finalData  = { total_branches, total_users , student_count, teachers_count, assignment, query, feedback, ticket, chat, community, eBook, top_performance, attendance, performance_avg,online_class}
       break;
   }
   
@@ -2057,4 +2059,32 @@ async function providerDropdown(query, user){
   
   return { success: true, message: "list vls video services", data:service_Provider }
   
+}
+
+async function getMeetingCounts(condition){
+  let obj              = {}
+  let statuses         = ['past','today','upcoming']
+  let currentDate      = moment().format('YYYY-MM-DD')
+
+  await Promise.all(
+    statuses.map(async status => {
+      let resetCondition = {}
+
+      if(status == 'past'){
+        resetCondition[Op.lt] = sequelize.where(sequelize.fn('date', sequelize.col('meeting_date')), '<', currentDate)
+      }else if(status == 'upcoming'){
+        resetCondition[Op.gt] = sequelize.where(sequelize.fn('date', sequelize.col('meeting_date')), '>', currentDate)
+      }else{
+        resetCondition[Op.eq] = sequelize.where(sequelize.fn('date', sequelize.col('meeting_date')), '=', currentDate)
+      }
+      resetCondition = Object.assign(resetCondition, condition); 
+  
+      obj[status] = await VlsMeetings.count({
+        where:resetCondition
+      })
+
+    })
+  )
+    
+  return obj
 }
