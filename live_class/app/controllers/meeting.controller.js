@@ -29,7 +29,8 @@ module.exports = {
   update,
   deleteMeeting,
   getEnabledService,
-  getUserDetails
+  getUserDetails,
+  subjectOnlineClassCount
 };
 
 
@@ -89,6 +90,7 @@ async function list(params, user){
   let offset           = 0 
   let search           = '' 
   let currentDate      = moment().format('YYYY-MM-DD')
+  let count            = 0
 
   if(params.orderBy)
      orderBy = params.orderBy
@@ -149,10 +151,25 @@ async function list(params, user){
   //date filters
   if(liveClassState == "past"){
     whereCondition[Op.lt] = sequelize.where(sequelize.fn('date', sequelize.col('meeting_date')), '<', currentDate)
+     count = await VlsMeetings.count({
+        where : {
+          [Op.lt] : sequelize.where(sequelize.fn('date', sequelize.col('meeting_date')), '<', currentDate)
+        }
+    });
   }else if(liveClassState == "upcoming"){
     whereCondition[Op.gt] = sequelize.where(sequelize.fn('date', sequelize.col('meeting_date')), '>', currentDate)
+     count = await VlsMeetings.count({
+        where : {
+          [Op.gt] : sequelize.where(sequelize.fn('date', sequelize.col('meeting_date')), '>', currentDate)
+        }
+    });
   }else{
     whereCondition[Op.eq] = sequelize.where(sequelize.fn('date', sequelize.col('meeting_date')), '=', currentDate)
+     count = await VlsMeetings.count({
+        where : {
+          [Op.eq] : sequelize.where(sequelize.fn('date', sequelize.col('meeting_date')), '=', currentDate)
+        }
+    });
   }
   
   let meetings = await VlsMeetings.findAll({
@@ -163,7 +180,7 @@ async function list(params, user){
              ['meeting_id', orderBy]
            ]
   });
-
+  console.log(count)
   let finalMeetings = []
   await Promise.all(
     meetings.map(async meeting => {
@@ -176,7 +193,7 @@ async function list(params, user){
         finalMeetings.push(meeting)
     })
   )
-  return { success: true, message: "meeting listing",data:finalMeetings}
+  return { success: true, message: "meeting listing",data:finalMeetings, count}
 };
 
 
@@ -428,4 +445,98 @@ async function getStudents(body){
       )
   }
   return studentsArr
+}
+
+/**
+ * function subject wise online class counts 
+ */
+async function subjectOnlineClassCount(params, user){
+  let finalData     = []
+  let classCondtion = {}
+  let orderBy       = 'asc'
+  let condition     = {is_deleted : 0}
+
+  let subjectFilter = {}
+
+  if(!params.branch_vls_id) throw 'branch_vls_id is required'
+     classCondtion.branch_vls_id = params.branch_vls_id
+     subjectFilter.branch_vls_id = params.branch_vls_id
+
+  if(params.class_vls_id)
+      classCondtion.class_vls_id = params.class_vls_id
+
+  if(params.subject_code)
+      subjectFilter.code = params.subject_code
+  
+  let classes  = await Classes.findAll({  
+      where:classCondtion,
+      attributes: ['class_vls_id','name']
+  });
+
+  let allSubject = await SubjectList.findAll({
+      attributes:['subject_name','code'],
+      where : subjectFilter
+  })
+  
+  await Promise.all(
+    classes.map(async sClass => {
+      condition.class_id = sClass.class_vls_id
+
+      let counts    = await getSubjectCounts(condition, allSubject)
+      counts.classes = { className: sClass.name, 
+                         class_vls_id: sClass.class_vls_id
+                       }
+      finalData.push(counts)
+    })
+  )
+  return { success : true, message : "Classes counts", data : finalData }
+}
+
+
+/**
+ * function subject  online class counts 
+ */
+async function getSubjectCounts(condition, allSubject){
+  let obj = {}
+  
+  await Promise.all(
+    allSubject.map(async subject => {
+        condition.subject_code = subject.code
+        let counts    = await getCounts(condition)
+        obj[subject.subject_name] = counts
+    })
+  )
+  return obj
+}
+
+
+/**
+ * function subject  online class counts 
+ */
+async function getCounts(condition){
+  let obj              = {}
+  let statuses         = ['past','today','upcoming']
+  let currentDate      = moment().format('YYYY-MM-DD')
+
+  await Promise.all(
+    statuses.map(async status => {
+      let resetCondition = {}
+
+      if(status == 'past'){
+        resetCondition[Op.lt] = sequelize.where(sequelize.fn('date', sequelize.col('meeting_date')), '<', currentDate)
+      }else if(status == 'upcoming'){
+        resetCondition[Op.gt] = sequelize.where(sequelize.fn('date', sequelize.col('meeting_date')), '>', currentDate)
+      }else{
+        resetCondition[Op.eq] = sequelize.where(sequelize.fn('date', sequelize.col('meeting_date')), '=', currentDate)
+      }
+      resetCondition = Object.assign(resetCondition, condition); 
+  
+      obj[status] = await VlsMeetings.count({
+        where:resetCondition
+      })
+
+    })
+  )
+    
+  return obj
 }
