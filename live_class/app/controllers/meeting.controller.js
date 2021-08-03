@@ -30,7 +30,8 @@ module.exports = {
   deleteMeeting,
   getEnabledService,
   getUserDetails,
-  subjectOnlineClassCount
+  subjectOnlineClassCount,
+  getUserDefaultSetting
 };
 
 
@@ -158,7 +159,7 @@ async function list(params, user){
   let count = await VlsMeetings.count({
         where : whereCondition
     });
-  console.log(whereCondition)
+  //console.log(whereCondition)
   let meetings = await VlsMeetings.findAll({
     where : whereCondition,
     limit : limit,
@@ -526,4 +527,74 @@ async function getCounts(condition){
   )
     
   return obj
+}
+
+/**
+ * Bluejeans Get User’s Default Meeting Settings
+ */
+async function getUserDefaultSetting(params, user){
+
+  if(!params.school_vls_id) throw 'school_vls_id is required'
+  if(!params.meeting_id) throw 'meeting_id is required'
+
+  let serviceEnabled = await VlsVideoServices.findOne({
+      where : { school_vls_id :  params.school_vls_id, status:1 },
+      attributes: ['Base_url','api_key','api_secret']
+  });
+
+  if(!serviceEnabled.api_key &&  !serviceEnabled.api_secret && !serviceEnabled.Base_url) 
+    throw 'Video service setting not updated in school'
+
+    let base_url = serviceEnabled.Base_url
+   const data = JSON.stringify({ "grant_type": "client_credentials", "client_id":serviceEnabled.api_key, "client_secret": serviceEnabled.api_secret });
+    
+    const config = {
+        method: 'post',
+        url: `${base_url}/oauth2/token#Application`,
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        data: data
+    };
+  let tokenDetailsObj = await tokenDetails(config);
+  if(!tokenDetailsObj.access_token && !tokenDetailsObj.scope)
+    throw 'token details not found'
+  let accessUserDetailsObj = await accessUserDetails(base_url, tokenDetailsObj.access_token, tokenDetailsObj.scope.enterprise);
+
+  if(!accessUserDetailsObj.users)
+    throw 'user details not found'
+
+  let user_id = accessUserDetailsObj.users[0].id
+
+  let getUserData = await getUserSettings(base_url, tokenDetailsObj.access_token, user_id);
+
+  let meeting = await VlsMeetings.findByPk(params.meeting_id);
+
+  let passcode = getUserData.participantPasscode
+  //return {user_id : user.userVlsId, teacher_id : meeting.teacher_id}
+  if(user.userVlsId == meeting.teacher_id)
+        passcode = getUserData.moderatorPasscode
+
+  return { success: true, message: "meeting passcode",data:{passcode}}
+}
+
+async function getUserSettings(base_url, accessToken, user_id){
+
+  const userConfig = {
+      method: 'get',
+      url: `${base_url}/v1/user/${user_id}/room?access_token=${accessToken}`,
+      headers: {
+          'Content-Type': 'application/json'
+      }
+  };
+
+  return new Promise((resolve, reject) => {
+        axios(userConfig)
+            .then(function (response) {
+                resolve(response.data)
+            })
+            .catch(function (error) {
+                reject(error)
+            });
+    })
 }
