@@ -90,7 +90,6 @@ async function list(params, user){
   let offset           = 0 
   let search           = '' 
   let currentDate      = moment().format('YYYY-MM-DD')
-  let count            = 0
 
   if(params.orderBy)
      orderBy = params.orderBy
@@ -125,10 +124,6 @@ async function list(params, user){
                   }
                 }
   let currentUser    = JSON.stringify({id:user.userVlsId,type:user.role})
-
-  if(user.role == 'teacher'){
-      whereCondition.created_by = currentUser
-  }
   
   if(params.subject_code)
       whereCondition.subject_code = params.subject_code
@@ -144,34 +139,26 @@ async function list(params, user){
           whereCondition.class_id = student.class_id
           break;
       default:
-          whereCondition.created_by = currentUser
+          //whereCondition.created_by = currentUser
           break;
   }
   
   //date filters
   if(liveClassState == "past"){
-    whereCondition[Op.lt] = sequelize.where(sequelize.fn('date', sequelize.col('meeting_date')), '<', currentDate)
-     count = await VlsMeetings.count({
-        where : {
-          [Op.lt] : sequelize.where(sequelize.fn('date', sequelize.col('meeting_date')), '<', currentDate)
-        }
-    });
+    whereCondition[Op.lt] = sequelize.where(sequelize.fn('date', sequelize.col('meeting_date')), '<', currentDate)      
+     
   }else if(liveClassState == "upcoming"){
     whereCondition[Op.gt] = sequelize.where(sequelize.fn('date', sequelize.col('meeting_date')), '>', currentDate)
-     count = await VlsMeetings.count({
-        where : {
-          [Op.gt] : sequelize.where(sequelize.fn('date', sequelize.col('meeting_date')), '>', currentDate)
-        }
-    });
+
   }else{
     whereCondition[Op.eq] = sequelize.where(sequelize.fn('date', sequelize.col('meeting_date')), '=', currentDate)
-     count = await VlsMeetings.count({
-        where : {
-          [Op.eq] : sequelize.where(sequelize.fn('date', sequelize.col('meeting_date')), '=', currentDate)
-        }
-    });
+
   }
-  
+ 
+  let count = await VlsMeetings.count({
+        where : whereCondition
+    });
+  console.log(whereCondition)
   let meetings = await VlsMeetings.findAll({
     where : whereCondition,
     limit : limit,
@@ -180,7 +167,7 @@ async function list(params, user){
              ['meeting_id', orderBy]
            ]
   });
-  console.log(count)
+  
   let finalMeetings = []
   await Promise.all(
     meetings.map(async meeting => {
