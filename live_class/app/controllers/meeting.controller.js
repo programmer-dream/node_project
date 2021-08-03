@@ -568,9 +568,15 @@ async function getUserDefaultSetting(params, user){
 
   let getUserData = await getUserSettings(base_url, tokenDetailsObj.access_token, user_id);
 
-  let meeting = await VlsMeetings.findByPk(params.meeting_id);
-
   let passcode = ''
+
+  let meeting = await VlsMeetings.findByPk(params.meeting_id);
+  let createdUser = JSON.parse(meeting.created_by)
+
+  if(meeting.meeting_type =='online_meeting'){
+    if(user.userVlsId == createdUser.id && user.role == createdUser.type)
+        passcode = getUserData.moderatorPasscode
+  }
   //return {user_id : user.userVlsId, teacher_id : meeting.teacher_id}
   if(user.userVlsId == meeting.teacher_id)
         passcode = getUserData.moderatorPasscode
