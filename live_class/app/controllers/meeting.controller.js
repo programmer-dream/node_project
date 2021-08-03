@@ -570,7 +570,7 @@ async function getUserDefaultSetting(params, user){
 
   let meeting = await VlsMeetings.findByPk(params.meeting_id);
 
-  let passcode = getUserData.participantPasscode
+  let passcode = ''
   //return {user_id : user.userVlsId, teacher_id : meeting.teacher_id}
   if(user.userVlsId == meeting.teacher_id)
         passcode = getUserData.moderatorPasscode
