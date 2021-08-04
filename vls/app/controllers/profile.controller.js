@@ -31,7 +31,7 @@ async function profile(user){
                               include:[{ 
                                 model:SchoolDetails,
                                 as:'schoolDetails',
-                                attributes: ['school_vls_id','school_name', 'address']
+                                attributes: ['school_vls_id','school_name', 'address','school_code','logo']
                               }]
                             },{ 
                               model:Section,
@@ -56,7 +56,7 @@ async function profile(user){
                               include:[{ 
                                 model:SchoolDetails,
                                 as:'schoolDetails',
-                                attributes: ['school_vls_id','school_name', 'address']
+                                attributes: ['school_vls_id','school_name', 'address','school_code','logo']
                               }]
                             }]
                     })
@@ -73,7 +73,7 @@ async function profile(user){
                               include:[{ 
                                 model:SchoolDetails,
                                 as:'schoolDetails',
-                                attributes: ['school_vls_id','school_name', 'address']
+                                attributes: ['school_vls_id','school_name', 'address','school_code','logo']
                               }]
                             }]
                     })
