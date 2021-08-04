@@ -126,6 +126,10 @@ module.exports = (sequelize, Sequelize) => {
       },
       video_services_enabled: {
         type: Sequelize.STRING
+      },
+      school_code: {
+        type: Sequelize.STRING,
+        allowNull: false
       }
   },{
     tableName: 'school',
