@@ -29,6 +29,7 @@ module.exports = {
  */
 async function signIn(userDetails) {
   if(!userDetails.userName) throw 'UserName is required'
+  if(!userDetails.school_code) throw 'school_code is required'
   if(!userDetails.password) throw 'Password is required'
 
   let user = await Authentication.findOne({ 
@@ -44,7 +45,9 @@ async function signIn(userDetails) {
                         'branch_vls_id', 
                         'school_id'
                     ],
-                    where: { user_name: userDetails.userName },
+                    where: { user_name: userDetails.userName ,
+                        school_code : userDetails.school_code
+                    },
                     include: [{ 
                               model:Role,
                               as:'roles',
@@ -206,10 +209,13 @@ async function verifyOTP(body){
  * API for forgot password for user's
  */
 async function forgetPassword(body) {
-  user_name = body.userName
+  let user_name = body.userName
+  let school_code = body.school_code
   if(!user_name) throw 'userName is required'
+  if(!school_code) throw 'school_code is required'
   let user = await Authentication.findOne({
-                      where:{ user_name: user_name },
+                      where:{ user_name: user_name ,
+                              school_code:school_code},
                       include: [{ 
                               model:Role,
                               as:'roles',
