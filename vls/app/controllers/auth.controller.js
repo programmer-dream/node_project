@@ -71,7 +71,8 @@ async function signIn(userDetails) {
                             }]
                     })
 
-  
+  if(!user) throw "Oops, wrong credentials, please try again"
+    
   let isActive = await isSchoolBranchActive(user)
   
   if(!isActive)
