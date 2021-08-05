@@ -84,7 +84,9 @@ async function create(body, user){
  * API for list meeting
  */
 async function list(params, user){
-  let whereCondition   = {is_deleted : 0}
+  let whereCondition   = {is_deleted : 0,
+                          meeting_type:"live_classes"
+                         }
   let liveClassState   = params.liveClassState
   let orderBy          = 'desc';
   let limit            = 10
@@ -578,7 +580,7 @@ async function getUserDefaultSetting(params, user){
         passcode = getUserData.moderatorPasscode
   }
   //return {user_id : user.userVlsId, teacher_id : meeting.teacher_id}
-  if(user.userVlsId == meeting.teacher_id && user.role == 'teacher')
+  if(user.userVlsId == meeting.teacher_id)
         passcode = getUserData.moderatorPasscode
 
   return { success: true, message: "meeting passcode",data:{passcode}}
