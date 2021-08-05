@@ -28,8 +28,27 @@ module.exports = {
  * API for signIn user's
  */
 async function signIn(userDetails) {
+  let where = { user_name: userDetails.userName }
   if(!userDetails.userName) throw 'UserName is required'
   if(!userDetails.password) throw 'Password is required'
+  let getUser = await Authentication.findOne({ 
+                    attributes: [
+                        'auth_vls_id'
+                    ],
+                    where: where ,
+                    include: [{ 
+                              model:Role,
+                              as:'roles',
+                              attributes: ['slug']
+                            }]
+                    })
+  if(!getUser) throw "Oops, wrong credentials, please try again"
+
+  //super admin check  
+  if(getUser.roles.slug != 'super-admin'){
+    if(!userDetails.school_code) throw 'school_code is required'
+      where.school_code = userDetails.school_code
+  }
 
   let user = await Authentication.findOne({ 
                     attributes: [
@@ -44,7 +63,7 @@ async function signIn(userDetails) {
                         'branch_vls_id', 
                         'school_id'
                     ],
-                    where: { user_name: userDetails.userName },
+                    where: where ,
                     include: [{ 
                               model:Role,
                               as:'roles',
@@ -53,6 +72,7 @@ async function signIn(userDetails) {
                     })
 
   if(!user) throw "Oops, wrong credentials, please try again"
+    
   let isActive = await isSchoolBranchActive(user)
   
   if(!isActive)
@@ -206,10 +226,31 @@ async function verifyOTP(body){
  * API for forgot password for user's
  */
 async function forgetPassword(body) {
-  user_name = body.userName
-  if(!user_name) throw 'userName is required'
+  if(!body.userName) throw 'userName is required'
+
+  let where = { user_name:  body.userName}
+
+  let getUser = await Authentication.findOne({ 
+                    attributes: [
+                        'auth_vls_id'
+                    ],
+                    where: where ,
+                    include: [{ 
+                              model:Role,
+                              as:'roles',
+                              attributes: ['slug']
+                            }]
+                    })
+  if(!getUser) throw "Oops, wrong credentials, please try again"
+
+  //super admin check  
+  if(getUser.roles.slug != 'super-admin'){
+    if(!body.school_code) throw 'school_code is required'
+      where.school_code = body.school_code
+  }
+  
   let user = await Authentication.findOne({
-                      where:{ user_name: user_name },
+                      where:where,
                       include: [{ 
                               model:Role,
                               as:'roles',
