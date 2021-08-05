@@ -578,7 +578,7 @@ async function getUserDefaultSetting(params, user){
         passcode = getUserData.moderatorPasscode
   }
   //return {user_id : user.userVlsId, teacher_id : meeting.teacher_id}
-  if(user.userVlsId == meeting.teacher_id)
+  if(user.userVlsId == meeting.teacher_id && user.role == 'teacher')
         passcode = getUserData.moderatorPasscode
 
   return { success: true, message: "meeting passcode",data:{passcode}}
