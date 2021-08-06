@@ -172,6 +172,7 @@ async function list(params, user){
   });
   
   let finalMeetings = []
+  currentTime = moment().format('H:mm');
   await Promise.all(
     meetings.map(async meeting => {
         meeting = meeting.toJSON()
@@ -179,8 +180,14 @@ async function list(params, user){
 
         if(meeting.created_by == currentUser)
             meeting.self_created = 1
-
-        finalMeetings.push(meeting)
+        
+        if(liveClassState){
+          finalMeetings.push(meeting)
+        }else if(meeting.meeting_end >= currentTime){
+          finalMeetings.push(meeting)
+        }else{
+          count--;
+        }
     })
   )
   return { success: true, message: "meeting listing",data:finalMeetings, count}
