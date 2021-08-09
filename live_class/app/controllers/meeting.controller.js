@@ -119,7 +119,7 @@ async function list(params, user){
   if(params.section_id)
     whereCondition.section_id = params.section_id
 
-  whereCondition[Op.or] = { 
+  let searchDescTitle = { 
                   description: { 
                     [Op.like]: `%`+search+`%`
                   },
@@ -146,18 +146,20 @@ async function list(params, user){
           //whereCondition.created_by = currentUser
           break;
   }
-  
+  let pastCondition = null
   //date filters
   if(liveClassState == "past"){
-     whereCondition[Op.and] = [{
-      'meeting_date' : sequelize.where(sequelize.fn('date', sequelize.col('meeting_date')), '<', currentDate)
-     },{
-       [Op.or]: [{
-          'meeting_date' : sequelize.where(sequelize.fn('date', sequelize.col('meeting_date')), '=', currentDate)
-       },{
-          'meeting_end' : sequelize.where(sequelize.fn('time',sequelize.col('meeting_end')),'<=',currentTime)
-       }]
-     }]
+      pastCondition = { 
+        [Op.or] : [{
+          'meeting_date' : sequelize.where(sequelize.fn('date', sequelize.col('meeting_date')), '<', currentDate)
+         },{
+           [Op.and]: [{
+              'meeting_date' : sequelize.where(sequelize.fn('date', sequelize.col('meeting_date')), '=', currentDate)
+           },{
+              'meeting_end' : sequelize.where(sequelize.fn('time',sequelize.col('meeting_end')),'<=',currentTime)
+           }]
+         }]
+       }
      
   }else if(liveClassState == "upcoming"){
     whereCondition[Op.gt] = sequelize.where(sequelize.fn('date', sequelize.col('meeting_date')), '>', currentDate)
@@ -166,8 +168,9 @@ async function list(params, user){
     whereCondition[Op.eq] = sequelize.where(sequelize.fn('date', sequelize.col('meeting_date')), '=', currentDate)
     whereCondition[Op.gt] = sequelize.where(sequelize.col('meeting_end'),'>',currentTime)
   }
- 
   
+  whereCondition[Op.and] = [ searchDescTitle, pastCondition]
+
   let count = await VlsMeetings.count({
         where : whereCondition
     });
