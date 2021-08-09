@@ -163,7 +163,7 @@ async function list(params, user){
     whereCondition[Op.gt] = sequelize.where(sequelize.col('meeting_end'),'>',currentTime)
   }
  
-  console.log(whereCondition)
+  
   let count = await VlsMeetings.count({
         where : whereCondition
     });
