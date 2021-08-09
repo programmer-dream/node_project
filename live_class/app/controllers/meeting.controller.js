@@ -149,10 +149,14 @@ async function list(params, user){
   
   //date filters
   if(liveClassState == "past"){
-     whereCondition[Op.or] = [{
-        'meeting_date' : sequelize.where(sequelize.fn('date', sequelize.col('meeting_date')), '<', currentDate)
+     whereCondition[Op.and] = [{
+      'meeting_date' : sequelize.where(sequelize.fn('date', sequelize.col('meeting_date')), '<', currentDate)
      },{
-        'meeting_end' : sequelize.where(sequelize.fn('time',sequelize.col('meeting_end')),'<=',currentTime)
+       [Op.or]: [{
+          'meeting_date' : sequelize.where(sequelize.fn('date', sequelize.col('meeting_date')), '=', currentDate)
+       },{
+          'meeting_end' : sequelize.where(sequelize.fn('time',sequelize.col('meeting_end')),'<=',currentTime)
+       }]
      }]
      
   }else if(liveClassState == "upcoming"){
