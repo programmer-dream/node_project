@@ -121,7 +121,6 @@ app.post("/meeting/create",[
     check('meeting_title','meeting_title field is required.').not().isEmpty(),
     check('meeting_description','meeting_description field is required.').not().isEmpty(),
     check('meeting_mode','meeting_mode field is required.').not().isEmpty(),
-    check('meeting_location','meeting_location field is required.').not().isEmpty(),
     check('date','date field is required.').not().isEmpty(),
     check('time','time field is required.').not().isEmpty(),
     check('duration','duration field is required.').not().isEmpty()

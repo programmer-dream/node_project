@@ -170,6 +170,10 @@ db.Branch.belongsTo(db.SchoolDetails,{foreignKey:'school_vls_id',as:'schoolDetai
 db.SchoolDetails.hasMany(db.Branch,{foreignKey:'school_id',as:'branch'})
 db.Branch.hasMany(db.Users,{foreignKey:'branch_vls_id',as:'users'})
 
+//Date : 09-08-21
+db.Employee.belongsTo(db.SchoolDetails,{foreignKey:'school_vls_id',as:'school'})
+db.Guardian.belongsTo(db.SchoolDetails,{foreignKey:'school_vls_id',as:'school'})
+
 db.SchoolMeetingSettings.belongsTo(db.VlsVideoServices,{foreignKey:'video_service_id',as:'video_service'})
 
 db.VlsVideoServices.belongsTo(db.SchoolMeetingSettings,{foreignKey:'video_service_id',as:'SchoolMeetingSettings'})

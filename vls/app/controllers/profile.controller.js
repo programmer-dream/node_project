@@ -41,6 +41,10 @@ async function profile(user){
                               model:Classes,
                               as:'classes',
                               attributes: ['name']
+                            },{ 
+                              model:SchoolDetails,
+                              as:'school',
+                              attributes: ['school_vls_id','school_name', 'address','school_code','logo']
                             }]
                     })
   	 userPorfile = student.toJSON();
@@ -58,6 +62,10 @@ async function profile(user){
                                 as:'schoolDetails',
                                 attributes: ['school_vls_id','school_name', 'address','school_code','logo']
                               }]
+                            },{ 
+                              model:SchoolDetails,
+                              as:'school',
+                              attributes: ['school_vls_id','school_name', 'address','school_code','logo']
                             }]
                     })
   	userPorfile = guardian.toJSON();
@@ -75,6 +83,10 @@ async function profile(user){
                                 as:'schoolDetails',
                                 attributes: ['school_vls_id','school_name', 'address','school_code','logo']
                               }]
+                            },{ 
+                              model:SchoolDetails,
+                              as:'school',
+                              attributes: ['school_vls_id','school_name', 'address','school_code','logo']
                             }]
                     })
   	userPorfile = employee.toJSON();

@@ -52,7 +52,6 @@ module.exports = (sequelize, Sequelize) => {
           type: Sequelize.ENUM('online','f2f','voice_call')
         },
         meeting_location: {
-          allowNull: false,
           type: Sequelize.STRING
         },
         date: {
