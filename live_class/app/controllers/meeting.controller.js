@@ -93,7 +93,7 @@ async function list(params, user){
   let offset           = 0 
   let search           = '' 
   let currentDate      = moment().format('YYYY-MM-DD')
-  let currentTime      = moment().format('H:mm');
+  let currentTime      = moment().utcOffset("+05:30").format('H:mm');
 
   if(params.orderBy)
      orderBy = params.orderBy
