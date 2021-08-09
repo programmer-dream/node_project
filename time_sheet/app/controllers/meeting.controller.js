@@ -13,6 +13,7 @@ const sequelize  = db.sequelize;
 const Routine    = db.Routine;
 const Notification = db.Notification;
 const VlsMeetings  = db.VlsMeetings;
+const Role         = db.Role;
 const bcrypt       = require("bcryptjs");
 
 module.exports = {
@@ -32,7 +33,7 @@ module.exports = {
 async function create(req){
   const errors = validationResult(req);
   if(errors.array().length) throw errors.array()
-
+  
   if(req.user.role != 'principal' && req.user.role != 'branch-admin') throw 'Unauthorized User'
 
       req.body.originator_type = 'principal'
@@ -44,16 +45,20 @@ async function create(req){
         throw "we can't create a meeting in past date time"
     }
 
-    if(req.body.attendee_type =='teacher'){
-      let teacher_id = req.body.attendee_vls_id
-      let day        = moment(req.body.date).format('dddd')
-      let start_time = req.body.time
-      let duration   = req.body.duration
-      let end_time   = moment(start_time,'HH:mm').add(duration, 'minutes').format('HH:mm')
-      await checkTeacherTimings(teacher_id, day, start_time, duration, end_time)
+    //metting for all teachers
+    if(req.body.attendee_type =='all_teacher'){
+      req.body.attendee_status = 'accept'
+    }else{
+      if(req.body.attendee_type =='teacher'){
+        let teacher_id = req.body.attendee_vls_id
+        let day        = moment(req.body.date).format('dddd')
+        let start_time = req.body.time
+        let duration   = req.body.duration
+        let end_time   = moment(start_time,'HH:mm').add(duration, 'minutes').format('HH:mm')
+        await checkTeacherTimings(teacher_id, day, start_time, duration, end_time)
+      }
+      await checkMeetingTimings(reqDate, req.body.duration)
     }
-    await checkMeetingTimings(reqDate, req.body.duration)
-
     req.body.meeting_author_vls_id = req.user.userVlsId
   	let user 		         = await User.findByPk(req.user.id)
   	req.body.school_id 	 = user.school_id
@@ -76,11 +81,18 @@ async function create(req){
     let roleType = 'employee'
     if(meeting.attendee_type == 'parent')
         roleType = 'guardian'
-    //notification
-      let users = [{
+
+    let users
+    if(req.body.attendee_type =='all_teacher'){
+        users = await getBranchTeachers(1)
+        
+    }else{
+       users = [{
         id: meeting.attendee_vls_id,
         type: roleType
       }]
+    }
+    //notification
       let notificatonData = {}
       notificatonData.branch_vls_id = meeting.branch_id
       notificatonData.school_vls_id = meeting.school_id
@@ -477,3 +489,27 @@ async function checkMeetingTimings(reqDate ,reqDuration, id=null){
       })
     )
 };
+
+/**
+ * API for metting timings for class  
+ */
+async function getBranchTeachers(branch_vls_id){
+  let teachers = await User.findAll({ 
+                      attributes: [ 
+                          'user_vls_id', 
+                      ],
+                      include: [{ 
+                                model:Role,
+                                as:'roles',
+                                attributes: ['slug'],
+                                where:{slug:'teacher'}
+                              }]
+                      })
+  let allTeacher = []
+  await Promise.all(
+      teachers.map(async teacher => {
+        allTeacher.push({id:teacher.user_vls_id,type:'employee'})
+      })
+  )
+  return allTeacher
+}
