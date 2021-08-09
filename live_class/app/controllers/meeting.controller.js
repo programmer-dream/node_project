@@ -149,8 +149,11 @@ async function list(params, user){
   
   //date filters
   if(liveClassState == "past"){
-    whereCondition[Op.lt] = sequelize.where(sequelize.fn('date', sequelize.col('meeting_date')), '<', currentDate)
-    whereCondition[Op.lt] = sequelize.where(sequelize.col('meeting_end'),'<=',currentTime)
+     whereCondition[Op.or] = [{
+        'meeting_date' : sequelize.where(sequelize.fn('date', sequelize.col('meeting_date')), '<', currentDate)
+     },{
+        'meeting_end' : sequelize.where(sequelize.col('meeting_end'),'<=',currentTime)
+     }]
      
   }else if(liveClassState == "upcoming"){
     whereCondition[Op.gt] = sequelize.where(sequelize.fn('date', sequelize.col('meeting_date')), '>', currentDate)
@@ -160,6 +163,7 @@ async function list(params, user){
     whereCondition[Op.gt] = sequelize.where(sequelize.col('meeting_end'),'>',currentTime)
   }
  
+  console.log(whereCondition)
   let count = await VlsMeetings.count({
         where : whereCondition
     });
