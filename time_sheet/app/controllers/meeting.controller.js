@@ -84,7 +84,7 @@ async function create(req){
 
     let users
     if(req.body.attendee_type =='all_teacher'){
-        users = await getBranchTeachers(1)
+        users = await getBranchTeachers(req.body.branch_id)
         
     }else{
        users = [{
@@ -295,8 +295,6 @@ async function update(req){
   	req.body.branch_id 	 = user.branch_vls_id
   	let meetingData      = req.body
 
-  	
-
   	let meeting          = await Meeting.update(meetingData,{
             						  		where : { id:req.params.id }
             						  	})
@@ -313,11 +311,17 @@ async function update(req){
       let roleType = 'employee'
       if(meetingData.attendee_type == 'parent')
         roleType = 'guardian'
-    //notification
-      let users = [{
-        id: meetingData.attendee_vls_id,
-        type: roleType
-      }]
+      let users
+      if(meetingData.attendee_type =='all_teacher'){
+        users = await getBranchTeachers(req.body.branch_id)
+        
+      }else{
+      //notification
+         users = [{
+          id: meetingData.attendee_vls_id,
+          type: roleType
+        }]
+      }
       let notificatonData = {}
       notificatonData.branch_vls_id = meetingData.branch_id
       notificatonData.school_vls_id = meetingData.school_id
