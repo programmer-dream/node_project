@@ -151,6 +151,10 @@ db.PassionInterest = require("./PassionInterest.js")(sequelize, Sequelize);
 db.PassionComment = require("./PassionComments.js")(sequelize, Sequelize);
 db.PassionAcceptedBy = require("./PassionAcceptedBy.js")(sequelize, Sequelize);
 
+/*********** vls payment management ***********/
+db.Invoice = require("./Invoice.js")(sequelize, Sequelize);
+db.Invoice.belongsTo(db.Student,{foreignKey:'student_id',as:'student'})
+
 /*********** Relation management between tables ***********/
 db.VlsMeetings.belongsTo(db.SubjectList,{foreignKey:'subject_code',targetKey:'code',as:'subjectList'})
 db.VlsMeetings.belongsTo(db.Classes,{foreignKey:'class_id',as:'class'})
