@@ -295,8 +295,6 @@ async function update(req){
   	req.body.branch_id 	 = user.branch_vls_id
   	let meetingData      = req.body
 
-  	
-
   	let meeting          = await Meeting.update(meetingData,{
             						  		where : { id:req.params.id }
             						  	})
@@ -314,7 +312,7 @@ async function update(req){
       if(meetingData.attendee_type == 'parent')
         roleType = 'guardian'
       let users
-      if(req.body.attendee_type =='all_teacher'){
+      if(meetingData.attendee_type =='all_teacher'){
         users = await getBranchTeachers(req.body.branch_id)
         
       }else{
