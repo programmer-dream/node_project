@@ -144,7 +144,29 @@ async function list(user){
                 as:'vls_meeting'
               }]
   })
-  //return meetings
+  //combine 
+  if(user.role == 'teacher'){
+    let userData = await User.findByPk(user.id)
+    let teacherCondition = { 
+                              branch_id : userData.branch_vls_id,
+                              attendee_type: 'all_teacher' 
+                           }
+    let teacherMettings = await Meeting.findAll({
+      where:teacherCondition,
+      include: [{ 
+                  model:Employee,
+                  as:'addedBy',
+                  attributes: ['name','photo']
+                },{ 
+                  model:VlsMeetings,
+                  as:'vls_meeting'
+                }]
+    })
+    if(teacherMettings.length){
+      meetings = meetings.concat(teacherMettings)
+    }
+  }
+  
   let mettingWithUser = []
   await Promise.all(
     meetings.map(async meeting => {
@@ -255,15 +277,17 @@ async function update(req){
         throw "we can't create a meeting in past date time"
     }
 
-    if(req.body.attendee_type =='teacher'){
-      let teacher_id = req.body.attendee_vls_id
-      let day        = moment(req.body.date).format('dddd')
-      let start_time = req.body.time
-      let duration   = req.body.duration
-      let end_time   = moment(start_time,'HH:mm').add(duration, 'minutes').format('HH:mm')
-      await checkTeacherTimings(teacher_id, day, start_time, duration, end_time)
+    if(req.body.attendee_type !='all_teacher'){
+      if(req.body.attendee_type =='teacher'){
+        let teacher_id = req.body.attendee_vls_id
+        let day        = moment(req.body.date).format('dddd')
+        let start_time = req.body.time
+        let duration   = req.body.duration
+        let end_time   = moment(start_time,'HH:mm').add(duration, 'minutes').format('HH:mm')
+        await checkTeacherTimings(teacher_id, day, start_time, duration, end_time)
+      }
+      await checkMeetingTimings(reqDate , req.body.duration, req.params.id)
     }
-    await checkMeetingTimings(reqDate , req.body.duration, req.params.id)
     //check end
     req.body.meeting_author_vls_id = req.user.userVlsId
   	let user 		         = await User.findByPk(req.user.id)
