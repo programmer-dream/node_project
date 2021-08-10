@@ -97,7 +97,7 @@ async function create(req){
       notificatonData.branch_vls_id = meeting.branch_id
       notificatonData.school_vls_id = meeting.school_id
       notificatonData.status        = 'important'
-      notificatonData.message       = '{name} schedule a meeting with you.'
+      notificatonData.message       = '{name} scheduled a meeting with you.'
       notificatonData.notificaton_type = 'meeting'
       notificatonData.notificaton_type_id = meeting.id
       notificatonData.start_date    = meeting.date
