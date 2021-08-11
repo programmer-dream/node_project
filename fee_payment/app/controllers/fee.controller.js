@@ -39,7 +39,33 @@ async function list(params, user){
   let orderBy          = 'desc';
   let limit            = 10
   let offset           = 0
-  let whereCodition    = {}
+  let currentMonth     =  moment().format('MMMM')
+
+  let whereCodition    = { month : currentMonth}
+
+  if(user.role == 'student')
+     whereCodition.student_id = user.userVlsId
+
+  if(user.role == 'guardian'){
+      let childIds = await Student.findAll({
+        where : { parent_vls_id: user.userVlsId},
+        attributes : ['student_vls_id']
+
+      }).then(students => students.map( student => student.student_vls_id));
+      whereCodition.student_id = { [Op.in] : childIds }
+  }
+
+  let authentication = await Authentication.findByPk(user.id)
+  let academicYear = await AcademicYear.findOne({
+        where : {
+              school_id  : authentication.school_id,
+              is_running : 1,
+
+            }
+      });
+  
+  if(academicYear)
+    whereCodition.academic_year_id = academicYear.id
 
   if(params.class_id)
     whereCodition.class_id = params.class_id
@@ -50,6 +76,15 @@ async function list(params, user){
   if(params.school_vls_id)
     whereCodition.school_id = params.school_vls_id
 
+  if(params.student_vls_id)
+    whereCodition.student_id = params.student_vls_id
+
+  if(params.paid_status)
+    whereCodition.paid_status = params.paid_status
+
+  if(params.month)
+     whereCodition.month = moment(params.month, 'M').format('MMMM')
+  
   let allInvoices = await Invoice.findAll({
     where : whereCodition,
     limit : limit,

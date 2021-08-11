@@ -117,61 +117,6 @@ io.on("connection", async function (client) {
   
 });
 
-// create live class  
-app.post("/live_classes/create/",async function(req, res){
-   feeController.create(req.body, req.user)
-          .then((live_class) => {
-            if(live_class){
-              //create event
-              io.sockets.emit('getNotificaion', { event :'live_class' });
-              //create event
-              res.json(live_class)
-            }else{
-              res.status(400).json({ status: "error", message: 'Error while creating live_class' })
-            }
-          })
-          .catch( (err) => {
-            console.log(err, "err")
-            res.status(400).json({ status: "error", message: "Something went wrong" }) 
-          });
-});
-// update live class  
-app.put("/live_classes/update/:meeting_id",async function(req, res){
-   feeController.update(req.params, req.body, req.user)
-          .then((live_class) => {
-            if(live_class){
-              //create event
-              io.sockets.emit('getNotificaion', { event :'live_class' });
-              //create event
-              res.json(live_class)
-            }else{
-              res.status(400).json({ status: "error", message: 'Error while updating live_class' })
-            }
-          })
-          .catch( (err) => {
-            console.log(err, "err")
-            res.status(400).json({ status: "error", message: "Something went wrong" }) 
-          });
-});
-
-// delete live class  
-app.delete("/live_classes/deleteMeeting/:meeting_id",async function(req, res){
-   meetingController.deleteMeeting(req.params, req.user)
-          .then((live_class) => {
-            if(live_class){
-              //create event
-              io.sockets.emit('getNotificaion', { event :'live_class' });
-              //create event
-              res.json(live_class)
-            }else{
-              res.status(400).json({ status: "error", message: 'Error while deleting live_class' })
-            }
-          })
-          .catch( (err) => {
-            console.log(err, "err")
-            res.status(400).json({ status: "error", message: "Something went wrong" }) 
-          });
-});
 // api routes
 app.use('/fee', require('./app/routes/fee.routes'));
 
