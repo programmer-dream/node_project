@@ -69,7 +69,7 @@ async function create(body, user){
       notificatonData.added_type    = user.role
       notificatonData.event_type    = 'created'
       await Notification.create(notificatonData)
-      let teacherObj = { id  : user.userVlsId,
+      let teacherObj = { id  : meeting.teacher_id,
                        type: 'employee'
                      }
       notificatonData.users = JSON.stringify([teacherObj])
@@ -262,7 +262,7 @@ async function update(params, body, user){
       notificatonData.added_type    = user.role
       notificatonData.event_type    = 'created'
       await Notification.create(notificatonData)
-      let teacherObj = { id  : user.userVlsId,
+      let teacherObj = { id  : meeting.teacher_id,
                        type: 'employee'
                      }
       notificatonData.users = JSON.stringify([teacherObj])

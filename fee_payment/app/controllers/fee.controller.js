@@ -1,28 +1,17 @@
-const { validationResult } = require('express-validator');
-const db 	 	 = require("../../../models");
-const moment 	 = require("moment");
-const bcrypt     = require("bcryptjs");
-const path       = require('path')
-const mailer     = require('../../../helpers/nodemailer')
-const axios     = require('axios').default;
-const Op 	 	 = db.Sequelize.Op;
-const Sequelize  = db.Sequelize;
-const sequelize  = db.sequelize;
-const Student    = db.Student;
-const Section    = db.Section;
-const SubjectList    = db.SubjectList;
-const Authentication = db.Authentication;
-const Guardian   	 = db.Guardian;
-const Classes   	 = db.Classes;
-const SchoolDetails = db.SchoolDetails;
-const Employee 		= db.Employee;
-const Branch  		= db.Branch;
-const VlsMeetings = db.VlsMeetings;
-const AcademicYear   = db.AcademicYear;
-const VlsVideoServices  = db.VlsVideoServices;
-const Notification   = db.Notification;
-const Invoice        = db.Invoice;
-const Transaction    = db.Transaction;
+const db 	 	            = require("../../../models");
+const moment 	          = require("moment");
+const path              = require('path')
+const Op 	 	            = db.Sequelize.Op;
+const Sequelize         = db.Sequelize;
+const sequelize         = db.sequelize;
+const Student           = db.Student;
+const Authentication    = db.Authentication;
+const Guardian   	      = db.Guardian;
+const Classes   	      = db.Classes;
+const SchoolDetails     = db.SchoolDetails;
+const AcademicYear      = db.AcademicYear;
+const Invoice           = db.Invoice;
+const Transaction       = db.Transaction;
 
 
 
@@ -105,7 +94,7 @@ async function list(params, user){
              }]
   })
 
-  return { success: true, message: "fee listing",data:allInvoices}
+  return { success: true, message: "fee listing", data: allInvoices}
 };
 
 
@@ -123,13 +112,14 @@ async function view(params, user){
             },{ 
                 model:Transaction,
                 as:'transaction'
-             },{ 
+            },{ 
                 model:Classes,
                 as:'class'
-             }]
+            }]
   })
-  
-  return { success: true, message: "fee listing",data:allInvoices}
-};
 
+  if(!allInvoices) throw 'Invoice not exists'
+  
+  return { success: true, message: "fee view",data:allInvoices}
+};
 
