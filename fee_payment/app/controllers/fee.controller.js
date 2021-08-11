@@ -22,6 +22,7 @@ const AcademicYear   = db.AcademicYear;
 const VlsVideoServices  = db.VlsVideoServices;
 const Notification   = db.Notification;
 const Invoice        = db.Invoice;
+const Transaction    = db.Transaction;
 
 
 
@@ -63,7 +64,7 @@ async function list(params, user){
 
             }
       });
-  
+
   if(academicYear)
     whereCodition.academic_year_id = academicYear.id
 
@@ -95,7 +96,13 @@ async function list(params, user){
     include: [{ 
                 model:Student,
                 as:'student'
-            }]
+              },{ 
+                model:Transaction,
+                as:'transaction'
+             },{ 
+                model:Classes,
+                as:'class'
+             }]
   })
 
   return { success: true, message: "fee listing",data:allInvoices}
@@ -113,7 +120,13 @@ async function view(params, user){
     include: [{ 
                 model:Student,
                 as:'student'
-            }]
+            },{ 
+                model:Transaction,
+                as:'transaction'
+             },{ 
+                model:Classes,
+                as:'class'
+             }]
   })
   
   return { success: true, message: "fee listing",data:allInvoices}
