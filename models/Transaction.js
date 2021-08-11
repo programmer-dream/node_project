@@ -1,6 +1,6 @@
 module.exports = (sequelize, Sequelize) => {
   const Transaction = sequelize.define("transactions", {
-        id: {
+      id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
@@ -14,95 +14,15 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      user_id: {
-        allowNull: false,
-        type: Sequelize.INTEGER
-      },
-      user_role: {
-        type: Sequelize.STRING(30)
-      },
-      salary_grade_id: {
-        allowNull: false,
-        type: Sequelize.INTEGER
-      },
       academic_year_id: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      expenditure_id: {
+      invoice_id: {
         allowNull: false,
-        type: Sequelize.INTEGER
+        type: Sequelize.STRING
       },
-      salary_type: {
-        allowNull: false,
-        type: Sequelize.STRING(20)
-      },
-      salary_month: {
-        allowNull: false,
-        type: Sequelize.STRING(100)
-      },
-      basic_salary: {
-        allowNull: false,
-        type: Sequelize.FLOAT
-      },
-      house_rent: {
-        allowNull: false,
-        type: Sequelize.FLOAT
-      },
-      transport: {
-        allowNull: false,
-        type: Sequelize.FLOAT
-      },
-      medical: {
-        allowNull: false,
-        type: Sequelize.FLOAT
-      },
-      bonus: {
-        allowNull: false,
-        type: Sequelize.FLOAT
-      },
-      over_time_hourly_rate: {
-        allowNull: false,
-        type: Sequelize.FLOAT
-      },
-      over_time_total_hour: {
-        allowNull: false,
-        type: Sequelize.FLOAT
-      },
-      over_time_amount: {
-        allowNull: false,
-        type: Sequelize.FLOAT
-      },
-      provident_fund: {
-        allowNull: false,
-        type: Sequelize.FLOAT
-      },
-      penalty: {
-        allowNull: false,
-        type: Sequelize.FLOAT
-      },
-      hourly_rate: {
-        allowNull: false,
-        type: Sequelize.FLOAT,
-        defaultValue:0.00
-      },
-      total_hour: {
-        allowNull: false,
-        type: Sequelize.FLOAT
-      },
-      gross_salary: {
-        allowNull: false,
-        type: Sequelize.FLOAT
-      },
-      total_allowance: {
-        allowNull: false,
-        type: Sequelize.FLOAT
-      },
-      total_deduction: {
-        allowNull: false,
-        type: Sequelize.FLOAT
-      },
-      net_salary: {
+      amount: {
         allowNull: false,
         type: Sequelize.FLOAT
       },
@@ -110,19 +30,64 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: false,
         type: Sequelize.STRING(20)
       },
+      bank_name: {
+        allowNull: false,
+        type: Sequelize.STRING
+      },
       cheque_no: {
+        allowNull: false,
+        type: Sequelize.STRING(100)
+      },
+      transaction_id: {
+        allowNull: false,
+        type: Sequelize.STRING(100)
+      },
+      payment_date: {
+        allowNull: false,
+        type: Sequelize.DATE
+      },
+      pum_first_name: {
+        allowNull: false,
+        type: Sequelize.STRING
+      },
+      pum_email: {
+        allowNull: false,
         type: Sequelize.STRING(50)
       },
-      bank_name: {
-        type: Sequelize.STRING(1000)
+      pum_phone: {
+        allowNull: false,
+        type: Sequelize.STRING(20)
       },
-      payment_to: {
+      stripe_card_number: {
+        allowNull: false,
+        type: Sequelize.STRING
+      },
+      stack_email: {
+        allowNull: false,
+        type: Sequelize.STRING(100)
+      },
+      stack_reference: {
+        allowNull: false,
+        type: Sequelize.STRING
+      },
+      bank_receipt: {
+        allowNull: false,
+        type: Sequelize.STRING(100)
+      },
+      card_cvv: {
+        allowNull: false,
+        type: Sequelize.STRING(20)
+      },
+      expire_month: {
+        allowNull: false,
+        type: Sequelize.STRING(20)
+      },
+      expire_year: {
         allowNull: false,
         type: Sequelize.STRING(20)
       },
       note: {
-        allowNull: false,
-        type: Sequelize.TEXT
+        type: Sequelize.STRING
       },
       status: {
         allowNull: false,
