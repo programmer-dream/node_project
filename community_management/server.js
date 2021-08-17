@@ -18,7 +18,7 @@ const app = express();
 
 var http = require("http").Server(app);
 var io = require("socket.io")(http,{
-  path: '/community/socket.io'
+  path: '/community/socket.io',
   cors: {
     origin: '*',
   }
