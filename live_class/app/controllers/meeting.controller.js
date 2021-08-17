@@ -255,7 +255,7 @@ async function update(params, body, user){
   meeting.update(body);
   if(meeting.class_id){
       let classStudent = await getStudents(meeting)
-      let meetingType = 'live classes'
+      let meetingType = 'live class'
       if(meeting.meeting_type =='online_meeting')
           meetingType = 'online meeting'
 
@@ -264,7 +264,7 @@ async function update(params, body, user){
       notificatonData.school_vls_id = meeting.school_vls_id
       notificatonData.status        = 'important'
       notificatonData.message       = `{name} updated ${meetingType} details.`
-      notificatonData.notificaton_type = 'custom_notification'
+      notificatonData.notificaton_type = 'live_class'
       notificatonData.notificaton_type_id = meeting.meeting_id
       notificatonData.start_date    = meeting.meeting_date
       notificatonData.users         = JSON.stringify(classStudent)
@@ -298,7 +298,7 @@ async function deleteMeeting(params, user){
   if(meeting.class_id){
       let classStudent = await getStudents(meeting)
       
-      let meetingType = 'live classes'
+      let meetingType = 'live class'
       if(meeting.meeting_type =='online_meeting')
           meetingType = 'online meeting'
 
@@ -307,7 +307,7 @@ async function deleteMeeting(params, user){
       notificatonData.school_vls_id = meeting.school_vls_id
       notificatonData.status        = 'important'
       notificatonData.message       = `{name} deleted ${meetingType}.`
-      notificatonData.notificaton_type = 'custom_notification'
+      notificatonData.notificaton_type = 'live_class'
       notificatonData.notificaton_type_id = meeting.meeting_id
       notificatonData.start_date    = meeting.meeting_date
       notificatonData.users         = JSON.stringify(classStudent)
