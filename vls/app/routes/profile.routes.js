@@ -4,7 +4,7 @@ const profileController = require("../controllers/profile.controller");
 
 // GET
 router.get("/dashboard/profile",profile);
-router.get("/school/listBranch",listBranch);
+router.get("/schools/listBranch",listBranch);
 
 
 module.exports = router;
