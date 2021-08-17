@@ -20,6 +20,7 @@ const authController = require("../vls/app/controllers/auth.controller");
 //socket code
 var http = require("http").Server(app);
 var io = require("socket.io")(http,{
+  path: '/fees/socket.io',
   cors: {
     origin: '*',
   }

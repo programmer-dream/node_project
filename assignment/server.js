@@ -22,6 +22,7 @@ const app = express();
 //socket code
 var http = require("http").Server(app);
 var io = require("socket.io")(http,{
+  path: '/assignment/socket.io',
   cors: {
     origin: '*',
   }
