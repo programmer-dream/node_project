@@ -13,7 +13,7 @@ let storage = multer.diskStorage({
 
   let dirpath     = config.pdf_path
 
-  let uplodedPath = "/passion_files/"
+  let uplodedPath = "/blog/passion_files/"
   dirpath = dirpath + uplodedPath
   req.body.uplodedPath = uplodedPath
 

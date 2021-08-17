@@ -30,7 +30,7 @@ let storage = multer.diskStorage({
   })
   var branch_name = branch.branch_name;
   branch_name = branch_name.replace(/\s+/g, '-').toLowerCase();
-  uplodedPath = "/"+school_name+"/"+branch_name+"/chat/"
+  uplodedPath = "/chat/"+school_name+"/"+branch_name+"/"
   dirpath = dirpath + uplodedPath
   req.body.uplodedPath = uplodedPath
   //console.log(dirpath)

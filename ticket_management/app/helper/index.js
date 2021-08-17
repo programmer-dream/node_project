@@ -23,7 +23,7 @@ let storage = multer.diskStorage({
   var school_name = school.school_name;
   school_name = school_name.replace(/\s+/g, '-').toLowerCase();
 
-  uplodedPath = "/"+school_name+"/ticket_files/"
+  uplodedPath = "/ticket/"+school_name+"/ticket_files/"
   dirpath = dirpath + uplodedPath
   req.body.uplodedPath = uplodedPath
 
