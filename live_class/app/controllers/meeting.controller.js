@@ -49,19 +49,28 @@ async function create(body, user){
     body.academic_year_id = academicYear.id
     body.created_by = JSON.stringify({id:user.userVlsId,type:user.role})
     let meeting = await VlsMeetings.create(body);
+    let you     = 'you'
+
     //create new notification
     if(meeting.class_id){
       let classStudent = await getStudents(body)
-      let meetingType = 'live classes'
+      let meetingType = 'live class'
       if(meeting.meeting_type =='online_meeting')
           meetingType = 'online meeting'
 
+      let subject = await SubjectList.findOne({
+        attributes:['subject_name'],
+        where : {code: meeting.subject_code}
+      })
+      if(subject)
+          you = subject.subject_name
+      
       let notificatonData = {}
       notificatonData.branch_vls_id = meeting.branch_vls_id
       notificatonData.school_vls_id = meeting.school_vls_id
       notificatonData.status        = 'important'
-      notificatonData.message       = `{name} added ${meetingType} for you.`
-      notificatonData.notificaton_type = 'custom_notification'
+      notificatonData.message       = `{name} added ${meetingType} for ${you}.`
+      notificatonData.notificaton_type = 'live_class'
       notificatonData.notificaton_type_id = meeting.meeting_id
       notificatonData.start_date    = meeting.meeting_date
       notificatonData.users         = JSON.stringify(classStudent)
@@ -72,6 +81,7 @@ async function create(body, user){
       let teacherObj = { id  : meeting.teacher_id,
                        type: 'employee'
                      }
+      notificatonData.message       = `{name} added ${meetingType} for you.`
       notificatonData.users = JSON.stringify([teacherObj])
       await Notification.create(notificatonData)
     }
