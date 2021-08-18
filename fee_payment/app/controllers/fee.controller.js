@@ -18,7 +18,8 @@ const Transaction       = db.Transaction;
 
 module.exports = {
   list,
-  view
+  view,
+  postFeeRequest
 };
 
 
@@ -121,5 +122,14 @@ async function view(params, user){
   if(!allInvoices) throw 'Invoice not exists'
   
   return { success: true, message: "fee view",data:allInvoices}
+};
+
+
+/**
+ * API for payment process
+ */
+async function postFeeRequest(body){
+  let paymentRequestParams = body
+  return { success: true, message: "payment request form",data:paymentRequestParams}
 };
 
