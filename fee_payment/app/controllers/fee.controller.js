@@ -4,9 +4,6 @@ const path              = require('path')
 const axios             = require('axios').default;
 const config            = require("../../../config/env.js");
 const FormData          = require('form-data');
-const buffer            = require('Buffer');
-const utf8            = require('utf8');
-const { base64encode }  = require('nodejs-base64');
 const Op 	 	            = db.Sequelize.Op;
 const Sequelize         = db.Sequelize;
 const sequelize         = db.sequelize;
@@ -146,18 +143,10 @@ async function postFeeRequest(body,params){
    
   let vendor_percentage = [{
          "vendorId" : branch.vendor_id,
-         "percentage" : branch.vendor_percentage
-       }]
+         "percentage" : parseInt(branch.vendor_percentage)
+  }]
+  let objJsonStr = Buffer.from(JSON.stringify(vendor_percentage)).toString("base64")
 
-  let objJsonStr = JSON.stringify(vendor_percentage, (key, value) =>
-                      typeof value === "string" ? utf8.encode(value) : value
-                     )
-
-  let objJsonB64 = Buffer.from(objJsonStr).toString("base64");
-  //return objJsonB64
-  //console.log(objJsonB64, 'djfkdjfkjdkf')
-  //let paymentSplits =  JSON.stringify(vendor_percentage) 
-  //return vendor_percentage
   let data = new FormData();
   data.append('appId', cashFreeConfig.app_id);
   data.append('secretKey', cashFreeConfig.secret);
@@ -170,7 +159,7 @@ async function postFeeRequest(body,params){
   data.append('customerPhone', body.customerPhone);
   data.append('returnUrl', body.returnUrl);
   data.append('paymentModes', 'dc,cc');
-  data.append('paymentSplits', objJsonB64);
+  data.append('paymentSplits', objJsonStr);
   //return data
   var config = {
     method: 'post',
