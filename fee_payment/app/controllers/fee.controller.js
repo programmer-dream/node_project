@@ -207,8 +207,7 @@ async function vendorCreate(body, params){
   let cashfreeVendorData = await axiosRequest(config);
 
   if(cashfreeVendorData && cashfreeVendorData.status == 'OK'){
-    
-    branch.update(branch_data)
+    await branch.update(branch_data)
   }
   
   return { success: true, message: "Vendor created successfully",data:body}
@@ -282,7 +281,7 @@ async function vendorUpdate(body, params){
     if(body.status == "DELETED"){
       branch_data = { vendor_percentage: "", vendor_id: "",vendor_details: ""}
     }
-    branch.update(branch_data)
+    await branch.update(branch_data)
   }
   
   return { success: true, message: "Vendor updated successfully",data:body}
