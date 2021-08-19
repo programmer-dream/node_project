@@ -1,6 +1,8 @@
 const db 	 	            = require("../../../models");
 const moment 	          = require("moment");
 const path              = require('path')
+const axios             = require('axios').default;
+const config            = require("../../../config/env.js");
 const Op 	 	            = db.Sequelize.Op;
 const Sequelize         = db.Sequelize;
 const sequelize         = db.sequelize;
@@ -12,14 +14,16 @@ const SchoolDetails     = db.SchoolDetails;
 const AcademicYear      = db.AcademicYear;
 const Invoice           = db.Invoice;
 const Transaction       = db.Transaction;
-
+const Branch            = db.Branch;
 
 
 
 module.exports = {
   list,
   view,
-  postFeeRequest
+  postFeeRequest,
+  vendorCreate,
+  vendorUpdate
 };
 
 
@@ -133,3 +137,113 @@ async function postFeeRequest(body){
   return { success: true, message: "payment request form",data:paymentRequestParams}
 };
 
+/**
+ * API for vendor create
+ */
+async function vendorCreate(body, params){
+  let cashFreeConfig = await getCashFreeConfig();
+  
+  let branch_vls_id     = params.branch_id
+
+  let branch_data = {
+      vendor_percentage: body.vendor_percentage,
+      vendor_id        : body.id,
+      vendor_details   : JSON.stringify(body)
+  }
+
+  delete body.vendor_percentage
+
+  var data = JSON.stringify(body);
+  
+  var config = {
+    method: 'post',
+    url: `${cashFreeConfig.url}/api/v2/easy-split/vendors`,
+    headers: { 
+      'x-client-id': cashFreeConfig.app_id, 
+      'x-client-secret': cashFreeConfig.secret, 
+      'Content-Type': 'application/json'
+    },
+    data : data
+  };
+
+  let cashfreeVendorData = await axiosRequest(config);
+
+  if(cashfreeVendorData && cashfreeVendorData.status == 'OK'){
+    let branch = await Branch.findByPk(branch_vls_id)
+    if(branch)
+        branch.update(branch_data)
+  }
+  
+  return { success: true, message: "Vendor created successfully",data:body}
+};
+
+
+/**
+ * API for axios request
+ */
+async function axiosRequest(config){
+
+  return new Promise((resolve, reject) => {
+        axios(config)
+            .then(function (response) {
+                resolve(response.data)
+            })
+            .catch(function (error) {
+                reject(error)
+            });
+    })
+}
+
+/**
+ * API for axios request
+ */
+async function getCashFreeConfig(){
+
+  return {
+          url   : config.cash_free_url,
+          app_id: config.cash_free_app_id,
+          secret: config.cash_free_secret
+         }
+}
+
+
+/**
+ * API for vendor update
+ */
+async function vendorUpdate(body, params){
+  let cashFreeConfig = await getCashFreeConfig();
+  //return body
+  let branch_vls_id     = params.branch_id
+
+  let branch_data = {
+      vendor_percentage: body.vendor_percentage,
+      vendor_id        : body.id,
+      vendor_details   : JSON.stringify(body)
+  }
+
+  delete body.vendor_percentage
+  delete body.id
+
+  var data = JSON.stringify(body);
+  
+  var config = {
+    method: 'put',
+    url: `${cashFreeConfig.url}/api/v2/easy-split/vendors/${branch_data.vendor_id}`,
+    headers: { 
+      'x-client-id': cashFreeConfig.app_id, 
+      'x-client-secret': cashFreeConfig.secret, 
+      'Content-Type': 'application/json'
+    },
+    data : data
+  };
+
+  let cashfreeVendorData = await axiosRequest(config);
+
+  if(cashfreeVendorData && cashfreeVendorData.status == 'OK'){
+    let branch = await Branch.findByPk(branch_vls_id)
+    if(branch)
+        branch.update(branch_data)
+  }
+  
+  return { success: true, message: "Vendor updated successfully",data:body}
+};

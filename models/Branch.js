@@ -123,6 +123,15 @@ module.exports = (sequelize, Sequelize) => {
       is_video_meeting_enabled :{
         type: Sequelize.ENUM('yes','no'),
         defaultValue: 'no'
+      },
+      vendor_id :{
+        type: Sequelize.STRING
+      },
+      vendor_percentage :{
+        type: Sequelize.STRING
+      },
+      vendor_details :{
+        type: Sequelize.STRING
       }
   },{
     tableName: 'branch_details',

@@ -291,6 +291,7 @@ async function viewBranch(id){
   })
   allCounts = await getbranchUser(id)
   let studentCounts = await getBranchStudents(id)
+  branch.vendor_details= JSON.parse(branch.vendor_details)
   return { success: true, message: "Branch view", data : {branch, users,principal ,allCounts, studentCounts }}
 };
 
