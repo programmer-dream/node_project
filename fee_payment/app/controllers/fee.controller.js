@@ -4,6 +4,8 @@ const path              = require('path')
 const axios             = require('axios').default;
 const config            = require("../../../config/env.js");
 const FormData          = require('form-data');
+const buffer            = require('Buffer');
+const utf8            = require('utf8');
 const { base64encode }  = require('nodejs-base64');
 const Op 	 	            = db.Sequelize.Op;
 const Sequelize         = db.Sequelize;
@@ -134,18 +136,28 @@ async function view(params, user){
 /**
  * API for payment process
  */
-async function postFeeRequest(body){
+async function postFeeRequest(body,params){
   let paymentRequestParams = body
   let cashFreeConfig = await getCashFreeConfig();
+  //return cashFreeConfig
+  let branch_vls_id = params.branch_id
   let branch = await Branch.findByPk(branch_vls_id)
   if(!branch) throw 'Error while fetching branch'
-
-  let vendor_percentage = [
-       {
+   
+  let vendor_percentage = [{
          "vendorId" : branch.vendor_id,
          "percentage" : branch.vendor_percentage
-       }
-      ]
+       }]
+
+  let objJsonStr = JSON.stringify(vendor_percentage, (key, value) =>
+                      typeof value === "string" ? utf8.encode(value) : value
+                     )
+
+  let objJsonB64 = Buffer.from(objJsonStr).toString("base64");
+  //return objJsonB64
+  //console.log(objJsonB64, 'djfkdjfkjdkf')
+  //let paymentSplits =  JSON.stringify(vendor_percentage) 
+  //return vendor_percentage
   let data = new FormData();
   data.append('appId', cashFreeConfig.app_id);
   data.append('secretKey', cashFreeConfig.secret);
@@ -158,19 +170,20 @@ async function postFeeRequest(body){
   data.append('customerPhone', body.customerPhone);
   data.append('returnUrl', body.returnUrl);
   data.append('paymentModes', 'dc,cc');
-  data.append('paymentSplits', 'WwogewogICAidmVuZG9ySWQiIDogInZlbmRvcl8xIiwKICAgInBlcmNlbnRhZ2UiIDogMTAKIH0KXQ==');
-
+  data.append('paymentSplits', objJsonB64);
+  //return data
   var config = {
     method: 'post',
     url: `${cashFreeConfig.url}/api/v1/order/create`,
+    headers: { 
+      ...data.getHeaders()
+    },
     data : data
   };
 
   let cashfreeCreateOrder = await axiosRequest(config);
   
-
-
-  return { success: true, message: "payment request form",data:paymentRequestParams}
+  return { success: true, message: "payment request form",data:cashfreeCreateOrder}
 };
 
 /**
