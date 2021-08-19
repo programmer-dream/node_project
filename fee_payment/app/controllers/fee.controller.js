@@ -4,7 +4,6 @@ const path              = require('path')
 const axios             = require('axios').default;
 const config            = require("../../../config/env.js");
 const FormData          = require('form-data');
-const { base64encode }  = require('nodejs-base64');
 const Op 	 	            = db.Sequelize.Op;
 const Sequelize         = db.Sequelize;
 const sequelize         = db.sequelize;
@@ -134,18 +133,20 @@ async function view(params, user){
 /**
  * API for payment process
  */
-async function postFeeRequest(body){
+async function postFeeRequest(body,params){
   let paymentRequestParams = body
   let cashFreeConfig = await getCashFreeConfig();
+  //return cashFreeConfig
+  let branch_vls_id = params.branch_id
   let branch = await Branch.findByPk(branch_vls_id)
   if(!branch) throw 'Error while fetching branch'
-
-  let vendor_percentage = [
-       {
+   
+  let vendor_percentage = [{
          "vendorId" : branch.vendor_id,
-         "percentage" : branch.vendor_percentage
-       }
-      ]
+         "percentage" : parseInt(branch.vendor_percentage)
+  }]
+  let objJsonStr = Buffer.from(JSON.stringify(vendor_percentage)).toString("base64")
+
   let data = new FormData();
   data.append('appId', cashFreeConfig.app_id);
   data.append('secretKey', cashFreeConfig.secret);
@@ -158,19 +159,20 @@ async function postFeeRequest(body){
   data.append('customerPhone', body.customerPhone);
   data.append('returnUrl', body.returnUrl);
   data.append('paymentModes', 'dc,cc');
-  data.append('paymentSplits', 'WwogewogICAidmVuZG9ySWQiIDogInZlbmRvcl8xIiwKICAgInBlcmNlbnRhZ2UiIDogMTAKIH0KXQ==');
-
+  data.append('paymentSplits', objJsonStr);
+  //return data
   var config = {
     method: 'post',
     url: `${cashFreeConfig.url}/api/v1/order/create`,
+    headers: { 
+      ...data.getHeaders()
+    },
     data : data
   };
 
   let cashfreeCreateOrder = await axiosRequest(config);
   
-
-
-  return { success: true, message: "payment request form",data:paymentRequestParams}
+  return { success: true, message: "payment request form",data:cashfreeCreateOrder}
 };
 
 /**
