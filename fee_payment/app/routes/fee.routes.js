@@ -11,7 +11,11 @@ router.get("/view/:id",view);
 
 // POST request
 router.post("/postFeeRequest",postFeeRequest); 
- 
+router.post("/vendorCreate/:branch_id",vendorCreate);
+
+//put request
+router.put("/vendorUpdate/:branch_id",vendorUpdate); 
+  
 
 module.exports = router;
 
@@ -35,6 +39,20 @@ function view(req, res, next) {
 function postFeeRequest(req, res, next) {
     feeController.postFeeRequest(req.body)
         .then(exam => exam ? res.json(exam) : res.status(400).json({ status: "error", message: 'Error while making payments' }))
+        .catch(err => next(err));
+}
+
+// Function vendor create fee
+function vendorCreate(req, res, next) {
+    feeController.vendorCreate(req.body, req.params)
+        .then(exam => exam ? res.json(exam) : res.status(400).json({ status: "error", message: 'Error while creating vendor' }))
+        .catch(err => next(err));
+}
+
+// Function vendor create fee
+function vendorUpdate(req, res, next) {
+    feeController.vendorUpdate(req.body, req.params)
+        .then(exam => exam ? res.json(exam) : res.status(400).json({ status: "error", message: 'Error while creating vendor' }))
         .catch(err => next(err));
 }
 
