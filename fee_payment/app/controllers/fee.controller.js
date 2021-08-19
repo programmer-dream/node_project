@@ -3,6 +3,8 @@ const moment 	          = require("moment");
 const path              = require('path')
 const axios             = require('axios').default;
 const config            = require("../../../config/env.js");
+const FormData          = require('form-data');
+const { base64encode }  = require('nodejs-base64');
 const Op 	 	            = db.Sequelize.Op;
 const Sequelize         = db.Sequelize;
 const sequelize         = db.sequelize;
@@ -134,6 +136,40 @@ async function view(params, user){
  */
 async function postFeeRequest(body){
   let paymentRequestParams = body
+  let cashFreeConfig = await getCashFreeConfig();
+  let branch = await Branch.findByPk(branch_vls_id)
+  if(!branch) throw 'Error while fetching branch'
+
+  let vendor_percentage = [
+       {
+         "vendorId" : branch.vendor_id,
+         "percentage" : branch.vendor_percentage
+       }
+      ]
+  let data = new FormData();
+  data.append('appId', cashFreeConfig.app_id);
+  data.append('secretKey', cashFreeConfig.secret);
+  data.append('orderId', body.orderId);
+  data.append('orderAmount', body.orderAmount);
+  data.append('orderCurrency', body.orderCurrency);
+  data.append('orderNote', body.orderNote);
+  data.append('customerEmail', body.customerEmail);
+  data.append('customerName', body.customerName);
+  data.append('customerPhone', body.customerPhone);
+  data.append('returnUrl', body.returnUrl);
+  data.append('paymentModes', 'dc,cc');
+  data.append('paymentSplits', 'WwogewogICAidmVuZG9ySWQiIDogInZlbmRvcl8xIiwKICAgInBlcmNlbnRhZ2UiIDogMTAKIH0KXQ==');
+
+  var config = {
+    method: 'post',
+    url: `${cashFreeConfig.url}/api/v1/order/create`,
+    data : data
+  };
+
+  let cashfreeCreateOrder = await axiosRequest(config);
+  
+
+
   return { success: true, message: "payment request form",data:paymentRequestParams}
 };
 
@@ -142,8 +178,10 @@ async function postFeeRequest(body){
  */
 async function vendorCreate(body, params){
   let cashFreeConfig = await getCashFreeConfig();
-  
   let branch_vls_id     = params.branch_id
+  let branch = await Branch.findByPk(branch_vls_id)
+
+  if(!branch) throw 'Error while fetching branch'
 
   let branch_data = {
       vendor_percentage: body.vendor_percentage,
@@ -169,9 +207,8 @@ async function vendorCreate(body, params){
   let cashfreeVendorData = await axiosRequest(config);
 
   if(cashfreeVendorData && cashfreeVendorData.status == 'OK'){
-    let branch = await Branch.findByPk(branch_vls_id)
-    if(branch)
-        branch.update(branch_data)
+    
+    branch.update(branch_data)
   }
   
   return { success: true, message: "Vendor created successfully",data:body}
@@ -212,8 +249,10 @@ async function getCashFreeConfig(){
  */
 async function vendorUpdate(body, params){
   let cashFreeConfig = await getCashFreeConfig();
-  //return body
   let branch_vls_id     = params.branch_id
+  let branch = await Branch.findByPk(branch_vls_id)
+
+  if(!branch) throw 'Error while fetching branch'
 
   let branch_data = {
       vendor_percentage: body.vendor_percentage,
@@ -240,9 +279,10 @@ async function vendorUpdate(body, params){
   let cashfreeVendorData = await axiosRequest(config);
 
   if(cashfreeVendorData && cashfreeVendorData.status == 'OK'){
-    let branch = await Branch.findByPk(branch_vls_id)
-    if(branch)
-        branch.update(branch_data)
+    if(body.status == "DELETED"){
+      branch_data = { vendor_percentage: "", vendor_id: "",vendor_details: ""}
+    }
+    branch.update(branch_data)
   }
   
   return { success: true, message: "Vendor updated successfully",data:body}
