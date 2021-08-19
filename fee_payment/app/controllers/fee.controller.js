@@ -171,8 +171,25 @@ async function postFeeRequest(body,params){
   };
 
   let cashfreeCreateOrder = await axiosRequest(config);
+
+  if(cashfreeCreateOrder && cashfreeCreateOrder.status == "OK"){
+    var config = {
+        method: 'get',
+        url: `${cashFreeConfig.sandboxUrl}/pg/orders/${body.orderId}`,
+        headers: { 
+          'x-api-version': '2021-05-21', 
+          'x-client-id': cashFreeConfig.app_id, 
+          'x-client-secret': cashFreeConfig.secret
+        }
+      };
+
+    let paymentOrderDetails = await axiosRequest(config);
+
+    return { success: true, message: "payment request form",data:paymentOrderDetails.order_token}
+  }
   
-  return { success: true, message: "payment request form",data:cashfreeCreateOrder}
+  throw "Error while creating ayment token"
+  
 };
 
 /**
@@ -238,9 +255,10 @@ async function axiosRequest(config){
 async function getCashFreeConfig(){
 
   return {
-          url   : config.cash_free_url,
-          app_id: config.cash_free_app_id,
-          secret: config.cash_free_secret
+          url          : config.cash_free_url,
+          sandboxUrl   : config.cashfree_url,
+          app_id       : config.cash_free_app_id,
+          secret       : config.cash_free_secret
          }
 }
 
