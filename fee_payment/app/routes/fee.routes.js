@@ -10,7 +10,7 @@ router.get("/list",list);
 router.get("/view/:id",view); 
 
 // POST request
-router.post("/postFeeRequest",postFeeRequest); 
+router.post("/postFeeRequest/:branch_id",postFeeRequest); 
 router.post("/vendorCreate/:branch_id",vendorCreate);
 
 //put request
@@ -37,7 +37,7 @@ function view(req, res, next) {
 
 // Function postFeeRequest fee
 function postFeeRequest(req, res, next) {
-    feeController.postFeeRequest(req.body)
+    feeController.postFeeRequest(req.body, req.params)
         .then(exam => exam ? res.json(exam) : res.status(400).json({ status: "error", message: 'Error while making payments' }))
         .catch(err => next(err));
 }
