@@ -139,14 +139,28 @@ async function view(params, user){
 /**
  * API for payment process
  */
-async function postFeeRequest(body,params){
+async function postFeeRequest(body,params , user){
   let cashFreeConfig = await getCashFreeConfig();
+  if(!body.invoiceId) throw 'invoiceId is required'
+  //return user
+  let authUser = await Authentication.findOne({
+    where:{
+            user_name : user.userId,
+            user_vls_id : user.userVlsId,
+          }
+  })
+  //return authUser
   let orderID = "order_"+body.invoiceId
   let paymentOrderDetails = await getOrderStatus(orderID)
   if(paymentOrderDetails && paymentOrderDetails.order_status == "ACTIVE"){
     return { success: true, message: "payment order token",data:{order_token: paymentOrderDetails.order_token}}
   }
-  
+
+  invoice_id = body.invoiceId
+  let getInvoice = await Invoice.findOne({
+    where: {custom_invoice_id : invoice_id} 
+  })
+  //return getInvoice
   let branch_vls_id = params.branch_id
   let branch = await Branch.findByPk(branch_vls_id)
   if(!branch) throw 'Error while fetching branch'
@@ -160,13 +174,13 @@ async function postFeeRequest(body,params){
   let data = new FormData();
   data.append('appId', cashFreeConfig.app_id);
   data.append('secretKey', cashFreeConfig.secret);
-  data.append('orderId', body.orderId);
-  data.append('orderAmount', body.orderAmount);
-  data.append('orderCurrency', body.orderCurrency);
-  data.append('orderNote', body.orderNote);
-  data.append('customerEmail', body.customerEmail);
-  data.append('customerName', body.customerName);
-  data.append('customerPhone', body.customerPhone);
+  data.append('orderId', orderID);
+  data.append('orderAmount', getInvoice.net_amount);
+  data.append('orderCurrency', 'INR');
+  data.append('orderNote', (getInvoice.note)? getInvoice.note : "");
+  data.append('customerEmail', authUser.recovery_email_id);
+  data.append('customerName', authUser.name);
+  data.append('customerPhone', authUser.recovery_contact_no);
   data.append('returnUrl', body.returnUrl);
   data.append('paymentModes', 'dc,cc');
   data.append('paymentSplits', objJsonStr);
