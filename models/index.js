@@ -153,10 +153,12 @@ db.PassionAcceptedBy = require("./PassionAcceptedBy.js")(sequelize, Sequelize);
 
 /*********** vls payment management ***********/
 db.Invoice = require("./Invoice.js")(sequelize, Sequelize);
+db.InvoiceDetail = require("./InvoiceDetail.js")(sequelize, Sequelize);
 db.Transaction = require("./Transaction.js")(sequelize, Sequelize);
 db.Invoice.belongsTo(db.Student,{foreignKey:'student_id',as:'student'})
 db.Invoice.hasOne(db.Transaction,{foreignKey:'invoice_id',as:'transaction'})
 db.Invoice.belongsTo(db.Classes,{foreignKey:'class_id',as:'class'})
+db.Invoice.hasOne(db.InvoiceDetail,{foreignKey:'invoice_id',as:'invoice_detail'})
 
 /*********** Relation management between tables ***********/
 db.VlsMeetings.belongsTo(db.SubjectList,{foreignKey:'subject_code',targetKey:'code',as:'subjectList'})
