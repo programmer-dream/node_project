@@ -86,6 +86,15 @@ async function list(params, user){
   if(params.month)
      whereCodition.month = moment(params.month, 'M').format('MMMM')
   
+  if(params.orderBy)
+     orderBy = params.orderBy
+
+  if(params.size)
+     limit = parseInt(params.size)
+
+  if(params.page)
+      offset = 0 + (parseInt(params.page) - 1) * limit
+
   let allInvoices = await Invoice.findAll({
     where : whereCodition,
     limit : limit,
@@ -371,8 +380,8 @@ async function vendorUpdate(body, params){
  * API for card details to send on cashfree to get link
  */
 async function cardDetailsGetLink(body){
-  return getCashFreeConfig()
-  let cryptoSecret = config.crypto_secret
+  let config_crypto_secret = getCashFreeConfig()
+  let cryptoSecret = config_crypto_secret.crypto_secret
   return cryptoSecret
   let bytes = CryptoJS.AES.decrypt(body.details, cryptoSecret);
   let bodyJson = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
@@ -441,7 +450,46 @@ async function tansactionCreate(body, user){
 /**
  * API for list tansaction
  */
-async function listTransaction(pramas, user){
+async function listTransaction(params, user){
+  let whereCodition  = {}
+  let orderBy        = 'desc';
+  let limit          = 10
+  let offset         = 0
 
-  return { success: true, message: "List transaction",data:pramas}
+  if(params.school_vls_id)
+      whereCodition.school_id = params.school_vls_id
+
+  if(params.branch_vls_id)
+      whereCodition.school_id = params.branch_vls_id
+
+  if(params.orderBy)
+     orderBy = params.orderBy
+
+  if(params.size)
+     limit = parseInt(params.size)
+
+  if(params.page)
+      offset = 0 + (parseInt(params.page) - 1) * limit
+
+  if(params.transaction_status)
+      whereCodition.transaction_status = params.transaction_status
+
+  if(params.start_date){
+    whereCodition [Op.gt]= sequelize.where(sequelize.fn('date', sequelize.col('payment_date')), '>=', params.start_date)
+  }
+
+  if(params.end_date){
+    whereCodition [Op.lt]= sequelize.where(sequelize.fn('date', sequelize.col('payment_date')), '<=', params.end_date)
+  }  
+    
+  let allTransaction = await Transaction.findAll({
+    where : whereCodition,
+    limit : limit,
+    offset: offset,
+    order: [
+             ['id', orderBy]
+           ]
+  })
+
+  return { success: true, message: "List transaction",data:allTransaction}
 }

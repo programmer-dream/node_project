@@ -75,7 +75,7 @@ function tansactionCreate(req, res, next) {
 
 // Function list fee
 function transactionList(req, res, next) {
-    feeController.transactionList(req.query, req.user)
+    feeController.listTransaction(req.query, req.user)
         .then(exam => exam ? res.json(exam) : res.status(400).json({ status: "error", message: 'Error while listing transaction' }))
         .catch(err => next(err));
 }
