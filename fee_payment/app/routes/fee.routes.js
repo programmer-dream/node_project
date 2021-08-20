@@ -12,6 +12,7 @@ router.get("/view/:id",view);
 // POST request
 router.post("/postFeeRequest/:branch_id",postFeeRequest); 
 router.post("/vendorCreate/:branch_id",vendorCreate);
+router.post("/otpLink",otpLink);
 
 //put request
 router.put("/vendorUpdate/:branch_id",vendorUpdate); 
@@ -53,6 +54,13 @@ function vendorCreate(req, res, next) {
 function vendorUpdate(req, res, next) {
     feeController.vendorUpdate(req.body, req.params)
         .then(exam => exam ? res.json(exam) : res.status(400).json({ status: "error", message: 'Error while creating vendor' }))
+        .catch(err => next(err));
+}
+
+// Function vendor create fee
+function otpLink(req, res, next) {
+    feeController.cardDetailsGetLink(req.body, req.params)
+        .then(exam => exam ? res.json(exam) : res.status(400).json({ status: "error", message: 'Error while getting otp link' }))
         .catch(err => next(err));
 }
 

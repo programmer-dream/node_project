@@ -142,14 +142,14 @@ async function view(params, user){
 async function postFeeRequest(body,params , user){
   let cashFreeConfig = await getCashFreeConfig();
   if(!body.invoiceId) throw 'invoiceId is required'
-  //return user
+
   let authUser = await Authentication.findOne({
     where:{
             user_name : user.userId,
             user_vls_id : user.userVlsId,
           }
   })
-  //return authUser
+  
   let orderID = "order_"+body.invoiceId
   let paymentOrderDetails = await getOrderStatus(orderID)
   if(paymentOrderDetails && paymentOrderDetails.order_status == "ACTIVE"){
@@ -160,7 +160,7 @@ async function postFeeRequest(body,params , user){
   let getInvoice = await Invoice.findOne({
     where: {custom_invoice_id : invoice_id} 
   })
-  //return getInvoice
+  
   let branch_vls_id = params.branch_id
   let branch = await Branch.findByPk(branch_vls_id)
   if(!branch) throw 'Error while fetching branch'
@@ -368,10 +368,24 @@ async function vendorUpdate(body, params){
  * API for card details to send on cashfree to get link
  */
 async function cardDetailsGetLink(body){
-
   let cryptoSecret = config.crypto_secret
   let bytes = CryptoJS.AES.decrypt(body.details, cryptoSecret);
   let bodyJson = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
-  
-  return { success: true, message: "cashfree otp link",data:bodyJson}
+  let cashFreeConfig = await getCashFreeConfig();
+
+  var data = JSON.stringify(bodyJson);
+
+    var config = {
+      method: 'post',
+      url: `${cashFreeConfig.sandboxUrl}/pg/orders/pay`,
+      headers: { 
+        'x-version': '2021-05-21', 
+        'Content-Type': 'application/json'
+      },
+      data : data
+    };
+
+    let otplinkResponse = await axiosRequest(config);
+
+  return { success: true, message: "cashfree otp link",data:otplinkResponse}
 };
