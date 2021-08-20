@@ -31,11 +31,9 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.STRING(20)
       },
       bank_name: {
-        allowNull: false,
         type: Sequelize.STRING
       },
       cheque_no: {
-        allowNull: false,
         type: Sequelize.STRING(100)
       },
       transaction_id: {
@@ -59,39 +57,32 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.STRING(20)
       },
       stripe_card_number: {
-        allowNull: false,
         type: Sequelize.STRING
       },
       stack_email: {
-        allowNull: false,
         type: Sequelize.STRING(100)
       },
       stack_reference: {
-        allowNull: false,
         type: Sequelize.STRING
       },
       bank_receipt: {
-        allowNull: false,
         type: Sequelize.STRING(100)
       },
       card_cvv: {
-        allowNull: false,
         type: Sequelize.STRING(20)
       },
       expire_month: {
-        allowNull: false,
         type: Sequelize.STRING(20)
       },
       expire_year: {
-        allowNull: false,
         type: Sequelize.STRING(20)
       },
       note: {
         type: Sequelize.STRING
       },
       status: {
-        allowNull: false,
-        type: Sequelize.TINYINT(1)
+        type: Sequelize.TINYINT(1),
+        defaultValue:0
       },
       created_by: {
         allowNull: false,
@@ -114,6 +105,9 @@ module.exports = (sequelize, Sequelize) => {
       updated_at: {
         allowNull: false,
         type: Sequelize.DATE
+      },
+      transaction_status: {
+        type: Sequelize.STRING
       }
     },{
         tableName: 'transactions',

@@ -27,7 +27,8 @@ module.exports = {
   postFeeRequest,
   cardDetailsGetLink,
   vendorCreate,
-  vendorUpdate
+  vendorUpdate,
+  tansactionCreate
 };
 
 
@@ -388,4 +389,47 @@ async function cardDetailsGetLink(body){
     let otplinkResponse = await axiosRequest(config);
 
   return { success: true, message: "cashfree otp link",data:otplinkResponse}
+};
+
+/**
+ * API for create tansaction
+ */
+async function tansactionCreate(body, user){
+  if(!body.invoiceID) throw 'invoiceID is required'
+  if(!body.school_id) throw 'school_id is required'
+  if(!body.branch_id) throw 'branch_id is required'
+
+    let academicYear = await AcademicYear.findOne({
+        where : {
+              school_id  : body.school_id,
+              is_running : 1,
+
+            }
+      });
+  
+  let invoiceID = body.invoiceID
+  let orderID = "order_"+invoiceID
+  let createdTransaction = {}
+  let paymentOrderDetails = await getOrderStatus(orderID)
+
+  if(paymentOrderDetails && paymentOrderDetails.order_id == orderID){
+      let transactionObj = {
+          school_id: body.school_id,
+          branch_id: body.branch_id,
+          academic_year_id:  academicYear.id,
+          invoice_id: invoiceID,
+          amount: paymentOrderDetails.order_amount,
+          payment_method: paymentOrderDetails.order_meta.payment_methods,
+          transaction_id: paymentOrderDetails.cf_order_id,
+          payment_date: moment().format('YYYY-MM-DD H:m:s'),
+          pum_first_name: paymentOrderDetails.customer_details.customer_name,
+          pum_email: paymentOrderDetails.customer_details.customer_email,
+          pum_phone: paymentOrderDetails.customer_details.customer_phone,
+          transaction_status: paymentOrderDetails.order_status,
+          created_by: user.userVlsId,
+          created_by_role: user.role,
+      } 
+      createdTransaction = await Transaction.create(transactionObj)
+  }
+  return { success: true, message: "Transaction created successfully",data:createdTransaction}
 };
