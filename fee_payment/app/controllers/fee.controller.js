@@ -15,6 +15,7 @@ const Classes   	      = db.Classes;
 const SchoolDetails     = db.SchoolDetails;
 const AcademicYear      = db.AcademicYear;
 const Invoice           = db.Invoice;
+const InvoiceDetail     = db.InvoiceDetail;
 const Transaction       = db.Transaction;
 const Branch            = db.Branch;
 
@@ -123,6 +124,9 @@ async function view(params, user){
             },{ 
                 model:Classes,
                 as:'class'
+            },{
+                model:InvoiceDetail,
+                as:'invoice_detail'
             }]
   })
 
