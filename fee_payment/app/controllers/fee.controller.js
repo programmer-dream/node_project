@@ -28,7 +28,8 @@ module.exports = {
   cardDetailsGetLink,
   vendorCreate,
   vendorUpdate,
-  tansactionCreate
+  tansactionCreate,
+  listTransaction
 };
 
 
@@ -312,10 +313,11 @@ async function axiosRequestOrderStatus(config){
 async function getCashFreeConfig(){
 
   return {
-          url          : config.cash_free_url,
-          sandboxUrl   : config.cashfree_url,
-          app_id       : config.cash_free_app_id,
-          secret       : config.cash_free_secret
+          url                 : config.cash_free_url,
+          sandboxUrl          : config.cashfree_url,
+          app_id              : config.cash_free_app_id,
+          secret              : config.cash_free_secret,
+          crypto_secret       : config.crypto_secret
          }
 }
 
@@ -369,7 +371,9 @@ async function vendorUpdate(body, params){
  * API for card details to send on cashfree to get link
  */
 async function cardDetailsGetLink(body){
+  return getCashFreeConfig()
   let cryptoSecret = config.crypto_secret
+  return cryptoSecret
   let bytes = CryptoJS.AES.decrypt(body.details, cryptoSecret);
   let bodyJson = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
   let cashFreeConfig = await getCashFreeConfig();
@@ -433,3 +437,11 @@ async function tansactionCreate(body, user){
   }
   return { success: true, message: "Transaction created successfully",data:createdTransaction}
 };
+
+/**
+ * API for list tansaction
+ */
+async function listTransaction(pramas, user){
+
+  return { success: true, message: "List transaction",data:pramas}
+}

@@ -8,6 +8,7 @@ const upload  = helper.upload;
  
 router.get("/list",list); 
 router.get("/view/:id",view); 
+router.get("/transactionList",transactionList); 
 
 // POST request
 router.post("/postFeeRequest/:branch_id",postFeeRequest); 
@@ -72,3 +73,9 @@ function tansactionCreate(req, res, next) {
         .catch(err => next(err));
 }
 
+// Function list fee
+function transactionList(req, res, next) {
+    feeController.transactionList(req.query, req.user)
+        .then(exam => exam ? res.json(exam) : res.status(400).json({ status: "error", message: 'Error while listing transaction' }))
+        .catch(err => next(err));
+}
