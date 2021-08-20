@@ -136,9 +136,13 @@ async function view(params, user){
  * API for payment process
  */
 async function postFeeRequest(body,params){
-  let paymentRequestParams = body
   let cashFreeConfig = await getCashFreeConfig();
-  //return cashFreeConfig
+  let orderID = "order_"+body.invoiceId
+  let paymentOrderDetails = await getOrderStatus(orderID)
+  if(paymentOrderDetails && paymentOrderDetails.order_status == "ACTIVE"){
+    return { success: true, message: "payment order token",data:{order_token: paymentOrderDetails.order_token}}
+  }
+  
   let branch_vls_id = params.branch_id
   let branch = await Branch.findByPk(branch_vls_id)
   if(!branch) throw 'Error while fetching branch'
@@ -175,9 +179,24 @@ async function postFeeRequest(body,params){
   let cashfreeCreateOrder = await axiosRequest(config);
 
   if(cashfreeCreateOrder && cashfreeCreateOrder.status == "OK"){
-    var config = {
+    let paymentOrderDetails = await getOrderStatus(orderID)
+    return { success: true, message: "payment order token",data:{order_token: paymentOrderDetails.order_token}}
+  }
+  
+  throw "Error while creating ayment token"
+  
+};
+
+
+/**
+ * API to send request to cashfree getorder status
+ */
+async function getOrderStatus(orderId){
+  let cashFreeConfig = await getCashFreeConfig();
+
+  var config = {
         method: 'get',
-        url: `${cashFreeConfig.sandboxUrl}/pg/orders/${body.orderId}`,
+        url: `${cashFreeConfig.sandboxUrl}/pg/orders/${orderId}`,
         headers: { 
           'x-api-version': '2021-05-21', 
           'x-client-id': cashFreeConfig.app_id, 
@@ -185,14 +204,14 @@ async function postFeeRequest(body,params){
         }
       };
 
-    let paymentOrderDetails = await axiosRequest(config);
+    return axiosRequestOrderStatus(config).then(function (response) {
+                return response
+            })
+            .catch(function (error) {
+                return error
+            });
 
-    return { success: true, message: "payment request form",data:paymentOrderDetails.order_token}
-  }
-  
-  throw "Error while creating ayment token"
-  
-};
+}
 
 /**
  * API for vendor create
@@ -247,6 +266,23 @@ async function axiosRequest(config){
             })
             .catch(function (error) {
                 reject(error)
+            });
+    })
+}
+
+/**
+ * API for order status axios request
+ */
+async function axiosRequestOrderStatus(config){
+
+  return new Promise((resolve, reject) => {
+        return axios(config)
+            .then(function (response) {
+                resolve(response.data)
+            })
+            .catch(function (error) {
+
+                reject(error.response.data)
             });
     })
 }
@@ -314,7 +350,7 @@ async function vendorUpdate(body, params){
  * API for card details to send on cashfree to get link
  */
 async function cardDetailsGetLink(body){
-  
+
   let cryptoSecret = config.crypto_secret
   let bytes = CryptoJS.AES.decrypt(body.details, cryptoSecret);
   let bodyJson = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
