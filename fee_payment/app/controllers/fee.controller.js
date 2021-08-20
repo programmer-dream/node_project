@@ -371,7 +371,7 @@ async function vendorUpdate(body, params){
  * API for card details to send on cashfree to get link
  */
 async function cardDetailsGetLink(body){
-
+  
   let cashFreeConfig = await getCashFreeConfig();
   let cryptoSecret = cashFreeConfig.crypto_secret
 
