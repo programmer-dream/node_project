@@ -29,6 +29,7 @@ module.exports = {
   vendorCreate,
   vendorUpdate,
   tansactionCreate,
+  tansactionCheck,
   listTransaction
 };
 
@@ -171,6 +172,7 @@ async function postFeeRequest(body,params , user){
          "vendorId" : branch.vendor_id,
          "percentage" : parseInt(branch.vendor_percentage)
   }]
+  return vendor_percentage
   let objJsonStr = Buffer.from(JSON.stringify(vendor_percentage)).toString("base64")
 
   let data = new FormData();
@@ -371,7 +373,7 @@ async function vendorUpdate(body, params){
  * API for card details to send on cashfree to get link
  */
 async function cardDetailsGetLink(body){
-  
+
   let cashFreeConfig = await getCashFreeConfig();
   let cryptoSecret = cashFreeConfig.crypto_secret
 
@@ -436,6 +438,15 @@ async function tansactionCreate(body, user){
       createdTransaction = await Transaction.create(transactionObj)
   }
   return { success: true, message: "Transaction created successfully",data:createdTransaction}
+};
+
+
+/**
+ * API for create tansaction
+ */
+async function tansactionCheck(body){
+  console.log(body)
+  return {id:3}
 };
 
 /**

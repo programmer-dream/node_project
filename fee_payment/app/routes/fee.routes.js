@@ -15,6 +15,7 @@ router.post("/postFeeRequest/:branch_id",postFeeRequest);
 router.post("/vendorCreate/:branch_id",vendorCreate);
 router.post("/otpLink",otpLink);
 router.post("/tansactionCreate",tansactionCreate);
+router.post("/tansactionCheck",tansactionCheck);
 
 //put request
 router.put("/vendorUpdate/:branch_id",vendorUpdate); 
@@ -77,5 +78,12 @@ function tansactionCreate(req, res, next) {
 function transactionList(req, res, next) {
     feeController.transactionList(req.query, req.user)
         .then(exam => exam ? res.json(exam) : res.status(400).json({ status: "error", message: 'Error while listing transaction' }))
+        .catch(err => next(err));
+}
+
+// Function list fee
+function tansactionCheck(req, res, next) {
+    feeController.tansactionCheck(req.body)
+        .then(exam => exam ? res.redirect("http://localhost:3000/app/payment/detail?id="+exam.id) : res.status(400).json({ status: "error", message: 'Error while listing transaction' }))
         .catch(err => next(err));
 }
