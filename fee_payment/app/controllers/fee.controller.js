@@ -4,6 +4,7 @@ const path              = require('path')
 const axios             = require('axios').default;
 const config            = require("../../../config/env.js");
 const FormData          = require('form-data');
+const CryptoJS          = require('crypto-js');
 const Op 	 	            = db.Sequelize.Op;
 const Sequelize         = db.Sequelize;
 const sequelize         = db.sequelize;
@@ -23,6 +24,7 @@ module.exports = {
   list,
   view,
   postFeeRequest,
+  cardDetailsGetLink,
   vendorCreate,
   vendorUpdate
 };
@@ -305,4 +307,17 @@ async function vendorUpdate(body, params){
   }
   
   return { success: true, message: "Vendor updated successfully",data:body}
+};
+
+
+/**
+ * API for card details to send on cashfree to get link
+ */
+async function cardDetailsGetLink(body){
+  
+  let cryptoSecret = config.crypto_secret
+  let bytes = CryptoJS.AES.decrypt(body.details, cryptoSecret);
+  let bodyJson = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+  
+  return { success: true, message: "cashfree otp link",data:bodyJson}
 };
