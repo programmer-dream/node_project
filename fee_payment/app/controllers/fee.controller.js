@@ -371,11 +371,12 @@ async function vendorUpdate(body, params){
  * API for card details to send on cashfree to get link
  */
 async function cardDetailsGetLink(body){
-  let config_crypto_secret = getCashFreeConfig()
-  let cryptoSecret = config_crypto_secret.crypto_secret
+
+  let cashFreeConfig = await getCashFreeConfig();
+  let cryptoSecret = cashFreeConfig.crypto_secret
+
   let bytes = CryptoJS.AES.decrypt(body.details, cryptoSecret);
   let bodyJson = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
-  let cashFreeConfig = await getCashFreeConfig();
 
   var data = JSON.stringify(bodyJson);
 
