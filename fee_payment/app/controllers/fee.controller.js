@@ -199,14 +199,13 @@ async function postFeeRequest(body,params , user){
   data.append('orderId', orderID);
   data.append('orderAmount', getInvoice.net_amount);
   data.append('orderCurrency', 'INR');
-  data.append('orderNote', (getInvoice.note)? getInvoice.note : "");
+  data.append('orderNote', merchantData);
   data.append('customerEmail', authUser.recovery_email_id);
   data.append('customerName', authUser.name);
   data.append('customerPhone', authUser.recovery_contact_no);
   data.append('returnUrl', body.returnUrl);
   data.append('paymentModes', 'dc,cc');
   data.append('paymentSplits', objJsonStr);
-  data.append('merchantData', merchantData);
   
   var config = {
     method: 'post',
@@ -465,7 +464,10 @@ async function tansactionCreate(body, user){
  */
 async function tansactionCheck(body){
   console.log(body)
-  return {id:3}
+  let orderID = body.orderId
+  let paymentOrderDetails = await getOrderStatus(orderID)
+  console.log(paymentOrderDetails, "paymentOrderDetails")
+  return paymentOrderDetails
 };
 
 /**
