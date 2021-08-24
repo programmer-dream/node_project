@@ -181,7 +181,7 @@ async function postFeeRequest(body,params , user){
          "vendorId" : branch.vendor_id,
          "percentage" : parseInt(branch.vendor_percentage)
   }]
-  return vendor_percentage
+
   let objJsonStr = Buffer.from(JSON.stringify(vendor_percentage)).toString("base64")
 
   let data = new FormData();

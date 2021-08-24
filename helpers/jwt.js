@@ -12,6 +12,8 @@ function jwt() {
             '/auth/forgetPassword',
             '/auth/updatePassword',
             '/auth/verifyOTP',
+            '/auth/verifyOTP',
+            '/fee/tansactionCheck',
             '/'
         ]
     });
