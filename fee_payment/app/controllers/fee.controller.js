@@ -28,7 +28,6 @@ module.exports = {
   cardDetailsGetLink,
   vendorCreate,
   vendorUpdate,
-  tansactionCreate,
   tansactionCheck,
   listTransaction
 };
@@ -185,9 +184,10 @@ async function postFeeRequest(body,params , user){
 
   let currentUserObj = {
     user_vls_id: user.userVlsId,
+    user_vls_role: user.role,
     branch_vls_id: authUser.branch_vls_id,
     school_vls_id: authUser.school_id,
-    school_code: authUser.school_code,
+    school_code: authUser.school_code.toString(),
     invoice_id: getInvoice.id
   }
   
@@ -416,59 +416,47 @@ async function cardDetailsGetLink(body){
   return { success: true, message: "cashfree otp link",data:otplinkResponse}
 };
 
-/**
- * API for create tansaction
- */
-async function tansactionCreate(body, user){
-  if(!body.invoiceID) throw 'invoiceID is required'
-  if(!body.school_id) throw 'school_id is required'
-  if(!body.branch_id) throw 'branch_id is required'
-
-    let academicYear = await AcademicYear.findOne({
-        where : {
-              school_id  : body.school_id,
-              is_running : 1,
-
-            }
-      });
-  
-  let invoiceID = body.invoiceID
-  let orderID = "order_"+invoiceID
-  let createdTransaction = {}
-  let paymentOrderDetails = await getOrderStatus(orderID)
-
-  if(paymentOrderDetails && paymentOrderDetails.order_id == orderID){
-      let transactionObj = {
-          school_id: body.school_id,
-          branch_id: body.branch_id,
-          academic_year_id:  academicYear.id,
-          invoice_id: invoiceID,
-          amount: paymentOrderDetails.order_amount,
-          payment_method: paymentOrderDetails.order_meta.payment_methods,
-          transaction_id: paymentOrderDetails.cf_order_id,
-          payment_date: moment().format('YYYY-MM-DD H:m:s'),
-          pum_first_name: paymentOrderDetails.customer_details.customer_name,
-          pum_email: paymentOrderDetails.customer_details.customer_email,
-          pum_phone: paymentOrderDetails.customer_details.customer_phone,
-          transaction_status: paymentOrderDetails.order_status,
-          created_by: user.userVlsId,
-          created_by_role: user.role,
-      } 
-      createdTransaction = await Transaction.create(transactionObj)
-  }
-  return { success: true, message: "Transaction created successfully",data:createdTransaction}
-};
-
 
 /**
  * API for create tansaction
  */
 async function tansactionCheck(body){
-  console.log(body)
+
   let orderID = body.orderId
   let paymentOrderDetails = await getOrderStatus(orderID)
-  console.log(paymentOrderDetails, "paymentOrderDetails")
-  return paymentOrderDetails
+  let invoiceID = orderID.replace('order_', '')
+  let orderNote = paymentOrderDetails.order_note.replace(/&quot;/g, '')
+  orderNote = orderNote.replace('{', '')
+  orderNote = orderNote.replace('}', '')
+  orderNote = eval('({' + orderNote + '})');
+
+  let academicYear = await AcademicYear.findOne({
+        where : {
+              school_id  : orderNote.school_vls_id,
+              is_running : 1,
+
+            }
+      });
+
+  let transactionObj = {
+      school_id: orderNote.school_vls_id,
+      branch_id: orderNote.branch_vls_id,
+      academic_year_id:  academicYear.id,
+      invoice_id: invoiceID,
+      amount: paymentOrderDetails.order_amount,
+      payment_method: paymentOrderDetails.order_meta.payment_methods,
+      transaction_id: paymentOrderDetails.cf_order_id,
+      payment_date: moment().format('YYYY-MM-DD H:m:s'),
+      pum_first_name: paymentOrderDetails.customer_details.customer_name,
+      pum_email: paymentOrderDetails.customer_details.customer_email,
+      pum_phone: paymentOrderDetails.customer_details.customer_phone,
+      transaction_status: paymentOrderDetails.order_status,
+      created_by: orderNote.user_vls_id,
+      created_by_role: orderNote.user_vls_role,
+  } 
+  let createdTransaction = await Transaction.create(transactionObj)
+
+  return {invoice_id: orderNote.invoice_id}
 };
 
 /**

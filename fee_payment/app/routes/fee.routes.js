@@ -14,7 +14,6 @@ router.get("/transactionList",transactionList);
 router.post("/postFeeRequest/:branch_id",postFeeRequest); 
 router.post("/vendorCreate/:branch_id",vendorCreate);
 router.post("/otpLink",otpLink);
-router.post("/tansactionCreate",tansactionCreate);
 router.post("/tansactionCheck",tansactionCheck);
 
 //put request
@@ -67,13 +66,6 @@ function otpLink(req, res, next) {
         .catch(err => next(err));
 }
 
-// Function transaction create
-function tansactionCreate(req, res, next) {
-    feeController.tansactionCreate(req.body, req.user)
-        .then(exam => exam ? res.json(exam) : res.status(400).json({ status: "error", message: 'Error while creating transaction' }))
-        .catch(err => next(err));
-}
-
 // Function list fee
 function transactionList(req, res, next) {
     feeController.listTransaction(req.query, req.user)
@@ -84,6 +76,6 @@ function transactionList(req, res, next) {
 // Function list fee
 function tansactionCheck(req, res, next) {
     feeController.tansactionCheck(req.body)
-        .then(exam => exam ?  res.json(exam) : res.status(400).json({ status: "error", message: 'Error while listing transaction' }))
+        .then(exam => exam ? res.redirect("http://localhost:3000/app/payment/detail?id="+exam.invoice_id) : res.status(400).json({ status: "error", message: 'Error while listing transaction' }))
         .catch(err => next(err));
 }
