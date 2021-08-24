@@ -152,6 +152,7 @@ async function view(params, user){
  * API for payment process
  */
 async function postFeeRequest(body,params , user){
+
   let cashFreeConfig = await getCashFreeConfig();
   if(!body.invoiceId) throw 'invoiceId is required'
 
@@ -161,7 +162,7 @@ async function postFeeRequest(body,params , user){
             user_vls_id : user.userVlsId,
           }
   })
-  
+ 
   let orderID = "order_"+body.invoiceId
   let paymentOrderDetails = await getOrderStatus(orderID)
   if(paymentOrderDetails && paymentOrderDetails.order_status == "ACTIVE"){
@@ -182,7 +183,15 @@ async function postFeeRequest(body,params , user){
          "percentage" : parseInt(branch.vendor_percentage)
   }]
 
+  let currentUserObj = new Map()
+  currentUserObj.set("user_vls_id", user.userVlsId)
+  currentUserObj.set("branch_vls_id", authUser.branch_vls_id)
+  currentUserObj.set("school_vls_id", authUser.school_id)
+  currentUserObj.set("school_code", authUser.school_code)
+  currentUserObj.set("invoice_id", getInvoice.id)
+  
   let objJsonStr = Buffer.from(JSON.stringify(vendor_percentage)).toString("base64")
+  let  merchantData= Buffer.from(JSON.stringify(currentUserObj)).toString("base64")
 
   let data = new FormData();
   data.append('appId', cashFreeConfig.app_id);
@@ -197,7 +206,8 @@ async function postFeeRequest(body,params , user){
   data.append('returnUrl', body.returnUrl);
   data.append('paymentModes', 'dc,cc');
   data.append('paymentSplits', objJsonStr);
-  //return data
+  data.append('merchantData', merchantData);
+  
   var config = {
     method: 'post',
     url: `${cashFreeConfig.url}/api/v1/order/create`,
