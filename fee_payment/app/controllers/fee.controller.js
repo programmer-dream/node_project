@@ -183,12 +183,12 @@ async function postFeeRequest(body,params , user){
   }]
 
   let currentUserObj = {
-    user_vls_id: user.userVlsId,
-    user_vls_role: user.role,
-    branch_vls_id: authUser.branch_vls_id,
-    school_vls_id: authUser.school_id,
+    user_vls_id: user.userVlsId.toString(),
+    user_vls_role: user.role.toString(),
+    branch_vls_id: authUser.branch_vls_id.toString(),
+    school_vls_id: authUser.school_id.toString(),
     school_code: authUser.school_code.toString(),
-    invoice_id: getInvoice.id
+    invoice_id: getInvoice.id.toString()
   }
   
   let objJsonStr = Buffer.from(JSON.stringify(vendor_percentage)).toString("base64")
@@ -457,7 +457,7 @@ async function tansactionCheck(body){
   } 
   let createdTransaction = await Transaction.create(transactionObj)
   let redirectUrl = configEnv.frontendURL+"/app/payment/detail?id="+orderNote.invoice_id
-  
+
   return {redirectUrl: redirectUrl}
 };
 
