@@ -2,7 +2,7 @@ const db 	 	            = require("../../../models");
 const moment 	          = require("moment");
 const path              = require('path')
 const axios             = require('axios').default;
-const config            = require("../../../config/env.js");
+const configEnv         = require("../../../config/env.js");
 const FormData          = require('form-data');
 const CryptoJS          = require('crypto-js');
 const Op 	 	            = db.Sequelize.Op;
@@ -193,6 +193,7 @@ async function postFeeRequest(body,params , user){
   
   let objJsonStr = Buffer.from(JSON.stringify(vendor_percentage)).toString("base64")
   let  merchantData = JSON.stringify(currentUserObj)
+  let returnUrl = configEnv.backendURL+"/fee/tansactionCheck"
 
   let data = new FormData();
   data.append('appId', cashFreeConfig.app_id);
@@ -204,7 +205,7 @@ async function postFeeRequest(body,params , user){
   data.append('customerEmail', authUser.recovery_email_id);
   data.append('customerName', authUser.name);
   data.append('customerPhone', authUser.recovery_contact_no);
-  data.append('returnUrl', body.returnUrl);
+  data.append('returnUrl', returnUrl);
   data.append('paymentModes', 'dc,cc');
   data.append('paymentSplits', objJsonStr);
   
@@ -334,11 +335,11 @@ async function axiosRequestOrderStatus(config){
 async function getCashFreeConfig(){
 
   return {
-          url                 : config.cash_free_url,
-          sandboxUrl          : config.cashfree_url,
-          app_id              : config.cash_free_app_id,
-          secret              : config.cash_free_secret,
-          crypto_secret       : config.crypto_secret
+          url                 : configEnv.cash_free_url,
+          sandboxUrl          : configEnv.cashfree_url,
+          app_id              : configEnv.cash_free_app_id,
+          secret              : configEnv.cash_free_secret,
+          crypto_secret       : configEnv.crypto_secret
          }
 }
 
@@ -455,8 +456,9 @@ async function tansactionCheck(body){
       created_by_role: orderNote.user_vls_role,
   } 
   let createdTransaction = await Transaction.create(transactionObj)
-
-  return {invoice_id: orderNote.invoice_id}
+  let redirectUrl = configEnv.frontendURL+"/app/payment/detail?id="+orderNote.invoice_id
+  
+  return {redirectUrl: redirectUrl}
 };
 
 /**

@@ -76,6 +76,6 @@ function transactionList(req, res, next) {
 // Function list fee
 function tansactionCheck(req, res, next) {
     feeController.tansactionCheck(req.body)
-        .then(exam => exam ? res.redirect("http://localhost:3000/app/payment/detail?id="+exam.invoice_id) : res.status(400).json({ status: "error", message: 'Error while listing transaction' }))
+        .then(exam => exam ? res.redirect(exam.redirectUrl) : res.status(400).json({ status: "error", message: 'Error while listing transaction' }))
         .catch(err => next(err));
 }
