@@ -436,7 +436,7 @@ async function tansactionCheck(body){
       var tup = property.split(':');
       orderNoteObj[tup[0]] = tup[1];
   });
-  
+
   let academicYear = await AcademicYear.findOne({
         where : {
               school_id  : orderNoteObj.school_vls_id,
@@ -461,7 +461,14 @@ async function tansactionCheck(body){
       created_by: orderNoteObj.user_vls_id,
       created_by_role: orderNoteObj.user_vls_role,
   } 
+  let paid_status = {
+    paid_status: paymentOrderDetails.order_status
+  }
+
   let createdTransaction = await Transaction.create(transactionObj)
+  let invoiceDetails = await Invoice.findOne({custom_invoice_id:invoiceID})
+  await invoiceDetails.update(paid_status)
+  
   let redirectUrl = configEnv.frontendURL+"/app/payment/detail?id="+orderNoteObj.invoice_id
 
   return {redirectUrl: redirectUrl}
