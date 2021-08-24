@@ -183,16 +183,16 @@ async function postFeeRequest(body,params , user){
          "percentage" : parseInt(branch.vendor_percentage)
   }]
 
-  let currentUserObj = {
-      user_vls_id : user.userVlsId,
-      branch_vls_id : authUser.branch_vls_id,
-      school_vls_id : authUser.school_id,
-      school_code: authUser.school_code
-  }
+  let currentUserObj = new Map()
+  currentUserObj.set("user_vls_id", user.userVlsId)
+  currentUserObj.set("branch_vls_id", authUser.branch_vls_id)
+  currentUserObj.set("school_vls_id", authUser.school_id)
+  currentUserObj.set("school_code", authUser.school_code)
+  currentUserObj.set("invoice_id", getInvoice.id)
   
   let objJsonStr = Buffer.from(JSON.stringify(vendor_percentage)).toString("base64")
   let  merchantData= Buffer.from(JSON.stringify(currentUserObj)).toString("base64")
-  
+
   let data = new FormData();
   data.append('appId', cashFreeConfig.app_id);
   data.append('secretKey', cashFreeConfig.secret);
