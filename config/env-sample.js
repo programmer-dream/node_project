@@ -2,6 +2,8 @@ module.exports = {
       environmnet: 'development',
       //environmnet: 'production',
       secret: 'gejbmwiimxxqezekhflzohfpndxacctf',
+      backendURL: 'http://localhost:3018',
+      frontendURL: 'https://deve.vlslabs.com',
       cash_free_url: "https://test.cashfree.com",
       cashfree_url: "https://sandbox.cashfree.com",
       cash_free_app_id: "908416371a8a95fa22787f2ca14809",
