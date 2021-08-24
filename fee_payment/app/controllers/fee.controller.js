@@ -399,7 +399,7 @@ async function cardDetailsGetLink(body){
 
   let bytes = CryptoJS.AES.decrypt(body.details, cryptoSecret);
   let bodyJson = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
-
+  // let bodyJson = body
   var data = JSON.stringify(bodyJson);
 
     var config = {
@@ -429,19 +429,25 @@ async function tansactionCheck(body){
   let orderNote = paymentOrderDetails.order_note.replace(/&quot;/g, '')
   orderNote = orderNote.replace('{', '')
   orderNote = orderNote.replace('}', '')
-  orderNote = eval('({' + orderNote + '})');
 
+  var properties = orderNote.split(',');
+  var orderNoteObj = {};
+  properties.forEach(function(property) {
+      var tup = property.split(':');
+      orderNoteObj[tup[0]] = tup[1];
+  });
+  
   let academicYear = await AcademicYear.findOne({
         where : {
-              school_id  : orderNote.school_vls_id,
+              school_id  : orderNoteObj.school_vls_id,
               is_running : 1,
 
             }
       });
 
   let transactionObj = {
-      school_id: orderNote.school_vls_id,
-      branch_id: orderNote.branch_vls_id,
+      school_id: orderNoteObj.school_vls_id,
+      branch_id: orderNoteObj.branch_vls_id,
       academic_year_id:  academicYear.id,
       invoice_id: invoiceID,
       amount: paymentOrderDetails.order_amount,
@@ -452,11 +458,11 @@ async function tansactionCheck(body){
       pum_email: paymentOrderDetails.customer_details.customer_email,
       pum_phone: paymentOrderDetails.customer_details.customer_phone,
       transaction_status: paymentOrderDetails.order_status,
-      created_by: orderNote.user_vls_id,
-      created_by_role: orderNote.user_vls_role,
+      created_by: orderNoteObj.user_vls_id,
+      created_by_role: orderNoteObj.user_vls_role,
   } 
   let createdTransaction = await Transaction.create(transactionObj)
-  let redirectUrl = configEnv.frontendURL+"/app/payment/detail?id="+orderNote.invoice_id
+  let redirectUrl = configEnv.frontendURL+"/app/payment/detail?id="+orderNoteObj.invoice_id
 
   return {redirectUrl: redirectUrl}
 };
