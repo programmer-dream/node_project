@@ -470,7 +470,11 @@ async function subjectOnlineClassCount(params, user){
   let condition     = {is_deleted : 0}
 
   let subjectFilter = {}
-  if(user.role =='super-admin' || user.role =='school-admin'){
+  if(user.role =='super-admin'){
+    if(!params.school_vls_id) throw 'school_vls_id is required'
+    return await branchWiseCounts(params.school_vls_id)
+    
+  }else if(user.role =='school-admin'){
     let branchCounts = {}
      if(!params.school_vls_id) throw 'school_vls_id is required'
       let allBranches  = await Branch.findAll({  
@@ -657,4 +661,31 @@ async function getUserSettings(base_url, accessToken, user_id){
                 reject(error)
             });
     })
+}
+
+/**
+ * Bluejeans Get User’s Default Meeting Settings
+ */
+async function branchWiseCounts(school_vls_id){
+    let finalData    = []
+    let branchCounts = {}
+    let condition    = {}
+
+    let allBranches  = await Branch.findAll({  
+        where:{school_vls_id : school_vls_id},
+        attributes: ['branch_vls_id','branch_name']
+    });
+
+    await Promise.all(
+      allBranches.map(async branch => {
+        condition.branch_vls_id = branch.branch_vls_id
+
+         branchCounts    = await getCounts(condition)
+         branchCounts.branch = { branchName: branch.branch_name, 
+                                 branch_vls_id: branch.branch_vls_id
+                               }
+         finalData.push(branchCounts)
+      })
+    )
+    return { success : true, message : "Branches counts", data : finalData }
 }
