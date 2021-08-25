@@ -18,6 +18,7 @@ const Invoice           = db.Invoice;
 const InvoiceDetail     = db.InvoiceDetail;
 const Transaction       = db.Transaction;
 const Branch            = db.Branch;
+const IncomeHead        = db.IncomeHead;
 
 
 
@@ -137,8 +138,13 @@ async function view(params, user){
                 as:'class'
             },{
                 model:InvoiceDetail,
-                as:'invoice_detail'
+                as:'invoice_detail',
+                include: [{ 
+                    model:IncomeHead,
+                    as:'income_head'
+                }]
             }]
+
   })
 
   if(!allInvoices) throw 'Invoice not exists'
@@ -516,6 +522,7 @@ async function listTransaction(params, user){
     order: [
              ['id', orderBy]
            ]
+
   })
 
   return { success: true, message: "List transaction",data:allTransaction}
