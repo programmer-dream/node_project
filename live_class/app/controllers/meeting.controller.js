@@ -473,35 +473,6 @@ async function subjectOnlineClassCount(params, user){
   if(user.role =='super-admin'){
     if(!params.school_vls_id) throw 'school_vls_id is required'
     return await branchWiseCounts(params.school_vls_id)
-    
-  }else if(user.role =='school-admin'){
-    let branchCounts = {}
-     if(!params.school_vls_id) throw 'school_vls_id is required'
-      let allBranches  = await Branch.findAll({  
-        where:{school_vls_id : params.school_vls_id},
-        attributes: ['branch_vls_id','branch_name']
-    });
-
-    await Promise.all(
-      allBranches.map(async branch => {
-        condition.branch_vls_id = branch.branch_vls_id
-
-        //get branch subjects
-        let branchSubject = await SubjectList.findAll({
-            attributes:['subject_name','code'],
-            where : {branch_vls_id : branch.branch_vls_id}
-        })
-        //branch have count
-        if(branchSubject.length){
-         branchCounts    = await getSubjectCounts(condition, branchSubject)
-         branchCounts.branch = { branchName: branch.branch_name, 
-                           branch_vls_id: branch.branch_vls_id
-                         }
-         finalData.push(branchCounts)
-        }
-      })
-    )
-    return { success : true, message : "Branches counts", data : finalData }
   }
 
   if(!params.branch_vls_id) throw 'branch_vls_id is required'
