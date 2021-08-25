@@ -470,8 +470,7 @@ async function subjectOnlineClassCount(params, user){
   let condition     = {is_deleted : 0}
 
   let subjectFilter = {}
-  
-  if(user.role =='super-admin'){
+  if(user.role =='super-admin' || user.role =='school-admin'){
     let branchCounts = {}
      if(!params.school_vls_id) throw 'school_vls_id is required'
       let allBranches  = await Branch.findAll({  
@@ -491,12 +490,11 @@ async function subjectOnlineClassCount(params, user){
         //branch have count
         if(branchSubject.length){
          branchCounts    = await getSubjectCounts(condition, branchSubject)
-        }
-
-        branchCounts.branch = { branchName: branch.branch_name, 
+         branchCounts.branch = { branchName: branch.branch_name, 
                            branch_vls_id: branch.branch_vls_id
                          }
-        finalData.push(branchCounts)
+         finalData.push(branchCounts)
+        }
       })
     )
     return { success : true, message : "Branches counts", data : finalData }
