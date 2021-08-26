@@ -151,12 +151,12 @@ async function view(params, user){
   
   let school_id = invoiceDetails.student.school_id
   
-  let SchoolDetails = await SchoolDetails.findOne({ 
+  let schoolDetails = await SchoolDetails.findOne({ 
                     where: { school_id: school_id },
                     attributes: ['school_vls_id','school_name', 'address','school_code','logo']
                     })
-  invoiceDetails.school_details = SchoolDetails
-  
+  invoiceDetails.school_details = schoolDetails
+
   return { success: true, message: "fee view",data:invoiceDetails}
 };
 
