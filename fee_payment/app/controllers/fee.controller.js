@@ -569,9 +569,13 @@ async function listTransaction(params, user){
   if(params.student_id)
       invoiceCondition.student_id = params.student_id
 
-  if(params.invoice_number)
-      invoiceCondition.custom_invoice_id = params.invoice_number
-
+  if(params.search){
+      invoiceCondition[Op.or] = {
+        custom_invoice_id: { 
+          [Op.like]: `%`+params.search+`%`
+        }
+      }
+  }
   if(params.orderBy)
      orderBy = params.orderBy
 
@@ -605,12 +609,25 @@ async function listTransaction(params, user){
                 where:invoiceCondition
             }]
   })
+  let allInvoiceIds = await Invoice.findAll({
+    where: invoiceCondition,
+    attributes : ['id']
+  }).then(invoices => invoices.map( invoice => invoice.id));
+
+  whereCodition.transaction_status = 'paid'
+  whereCodition.invoice_id = {[Op.in] : allInvoiceIds}
+  console.log(whereCodition)
   let totalPaid = await Transaction.findOne({
-    where : {transaction_status : 'paid'},
+    where : whereCodition,
+    limit : limit,
+    offset: offset,
+    order: [
+             ['id', orderBy]
+           ],
     attributes:[
-                    [ Sequelize.fn('SUM', Sequelize.col('amount')), 'amount' ],
-                  ]
+             [ Sequelize.fn('SUM', Sequelize.col('amount')), 'amount' ],
+           ]
   })
   totalPaid = totalPaid.amount
-  return { success: true, message: "List transaction",data:allTransaction, totalPaid: totalPaid}
+  return { success: true, message: "List transaction",data:{allTransaction, totalPaid}}
 }
