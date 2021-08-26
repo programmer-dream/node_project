@@ -441,6 +441,7 @@ async function tansactionCheck(body){
   
   let orderID = body.orderId
   let txStatus = body.txStatus
+  let paymentMode = body.paymentMode
   let paymentOrderDetails = await getOrderStatus(orderID)
   let invoiceID = orderID.replace('order_', '')
   let orderNote = paymentOrderDetails.order_note.replace(/&quot;/g, '')
@@ -468,7 +469,7 @@ async function tansactionCheck(body){
       academic_year_id:  academicYear.id,
       invoice_id: invoiceID,
       amount: paymentOrderDetails.order_amount,
-      payment_method: paymentOrderDetails.order_meta.payment_methods,
+      payment_method: paymentMode,
       transaction_id: paymentOrderDetails.cf_order_id,
       payment_date: moment().format('YYYY-MM-DD H:m:s'),
       pum_first_name: paymentOrderDetails.customer_details.customer_name,
