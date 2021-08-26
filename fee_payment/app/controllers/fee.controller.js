@@ -125,7 +125,7 @@ async function list(params, user){
 async function view(params, user){
   let whereCodition = {id : params.id}
 
-  let allInvoices = await Invoice.findOne({
+  let invoiceDetails = await Invoice.findOne({
     where : whereCodition,
     include: [{ 
                 model:Student,
@@ -147,9 +147,17 @@ async function view(params, user){
 
   })
 
-  if(!allInvoices) throw 'Invoice not exists'
+  if(!invoiceDetails) throw 'Invoice not exists'
   
-  return { success: true, message: "fee view",data:allInvoices}
+  let school_id = invoiceDetails.student.school_id
+  
+  let SchoolDetails = await SchoolDetails.findOne({ 
+                    where: { school_id: school_id },
+                    attributes: ['school_vls_id','school_name', 'address','school_code','logo']
+                    })
+  invoiceDetails.school_details = SchoolDetails
+  
+  return { success: true, message: "fee view",data:invoiceDetails}
 };
 
 
