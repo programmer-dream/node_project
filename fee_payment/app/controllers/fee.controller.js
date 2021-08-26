@@ -616,14 +616,9 @@ async function listTransaction(params, user){
 
   whereCodition.transaction_status = 'paid'
   whereCodition.invoice_id = {[Op.in] : allInvoiceIds}
-  console.log(whereCodition)
+  
   let totalPaid = await Transaction.findOne({
     where : whereCodition,
-    limit : limit,
-    offset: offset,
-    order: [
-             ['id', orderBy]
-           ],
     attributes:[
              [ Sequelize.fn('SUM', Sequelize.col('amount')), 'amount' ],
            ]
