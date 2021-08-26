@@ -161,6 +161,7 @@ db.Invoice.hasMany(db.Transaction,{foreignKey:'invoice_id',as:'transaction'})
 db.Invoice.belongsTo(db.Classes,{foreignKey:'class_id',as:'class'})
 db.Invoice.hasMany(db.InvoiceDetail,{foreignKey:'invoice_id',as:'invoice_detail'})
 db.InvoiceDetail.belongsTo(db.IncomeHead,{foreignKey:'income_head_id',as:'income_head'})
+db.Transaction.belongsTo(db.Invoice,{foreignKey:'invoice_id',as:'invoice'})
 
 /*********** Relation management between tables ***********/
 db.VlsMeetings.belongsTo(db.SubjectList,{foreignKey:'subject_code',targetKey:'code',as:'subjectList'})

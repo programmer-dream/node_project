@@ -150,6 +150,18 @@ async function view(params, user){
 
   if(!invoiceDetails) throw 'Invoice not exists'
   
+  if(user.role == 'student'){
+    if(invoiceDetails.student_id != user.userVlsId) throw 'You are not authorised'
+  }
+
+  if(user.role == 'guardian'){
+     let students = await Student.findAll({
+          where : { parent_vls_id : user.userVlsId},
+          attributes: ['student_vls_id']
+        }).then(students => students.map( student => student.student_vls_id));
+
+     if(!students.includes(invoiceDetails.student_id)) throw 'You are not authorised'
+  }
   let school_id = invoiceDetails.student.school_id
   
   let schoolDetails = await SchoolDetails.findOne({ 
@@ -171,11 +183,29 @@ async function viewTransaction(params, user){
   let whereCodition = {id : params.id}
 
   let transactionDetails = await Transaction.findOne({
-    where : whereCodition
+    where : whereCodition,
+    include: [{ 
+                model:Invoice,
+                as:'invoice'
+            }]
   })
 
   if(!transactionDetails) throw 'Transaction not exists'
+    
+  let invoiceDetails = transactionDetails.invoice
+  
+  if(user.role == 'student'){
+    if(invoiceDetails.student_id != user.userVlsId) throw 'You are not authorised'
+  }
+  
+  if(user.role == 'guardian'){
+     let students = await Student.findAll({
+          where : { parent_vls_id : user.userVlsId},
+          attributes: ['student_vls_id']
+        }).then(students => students.map( student => student.student_vls_id));
 
+     if(!students.includes(invoiceDetails.student_id)) throw 'You are not authorised'
+  }
 
   return { success: true, message: "Transaction view",data:transactionDetails}
 };
