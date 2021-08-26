@@ -155,6 +155,8 @@ async function view(params, user){
                     where: { school_id: school_id },
                     attributes: ['school_vls_id','school_name', 'address','school_code','logo']
                     })
+
+  invoiceDetails = invoiceDetails.toJSON()
   invoiceDetails.school_details = schoolDetails
 
   return { success: true, message: "fee view",data:invoiceDetails}
