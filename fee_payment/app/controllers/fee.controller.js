@@ -30,7 +30,8 @@ module.exports = {
   vendorCreate,
   vendorUpdate,
   tansactionCheck,
-  listTransaction
+  listTransaction,
+  viewTransaction
 };
 
 
@@ -160,6 +161,23 @@ async function view(params, user){
   invoiceDetails.school_details = schoolDetails
 
   return { success: true, message: "fee view",data:invoiceDetails}
+};
+
+
+/**
+ * API for list view Transaction
+ */
+async function viewTransaction(params, user){
+  let whereCodition = {id : params.id}
+
+  let transactionDetails = await Transaction.findOne({
+    where : whereCodition
+  })
+
+  if(!transactionDetails) throw 'Transaction not exists'
+    
+
+  return { success: true, message: "fee view",data:transactionDetails}
 };
 
 
@@ -438,7 +456,7 @@ async function cardDetailsGetLink(body){
  * API for create tansaction
  */
 async function tansactionCheck(body){
-  
+
   let orderID = body.orderId
   let txStatus = body.txStatus
   let paymentMode = body.paymentMode

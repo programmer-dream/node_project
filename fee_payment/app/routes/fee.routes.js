@@ -9,6 +9,7 @@ const upload  = helper.upload;
 router.get("/list",list); 
 router.get("/view/:id",view); 
 router.get("/transactionList",transactionList); 
+router.get("/transactionView/:id",transactionView); 
 
 // POST request
 router.post("/postFeeRequest/:branch_id",postFeeRequest); 
@@ -70,6 +71,13 @@ function otpLink(req, res, next) {
 function transactionList(req, res, next) {
     feeController.listTransaction(req.query, req.user)
         .then(exam => exam ? res.json(exam) : res.status(400).json({ status: "error", message: 'Error while listing transaction' }))
+        .catch(err => next(err));
+}
+
+// Function view fee
+function transactionView(req, res, next) {
+    feeController.transactionView(req.params, req.user)
+        .then(exam => exam ? res.json(exam) : res.status(400).json({ status: "error", message: 'Error while transaction view' }))
         .catch(err => next(err));
 }
 
