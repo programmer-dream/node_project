@@ -191,7 +191,7 @@ async function viewTransaction(params, user){
   })
 
   if(!transactionDetails) throw 'Transaction not exists'
-    
+
   let invoiceDetails = transactionDetails.invoice
   
   if(user.role == 'student'){
@@ -555,12 +555,22 @@ async function listTransaction(params, user){
   let orderBy        = 'desc';
   let limit          = 10
   let offset         = 0
+  let invoiceCondition = {}
 
   if(params.school_vls_id)
       whereCodition.school_id = params.school_vls_id
 
   if(params.branch_vls_id)
-      whereCodition.school_id = params.branch_vls_id
+      whereCodition.branch_id = params.branch_vls_id
+
+  if(params.class_id)
+      invoiceCondition.class_id = params.class_id
+
+  if(params.student_id)
+      invoiceCondition.student_id = params.student_id
+
+  if(params.invoice_number)
+      invoiceCondition.custom_invoice_id = params.invoice_number
 
   if(params.orderBy)
      orderBy = params.orderBy
@@ -588,9 +598,19 @@ async function listTransaction(params, user){
     offset: offset,
     order: [
              ['id', orderBy]
-           ]
-
+           ],
+    include: [{ 
+                model:Invoice,
+                as:'invoice',
+                where:invoiceCondition
+            }]
   })
-
-  return { success: true, message: "List transaction",data:allTransaction}
+  let totalPaid = await Transaction.findOne({
+    where : {transaction_status : 'paid'},
+    attributes:[
+                    [ Sequelize.fn('SUM', Sequelize.col('amount')), 'amount' ],
+                  ]
+  })
+  totalPaid = totalPaid.amount
+  return { success: true, message: "List transaction",data:allTransaction, totalPaid: totalPaid}
 }
