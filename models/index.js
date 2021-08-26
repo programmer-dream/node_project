@@ -159,7 +159,7 @@ db.Transaction = require("./Transaction.js")(sequelize, Sequelize);
 db.Invoice.belongsTo(db.Student,{foreignKey:'student_id',as:'student'})
 db.Invoice.hasMany(db.Transaction,{foreignKey:'invoice_id',as:'transaction'})
 db.Invoice.belongsTo(db.Classes,{foreignKey:'class_id',as:'class'})
-db.Invoice.hasOne(db.InvoiceDetail,{foreignKey:'invoice_id',as:'invoice_detail'})
+db.Invoice.hasMany(db.InvoiceDetail,{foreignKey:'invoice_id',as:'invoice_detail'})
 db.InvoiceDetail.belongsTo(db.IncomeHead,{foreignKey:'income_head_id',as:'income_head'})
 
 /*********** Relation management between tables ***********/
