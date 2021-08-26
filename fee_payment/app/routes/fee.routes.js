@@ -76,7 +76,7 @@ function transactionList(req, res, next) {
 
 // Function view fee
 function transactionView(req, res, next) {
-    feeController.transactionView(req.params, req.user)
+    feeController.viewTransaction(req.params, req.user)
         .then(exam => exam ? res.json(exam) : res.status(400).json({ status: "error", message: 'Error while transaction view' }))
         .catch(err => next(err));
 }

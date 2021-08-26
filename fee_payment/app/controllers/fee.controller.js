@@ -175,9 +175,9 @@ async function viewTransaction(params, user){
   })
 
   if(!transactionDetails) throw 'Transaction not exists'
-    
 
-  return { success: true, message: "fee view",data:transactionDetails}
+
+  return { success: true, message: "Transaction view",data:transactionDetails}
 };
 
 
