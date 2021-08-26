@@ -80,6 +80,9 @@ module.exports = (sequelize, Sequelize) => {
       note: {
         type: Sequelize.STRING
       },
+      transaction_failed_reason: {
+        type: Sequelize.TEXT
+      },
       status: {
         type: Sequelize.TINYINT(1),
         defaultValue:0

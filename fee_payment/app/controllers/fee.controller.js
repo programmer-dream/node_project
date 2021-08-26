@@ -438,8 +438,9 @@ async function cardDetailsGetLink(body){
  * API for create tansaction
  */
 async function tansactionCheck(body){
-
+  
   let orderID = body.orderId
+  let txStatus = body.txStatus
   let paymentOrderDetails = await getOrderStatus(orderID)
   let invoiceID = orderID.replace('order_', '')
   let orderNote = paymentOrderDetails.order_note.replace(/&quot;/g, '')
@@ -473,17 +474,24 @@ async function tansactionCheck(body){
       pum_first_name: paymentOrderDetails.customer_details.customer_name,
       pum_email: paymentOrderDetails.customer_details.customer_email,
       pum_phone: paymentOrderDetails.customer_details.customer_phone,
-      transaction_status: paymentOrderDetails.order_status,
+      transaction_status: txStatus,
       created_by: orderNoteObj.user_vls_id,
       created_by_role: orderNoteObj.user_vls_role,
   } 
+
   let paid_status = {
-    paid_status: paymentOrderDetails.order_status
+    paid_status: txStatus
+  }
+
+  if(txStatus == "PAID"){
+    let invoiceDetails = await Invoice.findOne({custom_invoice_id:invoiceID})
+    await invoiceDetails.update(paid_status)
+  }else{
+    transactionObj.transaction_failed_reason = body.txMsg
   }
 
   let createdTransaction = await Transaction.create(transactionObj)
-  let invoiceDetails = await Invoice.findOne({custom_invoice_id:invoiceID})
-  await invoiceDetails.update(paid_status)
+  
   
   let redirectUrl = configEnv.frontendURL+"/app/payment/detail?id="+orderNoteObj.invoice_id
 
