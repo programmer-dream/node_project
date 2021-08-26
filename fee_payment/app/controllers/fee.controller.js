@@ -511,11 +511,15 @@ async function tansactionCheck(body){
             }
       });
 
+    let invoice = await Invoice.findOne({
+        where : { custom_invoice_id :invoiceID }
+    });
+
   let transactionObj = {
       school_id: orderNoteObj.school_vls_id,
       branch_id: orderNoteObj.branch_vls_id,
       academic_year_id:  academicYear.id,
-      invoice_id: invoiceID,
+      invoice_id: invoice.id,
       amount: paymentOrderDetails.order_amount,
       payment_method: paymentMode,
       transaction_id: paymentOrderDetails.cf_order_id,
