@@ -529,10 +529,10 @@ async function tansactionCheck(body){
   } 
 
   let paid_status = {
-    paid_status: txStatus
+    paid_status: "paid"
   }
 
-  if(txStatus == "PAID"){
+  if(txStatus == "SUCCESS"){
     let invoiceDetails = await Invoice.findOne({custom_invoice_id:invoiceID})
     await invoiceDetails.update(paid_status)
   }else{
