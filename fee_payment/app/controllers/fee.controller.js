@@ -614,7 +614,7 @@ async function listTransaction(params, user){
     attributes : ['id']
   }).then(invoices => invoices.map( invoice => invoice.id));
 
-  whereCodition.transaction_status = 'paid'
+  whereCodition.transaction_status = 'SUCCESS'
   whereCodition.invoice_id = {[Op.in] : allInvoiceIds}
   
   let totalPaid = await Transaction.findOne({
