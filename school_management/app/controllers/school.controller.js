@@ -86,7 +86,7 @@ async function create(req){
   if(errors.array().length) throw errors.array()
 
   let data   = req.body
-  console.log(req.files)
+
   if(req.files.logo && req.files.logo.length > 0){
         data.logo  = req.body.uplodedPath + req.files.logo[0].filename;
   }
@@ -291,6 +291,7 @@ async function viewBranch(id){
   })
   allCounts = await getbranchUser(id)
   let studentCounts = await getBranchStudents(id)
+  return studentCounts
   if(branch.vendor_details || branch.vendor_details != "")
     branch.vendor_details= JSON.parse(branch.vendor_details)
   return { success: true, message: "Branch view", data : {branch, users,principal ,allCounts, studentCounts }}
@@ -557,7 +558,7 @@ async function getUserCount(school_id){
   }).then(roles => roles.map(role => role.slug));
 
   let data = await sequelize.query("SELECT COUNT(`roles`.`id`) AS `count`, `roles`.`slug` AS `slug`, roles.name FROM `users` AS `users` left OUTER JOIN `roles` AS `roles` ON `users`.`role_id` = `roles`.`id` WHERE `users`.`school_id` = "+school_id+"  AND roles.slug IN('student','teacher','guardian','branch-admin','school-admin','principal') GROUP BY `slug`, name ;", { type: Sequelize.QueryTypes.SELECT });
-console.log(data)
+
   let allCounts = {}
   await Promise.all(
     data.map(async user => {
@@ -924,7 +925,7 @@ async function viewTeacher(id, user){
   await Promise.all(
     classArr.map(async (classData , index) => {
         sectionArr.map(async section => {
-          console.log(section)
+
           if(classData.class_vls_id == section.class_id){
             if(!classArr[index]['sections'])
                classArr[index]['sections'] = []
@@ -1490,43 +1491,33 @@ async function getBranchStudents(branch_vls_id){
     include: [{ 
                 model:Section,
                 as:'sections',
-                attributes:['name']
+                attributes:['name', 'id']
               }]
   })
-
+  // return classData
   let modifedData = []
+  let sectionCount = 0
   await Promise.all(
     classData.map(async sClass => {
       let className = sClass.name
       let classID   = sClass.class_vls_id
       let sections  = sClass.sections
       if(sections.length){
-          sections.map(async section => {
-              let sectionCount = await Student.count({
-                                  class_id : classID,
-                                  section_id : section.id,
-                                })
-              let sObj = {
-                  class_id : classID,
-                  class    : sClass.name,
-                  section  : section.name,
-                  student_count : sectionCount
-              }
-             modifedData.push(sObj) 
-          })
+          modifedData = await getSectionData(sections, classID, className, modifedData)
         }else{
-          let classCount = await Student.count({
-                                  class_id : classID
+          studentCount = await Student.count({
+                                  where: {class_id : classID}
                                 })
           let cObj = {
                 class_id : classID,
                 class    : sClass.name,
-                student_count : classCount
+                student_count : studentCount
             }
           modifedData.push(cObj)
         }
     })
   )
+
   modifedData.sort(function(a,b) {
     return  a.class_id - b.class_id;
   });
@@ -1534,7 +1525,26 @@ async function getBranchStudents(branch_vls_id){
   return modifedData
 }
 
+async function getSectionData(sections, classID, className, modifedData){
 
+  await Promise.all(
+    sections.map(async section => {
+
+        studentCount = await Student.count({
+                            where:{ class_id : classID, section_id : section.id }
+                          })
+
+        let sObj = {
+            class_id : classID,
+            class    : className,
+            section  : section.name,
+            student_count : studentCount
+        }
+       modifedData.push(sObj) 
+    })
+  );
+  return modifedData
+}
 
 async function AllList(params , user){
   
