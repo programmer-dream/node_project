@@ -42,9 +42,8 @@ async function list(params, user){
   let orderBy          = 'desc';
   let limit            = 10
   let offset           = 0
-  let currentMonth     =  moment().format('MMMM')
 
-  let whereCodition    = { month : currentMonth}
+  let whereCodition    = {}
 
   if(user.role == 'student')
      whereCodition.student_id = user.userVlsId
