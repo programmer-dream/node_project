@@ -171,9 +171,10 @@ async function list(user){
        let meetingData = meeting.toJSON()
        let userArray   = JSON.parse(meetingData.attendee_vls_id)
 
-       if(meetingData.attendee_type != 'all_teacher' && !userArray.includes(user.userVlsId)  )
+       if(user.role != 'principal' || user.role != 'branch-admin'){
+          if(meetingData.attendee_type != 'all_teacher' && !userArray.includes(user.userVlsId)  )
            return true
-
+       }
        let userData   = {}
        let rejectUser = {}
       if(meeting.attendee_type == 'parent') {
