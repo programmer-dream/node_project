@@ -171,7 +171,7 @@ async function list(user){
        let meetingData = meeting.toJSON()
        let userArray   = JSON.parse(meetingData.attendee_vls_id)
 
-       if(!userArray.includes(user.userVlsId))
+       if(meetingData.attendee_type != 'all_teacher' && !userArray.includes(user.userVlsId)  )
            return true
 
        let userData   = {}
