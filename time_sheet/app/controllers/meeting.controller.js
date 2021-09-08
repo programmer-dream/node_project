@@ -33,7 +33,8 @@ module.exports = {
 async function create(req){
   const errors = validationResult(req);
   if(errors.array().length) throw errors.array()
-  
+
+  let allAttendee = req.body.attendee_vls_id
   if(req.user.role != 'principal' && req.user.role != 'branch-admin') throw 'Unauthorized User'
 
       req.body.originator_type = 'principal'
@@ -44,29 +45,23 @@ async function create(req){
     if (moment() > reqDate) {
         throw "we can't create a meeting in past date time"
     }
-
+    
     //metting for all teachers
     if(req.body.attendee_type =='all_teacher'){
       req.body.attendee_status = 'accept'
-    }else{
-      if(req.body.attendee_type =='teacher'){
-        let teacher_id = req.body.attendee_vls_id
-        let day        = moment(req.body.date).format('dddd')
-        let start_time = req.body.time
-        let duration   = req.body.duration
-        let end_time   = moment(start_time,'HH:mm').add(duration, 'minutes').format('HH:mm')
-        await checkTeacherTimings(teacher_id, day, start_time, duration, end_time)
-      }
-      await checkMeetingTimings(reqDate, req.body.duration)
     }
+
     req.body.meeting_author_vls_id = req.user.userVlsId
   	let user 		         = await User.findByPk(req.user.id)
   	req.body.school_id 	 = user.school_id
   	req.body.branch_id 	 = user.branch_vls_id
 
+    //multiple teacher 
+    req.body.attendee_vls_id = JSON.stringify(req.body.attendee_vls_id)
   	let meetingData      = req.body
 
     if(req.body.meeting_mode =='online'){
+
       let vlsMeetingData   = req.body.vlsMeetingData
       vlsMeetingData.created_by = JSON.stringify({id:req.user.userVlsId,type:req.user.role})
 
@@ -82,16 +77,19 @@ async function create(req){
     if(meeting.attendee_type == 'parent')
         roleType = 'guardian'
 
-    let users
+    let users = []
     if(req.body.attendee_type =='all_teacher'){
         users = await getBranchTeachers(req.body.branch_id)
         
     }else{
-       users = [{
-        id: meeting.attendee_vls_id,
-        type: roleType
-      }]
+      allAttendee.forEach(function(attendee_id){
+          users.push({
+            id: attendee_id,
+            type: roleType
+          })
+      })
     }
+
     //notification
       let notificatonData = {}
       notificatonData.branch_vls_id = meeting.branch_id
@@ -129,7 +127,7 @@ async function list(user){
     if(user.role == 'teacher')
         attendee_type = 'teacher'
 
-    whereCondition.attendee_vls_id  = user.userVlsId
+    //whereCondition.attendee_vls_id  = user.userVlsId
     whereCondition.attendee_type    = attendee_type
   }
 
@@ -171,6 +169,11 @@ async function list(user){
   await Promise.all(
     meetings.map(async meeting => {
        let meetingData = meeting.toJSON()
+       let userArray   = JSON.parse(meetingData.attendee_vls_id)
+
+       if(!userArray.includes(user.userVlsId))
+           return true
+
        let userData   = {}
        let rejectUser = {}
       if(meeting.attendee_type == 'parent') {
@@ -265,6 +268,8 @@ async function update(req){
   const errors = validationResult(req);
   if(errors.array().length) throw errors.array()
 
+  let allAttendee = req.body.attendee_vls_id
+
   if(req.user.role != 'principal' && req.user.role != 'branch-admin') throw 'Unauthorized User'
 
     req.body.originator_type = 'principal'
@@ -276,23 +281,24 @@ async function update(req){
     if (moment() > reqDate) {
         throw "we can't create a meeting in past date time"
     }
-
+    
     if(req.body.attendee_type !='all_teacher'){
-      if(req.body.attendee_type =='teacher'){
-        let teacher_id = req.body.attendee_vls_id
-        let day        = moment(req.body.date).format('dddd')
-        let start_time = req.body.time
-        let duration   = req.body.duration
-        let end_time   = moment(start_time,'HH:mm').add(duration, 'minutes').format('HH:mm')
-        await checkTeacherTimings(teacher_id, day, start_time, duration, end_time)
-      }
-      await checkMeetingTimings(reqDate , req.body.duration, req.params.id)
+      // if(req.body.attendee_type =='teacher'){
+      //   let teacher_id = req.body.attendee_vls_id
+      //   let day        = moment(req.body.date).format('dddd')
+      //   let start_time = req.body.time
+      //   let duration   = req.body.duration
+      //   let end_time   = moment(start_time,'HH:mm').add(duration, 'minutes').format('HH:mm')
+      //   await checkTeacherTimings(teacher_id, day, start_time, duration, end_time)
+      // }
+      // await checkMeetingTimings(reqDate , req.body.duration, req.params.id)
     }
     //check end
     req.body.meeting_author_vls_id = req.user.userVlsId
   	let user 		         = await User.findByPk(req.user.id)
   	req.body.school_id 	 = user.school_id
   	req.body.branch_id 	 = user.branch_vls_id
+    req.body.attendee_vls_id = JSON.stringify(req.body.attendee_vls_id)
   	let meetingData      = req.body
 
   	let meeting          = await Meeting.update(meetingData,{
@@ -311,16 +317,18 @@ async function update(req){
       let roleType = 'employee'
       if(meetingData.attendee_type == 'parent')
         roleType = 'guardian'
-      let users
+      let users = []
       if(meetingData.attendee_type =='all_teacher'){
         users = await getBranchTeachers(req.body.branch_id)
         
       }else{
       //notification
-         users = [{
-          id: meetingData.attendee_vls_id,
-          type: roleType
-        }]
+        allAttendee.forEach(function(attendee_id){
+            users.push({
+              id: attendee_id,
+              type: roleType
+            })
+        })
       }
       let notificatonData = {}
       notificatonData.branch_vls_id = meetingData.branch_id
