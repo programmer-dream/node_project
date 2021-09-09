@@ -47,7 +47,7 @@ async function create(req){
     }
     
     //metting for all teachers
-    if(req.body.attendee_type =='all_teacher'){
+    if(req.body.attendee_type =='all_teacher' || allAttendee.length > 1){
       req.body.attendee_status = 'accept'
     }
 
