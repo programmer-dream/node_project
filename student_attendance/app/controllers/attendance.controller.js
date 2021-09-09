@@ -45,7 +45,8 @@ module.exports = {
   updateLeaveReasonForTeacher,
   listTeacherAttendance,
   getMonthWiseAttendance,
-  teacherDashboardAttendanceCount
+  teacherDashboardAttendanceCount,
+  teacherCount
 };
 
 
