@@ -34,7 +34,8 @@ const VlsVideoServices  = db.VlsVideoServices;
 const VlsMeetingServices  = db.VlsMeetingServices;
 const ServiceProvider  = db.ServiceProvider;
 const VlsMeetings       = db.VlsMeetings;
-
+const Meeting    = db.Meeting;
+const attendanceController    = require("../../../student_attendance/app/controllers/attendance.controller.js");
 
 module.exports = {
   create,
@@ -892,6 +893,7 @@ async function viewStudent(id, user){
  * API get view teacher
  */
 async function viewTeacher(id, user){
+
   let teachers = await User.findOne({
                   attributes: {
                     exclude: ['password','old_passwords','forget_pwd_token']
@@ -989,7 +991,36 @@ async function viewTeacher(id, user){
                     })
   let assignment = {created , inprogress, closed :aclosed}
 
-  teachers.counts = { answered_queries_count, feedback_raised_count,tickets,assignment }
+  let currentYear        = moment().format('YYYY');
+  let currentMonth       = moment().format('MMMM');
+  let currentDay         = moment().format('D');
+  let attendance         =  await attendanceController.teacherCount(id, currentYear, currentMonth, currentDay)
+  let live_class         = await VlsMeetings.count({
+                            where : {teacher_id : id}
+                          })
+  let AllTeacherCount    =  await Meeting.count({
+    where : { attendee_type : 'all_teacher' }
+  });
+
+  let teacherMeetings    =  await Meeting.findAll({
+    where : { attendee_type : 'teacher' },
+    attributes :['attendee_vls_id']
+  });
+  let otherCount = 0
+  await Promise.all(
+    teacherMeetings.map(async attendee => {
+        let attendeeArr =  JSON.parse(attendee.attendee_vls_id)
+        if(attendeeArr.includes(parseInt(id)))
+           otherCount++;
+        
+    })
+  )
+  
+  let meetings = AllTeacherCount + otherCount
+  teachers.counts = { answered_queries_count, feedback_raised_count,tickets,assignment ,attendance, live_class, meetings}
+  
+  
+
   return { success: true, message: "view teacher", data:teachers }
 }
 
@@ -2089,4 +2120,64 @@ async function getMeetingCounts(condition){
   )
     
   return obj
+}
+
+async function TeacherMeetingCounts(id){
+  let whereCondition = {attendee_type: 'teacher' }
+
+  let meetings = await Meeting.findAll({
+    where:whereCondition,
+  })
+
+  let teacherCondition = { attendee_type: 'all_teacher' }
+
+  let teacherMettings = await Meeting.findAll({
+    where:teacherCondition,
+  })
+
+  if(teacherMettings.length){
+    meetings = meetings.concat(teacherMettings)
+  }
+  
+  
+  let mettingWithUser = []
+  await Promise.all(
+    meetings.map(async meeting => {
+       let meetingData = meeting.toJSON()
+       let userArray   = JSON.parse(meetingData.attendee_vls_id)
+
+       if(meetingData.attendee_type != 'all_teacher' && !userArray.includes(user.userVlsId)  )
+           return true
+
+       let userData   = {}
+       let rejectUser = {}
+      if(meeting.attendee_type == 'parent') {
+        userData = await Guardian.findOne({
+          where : {parent_vls_id : meeting.attendee_vls_id},
+          attributes: ['name','photo']
+          })
+      }else{
+        userData = await Employee.findOne({
+          where : {faculty_vls_id : meeting.attendee_vls_id},
+          attributes: ['name','photo']
+        })
+      }
+      if(meeting.rejected_by){
+        if(meeting.rejected_role == 'parent') {
+          rejectUser = await Guardian.findOne({
+            where : {parent_vls_id : meeting.rejected_by},
+            attributes: ['name','photo']
+          })
+        }else{
+          rejectUser = await Employee.findOne({
+            where : {faculty_vls_id : meeting.rejected_by},
+            attributes: ['name','photo']
+            })
+        }
+      }
+      meetingData.meetingUser = userData
+      meetingData.rejectUser  = rejectUser
+      mettingWithUser.push(meetingData)
+    })
+  )
 }
