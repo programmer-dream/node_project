@@ -273,7 +273,7 @@ async function update(req){
   const errors = validationResult(req);
   if(errors.array().length) throw errors.array()
 
-  let allAttendee = req.body.attendee_vls_id
+  let allAttendee = []
 
   if(req.user.role != 'principal' && req.user.role != 'branch-admin') throw 'Unauthorized User'
 
@@ -303,7 +303,7 @@ async function update(req){
   	let user 		         = await User.findByPk(req.user.id)
   	req.body.school_id 	 = user.school_id
   	req.body.branch_id 	 = user.branch_vls_id
-    req.body.attendee_vls_id = JSON.stringify(req.body.attendee_vls_id)
+    
   	let meetingData      = req.body
 
   	let meeting          = await Meeting.update(meetingData,{
@@ -312,7 +312,7 @@ async function update(req){
 
   	if(!meeting[0]) throw 'meeting not updated'
       meetingData  = await Meeting.findByPk(req.params.id)
-
+      allAttendee = JSON.parse(meetingData.attendee_vls_id)
       if(req.body.meeting_mode =='online'){
         let vlsMeetingData = req.body.vlsMeetingData
           dbVlsMeetings    = await VlsMeetings.findByPk(meetingData.vls_meeting_id)
