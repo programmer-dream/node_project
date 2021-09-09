@@ -171,20 +171,24 @@ async function list(user){
        let meetingData = meeting.toJSON()
        let userArray   = JSON.parse(meetingData.attendee_vls_id)
 
-       if(user.role != 'principal' || user.role != 'branch-admin'){
+       if(user.role != 'principal' && user.role != 'branch-admin'){
           if(meetingData.attendee_type != 'all_teacher' && !userArray.includes(user.userVlsId)  )
            return true
        }
        let userData   = {}
        let rejectUser = {}
       if(meeting.attendee_type == 'parent') {
-        userData = await Guardian.findOne({
-          where : {parent_vls_id : meeting.attendee_vls_id},
+        userData = await Guardian.findAll({
+          where : {parent_vls_id : {
+            [Op.in] : userArray}
+          },
           attributes: ['name','photo']
           })
       }else{
-        userData = await Employee.findOne({
-          where : {faculty_vls_id : meeting.attendee_vls_id},
+        userData = await Employee.findAll({
+          where : {faculty_vls_id : {
+            [Op.in] : userArray}
+          },
           attributes: ['name','photo']
         })
       }
