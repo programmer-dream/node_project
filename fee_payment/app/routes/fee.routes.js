@@ -10,6 +10,7 @@ router.get("/list",list);
 router.get("/view/:id",view); 
 router.get("/transactionList",transactionList); 
 router.get("/transactionView/:id",transactionView); 
+router.get("/collectionReports",collectionReports); 
 
 // POST request
 router.post("/postFeeRequest/:branch_id",postFeeRequest); 
@@ -85,5 +86,12 @@ function transactionView(req, res, next) {
 function tansactionCheck(req, res, next) {
     feeController.tansactionCheck(req.body)
         .then(exam => exam ? res.redirect(exam.redirectUrl) : res.status(400).json({ status: "error", message: 'Error while listing transaction' }))
+        .catch(err => next(err));
+}
+
+// Function collection Reports fee
+function collectionReports(req, res, next) {
+    feeController.collectionReports(req.query, req.user)
+        .then(exam => exam ? res.json(exam) : res.status(400).json({ status: "error", message: 'Error while collection Reports fee' }))
         .catch(err => next(err));
 }
