@@ -920,14 +920,30 @@ async function viewTeacher(id, user){
                               }]
                           }]
                   })
-  teachers = teachers.toJSON()
-  let classArr   =  teachers.employee.teacher_class
-  let sectionArr =  teachers.employee.teacher_section
+  teachers            =  teachers.toJSON()
+  let classArr        =  teachers.employee.teacher_class
+  let sectionArr      =  teachers.employee.teacher_section
+  let teacher_subject =  teachers.employee.teacher_subject
+  let class_subject   =  {}
 
   await Promise.all(
-    classArr.map(async (classData , index) => {
-        sectionArr.map(async section => {
+      teacher_subject.map(async (subject , index) => {
+          if(!class_subject[subject.class_id])
+              class_subject[subject.class_id] = []
 
+          class_subject[subject.class_id].push(subject)
+      })
+  )
+  //return class_subject
+  await Promise.all(
+    classArr.map(async (classData , index) => {
+        
+        if(class_subject[classData.class_vls_id]){
+          classData.subject = class_subject[classData.class_vls_id]
+        }else{
+          classData.subject = []
+        }
+        sectionArr.map(async section => {
           if(classData.class_vls_id == section.class_id){
             if(!classArr[index]['sections'])
                classArr[index]['sections'] = []
@@ -1019,10 +1035,6 @@ async function viewTeacher(id, user){
   
   let meetings = AllTeacherCount + otherCount
   teachers.counts = { answered_queries_count, feedback_raised_count,tickets,assignment ,attendance, live_class, meetings, }
-  
-  teachers.subjects = await Subject.findAll({
-    where : {teacher_id : id}
-  })
 
   return { success: true, message: "view teacher", data:teachers }
 }
