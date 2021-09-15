@@ -31,7 +31,8 @@ module.exports = {
   vendorUpdate,
   tansactionCheck,
   listTransaction,
-  viewTransaction
+  viewTransaction,
+  collectionReports
 };
 
 
@@ -624,4 +625,48 @@ async function listTransaction(params, user){
   })
   totalPaid = totalPaid.amount
   return { success: true, message: "List transaction",data:{allTransaction, totalPaid}}
+}
+
+
+/**
+ * API for list view
+ */
+async function collectionReports(params, user){
+    let whereCodition = {}
+    let currentMonth  = moment().format('MMMM')
+    
+    //role check
+    if(user.role =='branch-admin' || user.role == 'principal'){
+        if(!params.branch_vls_id) throw 'branch_vls_id is required'
+        whereCodition.branch_id = params.branch_vls_id
+
+    }else if(user.role =='school-admin'){
+        if(!params.school_vls_id) throw 'school_vls_id is required'
+        whereCodition.school_id = params.school_vls_id
+      
+    }else{
+      throw 'unauthorised user'
+    }
+
+    //status and month check
+    whereCodition.paid_status = 'paid'
+    whereCodition.month = currentMonth
+    
+    let paid = await Invoice.sum('net_amount', {
+      where : whereCodition
+    })
+
+    whereCodition.paid_status = 'unpaid'
+    let unpaid = await Invoice.sum('net_amount', {
+      where : whereCodition
+    })
+
+    delete whereCodition.paid_status
+    let total = await Invoice.sum('net_amount', {
+      where : whereCodition
+    })
+
+    let finalData =  { total,  paid , unpaid}
+
+    return { success: true, message: "Fee report", data:finalData }
 }
