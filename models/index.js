@@ -215,7 +215,7 @@ db.Branch.belongsTo(db.SchoolDetails,{foreignKey:'school_vls_id',as:'school'})
 db.Classes.belongsTo(db.Employee,{foreignKey:'teacher_id',as:'class_teacher'})
 db.Employee.hasMany(db.Classes,{foreignKey:'teacher_id',as:'teacher_class'})
 db.Employee.hasMany(db.Section,{foreignKey:'teacher_id',as:'teacher_section'})
-db.Employee.hasOne(db.Subject,{foreignKey:'teacher_id',as:'teacher_subject'})
+db.Employee.hasMany(db.Subject,{foreignKey:'teacher_id',as:'teacher_subject'})
 
 /*********** assignment management ***********/
 db.Assignment.belongsTo(db.Employee,{foreignKey:'added_by',as:'addedBY'})
