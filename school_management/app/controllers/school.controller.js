@@ -1018,9 +1018,11 @@ async function viewTeacher(id, user){
   )
   
   let meetings = AllTeacherCount + otherCount
-  teachers.counts = { answered_queries_count, feedback_raised_count,tickets,assignment ,attendance, live_class, meetings}
+  teachers.counts = { answered_queries_count, feedback_raised_count,tickets,assignment ,attendance, live_class, meetings, }
   
-  
+  teachers.subjects = await Subject.findAll({
+    where : {teacher_id : id}
+  })
 
   return { success: true, message: "view teacher", data:teachers }
 }
