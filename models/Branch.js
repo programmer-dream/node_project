@@ -132,7 +132,11 @@ module.exports = (sequelize, Sequelize) => {
       },
       vendor_details :{
         type: Sequelize.STRING
-      }
+      },
+      payment_service: {
+        type: Sequelize.ENUM('no','yes'),
+        defaultValue: 'no'
+      },
   },{
     tableName: 'branch_details',
     createdAt: 'created_at',
