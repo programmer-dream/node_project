@@ -10,6 +10,8 @@ const Authentication = db.Authentication;
 const VlsRewards   = db.VlsRewards;
 const Section      = db.Section;
 const Classes      = db.Classes;
+const Role         = db.Role;
+const Subject      = db.Subject;
 
 module.exports = {
   profile,
@@ -106,9 +108,68 @@ async function profile(user){
   if(minPoint)
       userPorfile.min_point_redeemed = minPoint.min_point_redeemed
   
+  if(user.role == 'teacher')
+    userPorfile.classes = await getTeacherClassesSubjects(user.userVlsId)
+
   return { success: true, message: "profie data", data : userPorfile};
 };
 
+
+/**
+ * Function to get teacher classes subjects
+ */
+async function getTeacherClassesSubjects(userID){
+  let teachers = await Authentication.findOne({
+                  attributes: {
+                    exclude: ['password','old_passwords','forget_pwd_token']
+                  },
+                  include:[{ 
+                            model:Role,
+                            as:'roles',
+                            where : {slug : 'teacher'},
+                            attributes:['slug','name']
+                      },{ 
+                          model:Employee,
+                          as:'employee',
+                          where : {faculty_vls_id: userID},
+                          include: [{ 
+                            model:Classes,
+                            as:'teacher_class'
+                          },{ 
+                            model:Subject,
+                            as:'teacher_subject'
+                          }]
+                      }]
+              })
+
+  teachers            =  teachers.toJSON()
+  let classArr        =  teachers.employee.teacher_class
+  let teacher_subject =  teachers.employee.teacher_subject
+  let class_subject   =  {}
+
+  await Promise.all(
+      teacher_subject.map(async (subject , index) => {
+          if(!class_subject[subject.class_id])
+              class_subject[subject.class_id] = []
+
+          class_subject[subject.class_id].push(subject)
+      })
+  )
+  //return class_subject
+  await Promise.all(
+    classArr.map(async (classData , index) => {
+        
+        if(class_subject[classData.class_vls_id]){
+          classData.subject = class_subject[classData.class_vls_id]
+        }else{
+          classData.subject = []
+        }
+    })
+  )
+  console.log(classArr, "classArrclassArrclassArr")
+  return classArr
+
+}
 
 
 /**
