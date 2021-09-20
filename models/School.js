@@ -121,6 +121,10 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.ENUM('yes','no'),
         defaultValue: 'no'
       },
+      payment_service: {
+        type: Sequelize.ENUM('no','yes'),
+        defaultValue: 'no'
+      },
       max_simultaneous_online_meeting_supported: {
         type: Sequelize.INTEGER
       },
