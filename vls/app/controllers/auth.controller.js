@@ -35,23 +35,27 @@ async function signIn(userDetails) {
   let where = { user_name: userDetails.userName }
   if(!userDetails.userName) throw 'UserName is required'
   if(!userDetails.password) throw 'Password is required'
-  // if(!userDetails.recaptcha_key) throw 'recaptcha_key is required'
 
-  // //google captch code
-  // let secret_key = config.recaptcha_secret
-  // let response_key = userDetails.recaptcha_key
+  //google captch code
+  let captchaSetting = await RecaptchaSettings.findOne()
+  if(captchaSetting && captchaSetting.is_enabled){
+      if(!userDetails.recaptcha_key) throw 'recaptcha_key is required'
 
-  // let axiosConfig = {
-  //     method: 'post',
-  //     url: `https://www.google.com/recaptcha/api/siteverify?secret=${secret_key}&response=${response_key}`,
-  //     headers: { 
-  //       'Content-Type': 'application/json'
-  //     }
-  //   };
+      let secret_key = captchaSetting.secret_key
+      let response_key = userDetails.recaptcha_key
 
-  // let recaptchaResponse = await axiosRequest(axiosConfig);
-  
-  // if(!recaptchaResponse.success) return recaptchaResponse
+      let axiosConfig = {
+          method: 'post',
+          url: `https://www.google.com/recaptcha/api/siteverify?secret=${secret_key}&response=${response_key}`,
+          headers: { 
+            'Content-Type': 'application/json'
+          }
+        };
+
+      let recaptchaResponse = await axiosRequest(axiosConfig);
+      
+      if(!recaptchaResponse.success) return recaptchaResponse
+  }
   //google captch code
 
   let getUser = await Authentication.findOne({ 
