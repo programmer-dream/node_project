@@ -32,7 +32,8 @@ module.exports = {
   tansactionCheck,
   listTransaction,
   viewTransaction,
-  collectionReports
+  collectionReports,
+  dashboardInvocesAndTransaction
 };
 
 
@@ -670,3 +671,45 @@ async function collectionReports(params, user){
 
     return { success: true, message: "Fee report", data:finalData }
 }
+
+
+
+/**
+ * API for dashboard Invoces And Transaction
+ */
+async function dashboardInvocesAndTransaction(params, user){
+  if(!params.branch_vls_id) throw 'branch_vls_id is required'
+  let whereCodition = {}
+  let studentIds = []
+
+  if(user.role =='student'){
+    studentIds.push(user.userVlsId)
+  }else if(user.role =='guardian'){
+      studentIds = await Student.findAll({
+          where : { parent_vls_id : user.userVlsId,
+                    branch_vls_id : params.branch_vls_id
+                  },
+          attributes: ['student_vls_id']
+
+        }).then(students => students.map( student => student.student_vls_id));
+        whereCodition.student_id = { [Op.in] : studentIds }
+  }
+  whereCodition.branch_id = params.branch_vls_id
+  whereCodition.paid_status = 'unpaid'
+  
+  let invoices = await Invoice.findAll({
+    where : whereCodition
+  })
+
+  whereCodition.paid_status = 'paid'
+  let invoiceIds = await Invoice.findAll({
+        where : whereCodition,
+        attributes: ['id']
+  }).then(invoices => invoices.map( invoice => invoice.id));
+  
+  let transactions = await Transaction.findAll({
+    where : {invoice_id :{ [Op.in] : invoiceIds }}
+  })
+  
+  return { success: true, message: "Dashboard invoice & transaction", data:{invoices, transactions} }
+};
