@@ -722,7 +722,8 @@ async function crateUpdateRecaptchaSettings(body, user){
   }else{
       settings = await settings.update(body)
   }
-
+  settings = settings.toJSON()
+  delete settings.secret_key
   return {status: "success", message:'Settings updated successfully', data: settings};
 }
 
@@ -734,6 +735,7 @@ async function getRecapchaSettings(body,user){
   let settings = await RecaptchaSettings.findOne()
   
   if(!settings) throw 'No Settings found'
-
+    settings = settings.toJSON()
+    delete settings.secret_key
   return {status: "success", message:'Recaptcha settings', data: settings};
 }
