@@ -4,6 +4,7 @@ const authController = require("../controllers/auth.controller");
 
 // GET
 router.get("/userSettings",userSettings);
+router.get("/getRecapchaSettings",getRecapchaSettings);
 
 // POST
 router.post("/signin",authenticate);
@@ -12,6 +13,7 @@ router.post("/forgetPassword",forgetPassword);
 router.post("/updatePassword",updatePasswordWithForgetPwd);
 router.post("/verifyOTP",verifyOTP);
 router.post("/userStatus",userStatus);
+router.post("/crateUpdateRecaptchaSettings",crateUpdateRecaptchaSettings);
 
 module.exports = router;
 
@@ -65,6 +67,22 @@ function userSettings(req, res, next) {
 // Get users permissions
 function userStatus(req, res, next) {
       authController.userSettings(req.user, req.body)
+          .then(user => user ? res.json(user) : res.status(400).json({ status: "error", message: 'Error while updating user status' }))
+          .catch(err => next(err));
+
+}
+
+// create update recaptcha settings  
+function crateUpdateRecaptchaSettings(req, res, next) {
+      authController.crateUpdateRecaptchaSettings(req.body, req.user)
+          .then(settings => settings ? res.json(settings) : res.status(400).json({ status: "error", message: 'create update recaptcha settings' }))
+          .catch(err => next(err));
+
+}
+
+// Get users permissions
+function getRecapchaSettings(req, res, next) {
+      authController.getRecapchaSettings(req.user, req.body)
           .then(user => user ? res.json(user) : res.status(400).json({ status: "error", message: 'Error while updating user status' }))
           .catch(err => next(err));
 
