@@ -32,6 +32,7 @@ async function signIn(userDetails) {
   let where = { user_name: userDetails.userName }
   if(!userDetails.userName) throw 'UserName is required'
   if(!userDetails.password) throw 'Password is required'
+  if(!userDetails.recaptcha_key) throw 'recaptcha_key is required'
 
   //google captch code
   let secret_key = config.recaptcha_secret
@@ -46,8 +47,8 @@ async function signIn(userDetails) {
     };
 
   let recaptchaResponse = await axiosRequest(axiosConfig);
-  return recaptchaResponse
-  if(!recaptchaResponse.success) throw recaptchaResponse
+  
+  if(!recaptchaResponse.success) return recaptchaResponse
   //google captch code
 
   let getUser = await Authentication.findOne({ 
