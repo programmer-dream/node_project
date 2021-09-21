@@ -734,7 +734,9 @@ async function getRecapchaSettings(body,user){
   
   let settings = await RecaptchaSettings.findOne()
   
-  if(!settings) throw 'No Settings found'
+  if(!settings) 
+      return {status: "error", message:'No Settings found', data: settings};
+
     settings = settings.toJSON()
     delete settings.secret_key
   return {status: "success", message:'Recaptcha settings', data: settings};
