@@ -81,6 +81,7 @@ db.ServiceProvider = require("./ServiceProvider.js")(sequelize, Sequelize);
 db.VlsMeetings = require("./VlsMeetings.js")(sequelize, Sequelize);
 db.TeacherAttendance = require("./TeacherAttendance.js")(sequelize, Sequelize);
 db.TeacherAbsent = require("./TeacherAbsent.js")(sequelize, Sequelize);
+db.RecaptchaSettings = require("./RecaptchaSettings.js")(sequelize, Sequelize);
 
 /*********** query management ***********/
 db.StudentQuery = require("./StudentQuery.js")(sequelize, Sequelize);

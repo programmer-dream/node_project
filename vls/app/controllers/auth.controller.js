@@ -1,11 +1,13 @@
 const db = require("../../../models");
 const mailer = require('../../../helpers/nodemailer')
 const config = require("../../../config/env.js");
+const axios  = require('axios').default;
 const Authentication = db.Authentication;
 const Role = db.Role;
 const School = db.SchoolDetails;
 const Branch = db.Branch;
 const UserSetting = db.UserSetting;
+const RecaptchaSettings = db.RecaptchaSettings;
 
 const Op = db.Sequelize.Op;
 
@@ -20,7 +22,9 @@ module.exports = {
   updatePasswordWithForgetPwd,
   verifyOTP,
   userSettings,
-  userStatus
+  userStatus,
+  crateUpdateRecaptchaSettings,
+  getRecapchaSettings
 };
 
 
@@ -31,6 +35,29 @@ async function signIn(userDetails) {
   let where = { user_name: userDetails.userName }
   if(!userDetails.userName) throw 'UserName is required'
   if(!userDetails.password) throw 'Password is required'
+
+  //google captch code
+  let captchaSetting = await RecaptchaSettings.findOne()
+  if(captchaSetting && captchaSetting.is_enabled){
+      if(!userDetails.recaptcha_key) throw 'recaptcha_key is required'
+
+      let secret_key = captchaSetting.secret_key
+      let response_key = userDetails.recaptcha_key
+
+      let axiosConfig = {
+          method: 'post',
+          url: `https://www.google.com/recaptcha/api/siteverify?secret=${secret_key}&response=${response_key}`,
+          headers: { 
+            'Content-Type': 'application/json'
+          }
+        };
+
+      let recaptchaResponse = await axiosRequest(axiosConfig);
+      
+      if(!recaptchaResponse.success) return recaptchaResponse
+  }
+  //google captch code
+
   let getUser = await Authentication.findOne({ 
                     attributes: [
                         'auth_vls_id'
@@ -659,4 +686,56 @@ async function isSchoolBranchActive(user) {
       isActive = false
 
    return isActive
+}
+
+/**
+ * API for axios request
+ */
+async function axiosRequest(config){
+
+  return new Promise((resolve, reject) => {
+        axios(config)
+            .then(function (response) {
+                resolve(response.data)
+            })
+            .catch(function (error) {
+                reject(error)
+            });
+    })
+}
+
+
+
+/**
+ * API for create update recaptcha settings
+ */
+async function crateUpdateRecaptchaSettings(body, user){
+  
+  if(user.role != 'super-admin') throw 'Unauthorised user'
+
+  let settings = await RecaptchaSettings.findOne()
+  if(!settings){
+      if(!body.site_key ) throw 'site_key is required'
+      if(!body.secret_key ) throw 'secret_key is required'
+
+      settings = await RecaptchaSettings.create(body)
+  }else{
+      settings = await settings.update(body)
+  }
+  settings = settings.toJSON()
+  delete settings.secret_key
+  return {status: "success", message:'Settings updated successfully', data: settings};
+}
+
+/**
+ * API for get recaptcha settings
+ */
+async function getRecapchaSettings(body,user){
+  
+  let settings = await RecaptchaSettings.findOne()
+  
+  if(!settings) throw 'No Settings found'
+    settings = settings.toJSON()
+    delete settings.secret_key
+  return {status: "success", message:'Recaptcha settings', data: settings};
 }

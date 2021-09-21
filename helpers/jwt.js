@@ -14,7 +14,7 @@ function jwt() {
             '/auth/verifyOTP',
             '/auth/verifyOTP',
             '/fee/tansactionCheck',
-            '/'
+            '/auth/getRecapchaSettings'
         ]
     });
 }
