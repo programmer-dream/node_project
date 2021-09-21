@@ -173,7 +173,7 @@ async function view(params, user){
   let branchDetails = {}
   if(branch_id && branch_id != ""){
     branchDetails = await Branch.findOne({ 
-                      where: { branch_vls_id: school_id },
+                      where: { branch_vls_id: branch_id },
                       attributes: ['branch_vls_id','branch_name', 'address']
                       })
   }
