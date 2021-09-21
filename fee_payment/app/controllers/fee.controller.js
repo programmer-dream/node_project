@@ -163,14 +163,24 @@ async function view(params, user){
      if(!students.includes(invoiceDetails.student_id)) throw 'You are not authorised'
   }
   let school_id = invoiceDetails.student.school_id
+  let branch_id = invoiceDetails.student.branch_id
   
   let schoolDetails = await SchoolDetails.findOne({ 
                     where: { school_id: school_id },
                     attributes: ['school_vls_id','school_name', 'address','school_code','logo']
                     })
 
+  let branchDetails = {}
+  if(branch_id && branch_id != ""){
+    branchDetails = await Branch.findOne({ 
+                      where: { branch_vls_id: school_id },
+                      attributes: ['branch_vls_id','branch_name', 'address']
+                      })
+  }
+
   invoiceDetails = invoiceDetails.toJSON()
   invoiceDetails.school_details = schoolDetails
+  invoiceDetails.branch_details = branchDetails
 
   return { success: true, message: "fee view",data:invoiceDetails}
 };
