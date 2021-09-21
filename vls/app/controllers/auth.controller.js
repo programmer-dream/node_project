@@ -1,6 +1,7 @@
 const db = require("../../../models");
 const mailer = require('../../../helpers/nodemailer')
 const config = require("../../../config/env.js");
+const axios  = require('axios').default;
 const Authentication = db.Authentication;
 const Role = db.Role;
 const School = db.SchoolDetails;
@@ -31,6 +32,24 @@ async function signIn(userDetails) {
   let where = { user_name: userDetails.userName }
   if(!userDetails.userName) throw 'UserName is required'
   if(!userDetails.password) throw 'Password is required'
+
+  //google captch code
+  let secret_key = config.recaptcha_secret
+  let response_key = userDetails.recaptcha_key
+
+  let axiosConfig = {
+      method: 'post',
+      url: `https://www.google.com/recaptcha/api/siteverify?secret=${secret_key}&response=${response_key}`,
+      headers: { 
+        'Content-Type': 'application/json'
+      }
+    };
+
+  let recaptchaResponse = await axiosRequest(axiosConfig);
+  return recaptchaResponse
+  if(!recaptchaResponse.success) throw recaptchaResponse
+  //google captch code
+
   let getUser = await Authentication.findOne({ 
                     attributes: [
                         'auth_vls_id'
@@ -659,4 +678,20 @@ async function isSchoolBranchActive(user) {
       isActive = false
 
    return isActive
+}
+
+/**
+ * API for axios request
+ */
+async function axiosRequest(config){
+
+  return new Promise((resolve, reject) => {
+        axios(config)
+            .then(function (response) {
+                resolve(response.data)
+            })
+            .catch(function (error) {
+                reject(error)
+            });
+    })
 }
