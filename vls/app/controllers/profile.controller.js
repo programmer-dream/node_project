@@ -1,17 +1,18 @@
 const { validationResult } = require('express-validator');
 const db = require("../../../models");
 
-const Student = db.Student;
-const Guardian = db.Guardian;
-const Employee = db.Employee;
-const Branch = db.Branch;
-const SchoolDetails = db.SchoolDetails;
-const Authentication = db.Authentication;
-const VlsRewards   = db.VlsRewards;
-const Section      = db.Section;
-const Classes      = db.Classes;
-const Role         = db.Role;
-const Subject      = db.Subject;
+const Student           = db.Student;
+const Guardian          = db.Guardian;
+const Employee          = db.Employee;
+const Branch            = db.Branch;
+const SchoolDetails     = db.SchoolDetails;
+const Authentication    = db.Authentication;
+const VlsRewards        = db.VlsRewards;
+const Section           = db.Section;
+const Classes           = db.Classes;
+const Role              = db.Role;
+const Subject           = db.Subject;
+const RecaptchaSettings = db.RecaptchaSettings;
 
 module.exports = {
   profile,
@@ -110,6 +111,16 @@ async function profile(user){
   
   if(user.role == 'teacher')
     userPorfile.classes = await getTeacherClassesSubjects(user.userVlsId)
+
+
+  if(user.role == 'teacher'){
+    userPorfile.captchaSetting = {"site_key": "", "is_enabled": 0}
+    let captchaSetting = await RecaptchaSettings.findOne()
+    if(captchaSetting){
+      userPorfile.captchaSetting.is_enabled = captchaSetting.is_enabled
+      userPorfile.captchaSetting.site_key   = captchaSetting.site_key
+    }
+  }
 
   return { success: true, message: "profie data", data : userPorfile};
 };
