@@ -732,12 +732,13 @@ async function crateUpdateRecaptchaSettings(body, user){
  */
 async function getRecapchaSettings(body,user){
   
-  let settings = await RecaptchaSettings.findOne()
+  let settings = await RecaptchaSettings.findOne({
+                            attributes: ['is_enabled']
+                          })
   
+  let isEnabled = {is_enabled: 0}
   if(!settings) 
-      return {status: "error", message:'No Settings found'};
+      return {status: "success", message:'Recaptcha settings', data: isEnabled}
 
-    settings = settings.toJSON()
-    delete settings.secret_key
   return {status: "success", message:'Recaptcha settings', data: settings};
 }

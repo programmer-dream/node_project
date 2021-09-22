@@ -83,7 +83,7 @@ function crateUpdateRecaptchaSettings(req, res, next) {
 // Get users permissions
 function getRecapchaSettings(req, res, next) {
       authController.getRecapchaSettings(req.user, req.body)
-          .then(user => user ? res.json(user) : res.status(400).json({ status: "error", message: 'Error while updating user status' }))
+          .then(user => user ? res.json(user) : res.status(400).json({ status: "error", message: 'Error while getting recaptcha settings' }))
           .catch(err => next(err));
 
 }
