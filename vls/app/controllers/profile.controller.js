@@ -113,7 +113,7 @@ async function profile(user){
     userPorfile.classes = await getTeacherClassesSubjects(user.userVlsId)
 
 
-  if(user.role == 'teacher'){
+  if(user.role == 'super-admin'){
     userPorfile.captchaSetting = {"site_key": "", "is_enabled": 0}
     let captchaSetting = await RecaptchaSettings.findOne()
     if(captchaSetting){
