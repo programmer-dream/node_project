@@ -33,7 +33,8 @@ module.exports = {
   listTransaction,
   viewTransaction,
   collectionReports,
-  dashboardInvocesAndTransaction
+  dashboardInvocesAndTransaction,
+  dashboardForAdminPrincipal
 };
 
 
@@ -698,7 +699,14 @@ async function dashboardInvocesAndTransaction(params, user){
   whereCodition.paid_status = 'unpaid'
   
   let invoices = await Invoice.findAll({
-    where : whereCodition
+    where : whereCodition,
+    include: [{ 
+                model:Student,
+                as:'student'
+              },{ 
+                model:Classes,
+                as:'class'
+             }]
   })
 
   whereCodition.paid_status = 'paid'
@@ -712,4 +720,45 @@ async function dashboardInvocesAndTransaction(params, user){
   })
   
   return { success: true, message: "Dashboard invoice & transaction", data:{invoices, transactions} }
+};
+
+
+
+/**
+ * API for dashboard Invoces And Transaction
+ */
+async function dashboardForAdminPrincipal(params, user){
+  let whereCodition = {transaction_status : 'SUCCESS'}
+  let limit         = 10
+  let orderBy       = 'desc';
+
+  if(user.role == 'principal' || user.role == 'branch-admin'){
+      if(!params.branch_vls_id) throw 'branch_vls_id is required'
+      whereCodition.branch_id = params.branch_vls_id
+  }else if(user.role == 'school-admin'){
+      if(!params.school_vls_id) throw 'school_vls_id is required'
+      whereCodition.school_id = params.school_vls_id
+  }
+  if(params.size)
+      limit = parseInt(params.size)
+
+  let transactions = await Transaction.findAll({
+    limit : limit,
+    order: [
+             ['id', orderBy]
+           ],
+    include: [{ 
+                model:Invoice,
+                as:'invoice',
+                include: [{ 
+                    model:Student,
+                    as:'student'
+                  },{ 
+                    model:Classes,
+                    as:'class'
+                 }]
+              }]    
+  })
+  
+  return { success: true, message: "Dashboard invoice & transaction", data: transactions }
 };

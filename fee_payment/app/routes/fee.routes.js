@@ -12,6 +12,7 @@ router.get("/transactionList",transactionList);
 router.get("/transactionView/:id",transactionView); 
 router.get("/collectionReports",collectionReports); 
 router.get("/dashboardInvocesAndTransaction",dashboardInvocesAndTransaction); 
+router.get("/dashboardForAdminPrincipal",dashboardForAdminPrincipal); 
 
 // POST request
 router.post("/postFeeRequest/:branch_id",postFeeRequest); 
@@ -100,6 +101,13 @@ function collectionReports(req, res, next) {
 //Function dashboard Invoces And Transaction
 function dashboardInvocesAndTransaction(req, res, next) {
     feeController.dashboardInvocesAndTransaction(req.query, req.user)
-        .then(exam => exam ? res.json(exam) : res.status(400).json({ status: "error", message: 'Error while dashboard Invoces And Transaction' }))
+        .then(invoice => invoice ? res.json(invoice) : res.status(400).json({ status: "error", message: 'Error while dashboard Invoces And Transaction' }))
+        .catch(err => next(err));
+}
+
+//Function dashboard Invoces And Transaction
+function dashboardForAdminPrincipal(req, res, next) {
+    feeController.dashboardForAdminPrincipal(req.query, req.user)
+        .then(invoice => invoice ? res.json(invoice) : res.status(400).json({ status: "error", message: 'Error while dashboard Invoces And Transaction' }))
         .catch(err => next(err));
 }
