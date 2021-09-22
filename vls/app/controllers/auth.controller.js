@@ -35,9 +35,6 @@ async function signIn(userDetails) {
   let where = { user_name: userDetails.userName }
   if(!userDetails.userName) throw 'UserName is required'
   if(!userDetails.password) throw 'Password is required'
-  if(getUser.roles.slug != 'super-admin'){
-    if(!userDetails.school_code) throw 'Institute code is required'
-  }
 
   //google captch code
   let captchaSetting = await RecaptchaSettings.findOne()
@@ -76,6 +73,7 @@ async function signIn(userDetails) {
 
   //super admin check  
   if(getUser.roles.slug != 'super-admin'){
+    if(!userDetails.school_code) throw 'Institute code is required'
       where.school_code = userDetails.school_code
   }
 
