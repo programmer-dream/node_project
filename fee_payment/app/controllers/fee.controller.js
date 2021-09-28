@@ -296,7 +296,7 @@ async function postFeeRequest(body,params , user){
   data.append('customerName', authUser.name);
   data.append('customerPhone', authUser.recovery_contact_no);
   data.append('returnUrl', returnUrl);
-  data.append('paymentModes', 'dc,cc');
+  data.append('paymentModes', 'dc,cc,nb,upi');
   data.append('paymentSplits', objJsonStr);
   
   var config = {
