@@ -556,7 +556,7 @@ async function netBankingPaymentObject(body, user){
   let bodyJson = {
           "order_token": body.order_token,
           "payment_method" : {
-              "payment_method" : { 
+              "netbanking" : { 
                   "channel": body.channel,
                   "netbanking_bank_code": body.netbanking_bank_code,
               }
