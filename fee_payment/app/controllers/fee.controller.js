@@ -27,6 +27,8 @@ module.exports = {
   view,
   postFeeRequest,
   cardDetailsGetLink,
+  upiPaymentObject,
+  netBankingPaymentObject,
   vendorCreate,
   vendorUpdate,
   tansactionCheck,
@@ -492,6 +494,91 @@ async function cardDetailsGetLink(body){
     let otplinkResponse = await axiosRequest(config);
 
   return { success: true, message: "cashfree otp link",data:otplinkResponse}
+};
+
+
+/**
+ * API for UPI send UPI payment Request
+ */
+async function upiPaymentObject(body, user){
+
+  if(!body.order_token) throw "Order token is required"
+  if(!body.channel) throw "Channel is required"
+  if(body.channel == "collect" && !body.upi_id) throw "UPI ID is required"
+
+  let bodyJson = {
+          "order_token": body.order_token,
+          "payment_method" : {
+              "upi" : { 
+                  "channel": body.channel
+              }
+          }
+      }
+
+    if(body.channel == "collect"){
+      bodyJson = {
+            "order_token": body.order_token,
+            "payment_method" : {
+                "upi" : { 
+                    "channel": body.channel,
+                    "upi_id" : body.upi_id
+                }
+            }
+        }
+    }
+
+    let upiPaymentObject = await sendPaymetObjectReq(bodyJson);
+
+    return { success: true, message: "cashfree UPI Payment Object", data:upiPaymentObject}
+};
+
+
+/**
+ * API for NetBanking for send cashfree
+ */
+async function netBankingPaymentObject(body, user){
+
+  if(!body.order_token) throw "Order token is required"
+  if(!body.channel) throw "Channel is required"
+  if(!body.netbanking_bank_code) throw "Bank Code is required"
+
+  let bodyJson = {
+          "order_token": body.order_token,
+          "payment_method" : {
+              "payment_method" : { 
+                  "channel": body.channel,
+                  "netbanking_bank_code": body.netbanking_bank_code,
+              }
+          }
+      }
+
+    let netbankingPaymentObject = await sendPaymetObjectReq(bodyJson);
+
+    return { success: true, message: "cashfree NetBanking Object", data:netbankingPaymentObject}
+};
+
+
+
+/**
+ * API for card details to send on cashfree to get link
+ */
+async function sendPaymetObjectReq(bodyJson){
+
+  let cashFreeConfig = await getCashFreeConfig();
+
+    var data = JSON.stringify(bodyJson);
+
+    var config = {
+      method: 'post',
+      url: `${cashFreeConfig.sandboxUrl}/pg/orders/pay`,
+      headers: { 
+        'x-version': '2021-05-21', 
+        'Content-Type': 'application/json'
+      },
+      data : data
+    };
+
+    return await axiosRequest(config);
 };
 
 

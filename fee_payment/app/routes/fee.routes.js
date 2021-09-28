@@ -19,6 +19,8 @@ router.post("/postFeeRequest/:branch_id",postFeeRequest);
 router.post("/vendorCreate/:branch_id",vendorCreate);
 router.post("/otpLink",otpLink);
 router.post("/tansactionCheck",tansactionCheck);
+router.post("/upiPaymentObject",upiPaymentObject);
+router.post("/netBankingPaymentObject",netBankingPaymentObject);
 
 //put request
 router.put("/vendorUpdate/:branch_id",vendorUpdate); 
@@ -109,5 +111,19 @@ function dashboardInvocesAndTransaction(req, res, next) {
 function dashboardForAdminPrincipal(req, res, next) {
     feeController.dashboardForAdminPrincipal(req.query, req.user)
         .then(invoice => invoice ? res.json(invoice) : res.status(400).json({ status: "error", message: 'Error while dashboard Invoces And Transaction' }))
+        .catch(err => next(err));
+}
+
+//Function get upiPaymentObject
+function upiPaymentObject(req, res, next) {
+    feeController.upiPaymentObject(req.body, req.user)
+        .then(paymetObject => paymetObject ? res.json(paymetObject) : res.status(400).json({ status: "error", message: 'Error while doing UPI payments' }))
+        .catch(err => next(err));
+}
+
+//Function get upiPaymentObject
+function netBankingPaymentObject(req, res, next) {
+    feeController.netBankingPaymentObject(req.body, req.user)
+        .then(paymetObject => paymetObject ? res.json(paymetObject) : res.status(400).json({ status: "error", message: 'Error while doing NetBanking payments' }))
         .catch(err => next(err));
 }
