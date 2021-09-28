@@ -1,17 +1,17 @@
-const db 	 	            = require("../../../models");
-const moment 	          = require("moment");
+const db                  = require("../../../models");
+const moment             = require("moment");
 const path              = require('path')
 const axios             = require('axios').default;
 const configEnv         = require("../../../config/env.js");
 const FormData          = require('form-data');
 const CryptoJS          = require('crypto-js');
-const Op 	 	            = db.Sequelize.Op;
+const Op                  = db.Sequelize.Op;
 const Sequelize         = db.Sequelize;
 const sequelize         = db.sequelize;
 const Student           = db.Student;
 const Authentication    = db.Authentication;
-const Guardian   	      = db.Guardian;
-const Classes   	      = db.Classes;
+const Guardian           = db.Guardian;
+const Classes           = db.Classes;
 const SchoolDetails     = db.SchoolDetails;
 const AcademicYear      = db.AcademicYear;
 const Invoice           = db.Invoice;
@@ -240,17 +240,27 @@ async function postFeeRequest(body,params , user){
             user_vls_id : user.userVlsId,
           }
   })
- 
-  let orderID = "order_"+body.invoiceId
+  let invoice_id = body.invoiceId
+  let getInvoice = await Invoice.findOne({
+    where: {custom_invoice_id : invoice_id} 
+  })
+
+  if(!getInvoice) throw "Invoice not found"
+
+  let payment_prefix = "OD"+Date.now()+"_"
+  let orderID = getInvoice.payment_prefix+body.invoiceId
   let paymentOrderDetails = await getOrderStatus(orderID)
+
   if(paymentOrderDetails && paymentOrderDetails.order_status == "ACTIVE"){
     return { success: true, message: "payment order token",data:{order_token: paymentOrderDetails.order_token}}
   }
 
-  invoice_id = body.invoiceId
-  let getInvoice = await Invoice.findOne({
-    where: {custom_invoice_id : invoice_id} 
-  })
+  if(paymentOrderDetails){
+    await getInvoice.update({
+                        payment_prefix: payment_prefix
+                    })
+    orderID = payment_prefix+body.invoiceId
+  }
   
   let branch_vls_id = params.branch_id
   let branch = await Branch.findByPk(branch_vls_id)
@@ -267,9 +277,10 @@ async function postFeeRequest(body,params , user){
     branch_vls_id: authUser.branch_vls_id.toString(),
     school_vls_id: authUser.school_id.toString(),
     school_code: authUser.school_code.toString(),
-    invoice_id: getInvoice.id.toString()
+    invoice_id: getInvoice.id.toString(),
+    payment_prefix: getInvoice.payment_prefix.toString(),
   }
-  
+
   let objJsonStr = Buffer.from(JSON.stringify(vendor_percentage)).toString("base64")
   let  merchantData = JSON.stringify(currentUserObj)
   let returnUrl = configEnv.backendURL+"/fee/tansactionCheck"
@@ -591,7 +602,6 @@ async function tansactionCheck(body){
   let txStatus = body.txStatus
   let paymentMode = body.paymentMode
   let paymentOrderDetails = await getOrderStatus(orderID)
-  let invoiceID = orderID.replace('order_', '')
   let orderNote = paymentOrderDetails.order_note.replace(/&quot;/g, '')
   orderNote = orderNote.replace('{', '')
   orderNote = orderNote.replace('}', '')
@@ -610,6 +620,8 @@ async function tansactionCheck(body){
 
             }
       });
+
+  let invoiceID = orderID.replace(orderNoteObj.payment_prefix, '')
 
   let transactionObj = {
       school_id: orderNoteObj.school_vls_id,

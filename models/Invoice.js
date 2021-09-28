@@ -74,6 +74,10 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: false,
         type: Sequelize.TINYINT(1)
       },
+      payment_prefix: {
+        type: Sequelize.STRING,
+        defaultValue: "order_"
+      },
       created_by: {
         allowNull: false,
         type: Sequelize.INTEGER
