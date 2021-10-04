@@ -597,7 +597,7 @@ async function sendPaymetObjectReq(bodyJson){
  * API for create tansaction
  */
 async function tansactionCheck(body){
-
+  console.log(body, "bodyJson")
   let orderID = body.orderId
   let txStatus = body.txStatus
   let paymentMode = body.paymentMode
