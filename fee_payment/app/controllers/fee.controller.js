@@ -645,6 +645,7 @@ async function tansactionCheck(body){
   }
 
   if(txStatus == "SUCCESS"){
+    console.log(orderNoteObj.payment_prefix, invoiceID,"okay in invoiceCondition")
     let invoiceDetails = await Invoice.findOne({custom_invoice_id:invoiceID})
     await invoiceDetails.update(paid_status)
   }else{
