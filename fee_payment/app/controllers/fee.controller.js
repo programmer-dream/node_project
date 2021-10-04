@@ -644,7 +644,7 @@ async function tansactionCheck(body){
     paid_status: "paid"
   }
 
-  if(txStatus == ''){
+  if(txStatus == 'SUCCESS'){
     let invoiceDetails = await Invoice.findOne({
                               where :{custom_invoice_id:invoiceID}
                            })
