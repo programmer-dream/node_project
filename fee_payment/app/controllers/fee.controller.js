@@ -643,17 +643,17 @@ async function tansactionCheck(body){
   let paid_status = {
     paid_status: "paid"
   }
-  console.log(txStatus, "txStatustxStatustxStatustxStatus")
-  if(txStatus == "SUCCESS"){
-    console.log(orderNoteObj.payment_prefix, invoiceID,"okay in invoiceCondition")
-    let invoiceDetails = await Invoice.findOne({custom_invoice_id:invoiceID})
+
+  if(txStatus == ''){
+    let invoiceDetails = await Invoice.findOne({
+                              where :{custom_invoice_id:invoiceID}
+                           })
     await invoiceDetails.update(paid_status)
   }else{
-    console.log(orderNoteObj.payment_prefix, invoiceID,"okay in else")
     transactionObj.transaction_failed_reason = body.txMsg
   }
 
-  // let createdTransaction = await Transaction.create(transactionObj)
+  let createdTransaction = await Transaction.create(transactionObj)
   
   
   let redirectUrl = configEnv.frontendURL+"/app/payment/detail?id="+orderNoteObj.invoice_id
