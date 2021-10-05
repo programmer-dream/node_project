@@ -32,9 +32,12 @@ module.exports = {
  * API for signIn user's
  */
 async function signIn(userDetails) {
-  let where = { user_name: userDetails.userName }
+  
   if(!userDetails.userName) throw 'UserName is required'
   if(!userDetails.password) throw 'Password is required'
+
+  let where = { user_name: userDetails.userName }
+  let mobileUser = (userDetails.mobileUser) ? true : false
 
   //google captch code
   let captchaSetting = await RecaptchaSettings.findOne()
@@ -71,10 +74,15 @@ async function signIn(userDetails) {
                     })
   if(!getUser) throw "Oops, wrong credentials, please try again"
 
+  let userRole = getUser.roles.slug
   //super admin check  
-  if(getUser.roles.slug != 'super-admin'){
+  if(userRole != 'super-admin'){
     if(!userDetails.school_code) throw 'Institute code is required'
       where.school_code = userDetails.school_code
+  }
+
+  if(mobileUser && (userRole == "super-admin" || userRole == "branch-admin" || userRole == "school-admin") ){
+    throw 'You are not an authorized user to access the application. Please login through the web portal.'
   }
 
   let user = await Authentication.findOne({ 
