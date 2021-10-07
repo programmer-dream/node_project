@@ -122,6 +122,7 @@ io.on("connection", async function (client) {
     let checkQrPaymentsData = await feeController.checkQrPayments(data.invoiceID)
 
     const user = findUser(data.userId)
+    console.log(user, data.userId, 'data.userId')
     if (user) {
       console.log(checkQrPaymentsData, "checkQrPaymentsData")
       user.socketId.map(socketId => {
