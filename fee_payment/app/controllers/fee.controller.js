@@ -351,7 +351,7 @@ async function getOrderStatus(orderId){
  * function to check QR payments
  */
 async function checkQrPayments(invoiceId){
-   console.log("In Controller")
+
   if(!invoiceId) throw 'invoiceId is required'
 
   let getInvoice = await Invoice.findOne({
@@ -361,7 +361,7 @@ async function checkQrPayments(invoiceId){
   let orderID = getInvoice.payment_prefix+getInvoice.custom_invoice_id
   let paymentOrderDetails = await getOrderStatus(orderID)
   if(paymentOrderDetails.order_status != "PAID"){
-    console.log("return false")
+
     return false
   }
   
@@ -389,9 +389,9 @@ async function checkQrPayments(invoiceId){
       });
 
   let invoiceID = orderID.replace(orderNoteObj.payment_prefix, '')
-  console.log(invoiceID, " invoiceID")
+
   await updateTransactionInDB(orderNoteObj, txStatus, academicYear, paymentOrderDetails, paymentMode, invoiceID)
-  console.log("return true")
+
   return true
 }
 /**
@@ -716,7 +716,7 @@ async function tansactionCheck(body){
  * Function for update transaction
  */
 async function updateTransactionInDB(orderNoteObj, txStatus, academicYear, paymentOrderDetails, paymentMode, invoiceID){
-  console.log("update function")
+
   let transactionObj = {
       school_id: orderNoteObj.school_vls_id,
       branch_id: orderNoteObj.branch_vls_id,
@@ -737,7 +737,7 @@ async function updateTransactionInDB(orderNoteObj, txStatus, academicYear, payme
   let paid_status = {
     paid_status: "paid"
   }
-  console.log(paid_status, "paid_status")
+
   if(txStatus == 'SUCCESS'){
     let invoiceDetails = await Invoice.findOne({
                               where :{custom_invoice_id:invoiceID}
@@ -746,7 +746,7 @@ async function updateTransactionInDB(orderNoteObj, txStatus, academicYear, payme
   }else{
     transactionObj.transaction_failed_reason = body.txMsg
   }
-  console.log(transactionObj, "transactionObj")
+
   await Transaction.create(transactionObj)
 
 }
