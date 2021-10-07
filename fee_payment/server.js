@@ -119,9 +119,15 @@ io.on("connection", async function (client) {
   // Check Payments
   client.on('checkQrPayments', async function (data) {
     console.log("In Socket")
-    let checkQrPaymentsData = await feeController.checkQrPayments( data.invoiceID)
-    console.log(checkQrPaymentsData, "checkQrPaymentsData")
-    socket.broadcast.to(socketId).emit('checkQrPaymentStatus', {paid: checkQrPaymentsData});
+    let checkQrPaymentsData = await feeController.checkQrPayments(data.invoiceID)
+
+    const user = findUser(data.userId)
+    if (user) {
+      console.log(checkQrPaymentsData, "checkQrPaymentsData")
+      user.socketId.map(socketId => {
+        socket.broadcast.to(socketId).emit('checkQrPaymentStatus', {paid: checkQrPaymentsData});
+      })
+    }
 
   });
   
