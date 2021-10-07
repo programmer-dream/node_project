@@ -125,7 +125,7 @@ io.on("connection", async function (client) {
 
     if (user) {
       user.socketId.map(socketId => {
-        io.to(socketId).emit('checkQrPaymentStatus', {paid: checkQrPaymentsData});
+        io.to(socketId).emit('checkQrPaymentStatus', { paid: checkQrPaymentsData.status, id: checkQrPaymentsData.id });
       })
     }
 

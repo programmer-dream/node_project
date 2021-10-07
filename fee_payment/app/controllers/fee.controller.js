@@ -362,7 +362,7 @@ async function checkQrPayments(invoiceId){
   let paymentOrderDetails = await getOrderStatus(orderID)
   if(paymentOrderDetails.order_status != "PAID"){
 
-    return false
+    return { "status": false, "id": "" }
   }
   
   orderID = paymentOrderDetails.order_id
@@ -392,7 +392,7 @@ async function checkQrPayments(invoiceId){
 
   await updateTransactionInDB(orderNoteObj, txStatus, academicYear, paymentOrderDetails, paymentMode, invoiceID)
 
-  return true
+  return { "status": true, "id": getInvoice.id }
 }
 /**
  * API for vendor create
