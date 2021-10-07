@@ -115,8 +115,17 @@ io.on("connection", async function (client) {
     })
     //send user online user list
   })
+
+  // Check Payments
+  client.on('checkQrPayments', async function (data) {
+
+    let checkQrPaymentsData = await feeController.checkQrPayments( data.invoiceID)
+    socket.broadcast.to(socketId).emit('checkQrPaymentStatus', {paid: checkQrPaymentsData});
+
+  });
   
 });
+
 
 // api routes
 app.use('/fee', require('./app/routes/fee.routes'));

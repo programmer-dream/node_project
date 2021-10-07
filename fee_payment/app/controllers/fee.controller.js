@@ -36,7 +36,8 @@ module.exports = {
   viewTransaction,
   collectionReports,
   dashboardInvocesAndTransaction,
-  dashboardForAdminPrincipal
+  dashboardForAdminPrincipal,
+  checkQrPayments
 };
 
 
@@ -345,6 +346,52 @@ async function getOrderStatus(orderId){
 
 }
 
+
+/**
+ * function to check QR payments
+ */
+async function checkQrPayments(invoiceId){
+
+  if(!invoiceId) throw 'invoiceId is required'
+
+  let getInvoice = await Invoice.findOne({
+    where: {custom_invoice_id : invoiceId} 
+  })
+  
+  let orderID = getInvoice.payment_prefix+getInvoice.custom_invoice_id
+  let paymentOrderDetails = await getOrderStatus(orderID)
+  if(paymentOrderDetails.order_status != "PAID"){
+    return false
+  }
+
+  orderID = paymentOrderDetails.order_id
+  let txStatus = "SUCCESS"
+  let paymentMode = "UPI"
+
+  let orderNote = paymentOrderDetails.order_note.replace(/&quot;/g, '')
+  orderNote = orderNote.replace('{', '')
+  orderNote = orderNote.replace('}', '')
+
+  var properties = orderNote.split(',');
+  var orderNoteObj = {};
+  properties.forEach(function(property) {
+      var tup = property.split(':');
+      orderNoteObj[tup[0]] = tup[1];
+  });
+
+  let academicYear = await AcademicYear.findOne({
+        where : {
+              school_id  : orderNoteObj.school_vls_id,
+              is_running : 1,
+
+            }
+      });
+
+  let invoiceID = orderID.replace(orderNoteObj.payment_prefix, '')
+  await updateTransactionInDB(orderNoteObj, txStatus, academicYear, paymentOrderDetails, paymentMode, invoiceID)
+
+  return true
+}
 /**
  * API for vendor create
  */
@@ -660,6 +707,48 @@ async function tansactionCheck(body){
 
   return {redirectUrl: redirectUrl}
 };
+
+
+
+/**
+ * Function for update transaction
+ */
+async function updateTransactionInDB(orderNoteObj, txStatus, academicYear, paymentOrderDetails, paymentMode, invoiceID){
+
+  let transactionObj = {
+      school_id: orderNoteObj.school_vls_id,
+      branch_id: orderNoteObj.branch_vls_id,
+      academic_year_id:  academicYear.id,
+      invoice_id: orderNoteObj.invoice_id,
+      amount: paymentOrderDetails.order_amount,
+      payment_method: paymentMode,
+      transaction_id: paymentOrderDetails.cf_order_id,
+      payment_date: moment().format('YYYY-MM-DD H:m:s'),
+      pum_first_name: paymentOrderDetails.customer_details.customer_name,
+      pum_email: paymentOrderDetails.customer_details.customer_email,
+      pum_phone: paymentOrderDetails.customer_details.customer_phone,
+      transaction_status: txStatus,
+      created_by: orderNoteObj.user_vls_id,
+      created_by_role: orderNoteObj.user_vls_role,
+  } 
+
+  let paid_status = {
+    paid_status: "paid"
+  }
+
+  if(txStatus == 'SUCCESS'){
+    let invoiceDetails = await Invoice.findOne({
+                              where :{custom_invoice_id:invoiceID}
+                           })
+    await invoiceDetails.update(paid_status)
+  }else{
+    transactionObj.transaction_failed_reason = body.txMsg
+  }
+
+  await Transaction.create(transactionObj)
+
+}
+
 
 /**
  * API for list tansaction
