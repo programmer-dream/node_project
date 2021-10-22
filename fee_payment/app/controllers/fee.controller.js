@@ -606,7 +606,7 @@ async function cardDetailsGetLink(body){
       },
       data : data
     };
-
+    console.log(config, "card details config")
     let otplinkResponse = await axiosRequest(config);
 
   return { success: true, message: "cashfree otp link",data:otplinkResponse}
