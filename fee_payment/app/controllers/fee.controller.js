@@ -594,6 +594,7 @@ async function cardDetailsGetLink(body){
   let bytes = CryptoJS.AES.decrypt(body.details, cryptoSecret);
   let bodyJson = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
   // let bodyJson = body
+  console.log(bodyJson, "card details")
   var data = JSON.stringify(bodyJson);
 
     var config = {
