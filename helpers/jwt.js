@@ -14,7 +14,8 @@ function jwt() {
             '/auth/verifyOTP',
             '/auth/verifyOTP',
             '/fee/tansactionCheck',
-            '/auth/getRecapchaSettings'
+            '/auth/getRecapchaSettings',
+            '/fee/viewWithoutToken/:id'
         ]
     });
 }

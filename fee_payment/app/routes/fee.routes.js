@@ -8,6 +8,7 @@ const upload  = helper.upload;
  
 router.get("/list",list); 
 router.get("/view/:id",view); 
+router.get("/viewWithoutToken/:id",viewWithoutToken); 
 router.get("/transactionList",transactionList); 
 router.get("/transactionView/:id",transactionView); 
 router.get("/collectionReports",collectionReports); 
@@ -40,6 +41,14 @@ function list(req, res, next) {
 // Function view fee
 function view(req, res, next) {
     feeController.view(req.params, req.user)
+        .then(exam => exam ? res.json(exam) : res.status(400).json({ status: "error", message: 'Error while view fee' }))
+        .catch(err => next(err));
+}
+
+
+// Function view fee
+function viewWithoutToken(req, res, next) {
+    feeController.viewWithoutToken(req.params)
         .then(exam => exam ? res.json(exam) : res.status(400).json({ status: "error", message: 'Error while view fee' }))
         .catch(err => next(err));
 }

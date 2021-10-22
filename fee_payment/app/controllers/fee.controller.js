@@ -37,7 +37,8 @@ module.exports = {
   collectionReports,
   dashboardInvocesAndTransaction,
   dashboardForAdminPrincipal,
-  checkQrPayments
+  checkQrPayments,
+  viewWithoutToken
 };
 
 
@@ -191,6 +192,60 @@ async function view(params, user){
   return { success: true, message: "fee view",data:invoiceDetails}
 };
 
+
+/**
+ * API for list view without token invoice details
+ */
+async function viewWithoutToken(params){
+  let whereCodition = {id : params.id}
+
+  let invoiceDetails = await Invoice.findOne({
+    where : whereCodition,
+    include: [{ 
+                model:Student,
+                as:'student'
+            },{ 
+                model:Transaction,
+                as:'transaction'
+            },{ 
+                model:Classes,
+                as:'class'
+            },{
+                model:InvoiceDetail,
+                as:'invoice_detail',
+                include: [{ 
+                    model:IncomeHead,
+                    as:'income_head'
+                }]
+            }]
+
+  })
+
+  if(!invoiceDetails) throw 'Invoice not exists'
+
+  let school_id = invoiceDetails.student.school_id
+  let branch_id = invoiceDetails.student.branch_vls_id
+
+  let schoolDetails = await SchoolDetails.findOne({ 
+                    where: { school_id: school_id },
+                    attributes: ['school_vls_id','school_name', 'address','school_code','logo']
+                    })
+
+  let branchDetails = {}
+  if(branch_id && branch_id != ""){
+
+    branchDetails = await Branch.findOne({ 
+                      where: { branch_vls_id: branch_id },
+                      attributes: ['branch_vls_id','branch_name', 'address']
+                      })
+  }
+
+  invoiceDetails = invoiceDetails.toJSON()
+  invoiceDetails.school_details = schoolDetails
+  invoiceDetails.branch_details = branchDetails
+
+  return { success: true, message: "fee view",data:invoiceDetails}
+};
 
 /**
  * API for list view Transaction
