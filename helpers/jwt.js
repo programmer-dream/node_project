@@ -15,7 +15,7 @@ function jwt() {
             '/auth/verifyOTP',
             '/fee/tansactionCheck',
             '/auth/getRecapchaSettings',
-            '/fee/viewWithoutToken/:id'
+            { url: /^\/fee\/viewWithoutToken\/.*/, methods: ['GET'] },
         ]
     });
 }
