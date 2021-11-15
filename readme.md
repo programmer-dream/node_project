@@ -71,3 +71,29 @@ npx sequelize-cli db:seed --seed nameOfSeed
 
 # Seeder Db Command 
 npx sequelize-cli db:seed:all
+```
+
+## Cashfree Keys.
+
+``` bash
+-- go to https://merchant.cashfree.com/merchants/signup
+-- enter email and other details
+-- In I am looking for >>  select payment gateway for web/app
+-- Account will be created
+-- After login find Payment Gateway >> Access.
+-- https://tinyurl.com/yzm6hd2s
+-- update the keys in the backend env file.
+```
+
+## Create Recaptcha
+``` bash
+-- go to https://www.google.com/recaptcha/admin/create
+-- it will ask you sign in with google
+-- enter app name
+   select reCAPTCHA v2
+   enter domain (web url)
+   Submit
+-- you wil get site key and secret key
+-- update the keys in the frontend config file and super admin profile section.
+```
+
