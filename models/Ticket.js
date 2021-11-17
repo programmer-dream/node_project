@@ -68,7 +68,10 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.BOOLEAN,
         allowNull: false,
         defaultValue: 0
-      }
+      },
+      module_type: {
+        type: Sequelize.STRING
+      },
   },{
     tableName: 'tickets',
     createdAt: 'created_at',
