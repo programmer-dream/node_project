@@ -35,7 +35,6 @@ module.exports = {
  * API for create ticket
  */
 async function create(req){
-
   const errors = validationResult(req);
   if(errors.array().length) throw errors.array()
 
@@ -203,6 +202,9 @@ async function list(params , user){
   
   if(params.is_exalted)
      whereCondition.assigned_user_id = getUser.user_vls_id
+
+  if(params.module_type)
+     whereCondition.module_type = params.module_type
 
 	if(params.orderBy == 'asc') 
 	 	 orderBy = params.orderBy
