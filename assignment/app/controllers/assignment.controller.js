@@ -1370,7 +1370,5 @@ function paginator(items, current_page, per_page_items) {
 
   paginatedItems = items.slice(offset).slice(0, per_page_items)
   
-  return {
-    data: paginatedItems
-  };
+  return paginatedItems
 }
