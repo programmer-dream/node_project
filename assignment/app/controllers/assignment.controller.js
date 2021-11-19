@@ -247,6 +247,7 @@ async function view(params , user){
  * API for assignment list
  */
 async function list(params , user){
+  //return user
   let assignmentState  = params.assignmentState
   let branch_id        = params.branch_vls_id
   let studentID        = user.userVlsId
@@ -382,8 +383,8 @@ async function list(params , user){
   
   let assignments = await Assignment.findAll({
     where : whereCodition,
-    limit : limit,
-    offset: offset,
+    //limit : limit,
+    //offset: offset,
     order: [
              ['assignment_vls_id', orderBy]
            ],
@@ -499,6 +500,8 @@ async function list(params , user){
 
     })
   )
+
+  finalAssignment = paginator(finalAssignment,offset, limit);
 
   whereCodition.assignment_type = 'online'
   let online  = await Assignment.count({
@@ -1353,4 +1356,19 @@ async function assignmentProgress(assignmentId, user){
     if(!assignment) return 'New'
 
     return assignment.assignment_status
-} 
+}
+
+function paginator(items, current_page, per_page_items) {
+  //sorted
+  items.sort(function(a,b) {
+    return b.assignment_vls_id - a.assignment_vls_id;
+  });
+  //pagination
+  let page = current_page || 1
+  per_page = per_page_items || 10
+  offset = (page - 1) * per_page
+
+  paginatedItems = items.slice(offset).slice(0, per_page_items)
+  
+  return paginatedItems
+}
