@@ -644,7 +644,10 @@ async function internalClassPerformance(params, user){
             	],
         attributes : ['test_id']    	
 	})
-	let exam_id   =  "AND `marks`.`exam_id` = "+letestExam.test_id
+	
+	let exam_id = ''
+	if(letestExam.test_id)
+		exam_id   =  "AND `marks`.`exam_id` = "+letestExam.test_id
 	
 	let school_id = authentication.school_id 
 	
