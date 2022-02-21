@@ -92,24 +92,16 @@ async function saveCommunity(data, user, classStudents, auth){
     attributes : ['faculty_vls_id']
   })
 
-  let adminId = ""
-
   if(principal){
-    adminId = principal.faculty_vls_id
-  }else{
-    let branchAdmin = await await sequelize.query("SELECT `user_id` from branchadmins where branch_id = "+user.branch_vls_id+" limit 1 ", { type: Sequelize.QueryTypes.SELECT });
-    adminId = branchAdmin.user_id
-  }
-
-
-  let groupAdminObj = { id  : adminId,
+    let groupAdminObj = { id  : principal.faculty_vls_id,
                        type: 'employee'
                      }
-  data.group_admin_user_id_list.push(groupAdminObj)
+    data.group_admin_user_id_list.push(groupAdminObj)
     //add principal
+    data.group_admin_user_id_list = JSON.stringify(data.group_admin_user_id_list)
 
-  data.group_admin_user_id_list = JSON.stringify(data.group_admin_user_id_list)
-  
+  }
+
   let createdCommunity = await CommunityChat.create(data)
   //notification
     let notificatonData = {}
