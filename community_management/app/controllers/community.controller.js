@@ -96,11 +96,11 @@ async function saveCommunity(data, user, classStudents, auth){
     let groupAdminObj = { id  : principal.faculty_vls_id,
                        type: 'employee'
                      }
-    data.group_admin_user_id_list.push(groupAdminObj)
     //add principal
-    data.group_admin_user_id_list = JSON.stringify(data.group_admin_user_id_list)
-
+    data.group_admin_user_id_list.push(groupAdminObj)
   }
+
+  data.group_admin_user_id_list = JSON.stringify(data.group_admin_user_id_list)
 
   let createdCommunity = await CommunityChat.create(data)
   //notification
