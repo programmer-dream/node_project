@@ -5,6 +5,7 @@ const bcrypt     = require("bcryptjs");
 const path       = require('path')
 const Op 	 	     = db.Sequelize.Op;
 const Sequelize  = db.Sequelize;
+const sequelize  = db.sequelize;
 const User       = db.Authentication;
 const CommunityChat = db.CommunityChat;
 const Student    = db.Student;
@@ -90,10 +91,21 @@ async function saveCommunity(data, user, classStudents, auth){
     },
     attributes : ['faculty_vls_id']
   })
-  let principalObj = { id  : principal.faculty_vls_id,
+
+  let adminId = ""
+
+  if(principal){
+    adminId = principal.faculty_vls_id
+  }else{
+    let branchAdmin = await await sequelize.query("SELECT `user_id` from branchadmins where branch_id = "+user.branch_vls_id+" limit 1 ", { type: Sequelize.QueryTypes.SELECT });
+    adminId = branchAdmin.user_id
+  }
+
+
+  let groupAdminObj = { id  : adminId,
                        type: 'employee'
                      }
-  data.group_admin_user_id_list.push(principalObj)
+  data.group_admin_user_id_list.push(groupAdminObj)
     //add principal
 
   data.group_admin_user_id_list = JSON.stringify(data.group_admin_user_id_list)
