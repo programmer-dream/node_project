@@ -100,7 +100,7 @@ async function list(params , user){
 	let offset  = 0
 	let orderBy = 'desc';
 	let search  = ''
-  let authUser = await User.findByPk(user.userVlsId)
+  let authUser = await User.findByPk(user.id)
   let allPassions = []
 
   if(params.search) 

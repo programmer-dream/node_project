@@ -143,7 +143,7 @@ async function list(params , user){
 	let offset  = 0
 	let orderBy = 'desc';
 	let search  = ''
-  let authUser = await User.findByPk(user.userVlsId)
+  let authUser = await User.findByPk(user.id)
 
   let role = await Role.findOne({
         where : { slug : 'super-admin' },
@@ -187,6 +187,7 @@ async function list(params , user){
       whereCondition.school_vls_id = authUser.school_id
       whereCondition.ticket_type = { [Op.ne] : 'rewards'}
   }
+
 
   if(params.ticket_priorty) 
      whereCondition.ticket_priorty = params.ticket_priorty
