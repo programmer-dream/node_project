@@ -16,6 +16,7 @@ function jwt() {
             '/fee/tansactionCheck',
             '/auth/getRecapchaSettings',
             { url: /^\/fee\/viewWithoutToken\/.*/, methods: ['GET'] },
+            '/auth/general-setting/images'
         ]
     });
 }
