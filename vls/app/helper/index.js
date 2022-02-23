@@ -7,6 +7,7 @@ const config = require("../../../config/env.js");
 let storage = multer.diskStorage({
   destination: function (req, file, cb) {
   	let dirpath = config.img_path
+    req.body.uplodedPath = dirpath+"/"
 	if( !fs.existsSync(dirpath) ){
 	    fs.mkdirSync(dirpath, { recursive: true })
 	}
@@ -16,6 +17,7 @@ let storage = multer.diskStorage({
     cb(null, file.fieldname + Date.now()+path.extname(file.originalname))
   }
 })
+
 let upload = multer({ storage: storage })
 
 helper.upload = upload;

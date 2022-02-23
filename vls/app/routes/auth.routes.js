@@ -1,6 +1,9 @@
 const express = require('express'); 
 const router = express.Router()
+const helper = require("../helper");
+const upload  = helper.upload;
 const authController = require("../controllers/auth.controller");
+
 
 // GET
 router.get("/userSettings",userSettings);
@@ -14,6 +17,11 @@ router.post("/updatePassword",updatePasswordWithForgetPwd);
 router.post("/verifyOTP",verifyOTP);
 router.post("/userStatus",userStatus);
 router.post("/crateUpdateRecaptchaSettings",crateUpdateRecaptchaSettings);
+router.post("/general-setting/images",[
+    upload.fields([{
+        name:'file',maxCount:1
+    }]),
+    ],uploadImagesGeneral);
 
 module.exports = router;
 
@@ -21,6 +29,14 @@ module.exports = router;
 function authenticate(req, res, next) {
     authController.signIn(req.body)
         .then(user => user ? res.json(user) : res.status(400).json({ status: "error", message: 'Oops, wrong credentials, please try again' }))
+        .catch(err => next(err));
+}
+
+
+// Function for create ticket
+function uploadImagesGeneral(req, res, next) {
+    authController.uploadImagesGeneral(req)
+        .then(data => data ? res.json(data) : res.status(400).json({ status: "error", message: 'Error while uploading images' }))
         .catch(err => next(err));
 }
 

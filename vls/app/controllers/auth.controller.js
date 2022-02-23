@@ -1,3 +1,4 @@
+const { validationResult } = require('express-validator');
 const db = require("../../../models");
 const mailer = require('../../../helpers/nodemailer')
 const config = require("../../../config/env.js");
@@ -24,7 +25,8 @@ module.exports = {
   userSettings,
   userStatus,
   crateUpdateRecaptchaSettings,
-  getRecapchaSettings
+  getRecapchaSettings,
+  uploadImagesGeneral
 };
 
 
@@ -750,3 +752,21 @@ async function getRecapchaSettings(body,user){
 
   return {status: "success", message:'Recaptcha settings', data: settings};
 }
+
+
+
+/**
+ * API for uploading general setting images
+ */
+async function uploadImagesGeneral(req){
+  const errors = validationResult(req);
+  if(errors.array().length) throw errors.array()
+  
+  let getUploadedPath = ""
+  if(req.files.file && req.files.file.length > 0){
+      getUploadedPath = req.body.uplodedPath + req.files.file[0].filename;
+  }
+
+  return { success: true, message: "image uploaded successfully", data : getUploadedPath.replace('./uploads', '')}
+
+};
