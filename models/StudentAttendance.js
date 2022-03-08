@@ -148,6 +148,13 @@ module.exports = (sequelize, Sequelize) => {
       },
       subject_code: {
         type: Sequelize.STRING(100)
+      },
+      status: {
+        type: Sequelize.INTEGER,
+        defaultValue:1
+      },
+      modified_by: {
+        type: Sequelize.INTEGER,
       } 
   },{
     tableName: 'student_attendances',
