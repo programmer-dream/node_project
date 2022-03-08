@@ -969,7 +969,9 @@ async function topThreePerformer(params, user){
 				            	],
 				        attributes:['id','session_year']
 		              	})
-	
+	if(!academicYear)
+		 return { success: false, message: "No academinc year found",data : []}
+
 	//latest exam
 	let letestExam = await Exams.findOne({
 		where : { school_id : school_vls_id ,
@@ -980,6 +982,9 @@ async function topThreePerformer(params, user){
             	],
         attributes : ['test_id']    	
 	})
+
+	if(!letestExam)
+		 return { success: false, message: "No exam found", data : []}
 
 	let allClasses = await Classes.findAll({
 		where : { branch_vls_id : branch_vls_id },

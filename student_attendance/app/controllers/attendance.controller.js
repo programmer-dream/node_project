@@ -124,7 +124,8 @@ async function mergeStudents(user, day, studentArray, all_attendance, status, su
 				academic_year_id: academicYear.id,
 				month: await getDate('month'),
 				year: await getDate('year'),
-				created_by: user.user_vls_id
+				created_by: user.user_vls_id,
+				modified_by: user.user_vls_id
 			}
 			//where condition 
 			let whereCondtion = {
@@ -147,7 +148,7 @@ async function mergeStudents(user, day, studentArray, all_attendance, status, su
 			if(attendance){
 				attendance.update(attendanceP)
 			}else{
-				StudentAttendance.create(attendanceP)
+				await StudentAttendance.create(attendanceP)
 			}
 			all_attendance.push(attendanceP)
 	  	})
