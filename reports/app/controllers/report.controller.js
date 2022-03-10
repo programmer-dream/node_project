@@ -645,6 +645,9 @@ async function internalClassPerformance(params, user){
         attributes : ['test_id']    	
 	})
 	
+	if(!letestExam)
+			throw 'Exam not found'
+
 	let exam_id = ''
 	if(letestExam.test_id)
 		exam_id   =  "AND `marks`.`exam_id` = "+letestExam.test_id
