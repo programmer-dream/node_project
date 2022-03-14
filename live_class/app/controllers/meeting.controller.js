@@ -351,6 +351,9 @@ async function getUserDetails(params, user){
       where : { school_vls_id :  params.school_vls_id, status:1 },
       attributes: ['Base_url','api_key','api_secret']
   });
+  
+  if(!serviceEnabled) 
+    throw 'Video service setting not updated in school'
 
   if(!serviceEnabled.api_key &&  !serviceEnabled.api_secret && !serviceEnabled.Base_url) 
     throw 'Video service setting not updated in school'
