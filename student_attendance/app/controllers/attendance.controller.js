@@ -1258,6 +1258,9 @@ async function isSubjectAttendance(branchVlsId){
                       attributes: ['attendance_subject_wise']
                     }]
         })
+  
+  if(!branch)
+  		throw 'branch not found'
 
   if(branch.school.attendance_subject_wise == 'yes' && branch.attendance_subject_wise == 'yes')
   		return true

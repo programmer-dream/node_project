@@ -513,6 +513,17 @@ async function searchFaculty(params){
   if(params.search) 
     search = params.search
 
+  let whereCondition = {
+    name : { 
+      [Op.like]: `%`+search+`%`
+    },
+    isTeacher : 1,
+  }
+
+  if(params.school_vls_id) {
+      whereCondition.school_vls_id = params.school_vls_id
+  }
+
   if(params.subject_code) {
     subject_code = params.subject_code
     include = [{ 
@@ -525,12 +536,7 @@ async function searchFaculty(params){
   }
 
   let faculty  = await Employee.findAll({
-                          where:{
-                            name : { 
-                              [Op.like]: `%`+search+`%`
-                            },
-                            isTeacher : 1
-                          },
+                          where:whereCondition,
                           attributes : ['faculty_vls_id', 'name', 'photo'],
                           include: include
                         });
