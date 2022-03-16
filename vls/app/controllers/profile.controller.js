@@ -71,6 +71,8 @@ async function profile(user){
                               attributes: ['school_vls_id','school_name', 'address','school_code','logo']
                             }]
                     })
+    if(!guardian)
+      throw 'guardian not found'
   	userPorfile = guardian.toJSON();
 
   }else{
