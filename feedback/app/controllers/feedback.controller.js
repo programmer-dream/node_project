@@ -49,6 +49,10 @@ async function create(req){
   	let feedback 		 = await Feedback.create(feedbackData)
     //notification
     let userObj  = await getPrincipal(feedback.branch_vls_id)
+    
+    if(!userObj)
+        return { success: false, message: "principal not found", data:[] }
+
     let notificatonData = {}
     notificatonData.branch_vls_id = feedback.branch_vls_id
     notificatonData.school_vls_id = feedback.school_vls_id
@@ -422,6 +426,9 @@ async function getPrincipal(branchId){
             },
           attributes: ['faculty_vls_id']
         })
+  if(!user)
+    return null
+
   let userObj = {
     id : user.faculty_vls_id,
     type: 'employee'

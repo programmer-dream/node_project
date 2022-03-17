@@ -325,7 +325,9 @@ async function dashboardList(params , user){
 		attributes : ['test_id']    	
 	})
 	//latest exam
-
+	if(!letestExam)
+		throw 'Exam not found'
+	
   let whereConditions = {
   	branch_vls_id : branchId,
   	academic_year_id : academicYear.id,
