@@ -180,7 +180,7 @@ async function list(params , user){
     };
 
   if(user.role == 'super-admin'){
-      whereCondition.assigned_user_id = user.userVlsId
+      //whereCondition.assigned_user_id = user.userVlsId
       if(params.school_vls_id)
           whereCondition.school_vls_id = params.school_vls_id
       if(params.branch_vls_id)
