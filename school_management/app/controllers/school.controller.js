@@ -176,7 +176,11 @@ async function list(params , user){
         allSchool.push(school)
     })
   )
-
+  if(orderBy =='desc'){
+    allSchool.sort(function(a,b) { return b.school_id - a.school_id; });
+  }else{
+    allSchool.sort(function(a,b) { return a.school_id - b.school_id; });
+  }
   //await getUserCount();
   return { success: true, message: "School list", data : allSchool}
 };

@@ -76,12 +76,21 @@ async function create(req){
     attributes : ['id']
   })
 
-  let getUser = await User.findOne({
-    where: { 
-              role_id   : role.id
-           }
-  })
+  let userCondition = { 
+    role_id   : role.id
+  }
 
+  if(slug=='branch-admin'){
+      userCondition.school_id = ticket_data.school_vls_id
+      userCondition.branch_vls_id = ticket_data.branch_vls_id
+  }
+
+  let getUser = await User.findOne({
+    where: userCondition
+  })
+  if(!getUser)
+     throw 'User not found'
+   
   ticket_data.assigned_user_id   = getUser.user_vls_id
   ticket_data.assigned_user_type = 'employee'
   
@@ -171,7 +180,7 @@ async function list(params , user){
     };
 
   if(user.role == 'super-admin'){
-      whereCondition.assigned_user_id = user.userVlsId
+      //whereCondition.assigned_user_id = user.userVlsId
       if(params.school_vls_id)
           whereCondition.school_vls_id = params.school_vls_id
       if(params.branch_vls_id)
