@@ -230,7 +230,7 @@ async function update(req, user){
  */
 async function classList(params){
 	let orderBy = 'desc'
-	let limit   = 10
+	let limit   = 100
 	let offset  = 0
 	let whereCondtion = {}
  
