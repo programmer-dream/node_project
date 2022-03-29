@@ -518,18 +518,22 @@ async function addUserList(userList){
                         'isAdmin'
                       ]
               })
-              dbUser = dbUser.toJSON()
-              dbUser.type = "employee"
+              if(dbUser){
+                dbUser = dbUser.toJSON()
+                dbUser.type = "employee"
+              }
           break;
           case 'student' : 
               dbUser = await Student.findOne({
                 where : { student_vls_id : user.id},
                 attributes: [['student_vls_id','id'],'name','photo']
               })
-              dbUser = dbUser.toJSON()
-              dbUser.type = "student"
-              dbUser.isPrincipal = null
-              dbUser.isAdmin     = null
+              if(dbUser){
+                dbUser = dbUser.toJSON()
+                dbUser.type = "student"
+                dbUser.isPrincipal = null
+                dbUser.isAdmin     = null
+              }
           break;
         }
         allUser.push(dbUser)
