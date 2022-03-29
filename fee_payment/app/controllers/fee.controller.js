@@ -1003,6 +1003,7 @@ async function dashboardForAdminPrincipal(params, user){
 
   let transactions = await Transaction.findAll({
     limit : limit,
+    where : whereCodition,
     order: [
              ['id', orderBy]
            ],
