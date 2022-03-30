@@ -1323,15 +1323,8 @@ async function getEbookCount(school_vls_id = null, branch_vls_id = null){
 /**
  * API get video library
  */
-async function getVideosCount(school_vls_id = null, branch_vls_id = null){
-    let whereCondition = {}
-
-    if(school_vls_id)
-       whereCondition.school_vls_id = school_vls_id
-
-    if(branch_vls_id)
-       whereCondition.branch_vls_id = branch_vls_id
-
+async function getVideosCount(whereCondition = {}){
+    
     let eVideos  = await VideoLearningLibrary.count({
                         where : whereCondition
                       })
@@ -1741,7 +1734,7 @@ async function getUserByRole(role, where={}){
  * API for all count list
  */
 async function AllAppUsage(query, user){
-  if(user.role == 'school-admin'){
+  if(user.role == 'school-admin' || user.role == 'branch-admin'){
     return await branchUsage(query, user)
   }
   let whereCondition = {}
@@ -1761,6 +1754,7 @@ async function AllAppUsage(query, user){
   await Promise.all(
     schools.map(async school => {
       let where = {school_vls_id : school.school_id}
+
       let response = await appUsageUpdate(where, user)
       
       response.school = school
@@ -1786,7 +1780,10 @@ async function appUsageUpdate(params, user){
         where : {chat_support : 'yes'}
       })
   let eVideos       = await getVideosCount()
-  let notification  = await Notification.count()
+  
+  let notification  = await Notification.count({
+      where : params
+  })
 
   if(params.school_vls_id) {
      where          = { school_id : params.school_vls_id}
