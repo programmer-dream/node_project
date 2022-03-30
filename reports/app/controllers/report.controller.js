@@ -1403,6 +1403,9 @@ async function overAll(query, user){
 		group : ['student_id'],
 		limit : 1
 	})
+	
+	if(!maxMarks) throw 'marks not found'
+
 	let topStudnet  = maxMarks.student
 	let totalPercentage = parseFloat(marks.obtain_total_mark) * 100 / parseFloat(marks.exam_total_mark)
 
