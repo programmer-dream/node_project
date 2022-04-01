@@ -1745,14 +1745,21 @@ async function schoolBranchCount(query, user){
 async function getTopTenStudent(params, user){
 	if(!params.school_vls_id) throw 'school_vls_id is required'
 
+	let academicWhere = { is_running: 1 }
 	let school_vls_id = params.school_vls_id
-	//current academin year
+	let branch_vls_id = params.branch_vls_id
+
+	if(school_vls_id)
+			academicWhere.school_id = school_vls_id
+
+	if(school_vls_id)
+			academicWhere.branch_id = branch_vls_id
+
 	let academicYear  = await AcademicYear.findOne({
-		                order : [
-				             		['id', 'desc']
-				            	],
-				        attributes:['id','session_year']
-		              	})
+	                where:academicWhere
+	              })
+
+	if(!academicYear) throw 'Academic year not found'
 
 	let branchFilter = { 
 						 school_id : school_vls_id ,
