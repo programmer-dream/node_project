@@ -309,11 +309,14 @@ async function dashboardList(params , user){
 
   //acadminc year
   let academicYear  = await AcademicYear.findOne({
-	                where:{school_id:authentication.school_id},
-	                order : [
-			             ['id', 'desc']
-			            ]
-	              })
+				                where:{
+				                	school_id : authentication.school_id,
+				                	branch_id : branchId,
+				                	is_running: 1
+				                }
+				              })
+  if(!academicYear) throw 'Academic year not found'
+
 	//latest exam
 	let letestExam = await Exams.findOne({
 		where : { school_id : authentication.school_id ,
@@ -408,11 +411,15 @@ async function sendExamResult(body, user){
 	let branchId       = authentication.branch_vls_id
   	//acadminc year
 	let academicYear  = await AcademicYear.findOne({
-	                	where:{ school_id : authentication.school_id },
-		                	order : [
-				             	['id', 'desc']
-				            ]
-	              		})
+			                	where:{
+				                	school_id : authentication.school_id,
+				                	branch_id : branchId,
+				                	is_running: 1
+				                }
+		              		})
+
+	if(!academicYear) throw 'Academic year not found'
+
 	let whereConditions = {
 		branch_vls_id : branchId
 	}
@@ -495,6 +502,7 @@ async function subjectPerformance(params, user){
   let academicYear  = await AcademicYear.findOne({
 	                where:{
 	                	school_id : authentication.school_id,
+	                	branch_id : branchId,
 	                	is_running: 1
 	                }
 	              })
@@ -632,11 +640,15 @@ async function internalClassPerformance(params, user){
 
 	//acadminc year
 	let academicYear  = await AcademicYear.findOne({
-	                where:{ school_id : authentication.school_id },
-	                order : [
-			             		['id', 'desc']
-			            	]
+			                where:{
+			                	school_id : authentication.school_id,
+			                	branch_id : branchId,
+			                	is_running: 1
+			                }
 	              	})
+
+	if(academicYear) throw 'Academic year not found'
+
 	let academincId = academicYear.id
 	//latest exam
 	let letestExam = await Exams.findOne({
@@ -726,11 +738,13 @@ async function classPerformance(params, user){
 	let branchId       = authentication.branch_vls_id
 	//acadminc year
 	let academicYear  = await AcademicYear.findOne({
-	                where:{ school_id : authentication.school_id },
-	                order : [
-			             		['id', 'desc']
-			            	]
-	              	})
+				                where:{ school_id : authentication.school_id,
+				                				branch_id : branchId,
+						                		is_running: 1
+						               } 
+				              	})
+	if(!academicYear) throw 'Academic year not found'
+		
 	let academincId = academicYear.id
 
 	let examFilter = ''
@@ -970,12 +984,11 @@ async function topThreePerformer(params, user){
 	// }
 	//current academin year
 	let academicYear  = await AcademicYear.findOne({
-		                where:{ school_id : school_vls_id },
-		                order : [
-				             		['id', 'desc']
-				            	],
-				        attributes:['id','session_year']
-		              	})
+				                where:{ school_id : school_vls_id,
+			                				branch_id   : branch_vls_id,
+					                		is_running  : 1
+					               }
+		              		})
 	if(!academicYear)
 		 return { success: false, message: "No academinc year found",data : []}
 
