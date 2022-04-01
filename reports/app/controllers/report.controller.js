@@ -493,11 +493,13 @@ async function subjectPerformance(params, user){
   let orderBy 		 = 'asc' 
   //acadminc year
   let academicYear  = await AcademicYear.findOne({
-	                where:{school_id:authentication.school_id},
-	                order : [
-			             ['id', 'desc']
-			            ]
+	                where:{
+	                	school_id : authentication.school_id,
+	                	is_running: 1
+	                }
 	              })
+
+  if(!academicYear) throw 'Academic year not found'
    
   let whereConditions = {
   	branch_vls_id : branchId,
