@@ -741,7 +741,6 @@ async function classPerformance(params, user){
 		if(!params.branch_vls_id) throw 'branch_vls_id required'
 			 branchId = params.branch_vls_id
 	}
-	
 
 	//acadminc year
 	let academicYear  = await AcademicYear.findOne({
@@ -1383,8 +1382,6 @@ async function overAll(query, user){
 
 	let type = query.examType
 	
-	let whereConditions = { school_id : school_id }
-
 	let examWhere = { 
 						test_type : type 
 					}
@@ -1400,7 +1397,7 @@ async function overAll(query, user){
 		return { success: true, message: "No exam found", data : []}
 
 	let marks = await Marks.findOne({
-		where : { exam_id : {[Op.in] : examIds }},
+		where : { exam_id : {[Op.in] : examIds }, school_id : school_id },
 		attributes : [
 			[ Sequelize.fn('SUM', Sequelize.col('exam_total_mark')), 'exam_total_mark' ],
             [ Sequelize.fn('SUM', Sequelize.col('obtain_total_mark')), 'obtain_total_mark' ]
@@ -1408,7 +1405,7 @@ async function overAll(query, user){
 	})
 
 	let maxMarks = await Marks.findOne({
-		where : { exam_id : {[Op.in] : examIds }},
+		where : { exam_id : {[Op.in] : examIds }, school_id : school_id},
 		attributes : [
 			[ Sequelize.fn('SUM', Sequelize.col('exam_total_mark')), 'exam_total_mark' ],
             [ Sequelize.fn('SUM', Sequelize.col('obtain_total_mark')), 'obtain_total_mark' ],
@@ -1440,7 +1437,7 @@ async function overAll(query, user){
 	}
 
 	let maxClass = await Marks.findAll({
-		where : { exam_id : {[Op.in] : examIds }},
+		where : { exam_id : {[Op.in] : examIds }, school_id : school_id},
 		attributes : [
 			[ Sequelize.fn('SUM', Sequelize.col('exam_total_mark')), 'exam_total_mark' ],
             [ Sequelize.fn('SUM', Sequelize.col('obtain_total_mark')), 'obtain_total_mark' ],
