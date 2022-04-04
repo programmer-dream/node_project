@@ -734,8 +734,15 @@ async function internalClassPerformance(params, user){
 async function classPerformance(params, user){
 	//Auth user
 	let authentication = await Authentication.findByPk(user.id)
-	//branch
 	let branchId       = authentication.branch_vls_id
+
+	//branch
+	if( user.role = "school-admin"){
+		if(!params.branch_vls_id) throw 'branch_vls_id required'
+			 branchId = params.branch_vls_id
+	}
+	
+
 	//acadminc year
 	let academicYear  = await AcademicYear.findOne({
 				                where:{ school_id : authentication.school_id,
