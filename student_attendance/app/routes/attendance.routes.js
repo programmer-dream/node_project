@@ -60,7 +60,7 @@ function attendanceUpdate(req, res, next) {
 }
 // Function for list classes details
 function classList(req, res, next) {
-    attendaceController.classList(req.query,)
+    attendaceController.classList(req.query,req.user)
         .then(list => list ? res.json(list) : res.status(400).json({ status: "error", message: 'Issue while listing classes' }))
         .catch(err => next(err));
 }

@@ -228,10 +228,18 @@ async function update(req, user){
 /**
  * API for list classes 
  */
-async function classList(params){
+async function classList(params, user){
 	let orderBy = 'desc'
 	let limit   = 100
 	let offset  = 0
+
+	if(user.role !="school-admin" && user.role !="super-admin"){
+		let userdata = await Authentication.findOne({
+			where:{auth_vls_id: user.id},
+			attributes: ['branch_vls_id']
+		})
+		params.branch_vls_id = userdata.branch_vls_id
+	}
 	let whereCondtion = {}
  
 	if(params.size)
@@ -245,6 +253,9 @@ async function classList(params){
 
     if(params.branch_vls_id)
     	whereCondtion.branch_vls_id = params.branch_vls_id
+
+    if(!params.branch_vls_id)
+		 throw 'branch_vls_id is required'
 
 	let classes  = await Classes.findAll({  
 					  where:whereCondtion,
