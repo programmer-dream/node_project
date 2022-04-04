@@ -737,7 +737,7 @@ async function classPerformance(params, user){
 	let branchId       = authentication.branch_vls_id
 
 	//branch
-	if( user.role = "school-admin"){
+	if( user.role == "school-admin"){
 		if(!params.branch_vls_id) throw 'branch_vls_id required'
 			 branchId = params.branch_vls_id
 	}
