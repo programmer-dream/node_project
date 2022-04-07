@@ -62,6 +62,11 @@ async function signIn(userDetails) {
       if(!recaptchaResponse.success) return recaptchaResponse
   }
   //google captch code
+  let whereActive = where
+      whereActive.status = 1
+  let isUserActive = await Authentication.findOne({ where: whereActive })
+  
+  if(!isUserActive) throw "Oops, user not active yet, please contact administrator"
 
   let getUser = await Authentication.findOne({ 
                     attributes: [
