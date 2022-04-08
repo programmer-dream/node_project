@@ -461,7 +461,7 @@ async function getUserName(userId , user_type) {
  */
 async function counts(query , user){
   let whereCondition = {}
-  let statusArr = ['new','resolved']
+  let statusArr = ['new','resolved','assigned']
 
   if(user.role !='super-admin')
       return await branchCounts(query , user)
@@ -502,7 +502,7 @@ async function counts(query , user){
           ],
           group : ['status','ticket_priorty']
       })
-      //console.log(count) 
+       
       let resolved = 0
       let open = {}
       count.forEach(function(obj){
