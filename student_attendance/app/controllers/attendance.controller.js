@@ -69,7 +69,8 @@ async function create(req, user){
 	      			   	'user_vls_id'
       			   ]})
 	
-	let isSubjectAttendanceEnable = await isSubjectAttendance(user.branch_vls_id);
+	//let isSubjectAttendanceEnable = await isSubjectAttendance(user.branch_vls_id);
+	let isSubjectAttendanceEnable = false
 	
 	if(isSubjectAttendanceEnable && !req.body.subject_code )
 		throw 'subject_code is required'
