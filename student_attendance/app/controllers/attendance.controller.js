@@ -176,7 +176,8 @@ async function update(req, user){
 	      			   	'branch_vls_id',
 	      			   	'user_vls_id'
       			   ]})
-	let isSubjectAttendanceEnable = await isSubjectAttendance(userdata.branch_vls_id);
+	//let isSubjectAttendanceEnable = await isSubjectAttendance(userdata.branch_vls_id);
+	let isSubjectAttendanceEnable = false;
 
 	if(isSubjectAttendanceEnable && !req.body.subject_code )
 		throw 'subject_code is required'
@@ -298,7 +299,8 @@ async function studentList(params){
 	if(!params.class_id) throw 'class_id is required'
     if(!params.branch_vls_id) throw 'branch_vls_id is required'
 
-    let isSubjectAttendanceEnable = await isSubjectAttendance(params.branch_vls_id);
+    //let isSubjectAttendanceEnable = await isSubjectAttendance(params.branch_vls_id);
+    let isSubjectAttendanceEnable = false;
 
 	if(isSubjectAttendanceEnable && !params.subject_code ){
 		subjectCode = await getFirstSubject(params.branch_vls_id)
@@ -454,7 +456,8 @@ async function addLeaveReason(req, user){
 	let student = await Student.findOne({
 				where : {student_vls_id : req.body.student_id}
 			});
-	let isSubjectAttendanceEnable = await isSubjectAttendance(student.branch_vls_id);
+	//let isSubjectAttendanceEnable = await isSubjectAttendance(student.branch_vls_id);
+	let isSubjectAttendanceEnable = false
 	
 	if(isSubjectAttendanceEnable && !req.body.subject_code )
 		throw 'subject_code is required'
@@ -502,7 +505,8 @@ async function listForTeacher(params, user){
     if(!params.branch_vls_id) throw 'branch_vls_id is required'
     	whereCondtion.branch_vls_id = params.branch_vls_id
 
-    let isSubjectAttendanceEnable = await isSubjectAttendance(params.branch_vls_id);
+    //let isSubjectAttendanceEnable = await isSubjectAttendance(params.branch_vls_id);
+    let isSubjectAttendanceEnable = false;
 	
 	if(isSubjectAttendanceEnable && !params.subject_code )
 		throw 'subject_code is required'
@@ -716,7 +720,8 @@ async function listForParent(params, user){
     if(!params.branch_vls_id) throw 'branch_vls_id is required'
     	whereCondtion.branch_vls_id = params.branch_vls_id
 
-    let isSubjectAttendanceEnable = await isSubjectAttendance(params.branch_vls_id);
+    //let isSubjectAttendanceEnable = await isSubjectAttendance(params.branch_vls_id);
+    let isSubjectAttendanceEnable = false;
 	
 	if(isSubjectAttendanceEnable && !params.subject_code )
 		throw 'subject_code is required'
@@ -849,7 +854,8 @@ async function updateLeaveReason(req, user){
 		where:{auth_vls_id: user.id},
 		attributes: ['branch_vls_id']
 	})
-	let isSubjectAttendanceEnable = await isSubjectAttendance(userdata.branch_vls_id);
+	//let isSubjectAttendanceEnable = await isSubjectAttendance(userdata.branch_vls_id);
+	let isSubjectAttendanceEnable = false;
 	
 	if(isSubjectAttendanceEnable && !req.body.subject_code )
 		throw 'subject_code is required'
