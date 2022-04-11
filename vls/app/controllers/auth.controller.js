@@ -62,15 +62,11 @@ async function signIn(userDetails) {
       if(!recaptchaResponse.success) return recaptchaResponse
   }
   //google captch code
-  let whereActive = where
-      whereActive.status = 1
-  let isUserActive = await Authentication.findOne({ where: whereActive })
-  
-  if(!isUserActive) throw "Oops, user not active yet, please contact administrator"
 
   let getUser = await Authentication.findOne({ 
                     attributes: [
-                        'auth_vls_id'
+                        'auth_vls_id',
+                        'status'
                     ],
                     where: where ,
                     include: [{ 
@@ -79,7 +75,9 @@ async function signIn(userDetails) {
                               attributes: ['slug']
                             }]
                     })
+
   if(!getUser) throw "Oops, wrong credentials, please try again"
+  if(getUser.status == 0) throw "Oops, user not active yet, please contact administrator"
 
   let userRole = getUser.roles.slug
   //super admin check  

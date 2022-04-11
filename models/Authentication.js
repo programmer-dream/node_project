@@ -64,6 +64,11 @@ module.exports = (sequelize, Sequelize) => {
     school_code: {
       type: Sequelize.STRING,
       allowNull: false
+    },
+    status: {
+      type: Sequelize.STRING,
+      allowNull: false,
+      defaultValue: 1
     }
   },{
     tableName: 'users',
