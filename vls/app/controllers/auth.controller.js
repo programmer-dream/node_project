@@ -486,7 +486,7 @@ async function userSettings(user) {
       userSettings = await manageUserSettings(userDetails)
     }
 
-
+    userSettings.attendance_subject_wise = 'no'
    return {status: "success", userSettings };
 }
 
