@@ -93,7 +93,7 @@ function topThreePerformer(req, res, next) {
 
 // Function for get exam types
 function getExamTypes(req, res, next) {
-    reportController.examDropdown()
+    reportController.examDropdown(req.query)
         .then(exam => exam ? res.json(exam) : res.status(400).json({ status: "error", message: 'Error while getting exam types' }))
         .catch(err => next(err));
 }
