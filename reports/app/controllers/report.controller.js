@@ -1131,8 +1131,18 @@ async function studentAvg(conditionStudent){
 /**
  * API for get exam type drop down  
  */
-async function examDropdown(){
+async function examDropdown(params){
+	let whereConditions = {}
+
+	if(params.school_vls_id)
+		whereConditions.school_vls_id = params.school_vls_id
+
+	if(params.branch_vls_id)
+		whereConditions.branch_vls_id = params.branch_vls_id
+
+
 	let examType = await Exams.findAll({
+		where : whereConditions,
 		attributes: [
 			[Sequelize.fn('DISTINCT', Sequelize.col('test_type')) ,'test_type'],
 		]
