@@ -1857,7 +1857,7 @@ async function branchUsage(query, user){
   })
 
   let allBranches = {}
-  let allData   = await appUsageUpdate({}, user)
+  let allData   = await appUsageUpdate(query, user)
   allBranches.all = allData
   
   allBranches.branchesData = []
