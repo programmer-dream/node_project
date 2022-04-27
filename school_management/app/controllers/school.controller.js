@@ -1851,13 +1851,16 @@ async function branchUsage(query, user){
   if(query.branch_vls_id)
       whereCondition.branch_vls_id = query.branch_vls_id
 
+  if(query.school_vls_id)
+      whereCondition.school_vls_id = query.school_vls_id
+
   let branches  = await Branch.findAll({
     where : whereCondition,
     attributes : ['branch_vls_id','branch_name']
   })
 
   let allBranches = {}
-  let allData   = await appUsageUpdate({}, user)
+  let allData   = await appUsageUpdate(query, user)
   allBranches.all = allData
   
   allBranches.branchesData = []
