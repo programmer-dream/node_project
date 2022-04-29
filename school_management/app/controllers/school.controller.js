@@ -1019,8 +1019,12 @@ async function viewTeacher(id, user){
   let live_class         = await VlsMeetings.count({
                             where : {teacher_id : id}
                           })
+
   let AllTeacherCount    =  await Meeting.count({
-    where : { attendee_type : 'all_teacher' }
+    where : { 
+                attendee_type : 'all_teacher',
+                school_id :  teachers.school_id
+            }
   });
 
   let teacherMeetings    =  await Meeting.findAll({
