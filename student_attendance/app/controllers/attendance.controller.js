@@ -689,7 +689,11 @@ async function daysArray(attendance, checkForParentStudent = false, checkConditi
 			if(studentdata.length > 1){ 
 				student.days = studentdata 
 				student.counts = { studentPresent , studentAbsent}
-				student.percent =  (studentPresent * 100)/ totalDays
+				if(!checkCondition){
+					student.percent =  (studentPresent * 100)/ totalDays
+				}else{
+					student.percent =  (studentPresent * 100)/ currentDay
+				}
 			}else {
 				student.days = studentdata[0]
 			}
