@@ -285,7 +285,7 @@ async function classList(params, user){
 /**
  * API for list student 
  */
-async function studentList(params){
+async function studentList(params, user){
 	let orderBy 		= 'desc'
 	let limit   		= 100
 	let offset  		= 0
@@ -293,6 +293,8 @@ async function studentList(params){
 	let subjectCode 	= params.subject_code
 	let start 			= null 
 	let end   			= null
+	let teacherSubjectName = null
+	let teacherSubject     = null
 
 	if(!params.class_id) throw 'class_id is required'
     if(!params.branch_vls_id) throw 'branch_vls_id is required'
@@ -302,7 +304,13 @@ async function studentList(params){
 	if(isSubjectAttendanceEnable && !params.subject_code ){
 		subjectCode = await getFirstSubject(params.branch_vls_id)
 	}
-		
+
+	if(user.role == 'teacher' && isSubjectAttendanceEnable){
+		teacherSubject = await Subject.findOne({ 
+													where : { teacher_id : user.userVlsId }
+												  })
+		teacherSubjectName = teacherSubject.name
+	}	
 	if(params.size)
     	limit = parseInt(params.size)
   	if(params.page)
@@ -363,8 +371,16 @@ async function studentList(params){
 	 await Promise.all(
 		mergeStudentsAttendence.map(async student => {
 			let countPercentage = await studentCount(student.student_vls_id, year, month, totalDays)
-			student.attendanceCounts = countPercentage
-			student.percentage       = (countPercentage.present *100) /totalDays
+			
+			if(!isSubjectAttendanceEnable){
+
+				student.attendanceCounts = countPercentage
+				student.percentage       = (countPercentage.present *100) /totalDays
+			}else if(isSubjectAttendanceEnable && user.role == 'teacher'){
+				let counts = countPercentage.subjects[teacherSubjectName]
+				student.attendanceCounts = counts
+				student.percentage       = (counts.present *100) /totalDays
+			}
 
 			if(start && end){
 				if(student.percentage >= start &&  student.percentage <= end){

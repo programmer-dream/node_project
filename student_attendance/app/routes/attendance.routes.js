@@ -66,7 +66,7 @@ function classList(req, res, next) {
 }
 // Function for list student details
 function studentList(req, res, next) {
-    attendaceController.studentList(req.query)
+    attendaceController.studentList(req.query, req.user)
         .then(list => list ? res.json(list) : res.status(400).json({ status: "error", message: 'Issue while listing classes' }))
         .catch(err => next(err));
 }

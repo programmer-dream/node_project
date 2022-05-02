@@ -1306,9 +1306,28 @@ async function getStudentList(assignment){
  */
 async function dashboardCount(params, user){
   let whereCondition = {}
-  
+  let classAssignement = 0
+
   if(user.role =='student'){
       whereCondition.student_vls_id = user.userVlsId
+      let student        = await Student.findByPk(user.userVlsId)
+
+      //AssignmentIds
+      let assignmentIds  = await StudentAssignment.findAll({
+        where : whereCondition,
+        attributes:['assignment_vls_id']
+      }).
+      then(studentAssignment => studentAssignment.map(studentAssignment => studentAssignment.assignment_vls_id))
+
+      let studentClassId = student.class_id
+
+      let assignmentCondition = { 
+                                  assignment_class_id : studentClassId,
+                                  student_vls_ids : null,
+                                  assignment_vls_id : {[Op.notIn]: assignmentIds} 
+                                }
+
+      classAssignement = await Assignment.count({ where : assignmentCondition })
   }
   
   if(params.student_vls_id)
@@ -1329,6 +1348,7 @@ async function dashboardCount(params, user){
       whereCondition.assignment_status = 'Closed'
   let closedAss = await StudentAssignment.count({where: whereCondition})
 
+      newAss += classAssignement 
 
   let allCounts = {
     new                   : newAss,
@@ -1339,6 +1359,7 @@ async function dashboardCount(params, user){
     rejected              : rejectedAss,
     closed                : closedAss
   }
+
 
   return { success: true, message: "dashboard count", data : allCounts}
 }
