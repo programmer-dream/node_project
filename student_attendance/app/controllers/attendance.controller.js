@@ -379,7 +379,11 @@ async function studentList(params, user){
 			}else if(isSubjectAttendanceEnable && user.role == 'teacher'){
 				let counts = countPercentage.subjects[teacherSubjectName]
 				student.attendanceCounts = counts
-				student.percentage       = (counts.present *100) /totalDays
+				if(counts){
+					student.percentage       = (counts.present *100) /totalDays
+				}else{
+					student.percentage       = 0
+				}
 			}
 
 			if(start && end){
