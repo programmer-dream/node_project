@@ -306,10 +306,16 @@ async function studentList(params, user){
 	}
 
 	if(user.role == 'teacher' && isSubjectAttendanceEnable){
+
 		teacherSubject = await Subject.findOne({ 
-													where : { teacher_id : user.userVlsId }
+													where : { 
+														teacher_id : user.userVlsId,
+														code       : subjectCode
+													}
 												  })
-		teacherSubjectName = teacherSubject.name
+		if(teacherSubject)
+			teacherSubjectName = teacherSubject.name
+
 	}	
 	if(params.size)
     	limit = parseInt(params.size)
@@ -378,6 +384,7 @@ async function studentList(params, user){
 				student.percentage       = (countPercentage.present *100) /totalDays
 			}else if(isSubjectAttendanceEnable && user.role == 'teacher'){
 				let counts = countPercentage.subjects[teacherSubjectName]
+				
 				student.attendanceCounts = counts
 				if(counts){
 					student.percentage       = (counts.present *100) /totalDays
@@ -1176,7 +1183,7 @@ async function studentCount(userId, currentYear, currentMonth, currentDay){
 			whereCondtion.subject_code  = { [Op.not]: null }
 	}
 	
-	attendances  = await StudentAttendance.findAll({
+	let attendances  = await StudentAttendance.findAll({
 			where: whereCondtion,
 			include: [{ 
                   model:SubjectList,
