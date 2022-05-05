@@ -1528,11 +1528,13 @@ async function classToper(examIds, class_id, section_id ){
   	await Promise.all(
     	threeToper.map(async toper => {
     		let percentage 	= parseFloat(toper.obtain_total_mark) * 100 / parseFloat(toper.exam_total_mark)
+    		if(toper.student){
+	    		let obj = {name : toper.student.name,
+	    				   avg : percentage
+	    				  }
+	    		topStudent.push(obj)
+    		}
 
-    		let obj = {name : toper.student.name,
-    				   avg : percentage
-    				  }
-    		topStudent.push(obj)
     	})
     )
 	return topStudent
