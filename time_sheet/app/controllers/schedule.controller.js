@@ -124,7 +124,9 @@ async function currentSchedule(user, query){
               timetable.type = "time_table"
               dayData[currentDate].push(timetable)
             })
-         } 
+         }
+         if(!dayData[currentDate].length)
+              delete dayData[currentDate]
       })
   )
   
