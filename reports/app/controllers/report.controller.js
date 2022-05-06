@@ -1528,11 +1528,13 @@ async function classToper(examIds, class_id, section_id ){
   	await Promise.all(
     	threeToper.map(async toper => {
     		let percentage 	= parseFloat(toper.obtain_total_mark) * 100 / parseFloat(toper.exam_total_mark)
+    		if(toper.student){
+	    		let obj = {name : toper.student.name,
+	    				   avg : percentage
+	    				  }
+	    		topStudent.push(obj)
+    		}
 
-    		let obj = {name : toper.student.name,
-    				   avg : percentage
-    				  }
-    		topStudent.push(obj)
     	})
     )
 	return topStudent
@@ -1591,19 +1593,20 @@ async function overAllSubject(query, user){
 	let subjectArr = []
   	await Promise.all(
     	allSubject.map(async subject => {
-    		let subjectName = subject.subject.subject_name
+    		if(subject.subject){
+	    		let subjectName = subject.subject.subject_name
 
-    		let percentage 	= parseFloat(subject.obtain_total_mark) * 100 / parseFloat(subject.exam_total_mark)
+	    		let percentage 	= parseFloat(subject.obtain_total_mark) * 100 / parseFloat(subject.exam_total_mark)
 
-    		let maxPercent = await subjectToper(examIds, subject.subject_code );
+	    		let maxPercent = await subjectToper(examIds, subject.subject_code );
 
-    		let subjectObj  = {
-    			subject_name: subjectName,
-    			avg_percentage : percentage,
-    			max_percentage : maxPercent
-    		} 	
-    		subjectArr.push(subjectObj)
-
+	    		let subjectObj  = {
+	    			subject_name: subjectName,
+	    			avg_percentage : percentage,
+	    			max_percentage : maxPercent
+	    		} 	
+	    		subjectArr.push(subjectObj)
+    		}
     	})
     )
 
@@ -1639,20 +1642,22 @@ async function overAllSubject(query, user){
     		classSection    = classSection.toJSON()
     		let className   = classSection.classes.name
     		let sectionName = classSection.section.name
-    		let subjectName = classSection.subject.subject_name
+    		if(classSection.subject){
+	    		let subjectName = classSection.subject.subject_name
 
-    		let percentage 	= parseFloat(classSection.obtain_total_mark) * 100 / parseFloat(classSection.exam_total_mark)
+	    		let percentage 	= parseFloat(classSection.obtain_total_mark) * 100 / parseFloat(classSection.exam_total_mark)
 
-      		let maxObj	= {
-      						subject_name: subjectName,
-    						max_avg : percentage,
-    						total_mark:classSection.total_mark
-    					  }
+	      		let maxObj	= {
+	      						subject_name: subjectName,
+	    						max_avg : percentage,
+	    						total_mark:classSection.total_mark
+	    					  }
 
-    		if(!classData[className+" ("+sectionName+")"])
-    			classData[className+" ("+sectionName+")"] = []
+	    		if(!classData[className+" ("+sectionName+")"])
+	    			classData[className+" ("+sectionName+")"] = []
 
-    			classData[className+" ("+sectionName+")"].push(maxObj)
+	    			classData[className+" ("+sectionName+")"].push(maxObj)
+    		}
     	})
     )
 
