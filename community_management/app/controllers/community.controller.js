@@ -693,7 +693,16 @@ async function getType(role){
  * API for counts community 
  */
 async function listType(query , user){
+    let whereCondition = {}
+
+    if(query.branch_vls_id)
+        whereCondition.branch_vls_id = query.branch_vls_id
+
+    if(query.school_vls_id)
+        whereCondition.school_vls_id = query.school_vls_id
+
     let type = await CommunityChat.findAll({
+      where: whereCondition,
       attributes: ['group_type'],
       group :['group_type']
     })
