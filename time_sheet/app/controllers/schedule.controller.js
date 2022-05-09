@@ -51,7 +51,6 @@ async function currentSchedule(user, query){
     let timeTable = []
     let start = moment(startDate).format('YYYY-MM-DD')
     let day = moment(startDate).format('dddd')
-    console.log(day, "daydaydaydaydayday")
     let getData   = await getExamDates(branch_id, user, start)
 
     if(getData)
@@ -122,7 +121,9 @@ async function currentSchedule(user, query){
             dateWiseTimeTable[currentDate].map( timetable => {
               timetable = timetable.toJSON()
               timetable.type = "time_table"
-              dayData[currentDate].push(timetable)
+              
+              if(timetable.teacher != null && timetable.subjectList != null)
+                dayData[currentDate].push(timetable)
             })
          }
          if(!dayData[currentDate].length)
