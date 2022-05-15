@@ -43,6 +43,9 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: false,
         type: Sequelize.STRING(20),
       },
+      due_date: {
+        type: Sequelize.DATE,
+      },
       gross_amount: {
         allowNull: false,
         type: Sequelize.FLOAT,
