@@ -969,7 +969,7 @@ async function dashboardInvocesAndTransaction(params, user){
              }]
   })
 
-  whereCodition.paid_status = 'paid'
+  whereCodition.paid_status = { [Op.in] : ['paid', 'partial'] }
   let invoiceIds = await Invoice.findAll({
         where : whereCodition,
         attributes: ['id']
