@@ -944,6 +944,7 @@ async function dashboardInvocesAndTransaction(params, user){
 
   if(user.role =='student'){
     studentIds.push(user.userVlsId)
+    whereCodition.student_id = { [Op.in] : studentIds }
   }else if(user.role =='guardian'){
       studentIds = await Student.findAll({
           where : { parent_vls_id : user.userVlsId,
