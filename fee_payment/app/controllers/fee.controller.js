@@ -976,7 +976,11 @@ async function dashboardInvocesAndTransaction(params, user){
   }).then(invoices => invoices.map( invoice => invoice.id));
   
   let transactions = await Transaction.findAll({
-    where : {invoice_id :{ [Op.in] : invoiceIds }}
+    where : {invoice_id :{ [Op.in] : invoiceIds }},
+    include: [{ 
+                model:Invoice,
+                as:'invoice'
+              }]
   })
   
   return { success: true, message: "Dashboard invoice & transaction", data:{invoices, transactions} }
