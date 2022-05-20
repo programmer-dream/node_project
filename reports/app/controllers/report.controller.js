@@ -647,7 +647,7 @@ async function internalClassPerformance(params, user){
 			                }
 	              	})
 
-	if(academicYear) throw 'Academic year not found'
+	if(!academicYear) throw 'Academic year not found'
 
 	let academincId = academicYear.id
 	//latest exam
