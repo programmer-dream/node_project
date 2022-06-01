@@ -588,12 +588,14 @@ async function branchCounts(query , user){
       count.forEach(function(obj){
           obj = obj.toJSON()
           if(obj.status == 'resolved'){
-            resolved += obj.count
+            if(!open['resolved_'+obj.ticket_priorty])
+                open['resolved_'+obj.ticket_priorty] = obj.count
           }else{
             if(!open[obj.ticket_priorty])
                 open[obj.ticket_priorty] = obj.count
           }
       })
+      
       if(!open.hasOwnProperty('minor'))
           open.minor = 0
       if(!open.hasOwnProperty('medium'))
@@ -601,15 +603,28 @@ async function branchCounts(query , user){
       if(!open.hasOwnProperty('critical'))
           open.critical = 0
 
+      if(!open.hasOwnProperty('resolved_minor'))
+          open.resolved_minor = 0
+      if(!open.hasOwnProperty('resolved_medium'))
+          open.resolved_medium = 0
+      if(!open.hasOwnProperty('resolved_critical'))
+          open.resolved_critical = 0
+
       if(query.ticket_priorty == 'minor'){
           delete open.medium
           delete open.critical
+          delete open.resolved_medium
+          delete open.resolved_critical
       }else if(query.ticket_priorty == 'medium'){
           delete open.minor
           delete open.critical
+          delete open.resolved_minor
+          delete open.resolved_critical
       }else if(query.ticket_priorty == 'critical'){
           delete open.minor
           delete open.medium
+          delete open.resolved_medium
+          delete open.resolved_minor
       }
       //branch.count = count
       if(query.status == 'open'){
