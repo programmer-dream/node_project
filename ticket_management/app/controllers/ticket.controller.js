@@ -583,13 +583,13 @@ async function branchCounts(query , user){
           ],
           group : ['status','ticket_priorty']
       })
-      let resolved = 0
+      let resolved = {}
       let open = {}
       count.forEach(function(obj){
           obj = obj.toJSON()
           if(obj.status == 'resolved'){
-            if(!open['resolved_'+obj.ticket_priorty])
-                open['resolved_'+obj.ticket_priorty] = obj.count
+            if(!resolved[obj.ticket_priorty])
+                resolved[obj.ticket_priorty] = obj.count
           }else{
             if(!open[obj.ticket_priorty])
                 open[obj.ticket_priorty] = obj.count
@@ -603,28 +603,28 @@ async function branchCounts(query , user){
       if(!open.hasOwnProperty('critical'))
           open.critical = 0
 
-      if(!open.hasOwnProperty('resolved_minor'))
-          open.resolved_minor = 0
-      if(!open.hasOwnProperty('resolved_medium'))
-          open.resolved_medium = 0
-      if(!open.hasOwnProperty('resolved_critical'))
-          open.resolved_critical = 0
+      if(!resolved.hasOwnProperty('minor'))
+          resolved.minor = 0
+      if(!resolved.hasOwnProperty('medium'))
+          resolved.medium = 0
+      if(!resolved.hasOwnProperty('critical'))
+          resolved.critical = 0
 
       if(query.ticket_priorty == 'minor'){
           delete open.medium
           delete open.critical
-          delete open.resolved_medium
-          delete open.resolved_critical
+          delete resolved.medium
+          delete resolved.critical
       }else if(query.ticket_priorty == 'medium'){
           delete open.minor
           delete open.critical
-          delete open.resolved_minor
-          delete open.resolved_critical
+          delete resolved.minor
+          delete resolved.critical
       }else if(query.ticket_priorty == 'critical'){
           delete open.minor
           delete open.medium
-          delete open.resolved_medium
-          delete open.resolved_minor
+          delete resolved.medium
+          delete resolved.minor
       }
       //branch.count = count
       if(query.status == 'open'){
