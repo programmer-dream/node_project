@@ -224,6 +224,18 @@ async function schoolSettingUpdate(id, body){
   if(!school) throw 'school not found'
 
   await school.update(body)
+
+  let branches = await Branch.findAll({ where: { school_vls_id : id } });
+
+  //update all branches with school 
+  await Promise.all(
+    branches.map(async branch => {
+        //update branch
+        branch.update(body)
+    })
+  )
+  
+
   
   return { success: true, message: "School settings updated successfully", data : school}
 };
