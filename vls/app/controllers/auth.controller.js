@@ -598,10 +598,10 @@ async function manageUserSettingsSchool(userDetails) {
 
   await Promise.all(
     permissionArray.map( item => {
-
-        if( userDetails.school[item] == null || userDetails.school[item] == 'no' ){
+        console.log(item, userDetails.school[item], "")
+        if( userDetails.school[item] == null || userDetails.school[item].toLowerCase() == 'no' ){
           userSettings[item] = 'no'
-        }else if( userDetails.school[item] == 'yes' ){
+        }else if( userDetails.school[item].toLowerCase() == 'yes' ){
           userSettings[item] = 'yes'
         }
 
