@@ -137,6 +137,10 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.ENUM('no','yes'),
         defaultValue: 'no'
       },
+      video_services_enabled: {
+        type: Sequelize.ENUM('no','yes'),
+        defaultValue: 'no'
+      },
   },{
     tableName: 'branch_details',
     createdAt: 'created_at',
