@@ -137,7 +137,7 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.ENUM('no','yes'),
         defaultValue: 'no'
       },
-      video_services_enabled: {
+      video_service_enabled: {
         type: Sequelize.ENUM('no','yes'),
         defaultValue: 'no'
       },
