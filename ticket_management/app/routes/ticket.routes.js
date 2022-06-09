@@ -12,8 +12,7 @@ router.post("/create",[
     }]),
     check('subject','subject field is required.').not().isEmpty(),
     check('school_vls_id','school_vls_id field is required.').not().isEmpty(),
-    check('description','description field is required.').not().isEmpty(),
-    check('ticket_priorty','ticket_priorty field is required.').not().isEmpty()
+    check('description','description field is required.').not().isEmpty()
     ],createTicket);
 
 //GET

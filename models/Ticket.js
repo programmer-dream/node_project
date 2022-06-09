@@ -36,7 +36,8 @@ module.exports = (sequelize, Sequelize) => {
       },
       ticket_priorty: {
         type: Sequelize.ENUM('minor', 'medium', 'critical'),
-        allowNull: false
+        allowNull: false,
+        defaultValue: 'minor'
       },
       status: {
         type: Sequelize.ENUM('new', 'assigned', 'wip', 'resolved'),
