@@ -3,7 +3,7 @@ const config = require("../config/env.js");
 async function mailer(email,subject,html) {
     console.log(' in nodemailer params ->>', email, ' -->> end <---');
     var transporter = nodemailer.createTransport({
-        service: 'Mail',
+        service: config.email_service,
         host: config.host,
         port: config.port,
         secure: false,
