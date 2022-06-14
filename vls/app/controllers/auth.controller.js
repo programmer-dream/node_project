@@ -420,7 +420,7 @@ async function updatePasswordWithForgetPwd(body) {
     
   let allPwd  = []
   if(user.old_passwords){
-    let allPwd  = JSON.parse(user.old_passwords)
+      allPwd  = JSON.parse(user.old_passwords)
   }
     
   //encrypt new password
