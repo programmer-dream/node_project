@@ -12,7 +12,7 @@ async function mailer(email,subject,html) {
         },
         auth: {
             user: config.email_user,
-            pass: Buffer.from(config.email_password, 'base64').toString('ascii')
+            pass: config.email_password
         }
     });
 
