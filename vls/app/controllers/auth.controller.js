@@ -418,11 +418,11 @@ async function updatePasswordWithForgetPwd(body) {
 
   if(!user) throw 'link has been expired'
     
+  let allPwd  = []
   if(user.old_passwords){
     let allPwd  = JSON.parse(user.old_passwords)
-  }else{
-    let allPwd  = []
   }
+    
   //encrypt new password
   let updatedPassword = bcrypt.hashSync(newPassword, 8)
 
