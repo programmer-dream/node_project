@@ -427,6 +427,7 @@ async function updatePasswordWithForgetPwd(body) {
     
   //encrypt new password
   let updatedPassword = bcrypt.hashSync(newPassword, 8)
+  let base64Password  = Buffer.from(newPassword, 'ascii').toString('base64');
 
   let response = await checkPasswordCriteria(newPassword, user.roles.slug, user.name)
   if(response.isError) throw response.error.join(',')
@@ -445,6 +446,7 @@ async function updatePasswordWithForgetPwd(body) {
 
   let num = await user.update({
               password:updatedPassword,
+              temp_password:base64Password,
               forget_pwd_token:null,
               password_reset_type:null,
               old_passwords:JSON.stringify(allPwd)
