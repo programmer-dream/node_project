@@ -379,10 +379,19 @@ async function sendForgotPasswordEmail(user){
   })
 
   let email   = user.recovery_email_id 
+  let name    = user.name
   let link    = config.forgotLink +'?token='+ forget_pwd_token
   let subject = 'Reset your account password'
-  let html_body    ='<p>Click <a href="' + link + '">here</a> to reset your password</p>';
+  let html_body    =`Hi `+name+`, <br/><br/>
+                    Forget your password? <br/>
+                    We received a request to reset the password for you account. <br/><br/>
+                    
+                    To reset your password, cick on the button below:<br/><br/>
+                    <a href="${link}" style='background: grey;color: #ffffff;padding: 10px;text-decoration: none;border-radius: 10px;letter-spacing: 2px;'>Reset Password</a><br/><br/>
 
+                    Or copy and paste the URL into the browser: <br/>
+                    `+link;
+  
   await mailer(email,subject, html_body) //send mail to the user
 
 }
