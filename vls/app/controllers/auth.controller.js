@@ -343,7 +343,7 @@ async function sendOtpToUser(user) {
     })
     .catch((error)=>{
       console.log(error);
-      throw 'OPT send failed, Please try again later.';
+      throw 'OTP send failed, Please try again later.';
     });
 }
 
