@@ -212,6 +212,7 @@ async function resetPassword(body, user) {
   });
 
   let updatedPassword = bcrypt.hashSync(body.password, 8);
+  let base64Password  = Buffer.from(body.password, 'ascii').toString('base64');
 
   if(allPwd.length < 3 ){
     allPwd.push(updatedPassword)
@@ -222,6 +223,7 @@ async function resetPassword(body, user) {
 
   Authentication.update({ 
       password:updatedPassword,
+      temp_password : base64Password,
       old_passwords:JSON.stringify(allPwd)
     },
     {

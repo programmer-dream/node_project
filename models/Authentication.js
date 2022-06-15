@@ -11,6 +11,9 @@ module.exports = (sequelize, Sequelize) => {
     password: {
       type: Sequelize.STRING
     },
+    temp_password: {
+      type: Sequelize.STRING
+    },
     role_id: {
       type: Sequelize.INTEGER
     },
