@@ -383,8 +383,8 @@ async function sendForgotPasswordEmail(user){
   let link    = config.forgotLink +'?token='+ forget_pwd_token
   let subject = 'Reset your account password'
   let html_body    =`Hi `+name+`, <br/><br/>
-                    Forget your password? <br/>
-                    We received a request to reset the password for you account. <br/><br/>
+                    Forgot your password? <br/>
+                    We received a request to reset the password for your account. <br/><br/>
                     
                     To reset your password, cick on the button below:<br/><br/>
                     <a href="${link}" style='background: grey;color: #ffffff;padding: 10px;text-decoration: none;border-radius: 10px;letter-spacing: 2px;'>Reset Password</a><br/><br/>
