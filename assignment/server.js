@@ -242,7 +242,6 @@ app.put("/assignment/releaseAssignment",[
 app.use('/assignment', require('./app/routes/assignment.routes'));
 
 
-
 // global error handler
 app.use(errorHandler);
 
